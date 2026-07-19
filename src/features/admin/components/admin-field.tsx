@@ -2,6 +2,7 @@ import * as React from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 import { RequiredMark } from "@/components/shared/required-mark";
+import { formatIdrInput } from "@/features/admin/lib/format";
 import { cn } from "@/lib/utils";
 
 export function AdminField({
@@ -208,5 +209,32 @@ export const AdminSearchInput = React.forwardRef<
         {...props}
       />
     </div>
+  );
+});
+
+/** Indonesian Rupiah text input: auto-prefixes `Rp.` and inserts thousand dots. */
+export const AdminCurrencyInput = React.forwardRef<
+  HTMLInputElement,
+  {
+    value: string;
+    onValueChange: (formatted: string) => void;
+  } & Omit<React.ComponentProps<"input">, "type" | "value" | "onChange">
+>(function AdminCurrencyInput(
+  { value, onValueChange, className, placeholder = "Rp. 0", ...props },
+  ref,
+) {
+  return (
+    <input
+      ref={ref}
+      type="text"
+      inputMode="numeric"
+      autoComplete="off"
+      pattern="^Rp\.\s?\d{1,3}(\.\d{3})*$"
+      placeholder={placeholder}
+      className={cn(adminInputClassName, className)}
+      value={value}
+      onChange={(e) => onValueChange(formatIdrInput(e.target.value))}
+      {...props}
+    />
   );
 });

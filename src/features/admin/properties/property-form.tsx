@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import {
+  AdminCurrencyInput,
   AdminField,
   AdminFileInput,
   adminInputClassName,
@@ -20,14 +21,25 @@ import {
   uploadPropertyImage,
 } from "@/lib/api/admin/attachments";
 import { getErrorMessage } from "@/features/admin/lib/errors";
+import {
+  formatIdrInput,
+  parseIdrInput,
+} from "@/features/admin/lib/format";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
 import { adminKeys } from "@/lib/query/keys";
 
 const BASE = "/admin/properties";
 
-type FormState = { name: string; address: string; city: string };
+type FormState = { name: string; address: string; city: string; paymentDueDay: string; lateFeePerDay: string; renewalConfirmDaysBeforeEnd: string };
 
-const emptyForm: FormState = { name: "", address: "", city: "" };
+const emptyForm: FormState = {
+  name: "",
+  address: "",
+  city: "",
+  paymentDueDay: "5",
+  lateFeePerDay: formatIdrInput(100000),
+  renewalConfirmDaysBeforeEnd: "5",
+};
 
 export function PropertyForm({ id }: { id?: string }) {
   const t = useTranslations("admin.crud");
@@ -60,6 +72,11 @@ export function PropertyForm({ id }: { id?: string }) {
         name: property.name,
         address: property.address,
         city: property.city,
+        paymentDueDay: String(property.paymentDueDay ?? 5),
+        lateFeePerDay: formatIdrInput(property.lateFeePerDay ?? 100000),
+        renewalConfirmDaysBeforeEnd: String(
+          property.renewalConfirmDaysBeforeEnd ?? 5,
+        ),
       });
     }
   }, [property]);
@@ -67,12 +84,20 @@ export function PropertyForm({ id }: { id?: string }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
+    const payload = {
+      name: form.name,
+      address: form.address,
+      city: form.city,
+      paymentDueDay: Number(form.paymentDueDay),
+      lateFeePerDay: parseIdrInput(form.lateFeePerDay),
+      renewalConfirmDaysBeforeEnd: Number(form.renewalConfirmDaysBeforeEnd),
+    };
     try {
       if (isEdit && id) {
-        await mutations.update.mutateAsync({ id, ...form });
+        await mutations.update.mutateAsync({ id, ...payload });
         showApiSuccess(t("updated"));
       } else {
-        await mutations.create.mutateAsync(form);
+        await mutations.create.mutateAsync(payload);
         showApiSuccess(t("created"));
       }
 
@@ -177,6 +202,61 @@ export function PropertyForm({ id }: { id?: string }) {
           onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
         />
       </AdminField>
+
+      <div className="space-y-3 border-t border-[#e3e2e0] pt-4">
+        <div>
+          <h3 className="text-sm font-bold text-[#1a1c1a]">
+            {tp("paymentRulesTitle")}
+          </h3>
+          <p className="text-xs text-[#83746b]">{tp("paymentRulesHint")}</p>
+        </div>
+        <AdminField label={tp("paymentDueDay")} htmlFor="prop-due-day" required>
+          <input
+            id="prop-due-day"
+            type="number"
+            min={1}
+            max={28}
+            required
+            className={adminInputClassName}
+            value={form.paymentDueDay}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, paymentDueDay: e.target.value }))
+            }
+          />
+        </AdminField>
+        <AdminField label={tp("lateFeePerDay")} htmlFor="prop-late-fee" required>
+          <AdminCurrencyInput
+            id="prop-late-fee"
+            required
+            value={form.lateFeePerDay}
+            onValueChange={(lateFeePerDay) =>
+              setForm((f) => ({ ...f, lateFeePerDay }))
+            }
+          />
+        </AdminField>
+        <AdminField
+          label={tp("renewalConfirmDays")}
+          htmlFor="prop-renewal-days"
+          required
+        >
+          <input
+            id="prop-renewal-days"
+            type="number"
+            min={1}
+            max={28}
+            required
+            className={adminInputClassName}
+            value={form.renewalConfirmDaysBeforeEnd}
+            onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                renewalConfirmDaysBeforeEnd: e.target.value,
+              }))
+            }
+          />
+        </AdminField>
+      </div>
+
       <AdminField label={tp("image")} htmlFor="prop-image">
         <AdminFileInput
           id="prop-image"

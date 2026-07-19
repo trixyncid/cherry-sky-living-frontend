@@ -4,19 +4,21 @@ import { parseApiError } from "@/lib/api/errors";
 import type {
   ApiDataResponse,
   LedgerEntryAttachment,
-  LeaseDownpaymentAttachment,
+  LeaseAttachment,
+  LeaseAttachmentKind,
   PropertyAttachment,
   UnitTypeAttachment,
 } from "@/lib/types/admin";
 
 async function uploadAttachment(
   path: string,
-  idField: string,
-  id: string,
+  fields: Record<string, string>,
   file: File,
 ): Promise<void> {
   const form = new FormData();
-  form.set(idField, id);
+  for (const [key, value] of Object.entries(fields)) {
+    form.set(key, value);
+  }
   form.set("file", file);
 
   const response = await fetch(`${getClientApiBaseUrl()}${path}`, {
@@ -37,8 +39,7 @@ export function uploadPropertyImage(
 ): Promise<void> {
   return uploadAttachment(
     "/admin/attachments/property",
-    "propertyId",
-    propertyId,
+    { propertyId },
     file,
   );
 }
@@ -49,22 +50,29 @@ export function uploadUnitTypeImage(
 ): Promise<void> {
   return uploadAttachment(
     "/admin/attachments/unit-type",
-    "unitTypeId",
-    unitTypeId,
+    { unitTypeId },
     file,
   );
 }
 
+export function uploadLeaseAttachment(
+  leaseId: string,
+  file: File,
+  kind: LeaseAttachmentKind = "downpayment",
+): Promise<void> {
+  return uploadAttachment(
+    "/admin/attachments/lease",
+    { leaseId, kind },
+    file,
+  );
+}
+
+/** @deprecated Prefer uploadLeaseAttachment */
 export function uploadLeaseDownpaymentImage(
   leaseId: string,
   file: File,
 ): Promise<void> {
-  return uploadAttachment(
-    "/admin/attachments/lease-downpayment",
-    "leaseId",
-    leaseId,
-    file,
-  );
+  return uploadLeaseAttachment(leaseId, file, "downpayment");
 }
 
 export async function deletePropertyAttachment(
@@ -87,14 +95,21 @@ export async function deleteUnitTypeAttachment(
   return res.data;
 }
 
-export async function deleteLeaseDownpaymentAttachment(
+export async function deleteLeaseAttachment(
   id: string,
-): Promise<LeaseDownpaymentAttachment> {
-  const res = await apiFetch<ApiDataResponse<LeaseDownpaymentAttachment>>(
-    `/admin/attachments/lease-downpayment/${id}`,
+): Promise<LeaseAttachment> {
+  const res = await apiFetch<ApiDataResponse<LeaseAttachment>>(
+    `/admin/attachments/lease/${id}`,
     { method: "DELETE" },
   );
   return res.data;
+}
+
+/** @deprecated Prefer deleteLeaseAttachment */
+export async function deleteLeaseDownpaymentAttachment(
+  id: string,
+): Promise<LeaseAttachment> {
+  return deleteLeaseAttachment(id);
 }
 
 export async function deleteLedgerEntryAttachment(

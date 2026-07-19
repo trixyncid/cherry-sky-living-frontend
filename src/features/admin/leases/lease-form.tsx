@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/routing";
 import {
-  AdminDatePicker,
+  AdminDateRangePicker,
   AdminField,
   AdminFileInput,
   AdminSelect,
@@ -39,9 +39,14 @@ import {
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
 import { createLeaseFormSchema } from "@/features/admin/leases/lease-form.schema";
-import { deleteLeaseDownpaymentAttachment, uploadLeaseDownpaymentImage } from "@/lib/api/admin/attachments";
+import {
+  deleteLeaseAttachment,
+  uploadLeaseAttachment,
+} from "@/lib/api/admin/attachments";
+import { computeLeaseAmount, DAILY_DURATION_DAYS, MONTHLY_DURATION_DAYS, toMonthEndInputValue } from "@/lib/billing";
+import { parseDateOnly } from "@/lib/date-input";
 import { adminKeys } from "@/lib/query/keys";
-import type { LeaseStatus } from "@/lib/types/admin";
+import type { LeaseAttachmentKind, LeaseStatus } from "@/lib/types/admin";
 
 const BASE = "/admin/leases";
 
@@ -49,19 +54,36 @@ type FormState = {
   unitId: string;
   userId: string;
   startDate: string;
+  endDate: string;
   unitPricingId: string;
   status: LeaseStatus;
   leaseRenewalId: string;
+  attachmentKind: LeaseAttachmentKind;
 };
 
 const emptyForm: FormState = {
   unitId: "",
   userId: "",
   startDate: "",
+  endDate: "",
   unitPricingId: "",
   status: "unpaid",
   leaseRenewalId: "",
+  attachmentKind: "downpayment",
 };
+
+/** Apply lease date range: end is always snapped to month-end when set. */
+function applyLeaseDateRange(
+  prev: FormState,
+  from: string,
+  to: string,
+): FormState {
+  if (!from) {
+    return { ...prev, startDate: "", endDate: "" };
+  }
+  const endDate = to ? toMonthEndInputValue(to) : "";
+  return { ...prev, startDate: from, endDate };
+}
 
 export function LeaseForm({ id }: { id?: string }) {
   const t = useTranslations("admin.crud");
@@ -84,7 +106,7 @@ export function LeaseForm({ id }: { id?: string }) {
   const [formError, setFormError] = useState<string | null>(null);
   const [deletePending, setDeletePending] = useState(false);
 
-  const attachments = lease?.downpaymentAttachments ?? [];
+  const attachments = lease?.attachments ?? lease?.downpaymentAttachments ?? [];
 
   const renewalPrefill = useMemo(() => {
     if (isEdit) return null;
@@ -125,14 +147,49 @@ export function LeaseForm({ id }: { id?: string }) {
     [pricings, form.unitPricingId],
   );
 
+  const dailyPricing = useMemo(() => {
+    const unitTypeId =
+      selectedUnit?.unitTypeId ??
+      selectedPricing?.unitTypeId ??
+      lease?.unit?.unitTypeId;
+    if (!unitTypeId) return null;
+    return (
+      pricings.find(
+        (p) => p.unitTypeId === unitTypeId && p.durationDays === DAILY_DURATION_DAYS,
+      ) ?? null
+    );
+  }, [pricings, selectedUnit, selectedPricing, lease]);
+
+  const amountPreview = useMemo(() => {
+    if (!form.startDate || !form.endDate || !selectedPricing) return null;
+    const start = parseDateOnly(form.startDate);
+    const end = parseDateOnly(form.endDate);
+    if (!start || !end) return null;
+    try {
+      return computeLeaseAmount(
+        start,
+        end,
+        selectedPricing.price,
+        dailyPricing?.price ?? null,
+      );
+    } catch (error) {
+      return {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Unable to preview amount",
+      } as const;
+    }
+  }, [form.startDate, form.endDate, selectedPricing, dailyPricing]);
+
   const overlapConflicts = useMemo(() => {
-    if (!form.startDate || !selectedPricing || !overlapUnitId || !overlapUserId) {
+    if (!form.startDate || !form.endDate || !overlapUnitId || !overlapUserId) {
       return [];
     }
 
     return findLeaseOverlapConflicts({
       startDate: form.startDate,
-      durationDays: selectedPricing.durationDays,
+      endDate: form.endDate,
       unitId: overlapUnitId,
       userId: overlapUserId,
       unitLeases,
@@ -142,8 +199,8 @@ export function LeaseForm({ id }: { id?: string }) {
     });
   }, [
     form.startDate,
+    form.endDate,
     form.leaseRenewalId,
-    selectedPricing,
     overlapUnitId,
     overlapUserId,
     unitLeases,
@@ -152,8 +209,9 @@ export function LeaseForm({ id }: { id?: string }) {
   ]);
 
   const pricingOptions = useMemo(() => {
-    if (!selectedUnit) return pricings;
-    return pricings.filter((p) => p.unitTypeId === selectedUnit.unitTypeId);
+    const monthly = pricings.filter((p) => p.durationDays === MONTHLY_DURATION_DAYS);
+    if (!selectedUnit) return monthly;
+    return monthly.filter((p) => p.unitTypeId === selectedUnit.unitTypeId);
   }, [pricings, selectedUnit]);
 
   useEffect(() => {
@@ -162,9 +220,11 @@ export function LeaseForm({ id }: { id?: string }) {
         unitId: lease.unitId,
         userId: lease.userId,
         startDate: toDateInputValue(lease.startDate),
+        endDate: toDateInputValue(lease.endDate),
         unitPricingId: lease.unitPricingId,
         status: lease.status,
         leaseRenewalId: "",
+        attachmentKind: "downpayment",
       });
     } else if (!isEdit) {
       const startDate =
@@ -174,6 +234,7 @@ export function LeaseForm({ id }: { id?: string }) {
       setForm((f) => ({
         ...f,
         startDate,
+        endDate: toMonthEndInputValue(startDate),
         unitId: renewalPrefill?.unitId ?? unitPrefill?.unitId ?? f.unitId,
         userId: renewalPrefill?.userId ?? f.userId,
         leaseRenewalId: renewalPrefill?.renewalId ?? "",
@@ -201,7 +262,7 @@ export function LeaseForm({ id }: { id?: string }) {
     setImageError(null);
     setImagePending(true);
     try {
-      await uploadLeaseDownpaymentImage(id, imageFile);
+      await uploadLeaseAttachment(id, imageFile, form.attachmentKind);
       showApiSuccess(tp("imageUploaded"));
       setImageFile(null);
       invalidateLease();
@@ -217,7 +278,7 @@ export function LeaseForm({ id }: { id?: string }) {
   async function handleDeleteAttachment(attachmentId: string) {
     setDeletePending(true);
     try {
-      await deleteLeaseDownpaymentAttachment(attachmentId);
+      await deleteLeaseAttachment(attachmentId);
       showApiSuccess(ta("deleted"));
       invalidateLease();
     } catch (err) {
@@ -246,6 +307,12 @@ export function LeaseForm({ id }: { id?: string }) {
     });
   }
 
+  function attachmentKindLabel(kind: LeaseAttachmentKind): string {
+    if (kind === "agreement") return tp("kindAgreement");
+    if (kind === "payment") return tp("kindPayment");
+    return tp("kindDownpayment");
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
@@ -255,6 +322,7 @@ export function LeaseForm({ id }: { id?: string }) {
         unit: t("selectUnit"),
         tenant: t("selectTenant"),
         startDate: t("pickDate"),
+        endDate: t("pickDate"),
         pricing: t("selectPricing"),
       }).safeParse(form);
 
@@ -275,11 +343,12 @@ export function LeaseForm({ id }: { id?: string }) {
         await mutations.update.mutateAsync({
           id,
           startDate: form.startDate,
+          endDate: form.endDate,
           unitPricingId: form.unitPricingId || undefined,
           status: form.status,
         });
         if (imageFile) {
-          await uploadLeaseDownpaymentImage(id, imageFile);
+          await uploadLeaseAttachment(id, imageFile, form.attachmentKind);
         }
         showApiSuccess(t("updated"));
       } else {
@@ -287,9 +356,11 @@ export function LeaseForm({ id }: { id?: string }) {
           unitId: form.unitId,
           userId: form.userId,
           startDate: form.startDate,
+          endDate: form.endDate,
           unitPricingId: form.unitPricingId,
           leaseRenewalId: form.leaseRenewalId || undefined,
           file: imageFile,
+          attachmentKind: form.attachmentKind,
         });
         showApiSuccess(t("created"));
       }
@@ -368,15 +439,18 @@ export function LeaseForm({ id }: { id?: string }) {
           </AdminField>
         </>
       )}
-      <AdminField label={t("startDate")} htmlFor="lease-start" required>
-        <AdminDatePicker
-          id="lease-start"
-          value={form.startDate}
-          onChange={(startDate) =>
-            setForm((f) => ({ ...f, startDate }))
+      <AdminField label={tp("leasePeriod")} htmlFor="lease-period" required>
+        <AdminDateRangePicker
+          id="lease-period"
+          from={form.startDate}
+          to={form.endDate}
+          numberOfMonths={2}
+          placeholder={tp("leasePeriodPlaceholder")}
+          onChange={({ from, to }) =>
+            setForm((f) => applyLeaseDateRange(f, from, to))
           }
-          placeholder={t("pickDate")}
         />
+        <p className="mt-1 text-xs text-[#83746b]">{tp("leasePeriodHint")}</p>
       </AdminField>
       <AdminField label={t("pricing")} htmlFor="lease-pricing" required={!isEdit}>
         <AdminSelect
@@ -391,17 +465,67 @@ export function LeaseForm({ id }: { id?: string }) {
           }
         >
           <option value="">{t("selectPricing")}</option>
-          {(isEdit ? pricings : pricingOptions).map((p) => (
+          {(isEdit
+            ? pricings.filter((p) => p.durationDays === MONTHLY_DURATION_DAYS)
+            : pricingOptions
+          ).map((p) => (
             <option key={p.id} value={p.id}>
-              {resolvePricingUnitTypeName(p, lookups)} · {p.durationDays}{" "}
-              {t("days")} — {formatIdrTable(p.price)}
+              {resolvePricingUnitTypeName(p, lookups)} · {tp("monthlyPackage")}{" "}
+              — {formatIdrTable(p.price)}
             </option>
           ))}
         </AdminSelect>
         {!isEdit && selectedUnit && pricingOptions.length === 0 && (
           <p className="mt-1 text-xs text-[#ba1a1a]">{tp("noPricingForUnit")}</p>
         )}
+        {!isEdit &&
+          selectedUnit &&
+          pricingOptions.length > 0 &&
+          !dailyPricing &&
+          form.startDate &&
+          parseDateOnly(form.startDate)?.getDate() !== 1 && (
+            <p className="mt-1 text-xs text-[#ba1a1a]">{tp("needDailyPricing")}</p>
+          )}
       </AdminField>
+      {amountPreview && "error" in amountPreview ? (
+        <div className="rounded-xl border border-[#ba1a1a]/25 bg-[#fff5f5] px-4 py-3 text-sm text-[#ba1a1a]">
+          {amountPreview.error}
+        </div>
+      ) : amountPreview ? (
+        <div className="rounded-xl border border-[#e3e2e0] bg-[#faf9f6]/80 px-4 py-3 text-sm text-[#51443c]">
+          <p className="font-semibold text-[#1a1c1a]">{tp("amountPreview")}</p>
+          <dl className="mt-2 grid gap-1.5 sm:grid-cols-2">
+            {amountPreview.stubDays > 0 ? (
+              <>
+                <div className="flex justify-between gap-2 sm:block">
+                  <dt className="text-xs text-[#83746b]">{tp("stubDays")}</dt>
+                  <dd className="font-medium text-[#1a1c1a]">
+                    {amountPreview.stubDays}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2 sm:block">
+                  <dt className="text-xs text-[#83746b]">{tp("dailyRate")}</dt>
+                  <dd className="font-medium text-[#1a1c1a]">
+                    {formatIdrTable(amountPreview.dailyRate)}
+                  </dd>
+                </div>
+              </>
+            ) : null}
+            <div className="flex justify-between gap-2 sm:block">
+              <dt className="text-xs text-[#83746b]">{tp("fullMonths")}</dt>
+              <dd className="font-medium text-[#1a1c1a]">
+                {amountPreview.fullMonths}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-2 sm:block">
+              <dt className="text-xs text-[#83746b]">{tp("amountDue")}</dt>
+              <dd className="font-medium text-[#1a1c1a]">
+                {formatIdrTable(amountPreview.amountDue)}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      ) : null}
       {overlapConflicts.length > 0 && (
         <div className="space-y-2 rounded-xl border border-[#ba1a1a]/25 bg-[#fff5f5] px-4 py-3 text-sm text-[#51443c]">
           {overlapConflicts.map((conflict) => (
@@ -437,46 +561,99 @@ export function LeaseForm({ id }: { id?: string }) {
           </AdminSelect>
         </AdminField>
       )}
+      {isEdit &&
+        lease?.status === "unpaid" &&
+        (lease.paymentDueDate != null ||
+          lease.daysLate != null ||
+          lease.lateFeeAmount != null) && (
+        <div className="rounded-xl border border-[#B06000]/20 bg-[#FEF7E0]/50 px-4 py-3 text-sm text-[#51443c]">
+          <dl className="grid gap-1.5 sm:grid-cols-3">
+            {lease.paymentDueDate != null && (
+              <div>
+                <dt className="text-xs text-[#83746b]">{tp("paymentDueDate")}</dt>
+                <dd className="font-medium text-[#1a1c1a]">
+                  {formatDate(lease.paymentDueDate, locale)}
+                </dd>
+              </div>
+            )}
+            {lease.daysLate != null && (
+              <div>
+                <dt className="text-xs text-[#83746b]">{tp("daysLate")}</dt>
+                <dd className="font-medium text-[#1a1c1a]">{lease.daysLate}</dd>
+              </div>
+            )}
+            {lease.lateFeeAmount != null && (
+              <div>
+                <dt className="text-xs text-[#83746b]">{tp("lateFeeAmount")}</dt>
+                <dd className="font-medium text-[#1a1c1a]">
+                  {formatIdrTable(lease.lateFeeAmount)}
+                </dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      )}
       {isEdit && lease?.leaseRenewal && (
         <AdminLeaseRenewalActions lease={lease} />
       )}
-      <AdminField label={tp("downpaymentProof")} htmlFor="lease-proof">
-        <AdminFileInput
-          id="lease-proof"
-          file={imageFile}
-          onFileChange={setImageFile}
-        />
-        <p className="mt-1 text-xs text-[#83746b]">{tp("downpaymentProofHint")}</p>
-        <div className="mt-2 flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => void handleImageUpload()}
-            disabled={imagePending}
-            className="rounded-lg border border-[#6f4627] bg-[#faf9f6] px-3 py-1.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
-          >
-            {imagePending ? tp("uploadingImage") : tp("uploadImage")}
-          </button>
-          {!isEdit ? (
-            <span className="text-xs text-[#83746b]">{tp("saveFirstToUpload")}</span>
-          ) : null}
+      <div className="space-y-3 border-t border-[#e3e2e0] pt-4">
+        <div>
+          <h3 className="text-sm font-bold text-[#1a1c1a]">{tp("attachmentsTitle")}</h3>
+          <p className="text-xs text-[#83746b]">
+            {isEdit ? tp("attachmentsEditHint") : tp("attachmentsCreateHint")}
+          </p>
         </div>
-        {imageError ? (
-          <p className="mt-1 text-xs text-[#ba1a1a]">{imageError}</p>
-        ) : null}
-      </AdminField>
-      {isEdit ? (
-        <div className="space-y-3">
-          <div>
-            <h3 className="text-sm font-bold text-[#1a1c1a]">{ta("title")}</h3>
-            <p className="text-xs text-[#83746b]">{tp("downpaymentProofSection")}</p>
-          </div>
+        <AdminField label={tp("attachmentKind")} htmlFor="lease-attachment-kind">
+          <AdminSelect
+            id="lease-attachment-kind"
+            value={form.attachmentKind}
+            onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                attachmentKind: e.target.value as LeaseAttachmentKind,
+              }))
+            }
+          >
+            <option value="agreement">{tp("kindAgreement")}</option>
+            <option value="downpayment">{tp("kindDownpayment")}</option>
+            <option value="payment">{tp("kindPayment")}</option>
+          </AdminSelect>
+        </AdminField>
+        <AdminField label={tp("attachmentFile")} htmlFor="lease-proof">
+          <AdminFileInput
+            id="lease-proof"
+            file={imageFile}
+            onFileChange={setImageFile}
+          />
+          {isEdit ? (
+            <div className="mt-2 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => void handleImageUpload()}
+                disabled={imagePending || !imageFile}
+                className="rounded-lg border border-[#6f4627] bg-[#faf9f6] px-3 py-1.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
+              >
+                {imagePending ? tp("uploadingImage") : tp("uploadImage")}
+              </button>
+            </div>
+          ) : (
+            <p className="mt-1 text-xs text-[#83746b]">{tp("attachmentCreateHint")}</p>
+          )}
+          {imageError ? (
+            <p className="mt-1 text-xs text-[#ba1a1a]">{imageError}</p>
+          ) : null}
+        </AdminField>
+        {isEdit ? (
           <AdminAttachmentsList
-            attachments={attachments}
+            attachments={attachments.map((a) => ({
+              ...a,
+              kindLabel: attachmentKindLabel(a.kind),
+            }))}
             onDelete={handleDeleteAttachment}
             deletePending={deletePending}
           />
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </AdminFormPage>
   );
 }

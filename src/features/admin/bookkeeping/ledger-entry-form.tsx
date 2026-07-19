@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import {
+  AdminCurrencyInput,
   AdminDatePicker,
   AdminField,
   AdminFileInput,
@@ -20,7 +21,11 @@ import {
 } from "@/features/admin/hooks/use-admin-queries";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
-import { toDateInputValue } from "@/features/admin/lib/format";
+import {
+  formatIdrInput,
+  parseIdrInput,
+  toDateInputValue,
+} from "@/features/admin/lib/format";
 import { deleteLedgerEntryAttachment } from "@/lib/api/admin/attachments";
 import { adminKeys } from "@/lib/query/keys";
 import type { LedgerEntryType } from "@/lib/types/admin";
@@ -64,7 +69,7 @@ export function LedgerEntryForm({ id }: { id?: string }) {
     if (entry) {
       setForm({
         type: entry.type,
-        amount: String(entry.amount),
+        amount: formatIdrInput(entry.amount),
         description: entry.description,
         date: toDateInputValue(entry.date),
         propertyId: entry.propertyId ?? "",
@@ -97,7 +102,7 @@ export function LedgerEntryForm({ id }: { id?: string }) {
     e.preventDefault();
     setFormError(null);
 
-    const amount = Number(form.amount);
+    const amount = parseIdrInput(form.amount);
     if (!Number.isFinite(amount) || amount <= 0) {
       setFormError(tp("amountRequired"));
       return;
@@ -167,15 +172,12 @@ export function LedgerEntryForm({ id }: { id?: string }) {
       </AdminField>
 
       <AdminField label={tp("amount")} htmlFor="ledger-amount" required>
-        <input
+        <AdminCurrencyInput
           id="ledger-amount"
-          type="number"
-          min={1}
           required
-          className={adminInputClassName}
           value={form.amount}
-          onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))}
-          placeholder="0"
+          onValueChange={(amount) => setForm((f) => ({ ...f, amount }))}
+          placeholder="Rp. 0"
         />
       </AdminField>
 

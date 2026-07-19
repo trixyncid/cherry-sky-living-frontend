@@ -5,18 +5,6 @@ function toDateOnly(value: string): string {
   return value.slice(0, 10);
 }
 
-/** Mirrors backend: endDate = startDate + durationDays. */
-export function computeLeaseEndDateFromDuration(
-  startDate: string,
-  durationDays: number,
-): string | null {
-  if (!startDate || durationDays <= 0) return null;
-  const [y, m, d] = toDateOnly(startDate).split("-").map(Number);
-  const end = new Date(y, m - 1, d);
-  end.setDate(end.getDate() + durationDays);
-  return end.toISOString();
-}
-
 /**
  * True when ranges share any day. Back-to-back leases (new start = prior end) do not overlap.
  */
@@ -42,7 +30,7 @@ export type LeaseOverlapConflict = {
 
 type FindLeaseOverlapConflictsInput = {
   startDate: string;
-  durationDays: number;
+  endDate: string;
   unitId: string;
   userId: string;
   unitLeases: Lease[];
@@ -88,7 +76,7 @@ export function findLeaseOverlapConflicts(
 ): LeaseOverlapConflict[] {
   const {
     startDate,
-    durationDays,
+    endDate,
     unitId,
     userId,
     unitLeases,
@@ -97,8 +85,7 @@ export function findLeaseOverlapConflicts(
     excludeRenewalId,
   } = input;
 
-  const endDate = computeLeaseEndDateFromDuration(startDate, durationDays);
-  if (!endDate) return [];
+  if (!startDate || !endDate) return [];
 
   const conflicts: LeaseOverlapConflict[] = [];
 

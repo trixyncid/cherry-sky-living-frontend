@@ -17,11 +17,18 @@ export async function getProperty(id: string): Promise<Property> {
   return res.data;
 }
 
-export async function createProperty(input: {
+export type PropertyPaymentInput = {
   name: string;
   address: string;
   city: string;
-}): Promise<Property> {
+  paymentDueDay?: number;
+  lateFeePerDay?: number;
+  renewalConfirmDaysBeforeEnd?: number;
+};
+
+export async function createProperty(
+  input: PropertyPaymentInput,
+): Promise<Property> {
   const res = await apiFetch<ApiDataResponse<Property>>("/admin/properties", {
     method: "POST",
     body: input,
@@ -31,7 +38,7 @@ export async function createProperty(input: {
 
 export async function updateProperty(
   id: string,
-  input: Partial<{ name: string; address: string; city: string }>,
+  input: Partial<PropertyPaymentInput>,
 ): Promise<Property> {
   const res = await apiFetch<ApiDataResponse<Property>>(
     `/admin/properties/${id}`,

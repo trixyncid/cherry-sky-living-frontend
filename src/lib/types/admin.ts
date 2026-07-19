@@ -22,9 +22,12 @@ export interface UnitTypeAttachment {
   updatedAt?: string;
 }
 
-export interface LeaseDownpaymentAttachment {
+export type LeaseAttachmentKind = "agreement" | "downpayment" | "payment";
+
+export interface LeaseAttachment {
   id: string;
   leaseId: string;
+  kind: LeaseAttachmentKind;
   fileName?: string;
   url: string;
   objectKey?: string;
@@ -32,6 +35,9 @@ export interface LeaseDownpaymentAttachment {
   sizeBytes?: number | null;
   createdAt: string;
 }
+
+/** @deprecated Use LeaseAttachment */
+export type LeaseDownpaymentAttachment = LeaseAttachment;
 
 export interface LedgerEntryAttachment {
   id: string;
@@ -49,6 +55,9 @@ export interface Property {
   name: string;
   address: string;
   city: string;
+  paymentDueDay?: number;
+  lateFeePerDay?: number;
+  renewalConfirmDaysBeforeEnd?: number;
   propertyAttachments?: PropertyAttachment[];
   createdById: string;
   updatedById: string;
@@ -168,6 +177,13 @@ export interface Lease {
   status: LeaseStatus;
   startDate: string;
   endDate: string;
+  amountDue: number;
+  paymentDueDay: number;
+  lateFeePerDay: number;
+  /** ISO date — computed on read */
+  paymentDueDate?: string;
+  daysLate?: number;
+  lateFeeAmount?: number;
   unitId: string;
   userId: string;
   propertyId: string;
@@ -177,7 +193,9 @@ export interface Lease {
   user?: UnitUserRef;
   unitPricing?: UnitPricing;
   leaseRenewal?: LeaseRenewal | null;
-  downpaymentAttachments?: LeaseDownpaymentAttachment[];
+  attachments?: LeaseAttachment[];
+  /** @deprecated Prefer attachments */
+  downpaymentAttachments?: LeaseAttachment[];
   createdBy?: UnitUserRef;
   updatedBy?: UnitUserRef;
   createdById: string;

@@ -63,6 +63,11 @@ export function AdminAttachmentsList({
               <p className="truncate text-sm font-semibold text-[#1a1c1a]">
                 {attachmentDisplayName(item.url)}
               </p>
+              {item.kindLabel ? (
+                <p className="mt-0.5 text-xs font-medium text-[#6f4627]">
+                  {item.kindLabel}
+                </p>
+              ) : null}
               {item.createdAt ? (
                 <p className="mt-0.5 text-xs text-[#83746b]">
                   {formatDate(item.createdAt)}

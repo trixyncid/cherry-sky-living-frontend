@@ -375,6 +375,7 @@ export function useLeaseMutations() {
       }: {
         id: string;
         startDate?: string;
+        endDate?: string;
         unitPricingId?: string;
         status?: LeaseStatus;
       }) => updateLease(id, input),

@@ -4,34 +4,43 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import {
+  AdminCurrencyInput,
   AdminField,
   AdminSelect,
-  adminInputClassName,
 } from "@/features/admin/components/admin-field";
 import { AdminFormPage } from "@/features/admin/crud/admin-form-page";
 import {
   useProperties,
   useUnitPricing,
   useUnitPricingMutations,
+  useUnitPricings,
   useUnitTypes,
 } from "@/features/admin/hooks/use-admin-queries";
 import { getErrorMessage } from "@/features/admin/lib/errors";
+import {
+  formatIdrInput,
+  parseIdrInput,
+} from "@/features/admin/lib/format";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import {
+  DAILY_DURATION_DAYS,
+  MONTHLY_DURATION_DAYS,
+} from "@/lib/billing";
 
 const BASE = "/admin/pricing";
 
 type FormState = {
   propertyId: string;
   unitTypeId: string;
-  durationDays: string;
-  price: string;
+  monthlyPrice: string;
+  dailyPrice: string;
 };
 
 const emptyForm: FormState = {
   propertyId: "",
   unitTypeId: "",
-  durationDays: "",
-  price: "",
+  monthlyPrice: "",
+  dailyPrice: "",
 };
 
 export function PricingForm({ id }: { id?: string }) {
@@ -39,11 +48,21 @@ export function PricingForm({ id }: { id?: string }) {
   const tp = useTranslations("admin.pages.pricing");
   const router = useRouter();
   const isEdit = !!id;
-  const { data: properties = [] } = useProperties();
-  const { data: pricing, isLoading } = useUnitPricing(id ?? "", isEdit);
-  const mutations = useUnitPricingMutations();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
+  const { data: properties = [] } = useProperties();
+  const { data: pricing, isLoading } = useUnitPricing(id ?? "", isEdit);
+  const unitTypeIdForLoad = pricing?.unitTypeId;
+  const pricingFilters = isEdit
+    ? unitTypeIdForLoad
+      ? { unitTypeId: unitTypeIdForLoad }
+      : undefined
+    : form.unitTypeId
+      ? { unitTypeId: form.unitTypeId }
+      : undefined;
+  const { data: unitTypePricings = [], isLoading: siblingLoading } =
+    useUnitPricings(pricingFilters);
+  const mutations = useUnitPricingMutations();
 
   const { data: unitTypes = [] } = useUnitTypes(form.propertyId || undefined);
 
@@ -52,40 +71,110 @@ export function PricingForm({ id }: { id?: string }) {
     return unitTypes.filter((ut) => ut.propertyId === form.propertyId);
   }, [unitTypes, form.propertyId]);
 
+  const monthlyRow = useMemo(
+    () =>
+      unitTypePricings.find((p) => p.durationDays === MONTHLY_DURATION_DAYS) ??
+      null,
+    [unitTypePricings],
+  );
+  const dailyRow = useMemo(
+    () =>
+      unitTypePricings.find((p) => p.durationDays === DAILY_DURATION_DAYS) ??
+      null,
+    [unitTypePricings],
+  );
+
   useEffect(() => {
     if (pricing) {
+      const monthly =
+        unitTypePricings.find((p) => p.durationDays === MONTHLY_DURATION_DAYS) ??
+        (pricing.durationDays === MONTHLY_DURATION_DAYS ? pricing : null);
+      const daily =
+        unitTypePricings.find((p) => p.durationDays === DAILY_DURATION_DAYS) ??
+        (pricing.durationDays === DAILY_DURATION_DAYS ? pricing : null);
+
       setForm({
         propertyId: pricing.propertyId,
         unitTypeId: pricing.unitTypeId,
-        durationDays: String(pricing.durationDays),
-        price: String(pricing.price),
+        monthlyPrice: monthly ? formatIdrInput(monthly.price) : "",
+        dailyPrice: daily ? formatIdrInput(daily.price) : "",
       });
+      return;
     }
-  }, [pricing]);
+
+    if (!isEdit && form.unitTypeId && unitTypePricings.length > 0) {
+      const monthly = unitTypePricings.find(
+        (p) => p.durationDays === MONTHLY_DURATION_DAYS,
+      );
+      const daily = unitTypePricings.find(
+        (p) => p.durationDays === DAILY_DURATION_DAYS,
+      );
+      setForm((f) => ({
+        ...f,
+        monthlyPrice: monthly ? formatIdrInput(monthly.price) : f.monthlyPrice,
+        dailyPrice: daily ? formatIdrInput(daily.price) : f.dailyPrice,
+      }));
+    }
+  }, [pricing, unitTypePricings, isEdit, form.unitTypeId]);
+
+  async function upsertPackage(
+    unitTypeId: string,
+    durationDays: number,
+    price: number,
+    existingId?: string,
+  ) {
+    if (existingId) {
+      await mutations.update.mutateAsync({ id: existingId, price });
+      return;
+    }
+    await mutations.create.mutateAsync({
+      unitTypeId,
+      durationDays,
+      price,
+    });
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
+
+    const monthlyPrice = parseIdrInput(form.monthlyPrice);
+    const dailyPrice = parseIdrInput(form.dailyPrice);
+
+    if (!form.unitTypeId) {
+      setFormError(t("selectUnitType"));
+      return;
+    }
+    if (!Number.isFinite(monthlyPrice) || monthlyPrice <= 0) {
+      setFormError(tp("monthlyPriceRequired"));
+      return;
+    }
+    if (!Number.isFinite(dailyPrice) || dailyPrice <= 0) {
+      setFormError(tp("dailyPriceRequired"));
+      return;
+    }
+
+    const existingMonthly =
+      monthlyRow ??
+      unitTypePricings.find((p) => p.durationDays === MONTHLY_DURATION_DAYS);
+    const existingDaily =
+      dailyRow ??
+      unitTypePricings.find((p) => p.durationDays === DAILY_DURATION_DAYS);
+
     try {
-      if (isEdit && id) {
-        await mutations.update.mutateAsync({
-          id,
-          durationDays: Number(form.durationDays),
-          price: Number(form.price),
-        });
-        showApiSuccess(t("updated"));
-      } else {
-        if (!form.unitTypeId) {
-          setFormError(t("selectUnitType"));
-          return;
-        }
-        await mutations.create.mutateAsync({
-          unitTypeId: form.unitTypeId,
-          durationDays: Number(form.durationDays),
-          price: Number(form.price),
-        });
-        showApiSuccess(t("created"));
-      }
+      await upsertPackage(
+        form.unitTypeId,
+        MONTHLY_DURATION_DAYS,
+        monthlyPrice,
+        existingMonthly?.id,
+      );
+      await upsertPackage(
+        form.unitTypeId,
+        DAILY_DURATION_DAYS,
+        dailyPrice,
+        existingDaily?.id,
+      );
+      showApiSuccess(isEdit ? t("updated") : t("created"));
       router.push(BASE);
       router.refresh();
     } catch (err) {
@@ -98,7 +187,7 @@ export function PricingForm({ id }: { id?: string }) {
   const pending =
     mutations.create.isPending ||
     mutations.update.isPending ||
-    (isEdit && isLoading);
+    (isEdit && (isLoading || siblingLoading));
 
   if (isEdit && isLoading && !pricing) {
     return <p className="text-sm text-[#83746b]">{t("loading")}</p>;
@@ -161,30 +250,28 @@ export function PricingForm({ id }: { id?: string }) {
         </AdminSelect>
       </AdminField>
 
-      <AdminField label={t("duration")} htmlFor="price-duration" required>
-        <input
-          id="price-duration"
-          type="number"
-          min={1}
+      <AdminField label={tp("monthlyPrice")} htmlFor="price-monthly" required>
+        <AdminCurrencyInput
+          id="price-monthly"
           required
-          className={adminInputClassName}
-          value={form.durationDays}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, durationDays: e.target.value }))
+          value={form.monthlyPrice}
+          onValueChange={(monthlyPrice) =>
+            setForm((f) => ({ ...f, monthlyPrice }))
           }
         />
+        <p className="mt-1 text-xs text-[#83746b]">{tp("monthlyPriceHint")}</p>
       </AdminField>
 
-      <AdminField label={t("price")} htmlFor="price-amount" required>
-        <input
-          id="price-amount"
-          type="number"
-          min={1}
+      <AdminField label={tp("dailyPrice")} htmlFor="price-daily" required>
+        <AdminCurrencyInput
+          id="price-daily"
           required
-          className={adminInputClassName}
-          value={form.price}
-          onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+          value={form.dailyPrice}
+          onValueChange={(dailyPrice) =>
+            setForm((f) => ({ ...f, dailyPrice }))
+          }
         />
+        <p className="mt-1 text-xs text-[#83746b]">{tp("dailyPriceHint")}</p>
       </AdminField>
     </AdminFormPage>
   );

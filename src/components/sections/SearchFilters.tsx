@@ -204,8 +204,6 @@ export function SearchFilters({ filters, onFiltersChange, onReset }: SearchFilte
                             className="w-full rounded-lg border border-[#e3e2e0] bg-[#faf9f6] px-3 py-2.5 text-sm text-[#1a1c1a] focus:border-[#6f4627] focus:outline-none focus:ring-2 focus:ring-[#6f4627]/25"
                         >
                             <option value="">{t('search.durationAny')}</option>
-                            <option value="7">{t('search.duration7')}</option>
-                            <option value="12">{t('search.duration12')}</option>
                             <option value="30">{t('search.duration30')}</option>
                         </select>
                     </div>

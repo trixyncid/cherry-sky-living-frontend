@@ -14,6 +14,7 @@ import { useTenantLease } from "@/features/tenant/hooks/use-tenant-queries";
 import { TenantAttachmentsList } from "@/features/tenant/components/tenant-attachments-list";
 import { LeaseRenewalPrompt } from "@/features/tenant/leases/lease-renewal-prompt";
 import { getTenantRenewalView } from "@/features/tenant/lib/lease-renewal";
+import type { LeaseAttachmentKind } from "@/lib/types/admin";
 
 export function TenantLeaseDetail({ id }: { id: string }) {
   const t = useTranslations("tenant.common");
@@ -42,8 +43,15 @@ export function TenantLeaseDetail({ id }: { id: string }) {
   }
 
   const rent = lease.unitPricing?.price ?? 0;
-  const duration = lease.unitPricing?.durationDays;
   const renewalView = getTenantRenewalView(lease);
+  const attachments = lease.attachments ?? lease.downpaymentAttachments ?? [];
+  const isUnpaid = lease.status === "unpaid";
+
+  function kindLabel(kind: LeaseAttachmentKind): string {
+    if (kind === "agreement") return tp("kindAgreement");
+    if (kind === "payment") return tp("kindPayment");
+    return tp("kindDownpayment");
+  }
 
   return (
     <div className="space-y-6">
@@ -83,9 +91,27 @@ export function TenantLeaseDetail({ id }: { id: string }) {
           />
           <DetailItem label={t("rent")} value={formatIdrTable(rent)} />
           <DetailItem
-            label={tp("duration")}
-            value={duration != null ? `${duration} ${t("days")}` : "—"}
+            label={tp("amountDue")}
+            value={formatIdrTable(lease.amountDue)}
           />
+          {isUnpaid && lease.paymentDueDate != null && (
+            <DetailItem
+              label={tp("paymentDueDate")}
+              value={formatDate(lease.paymentDueDate)}
+            />
+          )}
+          {isUnpaid && lease.daysLate != null && (
+            <DetailItem
+              label={tp("daysLate")}
+              value={String(lease.daysLate)}
+            />
+          )}
+          {isUnpaid && lease.lateFeeAmount != null && (
+            <DetailItem
+              label={tp("lateFeeAmount")}
+              value={formatIdrTable(lease.lateFeeAmount)}
+            />
+          )}
           {lease.unit?.property?.address && (
             <DetailItem
               label={tp("address")}
@@ -109,7 +135,10 @@ export function TenantLeaseDetail({ id }: { id: string }) {
           </p>
         </div>
         <TenantAttachmentsList
-          attachments={lease.downpaymentAttachments ?? []}
+          attachments={attachments.map((a) => ({
+            ...a,
+            kindLabel: kindLabel(a.kind),
+          }))}
         />
       </div>
     </div>

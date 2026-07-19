@@ -20,9 +20,14 @@ Scheduled tasks run inside the same Elysia process via `@elysia/cron` (daily at 
 | Job | Schedule | What it does |
 |---|---|---|
 | `expire-leases` | `0 0 0 * * *` | Sets `occupied` units to `vacant` when their paid lease has ended and no other active paid lease covers the unit |
-| `confirm-lease-renewals` | `0 0 0 * * *` | Sets `leaseRenewal.isConfirmed` to `true` when the confirmation deadline has passed and it is still `false` |
+| `decline-lease-renewals` | `0 0 0 * * *` | Auto-declines renewals past the H-N confirmation deadline when the tenant took **no action** (`isRenewLease=false`). Does not auto-confirm tenants who already requested renewal |
 
-Renewal confirmation deadline = lease `endDate` minus **5 days** (stored on `leaseRenewal.leaseEndDate`).
+### Billing model (calendar months)
+
+- Unit pricing supports **monthly (30)** and **daily (1)** packages. Mid-month stub days use the admin-set **1-day** price (not monthly ÷ days). Full months use the 30-day price.
+- Per-property settings (editable in admin property form): `paymentDueDay` (default 5), `lateFeePerDay` (default Rp 100.000), `renewalConfirmDaysBeforeEnd` (default 5). Snapshotted onto each lease at create.
+- Unpaid leases expose computed `paymentDueDate`, `daysLate`, and `lateFeeAmount` on GET.
+- Lease attachments are typed: `agreement` | `downpayment` | `payment` (multiple allowed).
 
 Jobs only run while the server process is running.
 
@@ -845,7 +850,7 @@ Update renewal confirmation for a lease.
 
 **Errors:** `404` lease or renewal not found · `422` validation failed
 
-**Note:** If `isConfirmed` is still `false` when the confirmation deadline (`leaseEndDate`) is reached, the `confirm-lease-renewals` cron auto-sets it to `true` at the next midnight run.
+**Note:** If the tenant took no action (`isRenewLease` still `false`) when the confirmation deadline (`leaseEndDate`) is reached, the `decline-lease-renewals` cron auto-declines at the next midnight run. Tenants who already requested renewal are left for admin confirmation.
 
 ---
 

@@ -16,7 +16,6 @@ import {
   AdminCrudTableRow,
 } from "@/features/admin/crud/admin-crud-table";
 import { AdminRowActions } from "@/features/admin/crud/admin-row-actions";
-import { getPricingSortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import {
@@ -31,9 +30,23 @@ import {
 import { formatIdrTable } from "@/features/admin/lib/format";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import {
+  DAILY_DURATION_DAYS,
+  MONTHLY_DURATION_DAYS,
+} from "@/lib/billing";
 import type { UnitPricing } from "@/lib/types/admin";
 
 const BASE = "/admin/pricing";
+
+type PricingPair = {
+  unitTypeId: string;
+  propertyId: string;
+  monthly: UnitPricing | null;
+  daily: UnitPricing | null;
+  /** Prefer monthly id for edit URL; fall back to daily. */
+  editId: string;
+  sample: UnitPricing;
+};
 
 export function PricingList() {
   const t = useTranslations("admin.crud");
@@ -44,28 +57,74 @@ export function PricingList() {
     propertyId: propertyFilter || undefined,
   });
   const mutations = useUnitPricingMutations();
-  const deleteDialog = useDeleteDialog<UnitPricing>();
+  const deleteDialog = useDeleteDialog<PricingPair>();
   const lookups = useAdminLookups();
+
+  const pairs = useMemo(() => {
+    const byUnitType = new Map<string, PricingPair>();
+    for (const row of data) {
+      const existing = byUnitType.get(row.unitTypeId);
+      if (!existing) {
+        const monthly =
+          row.durationDays === MONTHLY_DURATION_DAYS ? row : null;
+        const daily = row.durationDays === DAILY_DURATION_DAYS ? row : null;
+        byUnitType.set(row.unitTypeId, {
+          unitTypeId: row.unitTypeId,
+          propertyId: row.propertyId,
+          monthly,
+          daily,
+          editId: (monthly ?? daily ?? row).id,
+          sample: row,
+        });
+        continue;
+      }
+      if (row.durationDays === MONTHLY_DURATION_DAYS) {
+        existing.monthly = row;
+        existing.editId = row.id;
+        existing.sample = row;
+      } else if (row.durationDays === DAILY_DURATION_DAYS) {
+        existing.daily = row;
+        if (!existing.monthly) {
+          existing.editId = row.id;
+          existing.sample = row;
+        }
+      }
+    }
+    return Array.from(byUnitType.values());
+  }, [data]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return data;
-    return data.filter((row) =>
+    if (!q) return pairs;
+    return pairs.filter((row) =>
       [
-        row.unitType?.name,
-        row.property?.name,
-        String(row.durationDays),
-        String(row.price),
+        resolvePricingUnitTypeName(row.sample, lookups),
+        resolvePricingPropertyName(row.sample, lookups),
+        row.monthly ? String(row.monthly.price) : "",
+        row.daily ? String(row.daily.price) : "",
       ]
         .filter(Boolean)
         .join(" ")
         .toLowerCase()
         .includes(q),
     );
-  }, [data, search]);
+  }, [pairs, search, lookups]);
 
   const getSortValue = useCallback(
-    (item: UnitPricing, key: string) => getPricingSortValue(item, key, lookups),
+    (item: PricingPair, key: string) => {
+      switch (key) {
+        case "unitType":
+          return resolvePricingUnitTypeName(item.sample, lookups).toLowerCase();
+        case "property":
+          return resolvePricingPropertyName(item.sample, lookups).toLowerCase();
+        case "monthly":
+          return item.monthly?.price ?? -1;
+        case "daily":
+          return item.daily?.price ?? -1;
+        default:
+          return "";
+      }
+    },
     [lookups],
   );
 
@@ -75,7 +134,9 @@ export function PricingList() {
   async function confirmDelete() {
     if (!deleteDialog.item) return;
     try {
-      await mutations.remove.mutateAsync(deleteDialog.item.id);
+      const { monthly, daily } = deleteDialog.item;
+      if (monthly) await mutations.remove.mutateAsync(monthly.id);
+      if (daily) await mutations.remove.mutateAsync(daily.id);
       showApiSuccess(t("deleted"));
       deleteDialog.close();
     } catch (err) {
@@ -134,8 +195,8 @@ export function PricingList() {
             columns={[
               { key: "unitType", label: t("unitType") },
               { key: "property", label: t("property") },
-              { key: "duration", label: t("duration") },
-              { key: "price", label: t("price") },
+              { key: "monthly", label: tp("monthlyPrice") },
+              { key: "daily", label: tp("dailyPrice") },
               { key: "actions", label: t("actions"), align: "right" },
             ]}
             sortKey={sortKey}
@@ -143,22 +204,24 @@ export function PricingList() {
             onSort={onSort}
           >
             {pageData.map((row) => (
-              <AdminCrudTableRow key={row.id}>
+              <AdminCrudTableRow key={row.unitTypeId}>
                 <AdminCrudTableCell className="font-semibold">
-                  {resolvePricingUnitTypeName(row, lookups)}
+                  {resolvePricingUnitTypeName(row.sample, lookups)}
                 </AdminCrudTableCell>
                 <AdminCrudTableCell className="text-[#51443c]">
-                  {resolvePricingPropertyName(row, lookups)}
-                </AdminCrudTableCell>
-                <AdminCrudTableCell>
-                  {row.durationDays} {t("days")}
+                  {resolvePricingPropertyName(row.sample, lookups)}
                 </AdminCrudTableCell>
                 <AdminCrudTableCell className="font-semibold tabular-nums">
-                  Rp {formatIdrTable(row.price)}
+                  {row.monthly
+                    ? `Rp ${formatIdrTable(row.monthly.price)}`
+                    : "—"}
+                </AdminCrudTableCell>
+                <AdminCrudTableCell className="font-semibold tabular-nums">
+                  {row.daily ? `Rp ${formatIdrTable(row.daily.price)}` : "—"}
                 </AdminCrudTableCell>
                 <AdminCrudTableCell align="right">
                   <AdminRowActions
-                    editHref={`${BASE}/${row.id}/edit`}
+                    editHref={`${BASE}/${row.editId}/edit`}
                     onDelete={() => deleteDialog.openDelete(row)}
                     disabled={pending}
                   />
@@ -174,10 +237,10 @@ export function PricingList() {
         onOpenChange={(open) => !open && deleteDialog.close()}
         itemName={
           deleteDialog.item
-            ? `${deleteDialog.item.unitType?.name ?? ""} · ${deleteDialog.item.durationDays} ${t("days")}`
+            ? resolvePricingUnitTypeName(deleteDialog.item.sample, lookups)
             : ""
         }
-        onConfirm={confirmDelete}
+        onConfirm={() => void confirmDelete()}
         pending={pending}
       />
     </>

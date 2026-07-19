@@ -4,6 +4,7 @@ export type AdminAttachmentItem = {
   id: string;
   url: string;
   createdAt?: string;
+  kindLabel?: string;
 };
 
 export function countPropertyAttachments(property: Property): number {

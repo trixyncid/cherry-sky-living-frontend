@@ -2,7 +2,7 @@
 
 import type { User } from "@/lib/types/auth";
 import { AuthProvider } from "@/components/providers/auth-provider";
-import { AppToaster } from "@/components/providers/app-toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/providers/query-provider";
 
 export function AppProviders({
@@ -16,7 +16,7 @@ export function AppProviders({
     <QueryProvider>
       <AuthProvider user={user}>
         {children}
-        <AppToaster />
+        <Toaster />
       </AuthProvider>
     </QueryProvider>
   );

@@ -6,6 +6,25 @@ export function formatIdr(amount: number): string {
   }).format(amount);
 }
 
+/** Strip a currency-masked string down to an integer amount. */
+export function parseIdrInput(value: string): number {
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return 0;
+  return Number(digits);
+}
+
+/**
+ * Format a raw number or partially typed input as `Rp. 1.800.000`.
+ * Non-digit characters are ignored so typing stays numeric-only.
+ */
+export function formatIdrInput(value: string | number): string {
+  let digits = String(value).replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.length > 1) digits = digits.replace(/^0+/, "") || "0";
+  const formatted = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `Rp. ${formatted}`;
+}
+
 function dateLocale(appLocale?: string): string {
   return appLocale === "en" ? "en-US" : "id-ID";
 }

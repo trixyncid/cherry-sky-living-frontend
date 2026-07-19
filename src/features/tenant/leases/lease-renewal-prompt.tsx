@@ -66,6 +66,9 @@ export function LeaseRenewalPrompt({
     }
   }
 
+  /** Dismiss = real decline: record on server, then hide locally. */
+  const handleDismiss = handleDecline;
+
   async function handleCancelRequest() {
     try {
       await mutations.updateRenewal.mutateAsync({
@@ -155,7 +158,7 @@ export function LeaseRenewalPrompt({
               <button
                 type="button"
                 disabled={pending}
-                onClick={() => void handleDecline()}
+                onClick={() => void handleDismiss()}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-[#e3e2e0] bg-white px-4 py-2 text-sm font-semibold text-[#51443c] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
               >
                 {pending ? t("submitting") : t("noRenew")}

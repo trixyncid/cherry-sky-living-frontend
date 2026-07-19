@@ -3,6 +3,7 @@ import type {
   ApiDataResponse,
   ApiListResponse,
   Lease,
+  LeaseAttachmentKind,
   LeaseRenewal,
   LeaseStatus,
 } from "@/lib/types/admin";
@@ -30,21 +31,25 @@ export async function createLease(input: {
   unitId: string;
   userId: string;
   startDate: string;
+  endDate: string;
   unitPricingId: string;
   leaseRenewalId?: string;
   file?: File | null;
+  attachmentKind?: LeaseAttachmentKind;
 }): Promise<Lease> {
-  const { file, ...fields } = input;
+  const { file, attachmentKind, ...fields } = input;
 
   if (file) {
     const form = new FormData();
     form.set("unitId", fields.unitId);
     form.set("userId", fields.userId);
     form.set("startDate", fields.startDate);
+    form.set("endDate", fields.endDate);
     form.set("unitPricingId", fields.unitPricingId);
     if (fields.leaseRenewalId) {
       form.set("leaseRenewalId", fields.leaseRenewalId);
     }
+    form.set("attachmentKind", attachmentKind ?? "downpayment");
     form.set("file", file);
 
     const res = await apiFetchFormData<ApiDataResponse<Lease>>(
@@ -65,6 +70,7 @@ export async function updateLease(
   id: string,
   input: Partial<{
     startDate: string;
+    endDate: string;
     unitPricingId: string;
     status: LeaseStatus;
   }>,
