@@ -26,6 +26,7 @@ import {
   DAILY_DURATION_DAYS,
   MONTHLY_DURATION_DAYS,
 } from "@/lib/billing";
+import type { UnitPricing } from "@/lib/types/admin";
 
 const BASE = "/admin/pricing";
 
@@ -43,6 +44,17 @@ const emptyForm: FormState = {
   dailyPrice: "",
 };
 
+const EMPTY_PRICINGS: UnitPricing[] = [];
+
+function sameForm(a: FormState, b: FormState) {
+  return (
+    a.propertyId === b.propertyId &&
+    a.unitTypeId === b.unitTypeId &&
+    a.monthlyPrice === b.monthlyPrice &&
+    a.dailyPrice === b.dailyPrice
+  );
+}
+
 export function PricingForm({ id }: { id?: string }) {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.pricing");
@@ -53,15 +65,11 @@ export function PricingForm({ id }: { id?: string }) {
   const { data: properties = [] } = useProperties();
   const { data: pricing, isLoading } = useUnitPricing(id ?? "", isEdit);
   const unitTypeIdForLoad = pricing?.unitTypeId;
-  const pricingFilters = isEdit
-    ? unitTypeIdForLoad
-      ? { unitTypeId: unitTypeIdForLoad }
-      : undefined
-    : form.unitTypeId
-      ? { unitTypeId: form.unitTypeId }
-      : undefined;
-  const { data: unitTypePricings = [], isLoading: siblingLoading } =
-    useUnitPricings(pricingFilters);
+  const siblingUnitTypeId = isEdit ? unitTypeIdForLoad : form.unitTypeId || undefined;
+  const { data: unitTypePricings = EMPTY_PRICINGS, isLoading: siblingLoading } =
+    useUnitPricings(
+      siblingUnitTypeId ? { unitTypeId: siblingUnitTypeId } : undefined,
+    );
   const mutations = useUnitPricingMutations();
 
   const { data: unitTypes = [] } = useUnitTypes(form.propertyId || undefined);
@@ -93,12 +101,13 @@ export function PricingForm({ id }: { id?: string }) {
         unitTypePricings.find((p) => p.durationDays === DAILY_DURATION_DAYS) ??
         (pricing.durationDays === DAILY_DURATION_DAYS ? pricing : null);
 
-      setForm({
+      const next: FormState = {
         propertyId: pricing.propertyId,
         unitTypeId: pricing.unitTypeId,
         monthlyPrice: monthly ? formatIdrInput(monthly.price) : "",
         dailyPrice: daily ? formatIdrInput(daily.price) : "",
-      });
+      };
+      setForm((prev) => (sameForm(prev, next) ? prev : next));
       return;
     }
 
@@ -109,11 +118,14 @@ export function PricingForm({ id }: { id?: string }) {
       const daily = unitTypePricings.find(
         (p) => p.durationDays === DAILY_DURATION_DAYS,
       );
-      setForm((f) => ({
-        ...f,
-        monthlyPrice: monthly ? formatIdrInput(monthly.price) : f.monthlyPrice,
-        dailyPrice: daily ? formatIdrInput(daily.price) : f.dailyPrice,
-      }));
+      setForm((f) => {
+        const next: FormState = {
+          ...f,
+          monthlyPrice: monthly ? formatIdrInput(monthly.price) : f.monthlyPrice,
+          dailyPrice: daily ? formatIdrInput(daily.price) : f.dailyPrice,
+        };
+        return sameForm(f, next) ? f : next;
+      });
     }
   }, [pricing, unitTypePricings, isEdit, form.unitTypeId]);
 

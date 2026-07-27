@@ -30,10 +30,17 @@ export function inclusiveMonthCount(startDate: Date, endDate: Date): number {
 
 export type LeaseAmountBreakdown = {
   amountDue: number;
+  /** Partial days at the start of the lease (mid-month move-in). */
   stubDays: number;
+  /** Partial days at the end of the lease (mid-month move-out). */
+  endStubDays: number;
   dailyRate: number;
   fullMonths: number;
 };
+
+function sameCalendarMonth(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+}
 
 export function computeLeaseAmount(
   startDate: Date,
@@ -44,35 +51,68 @@ export function computeLeaseAmount(
   if (endDate < startDate) {
     throw new Error("endDate must be on or after startDate");
   }
-  if (!isLastDayOfMonth(endDate)) {
-    throw new Error("endDate must be the last day of a calendar month");
-  }
 
-  const monthCount = inclusiveMonthCount(startDate, endDate);
+  const startIsMonthStart = startDate.getDate() === 1;
+  const endIsMonthEnd = isLastDayOfMonth(endDate);
+  const needsDaily = !startIsMonthStart || !endIsMonthEnd;
 
-  if (startDate.getDate() === 1) {
-    return {
-      amountDue: monthCount * monthlyPrice,
-      stubDays: 0,
-      dailyRate: 0,
-      fullMonths: monthCount,
-    };
-  }
-
-  if (dailyRate == null || dailyRate <= 0) {
+  if (needsDaily && (dailyRate == null || dailyRate <= 0)) {
     throw new Error(
-      "A 1-day pricing package is required for mid-month move-in. Set a daily price under Pricing.",
+      "A 1-day pricing package is required for mid-month move-in or move-out. Set a daily price under Pricing.",
     );
   }
 
-  const daysInStartMonth = daysInMonth(startDate);
-  const stubDays = daysInStartMonth - startDate.getDate() + 1;
-  const fullMonths = monthCount - 1;
+  // Full calendar months only — charge monthly rate.
+  if (startIsMonthStart && endIsMonthEnd) {
+    const fullMonths = inclusiveMonthCount(startDate, endDate);
+    return {
+      amountDue: fullMonths * monthlyPrice,
+      stubDays: 0,
+      endStubDays: 0,
+      dailyRate: 0,
+      fullMonths,
+    };
+  }
+
+  // Entire stay is within one calendar month and is partial → daily only.
+  if (sameCalendarMonth(startDate, endDate)) {
+    const days = endDate.getDate() - startDate.getDate() + 1;
+    const rate = dailyRate as number;
+    if (startIsMonthStart) {
+      return {
+        amountDue: days * rate,
+        stubDays: 0,
+        endStubDays: days,
+        dailyRate: rate,
+        fullMonths: 0,
+      };
+    }
+    return {
+      amountDue: days * rate,
+      stubDays: days,
+      endStubDays: 0,
+      dailyRate: rate,
+      fullMonths: 0,
+    };
+  }
+
+  const stubDays = startIsMonthStart
+    ? 0
+    : daysInMonth(startDate) - startDate.getDate() + 1;
+  const endStubDays = endIsMonthEnd ? 0 : endDate.getDate();
+  const fullMonths =
+    inclusiveMonthCount(startDate, endDate) -
+    (stubDays > 0 ? 1 : 0) -
+    (endStubDays > 0 ? 1 : 0);
 
   return {
-    amountDue: stubDays * dailyRate + fullMonths * monthlyPrice,
+    amountDue:
+      stubDays * (dailyRate as number) +
+      endStubDays * (dailyRate as number) +
+      fullMonths * monthlyPrice,
     stubDays,
-    dailyRate,
+    endStubDays,
+    dailyRate: dailyRate as number,
     fullMonths,
   };
 }

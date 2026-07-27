@@ -12,6 +12,7 @@ import {
   AdminSelect,
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
+import { Icon } from "@/components/shared/Icon";
 import { AdminAttachmentsList } from "@/features/admin/components/admin-attachments-list";
 import { AdminFormPage } from "@/features/admin/crud/admin-form-page";
 import { AdminLeaseRenewalActions } from "@/features/admin/leases/lease-renewal-actions";
@@ -43,7 +44,7 @@ import {
   deleteLeaseAttachment,
   uploadLeaseAttachment,
 } from "@/lib/api/admin/attachments";
-import { computeLeaseAmount, DAILY_DURATION_DAYS, MONTHLY_DURATION_DAYS, toMonthEndInputValue } from "@/lib/billing";
+import { computeLeaseAmount, DAILY_DURATION_DAYS, daysInMonth, MONTHLY_DURATION_DAYS, toMonthEndInputValue } from "@/lib/billing";
 import { parseDateOnly } from "@/lib/date-input";
 import { adminKeys } from "@/lib/query/keys";
 import type { LeaseAttachmentKind, LeaseStatus } from "@/lib/types/admin";
@@ -61,6 +62,12 @@ type FormState = {
   attachmentKind: LeaseAttachmentKind;
 };
 
+type PendingLeaseAttachment = {
+  id: string;
+  file: File;
+  kind: LeaseAttachmentKind;
+};
+
 const emptyForm: FormState = {
   unitId: "",
   userId: "",
@@ -72,7 +79,6 @@ const emptyForm: FormState = {
   attachmentKind: "downpayment",
 };
 
-/** Apply lease date range: end is always snapped to month-end when set. */
 function applyLeaseDateRange(
   prev: FormState,
   from: string,
@@ -100,9 +106,11 @@ export function LeaseForm({ id }: { id?: string }) {
   const mutations = useLeaseMutations();
   const lookups = useAdminLookups();
   const [form, setForm] = useState<FormState>(emptyForm);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePending, setImagePending] = useState(false);
-  const [imageError, setImageError] = useState<string | null>(null);
+  const [pendingAttachments, setPendingAttachments] = useState<
+    PendingLeaseAttachment[]
+  >([]);
+  const [attachmentsPending, setAttachmentsPending] = useState(false);
+  const [attachmentsError, setAttachmentsError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [deletePending, setDeletePending] = useState(false);
 
@@ -160,6 +168,14 @@ export function LeaseForm({ id }: { id?: string }) {
     );
   }, [pricings, selectedUnit, selectedPricing, lease]);
 
+  const needsDailyPricing = useMemo(() => {
+    const start = form.startDate ? parseDateOnly(form.startDate) : null;
+    const end = form.endDate ? parseDateOnly(form.endDate) : null;
+    const midMonthStart = start != null && start.getDate() !== 1;
+    const midMonthEnd = end != null && end.getDate() !== daysInMonth(end);
+    return midMonthStart || midMonthEnd;
+  }, [form.startDate, form.endDate]);
+
   const amountPreview = useMemo(() => {
     if (!form.startDate || !form.endDate || !selectedPricing) return null;
     const start = parseDateOnly(form.startDate);
@@ -181,6 +197,19 @@ export function LeaseForm({ id }: { id?: string }) {
       } as const;
     }
   }, [form.startDate, form.endDate, selectedPricing, dailyPricing]);
+
+  const amountPreviewDetails =
+    amountPreview && !("error" in amountPreview) && selectedPricing
+      ? {
+          monthlyRate: selectedPricing.price,
+          dailyRate: amountPreview.dailyRate,
+          startStubSubtotal: amountPreview.stubDays * amountPreview.dailyRate,
+          endStubSubtotal:
+            amountPreview.endStubDays * amountPreview.dailyRate,
+          monthlySubtotal:
+            amountPreview.fullMonths * selectedPricing.price,
+        }
+      : null;
 
   const overlapConflicts = useMemo(() => {
     if (!form.startDate || !form.endDate || !overlapUnitId || !overlapUserId) {
@@ -249,29 +278,41 @@ export function LeaseForm({ id }: { id?: string }) {
     }
   }
 
-  async function handleImageUpload() {
-    if (!isEdit || !id) {
-      setImageError(tp("saveFirstToUpload"));
-      return;
-    }
-    if (!imageFile) {
-      setImageError(tp("imageRequired"));
-      return;
-    }
+  function handleAttachmentSelection(files: File[]) {
+    if (files.length === 0) return;
 
-    setImageError(null);
-    setImagePending(true);
+    const next = files.map((file, index) => ({
+      id: `${file.name}-${file.size}-${file.lastModified}-${Date.now()}-${index}`,
+      file,
+      kind: form.attachmentKind,
+    }));
+
+    setPendingAttachments((current) => [...current, ...next]);
+    setAttachmentsError(null);
+  }
+
+  function handleRemovePendingAttachment(attachmentId: string) {
+    setPendingAttachments((current) =>
+      current.filter((item) => item.id !== attachmentId),
+    );
+  }
+
+  async function uploadPendingAttachments(leaseId: string) {
+    if (pendingAttachments.length === 0) return;
+
+    setAttachmentsError(null);
+    setAttachmentsPending(true);
     try {
-      await uploadLeaseAttachment(id, imageFile, form.attachmentKind);
-      showApiSuccess(tp("imageUploaded"));
-      setImageFile(null);
-      invalidateLease();
+      for (const attachment of pendingAttachments) {
+        await uploadLeaseAttachment(leaseId, attachment.file, attachment.kind);
+      }
+      setPendingAttachments([]);
     } catch (err) {
       const msg = getErrorMessage(err, tp("imageUploadFailed"));
-      setImageError(msg);
-      showApiError(err, msg);
+      setAttachmentsError(msg);
+      throw err;
     } finally {
-      setImagePending(false);
+      setAttachmentsPending(false);
     }
   }
 
@@ -316,6 +357,7 @@ export function LeaseForm({ id }: { id?: string }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
+    let createdLeaseId: string | null = null;
 
     if (!isEdit) {
       const parsed = createLeaseFormSchema({
@@ -340,28 +382,26 @@ export function LeaseForm({ id }: { id?: string }) {
 
     try {
       if (isEdit && id) {
-        await mutations.update.mutateAsync({
+        const savedLease = await mutations.update.mutateAsync({
           id,
           startDate: form.startDate,
           endDate: form.endDate,
           unitPricingId: form.unitPricingId || undefined,
           status: form.status,
         });
-        if (imageFile) {
-          await uploadLeaseAttachment(id, imageFile, form.attachmentKind);
-        }
+        await uploadPendingAttachments(savedLease.id);
         showApiSuccess(t("updated"));
       } else {
-        await mutations.create.mutateAsync({
+        const savedLease = await mutations.create.mutateAsync({
           unitId: form.unitId,
           userId: form.userId,
           startDate: form.startDate,
           endDate: form.endDate,
           unitPricingId: form.unitPricingId,
           leaseRenewalId: form.leaseRenewalId || undefined,
-          file: imageFile,
-          attachmentKind: form.attachmentKind,
         });
+        createdLeaseId = savedLease.id;
+        await uploadPendingAttachments(savedLease.id);
         showApiSuccess(t("created"));
       }
       router.push(form.leaseRenewalId ? "/admin/lease-renewals" : BASE);
@@ -370,12 +410,17 @@ export function LeaseForm({ id }: { id?: string }) {
       const msg = getErrorMessage(err, t("saveFailed"));
       setFormError(msg);
       showApiError(err, t("saveFailed"));
+      if (!isEdit && createdLeaseId) {
+        router.push(`/admin/leases/${createdLeaseId}/edit`);
+        router.refresh();
+      }
     }
   }
 
   const pending =
     mutations.create.isPending ||
     mutations.update.isPending ||
+    attachmentsPending ||
     (isEdit && isLoading);
 
   if (isEdit && isLoading && !lease) {
@@ -482,8 +527,7 @@ export function LeaseForm({ id }: { id?: string }) {
           selectedUnit &&
           pricingOptions.length > 0 &&
           !dailyPricing &&
-          form.startDate &&
-          parseDateOnly(form.startDate)?.getDate() !== 1 && (
+          needsDailyPricing && (
             <p className="mt-1 text-xs text-[#ba1a1a]">{tp("needDailyPricing")}</p>
           )}
       </AdminField>
@@ -495,20 +539,66 @@ export function LeaseForm({ id }: { id?: string }) {
         <div className="rounded-xl border border-[#e3e2e0] bg-[#faf9f6]/80 px-4 py-3 text-sm text-[#51443c]">
           <p className="font-semibold text-[#1a1c1a]">{tp("amountPreview")}</p>
           <dl className="mt-2 grid gap-1.5 sm:grid-cols-2">
-            {amountPreview.stubDays > 0 ? (
+            {amountPreviewDetails ? (
               <>
                 <div className="flex justify-between gap-2 sm:block">
-                  <dt className="text-xs text-[#83746b]">{tp("stubDays")}</dt>
+                  <dt className="text-xs text-[#83746b]">{tp("monthlyRate")}</dt>
                   <dd className="font-medium text-[#1a1c1a]">
-                    {amountPreview.stubDays}
+                    {formatIdrTable(amountPreviewDetails.monthlyRate)}
                   </dd>
                 </div>
-                <div className="flex justify-between gap-2 sm:block">
-                  <dt className="text-xs text-[#83746b]">{tp("dailyRate")}</dt>
-                  <dd className="font-medium text-[#1a1c1a]">
-                    {formatIdrTable(amountPreview.dailyRate)}
-                  </dd>
-                </div>
+                {amountPreview.dailyRate > 0 ? (
+                  <div className="flex justify-between gap-2 sm:block">
+                    <dt className="text-xs text-[#83746b]">{tp("dailyRate")}</dt>
+                    <dd className="font-medium text-[#1a1c1a]">
+                      {formatIdrTable(amountPreviewDetails.dailyRate)}
+                    </dd>
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+            {amountPreview.stubDays > 0 || amountPreview.endStubDays > 0 ? (
+              <>
+                {amountPreview.stubDays > 0 ? (
+                  <div className="flex justify-between gap-2 sm:block">
+                    <dt className="text-xs text-[#83746b]">{tp("stubDays")}</dt>
+                    <dd className="font-medium text-[#1a1c1a]">
+                      {amountPreview.stubDays}
+                    </dd>
+                  </div>
+                ) : null}
+                {amountPreviewDetails && amountPreview.stubDays > 0 ? (
+                  <div className="flex justify-between gap-2 sm:block">
+                    <dt className="text-xs text-[#83746b]">
+                      {tp("startStubSubtotal")}
+                    </dt>
+                    <dd className="font-medium text-[#1a1c1a]">
+                      {amountPreview.stubDays} x{" "}
+                      {formatIdrTable(amountPreviewDetails.dailyRate)} ={" "}
+                      {formatIdrTable(amountPreviewDetails.startStubSubtotal)}
+                    </dd>
+                  </div>
+                ) : null}
+                {amountPreview.endStubDays > 0 ? (
+                  <div className="flex justify-between gap-2 sm:block">
+                    <dt className="text-xs text-[#83746b]">{tp("endStubDays")}</dt>
+                    <dd className="font-medium text-[#1a1c1a]">
+                      {amountPreview.endStubDays}
+                    </dd>
+                  </div>
+                ) : null}
+                {amountPreviewDetails && amountPreview.endStubDays > 0 ? (
+                  <div className="flex justify-between gap-2 sm:block">
+                    <dt className="text-xs text-[#83746b]">
+                      {tp("endStubSubtotal")}
+                    </dt>
+                    <dd className="font-medium text-[#1a1c1a]">
+                      {amountPreview.endStubDays} x{" "}
+                      {formatIdrTable(amountPreviewDetails.dailyRate)} ={" "}
+                      {formatIdrTable(amountPreviewDetails.endStubSubtotal)}
+                    </dd>
+                  </div>
+                ) : null}
               </>
             ) : null}
             <div className="flex justify-between gap-2 sm:block">
@@ -517,6 +607,16 @@ export function LeaseForm({ id }: { id?: string }) {
                 {amountPreview.fullMonths}
               </dd>
             </div>
+            {amountPreviewDetails && amountPreview.fullMonths > 0 ? (
+              <div className="flex justify-between gap-2 sm:block">
+                <dt className="text-xs text-[#83746b]">{tp("monthlySubtotal")}</dt>
+                <dd className="font-medium text-[#1a1c1a]">
+                  {amountPreview.fullMonths} x{" "}
+                  {formatIdrTable(amountPreviewDetails.monthlyRate)} ={" "}
+                  {formatIdrTable(amountPreviewDetails.monthlySubtotal)}
+                </dd>
+              </div>
+            ) : null}
             <div className="flex justify-between gap-2 sm:block">
               <dt className="text-xs text-[#83746b]">{tp("amountDue")}</dt>
               <dd className="font-medium text-[#1a1c1a]">
@@ -524,6 +624,20 @@ export function LeaseForm({ id }: { id?: string }) {
               </dd>
             </div>
           </dl>
+          {amountPreviewDetails ? (
+            <div className="mt-3 rounded-lg border border-[#e8ddd4] bg-white/70 px-3 py-2 text-xs text-[#51443c]">
+              <p className="font-medium text-[#1a1c1a]">{tp("calculationFormula")}</p>
+              <p className="mt-1">
+                {formatIdrTable(amountPreviewDetails.startStubSubtotal)}
+                {" + "}
+                {formatIdrTable(amountPreviewDetails.monthlySubtotal)}
+                {" + "}
+                {formatIdrTable(amountPreviewDetails.endStubSubtotal)}
+                {" = "}
+                {formatIdrTable(amountPreview.amountDue)}
+              </p>
+            </div>
+          ) : null}
         </div>
       ) : null}
       {overlapConflicts.length > 0 && (
@@ -622,27 +736,61 @@ export function LeaseForm({ id }: { id?: string }) {
         <AdminField label={tp("attachmentFile")} htmlFor="lease-proof">
           <AdminFileInput
             id="lease-proof"
-            file={imageFile}
-            onFileChange={setImageFile}
+            multiple
+            selectedCount={pendingAttachments.length}
+            onFilesChange={handleAttachmentSelection}
           />
-          {isEdit ? (
-            <div className="mt-2 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => void handleImageUpload()}
-                disabled={imagePending || !imageFile}
-                className="rounded-lg border border-[#6f4627] bg-[#faf9f6] px-3 py-1.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
-              >
-                {imagePending ? tp("uploadingImage") : tp("uploadImage")}
-              </button>
-            </div>
-          ) : (
-            <p className="mt-1 text-xs text-[#83746b]">{tp("attachmentCreateHint")}</p>
-          )}
-          {imageError ? (
-            <p className="mt-1 text-xs text-[#ba1a1a]">{imageError}</p>
+          <p className="mt-1 text-xs text-[#83746b]">
+            {isEdit ? tp("attachmentsEditHint") : tp("attachmentCreateHint")}
+          </p>
+          {attachmentsError ? (
+            <p className="mt-1 text-xs text-[#ba1a1a]">{attachmentsError}</p>
           ) : null}
         </AdminField>
+        <div className="space-y-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-[#83746b]">
+            {tp("pendingAttachmentsTitle")}
+          </p>
+          {pendingAttachments.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-[#e3e2e0] bg-[#faf9f6]/80 px-4 py-6 text-center text-sm text-[#83746b]">
+              {tp("pendingAttachmentsEmpty")}
+            </p>
+          ) : (
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {pendingAttachments.map((attachment) => (
+                <li
+                  key={attachment.id}
+                  className="flex items-start justify-between gap-3 rounded-xl border border-[#e3e2e0]/80 bg-white/90 p-3 shadow-sm"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-[#1a1c1a]">
+                      {attachment.file.name}
+                    </p>
+                    <p className="mt-0.5 text-xs font-medium text-[#6f4627]">
+                      {attachmentKindLabel(attachment.kind)}
+                    </p>
+                    <p className="mt-0.5 text-xs text-[#83746b]">
+                      {tp("pendingAttachmentSize", {
+                        sizeKb: Math.max(
+                          1,
+                          Math.round(attachment.file.size / 1024),
+                        ),
+                      })}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePendingAttachment(attachment.id)}
+                    className="shrink-0 rounded-lg p-1.5 text-[#83746b] transition-colors hover:bg-[#efeeeb] hover:text-[#51443c]"
+                    aria-label={ta("remove")}
+                  >
+                    <Icon name="delete" size={18} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         {isEdit ? (
           <AdminAttachmentsList
             attachments={attachments.map((a) => ({

@@ -32,7 +32,7 @@ export default function KostDetailPage() {
                 <div className="flex min-h-screen items-center justify-center bg-[#faf9f6] pt-16">
                     <div className="text-center">
                         <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-[#6f4627] border-t-transparent" />
-                        <p className="text-slate-500 dark:text-slate-400">{t('common.loading')}</p>
+                        <p className="text-slate-500 dark:text-slate-500">{t('common.loading')}</p>
                     </div>
                 </div>
             </AppLayout>

@@ -78,13 +78,19 @@ export function AdminFileInput({
   accept = "image/*",
   file,
   onFileChange,
+  multiple = false,
+  onFilesChange,
+  selectedCount = 0,
   className,
   disabled,
 }: {
   id?: string;
   accept?: string;
-  file: File | null;
-  onFileChange: (file: File | null) => void;
+  file?: File | null;
+  onFileChange?: (file: File | null) => void;
+  multiple?: boolean;
+  onFilesChange?: (files: File[]) => void;
+  selectedCount?: number;
   className?: string;
   disabled?: boolean;
 }) {
@@ -92,13 +98,25 @@ export function AdminFileInput({
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    onFileChange(event.target.files?.[0] ?? null);
+    const files = Array.from(event.target.files ?? []);
+    if (multiple) {
+      onFilesChange?.(files);
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
+    onFileChange?.(files[0] ?? null);
   }
 
   function handleClear() {
-    onFileChange(null);
+    onFileChange?.(null);
     if (inputRef.current) inputRef.current.value = "";
   }
+
+  const label = multiple
+    ? selectedCount > 0
+      ? t("filesChosen", { count: selectedCount })
+      : t("noFileChosen")
+    : (file?.name ?? t("noFileChosen"));
 
   return (
     <div
@@ -113,6 +131,7 @@ export function AdminFileInput({
         id={id}
         type="file"
         accept={accept}
+        multiple={multiple}
         disabled={disabled}
         className="sr-only"
         onChange={handleChange}
@@ -128,12 +147,14 @@ export function AdminFileInput({
       <span
         className={cn(
           "min-w-0 flex-1 truncate text-sm",
-          file ? "font-medium text-[#1a1c1a]" : "text-[#83746b]",
+          (multiple ? selectedCount > 0 : !!file)
+            ? "font-medium text-[#1a1c1a]"
+            : "text-[#83746b]",
         )}
       >
-        {file?.name ?? t("noFileChosen")}
+        {label}
       </span>
-      {file ? (
+      {!multiple && file ? (
         <button
           type="button"
           disabled={disabled}
