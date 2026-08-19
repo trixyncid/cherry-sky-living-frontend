@@ -100,7 +100,7 @@ export function LeaseRenewalPrompt({
               type="button"
               disabled={pending}
               onClick={() => void handleCancelRequest()}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-[#e3e2e0] bg-white px-4 py-2 text-sm font-semibold text-[#51443c] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-xl glass-control px-4 py-2 text-sm font-semibold text-[#51443c] transition-colors hover:bg-white/80 disabled:opacity-50"
             >
               {pending ? t("submitting") : t("cancelRequest")}
             </button>
@@ -126,13 +126,13 @@ export function LeaseRenewalPrompt({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-[#8b5e3c]/25 bg-gradient-to-br from-[#fef7e0] to-[#fff8ef] p-5 shadow-sm",
+        "glass-panel rounded-[1.75rem] p-5 ring-1 ring-[#8b5e3c]/15",
         compact && "p-4",
         className,
       )}
     >
       <div className="flex gap-4">
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#8b5e3c]/10 text-[#6f4627]">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#8b5e3c]/12 text-[#6f4627] shadow-[inset_0_1px_0_rgb(255_255_255/0.55)]">
           <Icon name="autorenew" size={24} />
         </div>
         <div className="min-w-0 flex-1">
@@ -150,7 +150,7 @@ export function LeaseRenewalPrompt({
                 type="button"
                 disabled={pending}
                 onClick={() => void handleRenew()}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#6f4627] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                className="admin-btn-primary inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold disabled:opacity-50"
               >
                 <Icon name="check" size={18} />
                 {pending ? t("submitting") : t("yesRenew")}
@@ -159,7 +159,7 @@ export function LeaseRenewalPrompt({
                 type="button"
                 disabled={pending}
                 onClick={() => void handleDismiss()}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-[#e3e2e0] bg-white px-4 py-2 text-sm font-semibold text-[#51443c] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
+                className="glass-control inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-[#51443c] transition-colors hover:bg-white/80 disabled:opacity-50"
               >
                 {pending ? t("submitting") : t("noRenew")}
               </button>
@@ -199,13 +199,13 @@ function RenewalBanner({
 }) {
   const toneStyles =
     tone === "pending"
-      ? "border-[#B06000]/20 bg-[#FEF7E0]/60 text-[#B06000]"
-      : "border-[#137333]/20 bg-[#E6F4EA]/60 text-[#137333]";
+      ? "border-[#B06000]/20 bg-[#FEF7E0]/55 text-[#B06000]"
+      : "border-[#137333]/20 bg-[#E6F4EA]/55 text-[#137333]";
 
   return (
     <div
       className={cn(
-        "rounded-2xl border p-4 shadow-sm",
+        "rounded-2xl border p-4 backdrop-blur-md",
         toneStyles,
         compact && "p-3",
         className,

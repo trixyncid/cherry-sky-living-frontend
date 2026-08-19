@@ -34,16 +34,21 @@ export function AdminStatCard({
   const content = (
     <>
       <div className="flex items-start justify-between gap-3">
-        <div className={cn("rounded-xl p-2.5", iconClassName)}>
+        <div
+          className={cn(
+            "rounded-xl p-2.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.55)]",
+            iconClassName,
+          )}
+        >
           <Icon name={icon} size={22} />
         </div>
         {trend && (
           <span
             className={cn(
-              "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold",
+              "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold backdrop-blur-sm",
               trend.positive
-                ? "bg-[#E6F4EA] text-[#137333]"
-                : "bg-[#ffdad6] text-[#ba1a1a]",
+                ? "bg-emerald-500/15 text-emerald-800"
+                : "bg-red-500/15 text-[#ba1a1a]",
             )}
           >
             {trend.positive ? "↑" : "↓"} {trend.value}
@@ -76,15 +81,16 @@ export function AdminStatCard({
   );
 
   const cardClass = cn(
-    "group relative overflow-hidden rounded-2xl border border-[#e3e2e0]/80 bg-white/90 p-5 shadow-[0_1px_3px_rgba(47,49,47,0.06)] backdrop-blur-sm transition-all duration-300",
-    href && "hover:border-[#8b5e3c]/30 hover:shadow-[0_8px_30px_-12px_rgba(111,70,39,0.15)]",
+    "glass-panel group relative overflow-hidden rounded-2xl p-5 transition-all duration-300",
+    href &&
+      "hover:-translate-y-0.5 hover:border-white/80 hover:shadow-[0_16px_40px_-16px_rgba(111,70,39,0.22)]",
     className,
   );
 
   if (href) {
     return (
       <Link href={href} className={cardClass}>
-        <div className="absolute -right-6 -top-6 size-24 rounded-full bg-[#6f4627]/5 transition-transform duration-300 group-hover:scale-110" />
+        <div className="absolute -right-8 -top-8 size-28 rounded-full bg-[#6f4627]/8 blur-2xl transition-transform duration-500 group-hover:scale-125" />
         {content}
       </Link>
     );
@@ -93,7 +99,7 @@ export function AdminStatCard({
   return (
     <article className={cardClass}>
       <div
-        className="absolute -right-6 -top-6 size-24 rounded-full bg-[#6f4627]/5"
+        className="absolute -right-8 -top-8 size-28 rounded-full bg-[#6f4627]/8 blur-2xl"
         aria-hidden
       />
       {content}

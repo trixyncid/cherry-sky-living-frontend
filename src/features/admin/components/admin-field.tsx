@@ -1,7 +1,15 @@
+"use client";
+
 import * as React from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 import { RequiredMark } from "@/components/shared/required-mark";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { adminMenuItemClassName } from "@/features/admin/components/admin-menu";
 import { formatIdrInput } from "@/features/admin/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +42,7 @@ export function AdminField({
 }
 
 const adminControlBase =
-  "w-full rounded-xl border border-[#d5c3b8] bg-[#faf9f6] text-sm text-[#1a1c1a] transition-colors focus:border-[#8b5e3c] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/15";
+  "glass-control w-full rounded-xl text-sm text-[#1a1c1a] transition-all focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/20";
 
 export const adminInputClassName = cn(
   adminControlBase,
@@ -49,6 +57,12 @@ export const adminSelectClassName = cn(
 export const adminSearchInputClassName = cn(
   adminControlBase,
   "h-10 pl-10 pr-4 placeholder:text-[#83746b]/60",
+);
+
+export const adminMenuSearchClassName = cn(
+  "h-10 w-full rounded-lg border border-[#e8ddd4] bg-white pl-10 pr-4 text-sm text-[#1a1c1a]",
+  "placeholder:text-[#83746b]/60 outline-none",
+  "focus:border-[#8b5e3c]/45 focus:ring-2 focus:ring-[#8b5e3c]/15",
 );
 
 export const adminTextareaClassName = cn(
@@ -121,7 +135,7 @@ export function AdminFileInput({
   return (
     <div
       className={cn(
-        "flex w-full items-center gap-3 rounded-xl border border-[#d5c3b8] bg-[#faf9f6] px-3 py-2.5",
+        "glass-control flex w-full items-center gap-3 rounded-xl px-3 py-2.5",
         disabled && "opacity-50",
         className,
       )}
@@ -140,7 +154,7 @@ export function AdminFileInput({
         type="button"
         disabled={disabled}
         onClick={() => inputRef.current?.click()}
-        className="shrink-0 rounded-lg border border-[#d5c3b8] bg-white px-3 py-1.5 text-sm font-semibold text-[#51443c] transition-colors hover:border-[#8b5e3c]/40 hover:bg-[#efeeeb] disabled:cursor-not-allowed"
+        className="shrink-0 rounded-lg border border-white/60 bg-white/70 px-3 py-1.5 text-sm font-semibold text-[#51443c] transition-colors hover:bg-white disabled:cursor-not-allowed"
       >
         {t("chooseFile")}
       </button>
@@ -173,27 +187,270 @@ export function AdminSelect({
   className,
   selectClassName,
   children,
-  ...props
+  value,
+  defaultValue,
+  onChange,
+  disabled,
+  required,
+  id,
+  name,
 }: React.ComponentProps<"select"> & {
   className?: string;
   selectClassName?: string;
 }) {
+  const listboxId = React.useId();
+  const [open, setOpen] = React.useState(false);
+  const [activeIndex, setActiveIndex] = React.useState(0);
+  const itemRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
+  const typeaheadRef = React.useRef("");
+  const typeaheadTimer = React.useRef<number>(0);
+
+  const options = React.useMemo(
+    () => optionsFromChildren(children),
+    [children],
+  );
+
+  const selectedValue = String(value ?? defaultValue ?? "");
+  const selected = options.find((option) => option.value === selectedValue);
+  const selectedLabel = selected?.label ?? "";
+  const isPlaceholder = !selected || selected.value === "";
+
+  React.useEffect(() => {
+    if (!open) return;
+    const idx = options.findIndex((option) => option.value === selectedValue);
+    setActiveIndex(idx >= 0 ? idx : 0);
+    // Only reset highlight when the menu opens, not on every parent re-render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  React.useEffect(() => {
+    if (!open) return;
+    itemRefs.current[activeIndex]?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex, open]);
+
+  React.useEffect(
+    () => () => window.clearTimeout(typeaheadTimer.current),
+    [],
+  );
+
+  function emitChange(next: string) {
+    onChange?.({
+      target: { value: next, name: name ?? "", id: id ?? "" },
+      currentTarget: { value: next, name: name ?? "", id: id ?? "" },
+    } as React.ChangeEvent<HTMLSelectElement>);
+  }
+
+  function handleSelect(next: string) {
+    emitChange(next);
+    setOpen(false);
+  }
+
+  function handleTypeahead(key: string) {
+    typeaheadRef.current += key.toLowerCase();
+    window.clearTimeout(typeaheadTimer.current);
+    typeaheadTimer.current = window.setTimeout(() => {
+      typeaheadRef.current = "";
+    }, 450);
+    const match = options.findIndex((option) =>
+      option.label.toLowerCase().startsWith(typeaheadRef.current),
+    );
+    if (match >= 0) setActiveIndex(match);
+  }
+
+  function handleTriggerKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!open) {
+        setOpen(true);
+        return;
+      }
+      setActiveIndex((current) => {
+        if (event.key === "ArrowDown") {
+          return Math.min(current + 1, options.length - 1);
+        }
+        return Math.max(current - 1, 0);
+      });
+      return;
+    }
+
+    if (event.key === "Home") {
+      event.preventDefault();
+      setActiveIndex(0);
+      return;
+    }
+
+    if (event.key === "End") {
+      event.preventDefault();
+      setActiveIndex(Math.max(options.length - 1, 0));
+      return;
+    }
+
+    if (event.key === "Enter" && open && options[activeIndex]) {
+      event.preventDefault();
+      handleSelect(options[activeIndex].value);
+      return;
+    }
+
+    if (event.key.length === 1 && !event.metaKey && !event.ctrlKey) {
+      handleTypeahead(event.key);
+    }
+  }
+
+  if (disabled) {
+    return (
+      <div className={cn("relative min-w-0", className)}>
+        <div
+          className={cn(
+            adminSelectClassName,
+            "flex items-center pr-10 opacity-60",
+            isPlaceholder && "text-[#83746b]/60",
+            selectClassName,
+          )}
+        >
+          <span className="truncate">{selectedLabel}</span>
+        </div>
+        <span
+          className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-[#83746b]"
+          aria-hidden
+        >
+          <Icon name="expand_more" size={20} />
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("relative min-w-0", className)}>
-      <select
-        className={cn(adminSelectClassName, selectClassName)}
-        {...props}
-      >
-        {children}
-      </select>
-      <span
-        className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-[#83746b]"
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            id={id}
+            type="button"
+            role="combobox"
+            aria-expanded={open}
+            aria-controls={listboxId}
+            disabled={disabled}
+            onKeyDown={handleTriggerKeyDown}
+            className={cn(
+              adminSelectClassName,
+              "relative flex items-center text-left",
+              isPlaceholder && "text-[#83746b]/60",
+              open && "bg-white/90",
+              selectClassName,
+            )}
+          >
+            <span className="truncate pr-8">{selectedLabel}</span>
+            <span
+              className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-[#83746b]"
+              aria-hidden
+            >
+              <Icon
+                name="expand_more"
+                size={20}
+                className={cn("transition-transform", open && "rotate-180")}
+              />
+            </span>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] min-w-[12rem] p-0"
+          align="start"
+          onOpenAutoFocus={(event) => event.preventDefault()}
+        >
+          <ul
+            id={listboxId}
+            role="listbox"
+            className="max-h-64 overflow-y-auto p-1"
+          >
+            {options.map((option, index) => {
+              const isSelected = option.value === selectedValue;
+              const isActive = index === activeIndex;
+              return (
+                <li key={`${option.value}-${index}`} role="presentation">
+                  <button
+                    ref={(node) => {
+                      itemRefs.current[index] = node;
+                    }}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    disabled={option.disabled}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    onClick={() => handleSelect(option.value)}
+                    className={cn(
+                      adminMenuItemClassName({
+                        active: isActive,
+                        selected: isSelected,
+                      }),
+                      option.disabled && "cursor-not-allowed opacity-50",
+                      option.value === "" && !isSelected && "text-[#83746b]",
+                    )}
+                  >
+                    <span className="min-w-0 flex-1 truncate">{option.label}</span>
+                    {isSelected && (
+                      <Icon
+                        name="check"
+                        size={18}
+                        className="shrink-0 text-[#6f4627]"
+                      />
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </PopoverContent>
+      </Popover>
+      <input
+        type="hidden"
+        name={name ?? (id ? `${id}-value` : undefined)}
+        value={selectedValue}
+        required={required}
+        tabIndex={-1}
         aria-hidden
-      >
-        <Icon name="expand_more" size={20} />
-      </span>
+        onChange={() => {}}
+      />
     </div>
   );
+}
+
+function optionsFromChildren(children: React.ReactNode): Array<{
+  value: string;
+  label: string;
+  disabled?: boolean;
+}> {
+  const options: Array<{ value: string; label: string; disabled?: boolean }> =
+    [];
+
+  React.Children.forEach(children, (child) => {
+    if (!React.isValidElement<{
+      value?: string | number;
+      disabled?: boolean;
+      children?: React.ReactNode;
+    }>(child)) {
+      return;
+    }
+    if (child.type !== "option") return;
+    const value =
+      child.props.value == null ? "" : String(child.props.value);
+    options.push({
+      value,
+      label: childText(child.props.children) || value,
+      disabled: Boolean(child.props.disabled),
+    });
+  });
+
+  return options;
+}
+
+function childText(node: React.ReactNode): string {
+  if (node == null || typeof node === "boolean") return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(childText).join("");
+  if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+    return childText(node.props.children);
+  }
+  return "";
 }
 
 export { DatePicker as AdminDatePicker } from "@/components/date-picker";
@@ -207,9 +464,10 @@ export const AdminSearchInput = React.forwardRef<
     placeholder?: string;
     className?: string;
     id?: string;
+    variant?: "default" | "menu";
   } & Omit<React.ComponentProps<"input">, "value" | "onChange" | "type">
 >(function AdminSearchInput(
-  { value, onChange, placeholder, className, id, ...props },
+  { value, onChange, placeholder, className, id, variant = "default", ...props },
   ref,
 ) {
   return (
@@ -226,7 +484,11 @@ export const AdminSearchInput = React.forwardRef<
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={adminSearchInputClassName}
+        className={
+          variant === "menu"
+            ? adminMenuSearchClassName
+            : adminSearchInputClassName
+        }
         {...props}
       />
     </div>
@@ -259,3 +521,47 @@ export const AdminCurrencyInput = React.forwardRef<
     />
   );
 });
+
+export function AdminPasswordInput({
+  id,
+  value,
+  onChange,
+  required,
+  autoComplete = "new-password",
+  showLabel,
+  hideLabel,
+  className,
+}: {
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;
+  autoComplete?: string;
+  showLabel: string;
+  hideLabel: string;
+  className?: string;
+}) {
+  const [visible, setVisible] = React.useState(false);
+
+  return (
+    <div className="relative">
+      <input
+        id={id}
+        type={visible ? "text" : "password"}
+        required={required}
+        autoComplete={autoComplete}
+        className={cn(adminInputClassName, "pr-10", className)}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((current) => !current)}
+        className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#6f4627]"
+        aria-label={visible ? hideLabel : showLabel}
+      >
+        <Icon name={visible ? "visibility_off" : "visibility"} size={20} />
+      </button>
+    </div>
+  );
+}

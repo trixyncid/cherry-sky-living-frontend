@@ -40,8 +40,8 @@ export function AdminLoginShell({ children }: { children: React.ReactNode }) {
         transition={{ duration: 0.55, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
       >
         <motion.div
-          className="rounded-xl border border-[#e3e2e0] bg-white p-10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)]"
-          whileHover={{ boxShadow: "0 24px 48px -12px rgba(111, 70, 39, 0.12)" }}
+          className="glass-panel-strong rounded-[1.75rem] p-10"
+          whileHover={{ boxShadow: "0 24px 48px -12px rgba(111, 70, 39, 0.16)" }}
           transition={{ duration: 0.25 }}
         >
           <motion.div
@@ -51,7 +51,7 @@ export function AdminLoginShell({ children }: { children: React.ReactNode }) {
             transition={{ duration: 0.45, delay: 0.25 }}
           >
             <motion.div
-              className="relative mb-4 size-16 overflow-hidden rounded-lg border border-[#e3e2e0] shadow-sm"
+              className="relative mb-4 size-16 overflow-hidden rounded-2xl border border-white/60 shadow-sm"
               whileHover={{ scale: 1.04 }}
               transition={{ type: "spring", stiffness: 400, damping: 22 }}
             >

@@ -14,12 +14,12 @@ import { isUnitOccupied, type Unit, type UnitStatus } from "@/lib/types/admin";
 const tileStyles: Record<UnitStatus, { tile: string; dot: string; icon: string }> =
   {
     vacant: {
-      tile: "border-emerald-200/90 bg-gradient-to-br from-emerald-50/90 via-white to-white hover:border-emerald-400 hover:shadow-[0_4px_20px_-8px_rgba(16,185,129,0.35)]",
+      tile: "border-emerald-300/40 bg-gradient-to-br from-emerald-50/70 via-white/40 to-white/20 backdrop-blur-md hover:border-emerald-400/70 hover:shadow-[0_8px_24px_-10px_rgba(16,185,129,0.4)]",
       dot: "bg-emerald-500",
       icon: "text-emerald-600/70",
     },
     occupied: {
-      tile: "border-red-300/90 bg-gradient-to-br from-red-50/90 via-white to-white hover:border-red-500 hover:shadow-[0_4px_20px_-8px_rgba(220,38,38,0.35)]",
+      tile: "border-red-300/40 bg-gradient-to-br from-red-50/70 via-white/40 to-white/20 backdrop-blur-md hover:border-red-400/70 hover:shadow-[0_8px_24px_-10px_rgba(220,38,38,0.35)]",
       dot: "bg-red-600",
       icon: "text-red-600/80",
     },
@@ -73,7 +73,7 @@ export const UnitRoomTile = memo(function UnitRoomTile({
         className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 hidden w-52 -translate-x-1/2 opacity-0 transition-opacity duration-150 group-hover:opacity-100 sm:block"
         role="tooltip"
       >
-        <div className="rounded-xl border border-[#e3e2e0] bg-white p-3 shadow-lg shadow-[#2f312f]/10">
+        <div className="glass-panel-strong rounded-xl p-3">
           <p className="text-sm font-semibold text-[#1a1c1a]">{unit.name}</p>
           <p className="mt-0.5 text-xs text-[#83746b]">{unitType}</p>
           <div className="mt-2 flex items-center gap-1.5 text-xs">

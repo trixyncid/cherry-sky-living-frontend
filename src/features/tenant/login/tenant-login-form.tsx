@@ -16,7 +16,7 @@ import {
 } from "@/features/admin/login/schemas";
 import { getTenantProfile } from "@/lib/api/tenant/profile";
 import { authClient } from "@/lib/auth/client";
-import { isDeactivatedAuthError } from "@/lib/auth/errors";
+import { loginErrorKeyFromAuthError, type LoginErrorKey } from "@/lib/auth/errors";
 import { getHomePathForRole } from "@/lib/auth/redirects";
 import {
   assertCanAccessTenantPortal,
@@ -39,12 +39,10 @@ const fieldMotion = {
 };
 
 const inputClassName = cn(
-  "block w-full rounded-lg border border-[#83746b] bg-[#faf9f6] py-2.5 pl-10 pr-3 text-base text-[#1a1c1a] shadow-sm",
-  "transition-colors placeholder:text-[#51443c]/50",
-  "focus:border-[#6f4627] focus:outline-none focus:ring-2 focus:ring-[#6f4627]/25",
+  "glass-control block w-full rounded-xl py-2.5 pl-10 pr-3 text-base text-[#1a1c1a]",
+  "transition-all placeholder:text-[#51443c]/50",
+  "focus:outline-none focus:ring-2 focus:ring-[#6f4627]/20",
 );
-
-type LoginErrorKey = "invalid" | "forbidden" | "deactivated";
 
 function showLoginError(
   t: ReturnType<typeof useTranslations<"tenant.login">>,
@@ -93,10 +91,7 @@ export function TenantLoginForm() {
       });
 
       if (result.error) {
-        showLoginError(
-          t,
-          isDeactivatedAuthError(result.error) ? "deactivated" : "invalid",
-        );
+        showLoginError(t, loginErrorKeyFromAuthError(result.error));
         return;
       }
 
@@ -246,10 +241,10 @@ export function TenantLoginForm() {
                 type="submit"
                 disabled={!canSubmit || isSubmitting}
                 className={cn(
-                  "mt-2 flex w-full items-center justify-center rounded-lg border border-transparent",
-                  "bg-[#6f4627] px-4 py-2.5 text-sm font-semibold text-white shadow-sm",
+                  "admin-btn-primary mt-2 flex w-full items-center justify-center rounded-xl border border-transparent",
+                  "px-4 py-2.5 text-sm font-semibold",
                   "transition-all duration-200",
-                  "hover:bg-[#805533] focus:outline-none focus:ring-2 focus:ring-[#6f4627] focus:ring-offset-2",
+                  "focus:outline-none focus:ring-2 focus:ring-[#6f4627] focus:ring-offset-2",
                   "disabled:cursor-not-allowed disabled:opacity-60",
                 )}
                 whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
@@ -263,7 +258,7 @@ export function TenantLoginForm() {
       </form>
 
       <motion.div
-        className="mt-8 border-t border-[#e3e2e0] pt-6 text-center"
+        className="mt-8 border-t border-white/40 pt-6 text-center"
         variants={fieldMotion}
         custom={4}
         initial="hidden"

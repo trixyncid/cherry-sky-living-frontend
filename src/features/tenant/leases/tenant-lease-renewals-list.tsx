@@ -6,6 +6,7 @@ import { Icon } from "@/components/shared/Icon";
 import { Link } from "@/i18n/routing";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
+import { AdminStatCard } from "@/features/admin/components/admin-stat-card";
 import { formatDate } from "@/features/admin/lib/format";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { LeaseRenewalPrompt } from "@/features/tenant/leases/lease-renewal-prompt";
@@ -80,36 +81,39 @@ export function TenantLeaseRenewalsList() {
 
       {!isLoading && renewalLeases.length > 0 && (
         <div className="mb-6 grid gap-3 sm:grid-cols-3">
-          <MetricCard
+          <AdminStatCard
             icon="autorenew"
+            iconClassName="bg-[#8b5e3c]/12 text-[#6f4627]"
             label={tp("stats.total")}
             value={metrics.total}
           />
-          <MetricCard
+          <AdminStatCard
             icon="pending_actions"
+            iconClassName="bg-[#B06000]/12 text-[#B06000]"
             label={tp("stats.actionNeeded")}
             value={metrics.actionNeeded}
-            highlight={metrics.actionNeeded > 0}
+            className={metrics.actionNeeded > 0 ? "ring-1 ring-[#B06000]/20" : undefined}
           />
-          <MetricCard
+          <AdminStatCard
             icon="sync"
+            iconClassName="bg-[#1967D2]/12 text-[#1967D2]"
             label={tp("stats.inProgress")}
             value={metrics.inProgress}
           />
         </div>
       )}
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="glass-panel mb-4 inline-flex flex-wrap gap-1 rounded-xl p-1">
         {filters.map((item) => (
           <button
             key={item.key}
             type="button"
             onClick={() => setStatusFilter(item.key)}
             className={cn(
-              "rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors",
+              "rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors",
               statusFilter === item.key
-                ? "bg-[#6f4627] text-white shadow-sm"
-                : "bg-[#efeeeb] text-[#51443c] hover:bg-[#e3e2e0]",
+                ? "admin-btn-primary shadow-sm"
+                : "text-[#51443c] hover:bg-white/70",
             )}
           >
             {item.label}
@@ -126,7 +130,7 @@ export function TenantLeaseRenewalsList() {
       {isLoading ? (
         <p className="text-sm text-[#83746b]">{t("loading")}</p>
       ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#e3e2e0] bg-white/60 p-10 text-center">
+        <div className="glass-panel rounded-2xl border-dashed p-10 text-center">
           <Icon
             name="autorenew"
             size={40}
@@ -152,37 +156,6 @@ export function TenantLeaseRenewalsList() {
   );
 }
 
-function MetricCard({
-  icon,
-  label,
-  value,
-  highlight,
-}: {
-  icon: string;
-  label: string;
-  value: number;
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        "rounded-2xl border border-[#e3e2e0]/80 bg-white/90 p-4 shadow-sm",
-        highlight && "border-[#B06000]/30 bg-[#FEF7E0]/30",
-      )}
-    >
-      <div className="flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-xl bg-[#efeeeb] text-[#6f4627]">
-          <Icon name={icon} size={22} />
-        </div>
-        <div>
-          <p className="text-2xl font-bold text-[#1a1c1a]">{value}</p>
-          <p className="text-xs font-medium text-[#83746b]">{label}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function RenewalCard({ lease }: { lease: Lease }) {
   const tp = useTranslations("tenant.pages.leaseRenewals");
   const tr = useTranslations("tenant.pages.leases");
@@ -195,7 +168,7 @@ function RenewalCard({ lease }: { lease: Lease }) {
   const showRequestedActions = status === "requested";
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-[#e3e2e0] bg-white/80 shadow-sm">
+    <article className="glass-panel overflow-hidden rounded-[1.75rem]">
       <div className="p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -231,7 +204,7 @@ function RenewalCard({ lease }: { lease: Lease }) {
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
             href={`/tenant/leases/${lease.id}`}
-            className="inline-flex items-center gap-1 rounded-lg border border-[#e3e2e0] bg-white px-3 py-1.5 text-xs font-semibold text-[#51443c] transition-colors hover:bg-[#efeeeb]"
+            className="glass-control inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold text-[#51443c] transition-colors hover:bg-white/80"
           >
             <Icon name="description" size={16} />
             {tp("viewLease")}
@@ -240,7 +213,7 @@ function RenewalCard({ lease }: { lease: Lease }) {
       </div>
 
       {(showPrompt || showRequestedActions) && (
-        <div className="border-t border-[#e3e2e0] bg-[#faf9f7] p-5">
+        <div className="border-t border-white/40 bg-white/25 p-5">
           <LeaseRenewalPrompt lease={lease} />
         </div>
       )}
@@ -258,7 +231,7 @@ function TenantRenewalStatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold",
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold backdrop-blur-sm",
         statusStyles[status],
       )}
     >

@@ -4,11 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import {
+  AdminDetailPage,
+  AdminFormActions,
+  AdminFormError,
+  AdminFormSection,
+} from "@/features/admin/components/admin-form-layout";
+import {
   AdminField,
   AdminSelect,
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
-import { AdminFormPage } from "@/features/admin/crud/admin-form-page";
 import {
   useProperties,
   useUnit,
@@ -70,6 +75,13 @@ export function UnitForm({ id }: { id?: string }) {
     }
   }, [unit]);
 
+  const isDirty =
+    !unit ||
+    form.name !== unit.name ||
+    form.maxOccupancy !==
+      (unit.maxOccupancy != null ? String(unit.maxOccupancy) : "") ||
+    status !== unit.status;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
@@ -92,14 +104,16 @@ export function UnitForm({ id }: { id?: string }) {
           setFormError(t("selectUnitType"));
           return;
         }
-        await mutations.create.mutateAsync({
+        const created = await mutations.create.mutateAsync({
           name: form.name,
           unitTypeId: form.unitTypeId,
           maxOccupancy,
         });
         showApiSuccess(t("created"));
+        router.replace(`${BASE}/${created.id}/edit`);
+        router.refresh();
+        return;
       }
-      router.push(BASE);
       router.refresh();
     } catch (err) {
       const msg = getErrorMessage(err, t("saveFailed"));
@@ -118,100 +132,121 @@ export function UnitForm({ id }: { id?: string }) {
   }
 
   return (
-    <AdminFormPage
-      title={isEdit ? t("editTitle") : t("createTitle")}
-      description={tp("formDescription")}
+    <AdminDetailPage
       backHref={BASE}
       backLabel={t("backToList")}
-      error={formError}
-      onSubmit={(e) => void handleSubmit(e)}
-      pending={pending}
-      submitLabel={t("save")}
-      pendingLabel={t("saving")}
-      cancelHref={BASE}
-      cancelLabel={t("cancel")}
+      title={isEdit ? unit?.name || t("editTitle") : t("createTitle")}
+      description={isEdit ? tp("editDescription") : tp("formDescription")}
+      wide={false}
     >
-      {!isEdit && (
-        <AdminField label={t("property")} htmlFor="unit-property" required>
-          <AdminSelect
-            id="unit-property"
-            required
-            value={form.propertyId}
-            onChange={(e) =>
-              setForm((f) => ({
-                ...f,
-                propertyId: e.target.value,
-                unitTypeId: "",
-              }))
-            }
-          >
-            <option value="">{t("selectProperty")}</option>
-            {properties.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </AdminSelect>
-        </AdminField>
-      )}
+      <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
+        <AdminFormError message={formError} />
 
-      <AdminField label={t("unitType")} htmlFor="unit-type" required>
-        <AdminSelect
-          id="unit-type"
-          required
-          disabled={isEdit}
-          value={form.unitTypeId}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, unitTypeId: e.target.value }))
-          }
+        <AdminFormSection
+          icon="meeting_room"
+          title={tp("identityTitle")}
+          hint={tp("identityHint")}
         >
-          <option value="">{t("selectUnitType")}</option>
-          {(isEdit ? unitTypes : availableUnitTypes).map((ut) => (
-            <option key={ut.id} value={ut.id}>
-              {ut.name}
-              {resolveUnitTypePropertyName(ut, lookups) !== "—"
-                ? ` — ${resolveUnitTypePropertyName(ut, lookups)}`
-                : ""}
-            </option>
-          ))}
-        </AdminSelect>
-      </AdminField>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {!isEdit ? (
+              <AdminField label={t("property")} htmlFor="unit-property" required>
+                <AdminSelect
+                  id="unit-property"
+                  required
+                  value={form.propertyId}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      propertyId: e.target.value,
+                      unitTypeId: "",
+                    }))
+                  }
+                >
+                  <option value="">{t("selectProperty")}</option>
+                  {properties.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </AdminSelect>
+              </AdminField>
+            ) : null}
 
-      <AdminField label={t("name")} htmlFor="unit-name" required>
-        <input
-          id="unit-name"
-          required
-          className={adminInputClassName}
-          value={form.name}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+            <AdminField label={t("unitType")} htmlFor="unit-type" required>
+              <AdminSelect
+                id="unit-type"
+                required
+                disabled={isEdit}
+                value={form.unitTypeId}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, unitTypeId: e.target.value }))
+                }
+              >
+                <option value="">{t("selectUnitType")}</option>
+                {(isEdit ? unitTypes : availableUnitTypes).map((ut) => (
+                  <option key={ut.id} value={ut.id}>
+                    {ut.name}
+                    {resolveUnitTypePropertyName(ut, lookups) !== "—"
+                      ? ` — ${resolveUnitTypePropertyName(ut, lookups)}`
+                      : ""}
+                  </option>
+                ))}
+              </AdminSelect>
+            </AdminField>
+
+            <AdminField label={t("name")} htmlFor="unit-name" required>
+              <input
+                id="unit-name"
+                required
+                className={adminInputClassName}
+                value={form.name}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
+              />
+            </AdminField>
+
+            <AdminField label={t("maxOccupancy")} htmlFor="unit-max-occupancy">
+              <input
+                id="unit-max-occupancy"
+                type="number"
+                min={1}
+                className={adminInputClassName}
+                value={form.maxOccupancy}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, maxOccupancy: e.target.value }))
+                }
+              />
+              <p className="mt-1 text-xs text-[#83746b]">
+                {tp("occupancyHint")}
+              </p>
+            </AdminField>
+
+            {isEdit ? (
+              <AdminField label={t("status")} htmlFor="unit-status">
+                <AdminSelect
+                  id="unit-status"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as UnitStatus)}
+                >
+                  <option value="vacant">{tp("status.vacant")}</option>
+                  <option value="occupied">{tp("status.occupied")}</option>
+                </AdminSelect>
+                <p className="mt-1 text-xs text-[#83746b]">{tp("statusHint")}</p>
+              </AdminField>
+            ) : null}
+          </div>
+        </AdminFormSection>
+
+        <AdminFormActions
+          cancelHref={BASE}
+          cancelLabel={t("cancel")}
+          pending={pending}
+          submitDisabled={isEdit && !isDirty}
+          submitLabel={tp("saveDetails")}
+          pendingLabel={t("saving")}
         />
-      </AdminField>
-
-      <AdminField label={t("maxOccupancy")} htmlFor="unit-max-occupancy">
-        <input
-          id="unit-max-occupancy"
-          type="number"
-          min={1}
-          className={adminInputClassName}
-          value={form.maxOccupancy}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, maxOccupancy: e.target.value }))
-          }
-        />
-      </AdminField>
-
-      {isEdit && (
-        <AdminField label={t("status")} htmlFor="unit-status">
-          <AdminSelect
-            id="unit-status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value as UnitStatus)}
-          >
-            <option value="vacant">vacant</option>
-            <option value="occupied">occupied</option>
-          </AdminSelect>
-        </AdminField>
-      )}
-    </AdminFormPage>
+      </form>
+    </AdminDetailPage>
   );
 }

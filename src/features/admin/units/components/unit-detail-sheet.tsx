@@ -46,7 +46,7 @@ function DetailRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-[#f0eeea] py-3 last:border-0">
+    <div className="flex items-start justify-between gap-4 border-b border-white/40 py-3 last:border-0">
       <span className="shrink-0 text-sm text-[#83746b]">{label}</span>
       <div className="text-right text-sm font-medium text-[#1a1c1a]">
         {children}
@@ -73,13 +73,13 @@ export function UnitDetailSheet({
     <Sheet open={unit !== null} onOpenChange={(open) => !open && onClose()}>
       <SheetContent
         side="right"
-        className="w-full border-[#e3e2e0] bg-[#faf9f6] sm:max-w-md"
+        className="top-[max(5.5rem,calc(env(safe-area-inset-top)+4.75rem))] w-[min(calc(100%-1.5rem),28rem)] gap-0 sm:max-w-md"
       >
         {unit && (
           <>
-            <SheetHeader className="border-b border-[#e3e2e0] pb-4">
+            <SheetHeader className="shrink-0 border-b border-white/50 p-5">
               <div className="flex items-center gap-3 pr-8">
-                <div className="rounded-xl border border-[#e3e2e0] bg-white p-2.5">
+                <div className="rounded-xl border border-[#e3e2e0] bg-white p-2.5 shadow-sm">
                   <Icon name="door_front" size={24} className="text-[#6f4627]" />
                 </div>
                 <div className="min-w-0">
@@ -93,7 +93,7 @@ export function UnitDetailSheet({
               </div>
             </SheetHeader>
 
-            <div className="flex-1 overflow-y-auto px-4">
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-1">
               <DetailRow label={tc("status")}>
                 <UnitStatusBadge status={unit.status} />
               </DetailRow>
@@ -131,7 +131,7 @@ export function UnitDetailSheet({
               )}
             </div>
 
-            <SheetFooter className="flex-col gap-2 border-t border-[#e3e2e0] pt-4 sm:flex-col">
+            <SheetFooter className="mt-auto shrink-0 flex-col gap-2 border-t border-white/50 bg-white/25 p-5 sm:flex-col">
               {lease ? (
                 <Button className="w-full bg-[#6f4627] hover:bg-[#805533]" asChild>
                   <Link href={buildViewLeaseHref(lease.id)}>

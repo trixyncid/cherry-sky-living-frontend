@@ -5,14 +5,18 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import {
+  AdminDetailPage,
+  AdminFormActions,
+  AdminFormError,
+  AdminFormSection,
+} from "@/features/admin/components/admin-form-layout";
+import {
   AdminField,
-  AdminFileInput,
   AdminSelect,
   AdminTextarea,
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
-import { AdminAttachmentsList } from "@/features/admin/components/admin-attachments-list";
-import { AdminFormPage } from "@/features/admin/crud/admin-form-page";
+import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
 import {
   useProperties,
   useUnitType,
@@ -25,6 +29,7 @@ import {
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
 import { adminKeys } from "@/lib/query/keys";
+import { cn } from "@/lib/utils";
 
 const BASE = "/admin/unit-types";
 
@@ -53,11 +58,8 @@ export function UnitTypeForm({ id }: { id?: string }) {
   const { data: unitType, isLoading } = useUnitType(id ?? "", isEdit);
   const mutations = useUnitTypeMutations();
   const [form, setForm] = useState<FormState>(emptyForm);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
-  const [imagePending, setImagePending] = useState(false);
-  const [deletePending, setDeletePending] = useState(false);
 
   const attachments = unitType?.unitTypeAttachments ?? [];
 
@@ -79,6 +81,12 @@ export function UnitTypeForm({ id }: { id?: string }) {
     }
   }, [unitType]);
 
+  const isDirty =
+    !unitType ||
+    form.name !== unitType.name ||
+    form.description !== (unitType.description ?? "") ||
+    form.size !== (unitType.size != null ? String(unitType.size) : "");
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
@@ -93,6 +101,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
           description: form.description,
           size,
         });
+        invalidateUnitType();
         showApiSuccess(t("updated"));
       } else {
         if (!form.propertyId) {
@@ -103,17 +112,16 @@ export function UnitTypeForm({ id }: { id?: string }) {
           setFormError(t("descriptionRequired"));
           return;
         }
-        await mutations.create.mutateAsync({
+        const created = await mutations.create.mutateAsync({
           name: form.name,
           propertyId: form.propertyId,
           description: form.description.trim(),
           size,
         });
-        showApiSuccess(t("created"));
+        showApiSuccess(tp("createdStayToUpload"));
+        router.replace(`${BASE}/${created.id}/edit`);
+        router.refresh();
       }
-
-      router.push(BASE);
-      router.refresh();
     } catch (err) {
       const msg = getErrorMessage(err, t("saveFailed"));
       setFormError(msg);
@@ -121,34 +129,48 @@ export function UnitTypeForm({ id }: { id?: string }) {
     }
   }
 
-  async function handleImageUpload() {
+  async function handleImageUpload(files: File[]) {
     if (!isEdit || !id) {
       setImageError(tp("saveFirstToUpload"));
       return;
     }
-    if (!imageFile) {
-      setImageError(tp("imageRequired"));
-      return;
-    }
 
     setImageError(null);
-    setImagePending(true);
-    try {
-      await uploadUnitTypeImage(id, imageFile);
-      showApiSuccess(tp("imageUploaded"));
-      setImageFile(null);
+    const results = await Promise.allSettled(
+      files.map((file) => uploadUnitTypeImage(id, file)),
+    );
+    const succeeded = results.filter((result) => result.status === "fulfilled");
+    const failed = results.filter((result) => result.status === "rejected");
+
+    if (succeeded.length > 0) {
+      showApiSuccess(
+        succeeded.length === 1
+          ? tp("imageUploaded")
+          : tp("imagesUploaded", { count: succeeded.length }),
+      );
       invalidateUnitType();
-    } catch (err) {
-      const msg = getErrorMessage(err, tp("imageUploadFailed"));
-      setImageError(msg);
-      showApiError(err, msg);
-    } finally {
-      setImagePending(false);
+    }
+
+    if (failed.length > 0) {
+      const first = failed[0];
+      const reason = first && first.status === "rejected" ? first.reason : null;
+      const msg = getErrorMessage(reason, tp("imageUploadFailed"));
+      setImageError(
+        failed.length > 1
+          ? tp("imagesUploadPartial", {
+              failed: failed.length,
+              total: files.length,
+            })
+          : msg,
+      );
+      showApiError(reason, msg);
+      if (succeeded.length === 0) {
+        throw reason instanceof Error ? reason : new Error(msg);
+      }
     }
   }
 
   async function handleDeleteAttachment(attachmentId: string) {
-    setDeletePending(true);
     try {
       await deleteUnitTypeAttachment(attachmentId);
       showApiSuccess(ta("deleted"));
@@ -156,8 +178,6 @@ export function UnitTypeForm({ id }: { id?: string }) {
     } catch (err) {
       showApiError(err, ta("deleteFailed"));
       throw err;
-    } finally {
-      setDeletePending(false);
     }
   }
 
@@ -170,111 +190,127 @@ export function UnitTypeForm({ id }: { id?: string }) {
     return <p className="text-sm text-[#83746b]">{t("loading")}</p>;
   }
 
+  const photoCount = attachments.length;
+
   return (
-    <AdminFormPage
-      title={isEdit ? t("editTitle") : t("createTitle")}
-      description={tp("formDescription")}
+    <AdminDetailPage
       backHref={BASE}
       backLabel={t("backToList")}
-      error={formError}
-      onSubmit={(e) => void handleSubmit(e)}
-      pending={pending}
-      submitLabel={t("save")}
-      pendingLabel={t("saving")}
-      cancelHref={BASE}
-      cancelLabel={t("cancel")}
+      title={isEdit ? unitType?.name || t("editTitle") : t("createTitle")}
+      description={isEdit ? tp("editDescription") : tp("formDescription")}
     >
-      <AdminField label={t("property")} htmlFor="ut-property" required>
-        <AdminSelect
-          id="ut-property"
-          required
-          disabled={isEdit}
-          value={form.propertyId}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, propertyId: e.target.value }))
-          }
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21.5rem]">
+        <form
+          onSubmit={(e) => void handleSubmit(e)}
+          className="space-y-6"
         >
-          <option value="">{t("selectProperty")}</option>
-          {properties.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </AdminSelect>
-      </AdminField>
+          <AdminFormError message={formError} />
 
-      <AdminField label={t("name")} htmlFor="ut-name" required>
-        <input
-          id="ut-name"
-          required
-          className={adminInputClassName}
-          value={form.name}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-        />
-      </AdminField>
-
-      <AdminField label={t("description")} htmlFor="ut-desc" required>
-        <AdminTextarea
-          id="ut-desc"
-          required
-          placeholder={tp("descriptionPlaceholder")}
-          value={form.description}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, description: e.target.value }))
-          }
-        />
-        <p className="mt-1 text-xs text-[#83746b]">{tp("descriptionHint")}</p>
-      </AdminField>
-
-      <AdminField label={t("size")} htmlFor="ut-size">
-        <input
-          id="ut-size"
-          type="number"
-          min={0}
-          className={adminInputClassName}
-          value={form.size}
-          onChange={(e) => setForm((f) => ({ ...f, size: e.target.value }))}
-        />
-      </AdminField>
-
-      <AdminField label={tp("image")} htmlFor="ut-image">
-        <AdminFileInput
-          id="ut-image"
-          file={imageFile}
-          onFileChange={setImageFile}
-        />
-        <p className="mt-1 text-xs text-[#83746b]">{tp("imageHint")}</p>
-        <div className="mt-2 flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => void handleImageUpload()}
-            disabled={imagePending}
-            className="rounded-lg border border-[#6f4627] bg-[#faf9f6] px-3 py-1.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
+          <AdminFormSection
+            icon="king_bed"
+            title={tp("identityTitle")}
+            hint={tp("identityHint")}
           >
-            {imagePending ? tp("uploadingImage") : tp("uploadImage")}
-          </button>
-          {!isEdit ? (
-            <span className="text-xs text-[#83746b]">{tp("saveFirstToUpload")}</span>
-          ) : null}
-        </div>
-        {imageError ? (
-          <p className="mt-1 text-xs text-[#ba1a1a]">{imageError}</p>
-        ) : null}
-      </AdminField>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <AdminField label={t("property")} htmlFor="ut-property" required>
+                <AdminSelect
+                  id="ut-property"
+                  required
+                  disabled={isEdit}
+                  value={form.propertyId}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, propertyId: e.target.value }))
+                  }
+                >
+                  <option value="">{t("selectProperty")}</option>
+                  {properties.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </AdminSelect>
+              </AdminField>
+              <AdminField label={t("name")} htmlFor="ut-name" required>
+                <input
+                  id="ut-name"
+                  required
+                  className={adminInputClassName}
+                  value={form.name}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, name: e.target.value }))
+                  }
+                />
+              </AdminField>
+              <AdminField
+                label={t("description")}
+                htmlFor="ut-desc"
+                required
+                className="sm:col-span-2"
+              >
+                <AdminTextarea
+                  id="ut-desc"
+                  required
+                  placeholder={tp("descriptionPlaceholder")}
+                  value={form.description}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, description: e.target.value }))
+                  }
+                />
+                <p className="mt-1 text-xs text-[#83746b]">
+                  {tp("descriptionHint")}
+                </p>
+              </AdminField>
+              <AdminField label={t("size")} htmlFor="ut-size">
+                <input
+                  id="ut-size"
+                  type="number"
+                  min={0}
+                  className={adminInputClassName}
+                  value={form.size}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, size: e.target.value }))
+                  }
+                />
+              </AdminField>
+            </div>
+          </AdminFormSection>
 
-      {isEdit ? (
-        <div className="space-y-3">
-          <div>
-            <h3 className="text-sm font-bold text-[#1a1c1a]">{ta("title")}</h3>
-            <p className="text-xs text-[#83746b]">{ta("subtitle")}</p>
-          </div>
-          <AdminAttachmentsList
-            attachments={attachments}
-            onDelete={handleDeleteAttachment}
-            deletePending={deletePending}
+          <AdminFormActions
+            cancelHref={BASE}
+            cancelLabel={t("cancel")}
+            pending={pending}
+            submitDisabled={isEdit && !isDirty}
+            submitLabel={isEdit ? tp("saveDetails") : tp("saveAndAddPhotos")}
+            pendingLabel={t("saving")}
           />
-        </div>
-      ) : null}
-    </AdminFormPage>
+        </form>
+
+        <aside className={cn("lg:sticky lg:top-6", isEdit && "max-lg:order-first")}>
+          <AdminFormSection
+            icon="photo_library"
+            title={tp("photosTitle")}
+            hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
+            headerExtra={
+              isEdit && photoCount > 0 ? (
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#51443c]">
+                  {ta("photoCount", { count: photoCount })}
+                </span>
+              ) : null
+            }
+          >
+            <AdminImageGallery
+              attachments={attachments}
+              onUpload={handleImageUpload}
+              onDelete={handleDeleteAttachment}
+              disabled={!isEdit}
+              disabledTitle={ta("lockedTitle")}
+              disabledHint={ta("lockedHint")}
+              error={imageError}
+            />
+          </AdminFormSection>
+        </aside>
+      </div>
+    </AdminDetailPage>
   );
 }
+

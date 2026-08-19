@@ -129,15 +129,15 @@ export function TenantProfileView() {
         <p className="text-sm text-[#83746b]">{t("loading")}</p>
       ) : profile ? (
         <div className="space-y-6">
-          <section className="rounded-2xl border border-[#e3e2e0] bg-white/80 p-6 shadow-sm">
+          <section className="glass-panel rounded-[1.75rem] p-6">
             <div className="mb-6 flex items-center gap-5">
               <ProfileAvatarPlaceholder
-                className="size-20 ring-4 ring-[#f4f3f1]"
+                className="size-20 ring-4 ring-white/70"
                 iconSize={36}
                 label={profile.name}
               />
               <div>
-                <span className="inline-flex rounded-full border border-[#e8dfd6] bg-[#f5e4d4] px-2.5 py-1 text-xs font-semibold text-[#6f4627]">
+                <span className="inline-flex rounded-full bg-[#f5e4d4]/80 px-2.5 py-1 text-xs font-semibold text-[#6f4627] ring-1 ring-white/60 backdrop-blur-sm">
                   {th("roleTenant")}
                 </span>
                 <p className="mt-2 text-xs text-[#83746b]">
@@ -187,7 +187,7 @@ export function TenantProfileView() {
                 <button
                   type="submit"
                   disabled={profilePending}
-                  className="rounded-xl bg-[#6f4627] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#805533] disabled:opacity-50"
+                  className="admin-btn-primary rounded-xl px-5 py-2.5 text-sm font-semibold disabled:opacity-50"
                 >
                   {profilePending ? t("saving") : t("save")}
                 </button>
@@ -195,7 +195,7 @@ export function TenantProfileView() {
             </form>
           </section>
 
-          <section className="rounded-2xl border border-[#e3e2e0] bg-white/80 p-6 shadow-sm">
+          <section className="glass-panel rounded-[1.75rem] p-6">
             <h3 className="mb-1 text-sm font-semibold text-[#1a1c1a]">
               {tp("passwordSection")}
             </h3>
@@ -254,7 +254,7 @@ export function TenantProfileView() {
                 <button
                   type="submit"
                   disabled={passwordPending}
-                  className="rounded-xl border border-[#6f4627] bg-[#faf9f6] px-5 py-2.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
+                  className="glass-control rounded-xl px-5 py-2.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-white/80 disabled:opacity-50"
                 >
                   {passwordPending ? tp("updatingPassword") : tp("updatePassword")}
                 </button>

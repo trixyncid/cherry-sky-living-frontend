@@ -23,7 +23,7 @@ export function TenantAttachmentsList({
 
   if (visible.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-[#e3e2e0] bg-[#faf9f6]/80 px-4 py-6 text-center text-sm text-[#83746b]">
+      <p className="rounded-xl border border-dashed border-white/50 bg-white/30 px-4 py-6 text-center text-sm text-[#83746b]">
         {t("empty")}
       </p>
     );
@@ -34,13 +34,13 @@ export function TenantAttachmentsList({
       {visible.map((item) => (
         <li
           key={item.id}
-          className="flex gap-3 rounded-xl border border-[#e3e2e0]/80 bg-white/90 p-3 shadow-sm"
+          className="glass-panel-soft flex gap-3 rounded-xl p-3"
         >
           <a
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-[#efeeeb]"
+            className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-white/40"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

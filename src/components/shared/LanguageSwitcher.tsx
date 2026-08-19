@@ -87,7 +87,7 @@ export function LanguageSwitcher({ variant = 'navbar', isSolid = true }: Languag
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute right-0 top-full z-50 mt-2 w-44 rounded-xl border border-[#e3e2e0] bg-[#faf9f6]/95 p-1.5 shadow-lg backdrop-blur-md"
+                        className="glass-overlay absolute right-0 top-full z-[80] mt-2 w-44 overflow-hidden rounded-xl p-1.5"
                     >
                         <div className="space-y-0.5">
                             {LANGUAGES.map((language) => {
@@ -100,8 +100,8 @@ export function LanguageSwitcher({ variant = 'navbar', isSolid = true }: Languag
                                         className={cn(
                                             'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                                             isActive
-                                                ? 'bg-[#6f4627] text-white'
-                                                : 'text-[#1a1c1a] hover:bg-white',
+                                                ? 'admin-btn-primary'
+                                                : 'text-[#1a1c1a] hover:bg-[#f6f1ec]',
                                         )}
                                     >
                                         <span className={`fi fi-${language.countryCode} text-xl`} />

@@ -33,8 +33,8 @@ function BuildingCard({
   const t = useTranslations("admin.pages.units");
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-[#e3e2e0]/80 bg-white/90 shadow-[0_1px_3px_rgba(47,49,47,0.06)]">
-      <header className="relative overflow-hidden border-b border-[#e3e2e0]/60 bg-gradient-to-br from-[#6f4627] via-[#805533] to-[#8b5e3c] px-5 py-5 text-white">
+    <article className="glass-panel overflow-hidden rounded-[1.75rem]">
+      <header className="relative overflow-hidden border-b border-white/40 bg-gradient-to-br from-[#6f4627]/90 via-[#805533]/85 to-[#8b5e3c]/80 px-5 py-5 text-white backdrop-blur-xl">
         <div
           className="pointer-events-none absolute -right-8 -top-8 size-32 rounded-full bg-white/10"
           aria-hidden
@@ -139,7 +139,7 @@ function MapLegend() {
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-4 rounded-xl border border-[#e3e2e0]/80 bg-white/80 px-4 py-3 text-sm text-[#51443c]">
+    <div className="glass-panel flex flex-wrap items-center gap-4 rounded-xl px-4 py-3 text-sm text-[#51443c]">
       <span className="text-xs font-semibold uppercase tracking-wide text-[#83746b]">
         {t("legend")}
       </span>
@@ -179,7 +179,7 @@ export function UnitsMapView({
 
   if (propertyGroups.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-[#e3e2e0] bg-[#faf9f6]/80 p-10 text-center text-sm text-[#83746b]">
+      <p className="glass-panel rounded-2xl border-dashed p-10 text-center text-sm text-[#83746b]">
         {t("mapEmpty")}
       </p>
     );

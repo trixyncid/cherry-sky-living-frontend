@@ -52,7 +52,7 @@ function Calendar({
       {...props}
       style={{ ...cherryRdpVars, ...style }}
       className={cn(
-        "rdp-cherry bg-[#faf9f6] p-3 text-[#1a1c1a]",
+        "rdp-cherry bg-white p-3 text-[#1a1c1a]",
         "[&_.rdp-selected]:text-sm [&_.rdp-selected]:font-medium",
         "[&_.rdp-selected_.rdp-day_button]:border-transparent",
         className,

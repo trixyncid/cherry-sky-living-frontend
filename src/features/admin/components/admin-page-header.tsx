@@ -48,7 +48,7 @@ export function AdminPageHeader({
       : undefined);
 
   const primaryClassName =
-    "flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#6f4627] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#805533] disabled:opacity-50 sm:flex-none";
+    "admin-btn-primary flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all hover:brightness-105 disabled:opacity-50 sm:flex-none";
 
   return (
     <div
@@ -73,7 +73,7 @@ export function AdminPageHeader({
               type="button"
               onClick={secondaryAction.onClick}
               disabled={secondaryAction.disabled}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-[#83746b] bg-[#faf9f6] px-4 py-2 text-sm font-semibold text-[#1a1c1a] transition-colors hover:bg-[#e3e2e0] disabled:opacity-50 sm:flex-none"
+              className="glass-control flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-[#1a1c1a] transition-colors hover:bg-white/80 disabled:opacity-50 sm:flex-none"
             >
               {secondaryAction.icon && (
                 <Icon name={secondaryAction.icon} size={18} />

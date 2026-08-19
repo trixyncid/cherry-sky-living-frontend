@@ -127,8 +127,8 @@ export function DateRangePicker({
           type="button"
           disabled={disabled}
           className={cn(
-            "flex h-10 w-full items-center gap-2 rounded-xl border border-[#d5c3b8] bg-[#faf9f6] px-3.5 text-left text-sm text-[#1a1c1a] transition-colors",
-            "hover:border-[#c4b0a4] focus:border-[#8b5e3c] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/15",
+            "glass-control flex h-10 w-full items-center gap-2 rounded-xl px-3.5 text-left text-sm text-[#1a1c1a] transition-all",
+            "focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/15",
             "disabled:cursor-not-allowed disabled:opacity-50",
             !label && "text-[#83746b]/70",
             className,
@@ -139,7 +139,7 @@ export function DateRangePicker({
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-auto overflow-hidden border-[#e8ddd4] bg-[#faf9f6] p-0 shadow-lg shadow-[#2f312f]/12"
+        className="w-auto overflow-hidden p-0"
         align="start"
       >
         <div className="border-b border-[#e8ddd4] px-3 py-2.5">
@@ -163,7 +163,7 @@ export function DateRangePicker({
             numberOfMonths > 1 && "sm:min-w-[34rem]",
           )}
         />
-        <div className="flex items-center justify-between gap-2 border-t border-[#e8ddd4] bg-white/70 px-3 py-2.5">
+        <div className="flex items-center justify-between gap-2 border-t border-[#e8ddd4] bg-[#faf9f6] px-3 py-2.5">
           <button
             type="button"
             onClick={handleClear}

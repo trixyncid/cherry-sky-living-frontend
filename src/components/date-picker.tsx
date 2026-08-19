@@ -56,8 +56,8 @@ export function DatePicker({
           type="button"
           disabled={disabled}
           className={cn(
-            "flex h-10 w-full items-center gap-2 rounded-xl border border-[#d5c3b8] bg-[#faf9f6] px-3.5 text-left text-sm transition-colors",
-            "hover:border-[#c4b0a4] focus:border-[#8b5e3c] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/15",
+            "glass-control flex h-10 w-full items-center gap-2 rounded-xl px-3.5 text-left text-sm transition-all",
+            "focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/15",
             "disabled:cursor-not-allowed disabled:opacity-50",
             !value && "text-[#83746b]/70",
             className,

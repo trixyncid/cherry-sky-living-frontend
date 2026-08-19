@@ -12,6 +12,7 @@ import {
   AdminSearchInput,
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
+import { adminMenuItemClassName } from "@/features/admin/components/admin-menu";
 import {
   useAdminLookups,
   type AdminLookups,
@@ -58,6 +59,7 @@ export function UnitCombobox({
   const lookups = useAdminLookups();
   const listboxId = useId();
   const searchRef = useRef<HTMLInputElement>(null);
+  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -105,6 +107,11 @@ export function UnitCombobox({
   useEffect(() => {
     setActiveIndex(0);
   }, [debouncedSearch]);
+
+  useEffect(() => {
+    if (!open) return;
+    itemRefs.current[activeIndex]?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex, open]);
 
   function handleSelect(unit: Unit) {
     setSelectedUnit(unit);
@@ -154,7 +161,11 @@ export function UnitCombobox({
               className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-[#83746b]"
               aria-hidden
             >
-              <Icon name="expand_more" size={20} />
+              <Icon
+                name="expand_more"
+                size={20}
+                className={cn("transition-transform", open && "rotate-180")}
+              />
             </span>
           </button>
         </PopoverTrigger>
@@ -163,9 +174,10 @@ export function UnitCombobox({
           className="w-[var(--radix-popover-trigger-width)] min-w-[18rem] p-0"
           align="start"
         >
-          <div className="border-b border-[#e3e2e0] p-2">
+          <div className="border-b border-[#e8ddd4] bg-[#faf9f6] p-2">
             <AdminSearchInput
               ref={searchRef}
+              variant="menu"
               value={search}
               onChange={setSearch}
               placeholder={tp("searchPlaceholder")}
@@ -178,6 +190,12 @@ export function UnitCombobox({
                 } else if (e.key === "ArrowUp") {
                   e.preventDefault();
                   setActiveIndex((i) => Math.max(i - 1, 0));
+                } else if (e.key === "Home") {
+                  e.preventDefault();
+                  setActiveIndex(0);
+                } else if (e.key === "End") {
+                  e.preventDefault();
+                  setActiveIndex(Math.max(filteredUnits.length - 1, 0));
                 } else if (e.key === "Enter" && filteredUnits[activeIndex]) {
                   e.preventDefault();
                   handleSelect(filteredUnits[activeIndex]);
@@ -191,7 +209,7 @@ export function UnitCombobox({
           <ul
             id={listboxId}
             role="listbox"
-            className="max-h-56 overflow-y-auto p-1"
+            className="max-h-72 overflow-y-auto p-1"
           >
             {showLoading ? (
               <li className="px-3 py-6 text-center text-sm text-[#83746b]">
@@ -211,17 +229,18 @@ export function UnitCombobox({
                 return (
                   <li key={unit.id} role="presentation">
                     <button
+                      ref={(node) => {
+                        itemRefs.current[index] = node;
+                      }}
                       type="button"
                       role="option"
                       aria-selected={isSelected}
                       onMouseEnter={() => setActiveIndex(index)}
                       onClick={() => handleSelect(unit)}
-                      className={cn(
-                        "flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                        isActive || isSelected
-                          ? "bg-[#f4ebe3] text-[#1a1c1a]"
-                          : "text-[#51443c] hover:bg-[#faf9f6]",
-                      )}
+                      className={adminMenuItemClassName({
+                        active: isActive,
+                        selected: isSelected,
+                      })}
                     >
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-medium">

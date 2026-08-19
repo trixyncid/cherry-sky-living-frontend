@@ -64,7 +64,7 @@ export function AdminCrudTable({
   return (
     <table className={cn("w-full border-collapse text-left", className)}>
       <thead>
-        <tr className="border-b border-[#e3e2e0]/50 bg-[#f4f3f1]">
+        <tr className="border-b border-white/40 bg-white/35">
           {columns.map((col) => {
             const sortable = isColumnSortable(col.key, col.sortable);
             const active = sortable && sortKey === col.key;
@@ -132,7 +132,7 @@ export function AdminCrudTable({
           })}
         </tr>
       </thead>
-      <tbody className="divide-y divide-[#e3e2e0]/50">{children}</tbody>
+      <tbody className="divide-y divide-white/35">{children}</tbody>
     </table>
   );
 }
@@ -147,7 +147,7 @@ export function AdminCrudTableRow({
   return (
     <tr
       className={cn(
-        "group transition-colors hover:bg-[#faf9f6]/80",
+        "group transition-colors hover:bg-white/40",
         className,
       )}
     >

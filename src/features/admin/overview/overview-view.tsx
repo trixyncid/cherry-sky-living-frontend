@@ -109,50 +109,71 @@ export function OverviewView() {
 
   const lookups = useAdminLookups();
   const greetingKey = getGreeting();
+  const todayLabel = new Intl.DateTimeFormat(locale, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(new Date());
 
   return (
     <div className="space-y-8">
-      {loadError && (
-        <AdminAlert message={tc("loadFailed")} />
-      )}
+      {loadError && <AdminAlert message={tc("loadFailed")} />}
 
-      <section className="relative overflow-hidden rounded-2xl border border-[#e3e2e0]/80 bg-gradient-to-br from-[#6f4627] via-[#805533] to-[#8b5e3c] p-6 text-white shadow-lg shadow-[#6f4627]/20 sm:p-8">
-        <div
-          className="pointer-events-none absolute -right-16 -top-16 size-64 rounded-full bg-white/10 blur-2xl"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute -bottom-20 -left-10 size-48 rounded-full bg-black/10 blur-2xl"
-          aria-hidden
-        />
-        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-white/80">
-              {t(`greeting.${greetingKey}`)}
-            </p>
-            <h2 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
-              {user.name.split(" ")[0] ?? user.name}
-            </h2>
-            <p className="mt-2 max-w-lg text-sm text-white/85">
-              {t("description")}
-            </p>
-          </div>
-          <div className="flex shrink-0 gap-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <section className="glass-panel relative overflow-hidden rounded-[1.75rem] p-6 sm:p-8 lg:col-span-2">
+          <div
+            className="pointer-events-none absolute -right-16 -top-20 size-72 rounded-full bg-[#8b5e3c]/18 blur-3xl"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -bottom-24 left-10 size-56 rounded-full bg-[#d4af37]/16 blur-3xl"
+            aria-hidden
+          />
+          <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8b5e3c]">
+                {t("today")} · {todayLabel}
+              </p>
+              <p className="mt-3 text-sm font-medium text-[#51443c]">
+                {t(`greeting.${greetingKey}`)}
+              </p>
+              <h2 className="mt-1 text-3xl font-bold tracking-tight text-[#1a1c1a] sm:text-4xl">
+                {user.name.split(" ")[0] ?? user.name}
+              </h2>
+              <p className="mt-2 max-w-lg text-sm leading-relaxed text-[#5f5e5e]">
+                {t("description")}
+              </p>
+            </div>
             <Link
               href="/admin/leases"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#6f4627] shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              className="admin-btn-primary inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98]"
             >
               <Icon name="description" size={18} />
               {t("viewLeases")}
             </Link>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <section className="glass-panel relative flex flex-col items-center justify-center overflow-hidden rounded-[1.75rem] p-6">
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgb(111_70_39/0.12),transparent_60%)]"
+            aria-hidden
+          />
+          <OccupancyRing
+            percent={loading ? 0 : metrics.occupancy}
+            label={t("occupancy")}
+            hint={t("occupancyHint", {
+              occupied: metrics.occupied,
+              total: metrics.totalUnits,
+            })}
+          />
+        </section>
+      </div>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <AdminStatCard
           icon="domain"
-          iconClassName="bg-[#d3e4fe] text-[#0b1c30]"
+          iconClassName="bg-[#d3e4fe]/80 text-[#0b1c30]"
           label={t("stats.properties")}
           value={loading ? "…" : (properties.data?.length ?? 0)}
           hint={t("stats.propertiesHint")}
@@ -160,7 +181,7 @@ export function OverviewView() {
         />
         <AdminStatCard
           icon="bed"
-          iconClassName="bg-[#e2dfde] text-[#636262]"
+          iconClassName="bg-[#e2dfde]/80 text-[#636262]"
           label={t("stats.units")}
           value={loading ? "…" : metrics.totalUnits}
           hint={t("stats.unitsHint", { occupied: metrics.occupied })}
@@ -176,7 +197,7 @@ export function OverviewView() {
         />
         <AdminStatCard
           icon="description"
-          iconClassName="bg-[#ffdcc5] text-[#653d1e]"
+          iconClassName="bg-[#ffdcc5]/80 text-[#653d1e]"
           label={t("stats.leases")}
           value={loading ? "…" : metrics.activeLeases}
           hint={t("stats.leasesHint", { expiring: metrics.expiring })}
@@ -184,7 +205,7 @@ export function OverviewView() {
         />
         <AdminStatCard
           icon="payments"
-          iconClassName="bg-[#E6F4EA] text-[#137333]"
+          iconClassName="bg-[#E6F4EA]/80 text-[#137333]"
           label={t("stats.revenue")}
           value={loading ? "…" : formatIdrCompact(metrics.collected)}
           hint={t("stats.revenueHint")}
@@ -193,18 +214,18 @@ export function OverviewView() {
       </section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <section className="rounded-2xl border border-[#e3e2e0]/80 bg-white/90 p-5 shadow-sm backdrop-blur-sm lg:col-span-1">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[#83746b]">
+        <section className="glass-panel rounded-[1.75rem] p-5 lg:col-span-1">
+          <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#83746b]">
             {t("quickActions.title")}
           </h3>
-          <ul className="mt-4 space-y-2">
+          <ul className="mt-4 space-y-1.5">
             {quickActions.map((action) => (
               <li key={action.href}>
                 <Link
                   href={action.href}
-                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-[#51443c] transition-colors hover:bg-[#f4f3f1] hover:text-[#1a1c1a]"
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[#51443c] transition-colors hover:bg-white/50 hover:text-[#1a1c1a]"
                 >
-                  <span className="flex size-9 items-center justify-center rounded-lg bg-[#efeeeb] text-[#6f4627]">
+                  <span className="flex size-9 items-center justify-center rounded-lg bg-white/55 text-[#6f4627] shadow-[inset_0_1px_0_rgb(255_255_255/0.7)]">
                     <Icon name={action.icon} size={20} />
                   </span>
                   {t(action.labelKey)}
@@ -219,8 +240,8 @@ export function OverviewView() {
           </ul>
         </section>
 
-        <section className="rounded-2xl border border-[#e3e2e0]/80 bg-white/90 shadow-sm backdrop-blur-sm lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-[#e3e2e0]/60 px-5 py-4">
+        <section className="glass-panel overflow-hidden rounded-[1.75rem] lg:col-span-2">
+          <div className="flex items-center justify-between border-b border-white/40 px-5 py-4">
             <div>
               <h3 className="font-semibold text-[#1a1c1a]">{t("recent.title")}</h3>
               <p className="text-xs text-[#83746b]">{t("recent.subtitle")}</p>
@@ -238,7 +259,7 @@ export function OverviewView() {
           ) : recentLeases.length === 0 ? (
             <p className="p-6 text-sm text-[#83746b]">{t("recent.empty")}</p>
           ) : (
-            <ul className="divide-y divide-[#e3e2e0]/50">
+            <ul className="divide-y divide-white/30">
               {recentLeases.map((lease) => (
                 <RecentLeaseRow
                   key={lease.id}
@@ -251,6 +272,63 @@ export function OverviewView() {
           )}
         </section>
       </div>
+    </div>
+  );
+}
+
+function OccupancyRing({
+  percent,
+  label,
+  hint,
+}: {
+  percent: number;
+  label: string;
+  hint: string;
+}) {
+  const size = 132;
+  const stroke = 10;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (Math.min(100, Math.max(0, percent)) / 100) * circumference;
+
+  return (
+    <div className="relative z-10 flex flex-col items-center text-center">
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg width={size} height={size} className="-rotate-90">
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="rgb(255 255 255 / 0.45)"
+            strokeWidth={stroke}
+          />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="url(#occupancyGrad)"
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+          />
+          <defs>
+            <linearGradient id="occupancyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#8b5e3c" />
+              <stop offset="100%" stopColor="#d4af37" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-3xl font-bold tracking-tight text-[#1a1c1a]">
+            {percent}%
+          </span>
+        </div>
+      </div>
+      <p className="mt-3 text-sm font-semibold text-[#1a1c1a]">{label}</p>
+      <p className="mt-0.5 text-xs text-[#83746b]">{hint}</p>
     </div>
   );
 }
@@ -272,8 +350,8 @@ function RecentLeaseRow({
     !!endDate && isExpiringWithinDays(endDate, EXPIRING_SOON_DAYS);
 
   return (
-    <li className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-[#faf9f6]/80">
-      <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#d3e4fe] text-xs font-bold text-[#0b1c30]">
+    <li className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-white/35">
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#d3e4fe]/80 text-xs font-bold text-[#0b1c30] ring-1 ring-white/60">
         {getInitials(tenant)}
       </div>
       <div className="min-w-0 flex-1">

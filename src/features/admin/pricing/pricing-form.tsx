@@ -4,11 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import {
+  AdminDetailPage,
+  AdminFormActions,
+  AdminFormError,
+  AdminFormSection,
+} from "@/features/admin/components/admin-form-layout";
+import {
   AdminCurrencyInput,
   AdminField,
   AdminSelect,
 } from "@/features/admin/components/admin-field";
-import { AdminFormPage } from "@/features/admin/crud/admin-form-page";
 import {
   useProperties,
   useUnitPricing,
@@ -136,10 +141,9 @@ export function PricingForm({ id }: { id?: string }) {
     existingId?: string,
   ) {
     if (existingId) {
-      await mutations.update.mutateAsync({ id: existingId, price });
-      return;
+      return mutations.update.mutateAsync({ id: existingId, price });
     }
-    await mutations.create.mutateAsync({
+    return mutations.create.mutateAsync({
       unitTypeId,
       durationDays,
       price,
@@ -174,7 +178,7 @@ export function PricingForm({ id }: { id?: string }) {
       unitTypePricings.find((p) => p.durationDays === DAILY_DURATION_DAYS);
 
     try {
-      await upsertPackage(
+      const monthly = await upsertPackage(
         form.unitTypeId,
         MONTHLY_DURATION_DAYS,
         monthlyPrice,
@@ -187,7 +191,11 @@ export function PricingForm({ id }: { id?: string }) {
         existingDaily?.id,
       );
       showApiSuccess(isEdit ? t("updated") : t("created"));
-      router.push(BASE);
+      if (!isEdit) {
+        router.replace(`${BASE}/${monthly.id}/edit`);
+        router.refresh();
+        return;
+      }
       router.refresh();
     } catch (err) {
       const msg = getErrorMessage(err, t("saveFailed"));
@@ -206,85 +214,111 @@ export function PricingForm({ id }: { id?: string }) {
   }
 
   return (
-    <AdminFormPage
-      title={isEdit ? t("editTitle") : t("createTitle")}
-      description={tp("formDescription")}
+    <AdminDetailPage
       backHref={BASE}
       backLabel={t("backToList")}
-      error={formError}
-      onSubmit={(e) => void handleSubmit(e)}
-      pending={pending}
-      submitLabel={t("save")}
-      pendingLabel={t("saving")}
-      cancelHref={BASE}
-      cancelLabel={t("cancel")}
+      title={isEdit ? t("editTitle") : t("createTitle")}
+      description={isEdit ? tp("editDescription") : tp("formDescription")}
+      wide={false}
     >
-      {!isEdit && (
-        <AdminField label={t("property")} htmlFor="price-property" required>
-          <AdminSelect
-            id="price-property"
-            required
-            value={form.propertyId}
-            onChange={(e) =>
-              setForm((f) => ({
-                ...f,
-                propertyId: e.target.value,
-                unitTypeId: "",
-              }))
-            }
-          >
-            <option value="">{t("selectProperty")}</option>
-            {properties.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </AdminSelect>
-        </AdminField>
-      )}
+      <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
+        <AdminFormError message={formError} />
 
-      <AdminField label={t("unitType")} htmlFor="price-unit-type" required>
-        <AdminSelect
-          id="price-unit-type"
-          required
-          disabled={isEdit}
-          value={form.unitTypeId}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, unitTypeId: e.target.value }))
-          }
+        <AdminFormSection
+          icon="apartment"
+          title={tp("assignmentTitle")}
+          hint={tp("assignmentHint")}
         >
-          <option value="">{t("selectUnitType")}</option>
-          {(isEdit ? unitTypes : availableUnitTypes).map((ut) => (
-            <option key={ut.id} value={ut.id}>
-              {ut.name}
-            </option>
-          ))}
-        </AdminSelect>
-      </AdminField>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {!isEdit ? (
+              <AdminField label={t("property")} htmlFor="price-property" required>
+                <AdminSelect
+                  id="price-property"
+                  required
+                  value={form.propertyId}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      propertyId: e.target.value,
+                      unitTypeId: "",
+                    }))
+                  }
+                >
+                  <option value="">{t("selectProperty")}</option>
+                  {properties.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </AdminSelect>
+              </AdminField>
+            ) : null}
 
-      <AdminField label={tp("monthlyPrice")} htmlFor="price-monthly" required>
-        <AdminCurrencyInput
-          id="price-monthly"
-          required
-          value={form.monthlyPrice}
-          onValueChange={(monthlyPrice) =>
-            setForm((f) => ({ ...f, monthlyPrice }))
-          }
-        />
-        <p className="mt-1 text-xs text-[#83746b]">{tp("monthlyPriceHint")}</p>
-      </AdminField>
+            <AdminField
+              label={t("unitType")}
+              htmlFor="price-unit-type"
+              required
+              className={isEdit ? "sm:col-span-2" : undefined}
+            >
+              <AdminSelect
+                id="price-unit-type"
+                required
+                disabled={isEdit}
+                value={form.unitTypeId}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, unitTypeId: e.target.value }))
+                }
+              >
+                <option value="">{t("selectUnitType")}</option>
+                {(isEdit ? unitTypes : availableUnitTypes).map((ut) => (
+                  <option key={ut.id} value={ut.id}>
+                    {ut.name}
+                  </option>
+                ))}
+              </AdminSelect>
+            </AdminField>
+          </div>
+        </AdminFormSection>
 
-      <AdminField label={tp("dailyPrice")} htmlFor="price-daily" required>
-        <AdminCurrencyInput
-          id="price-daily"
-          required
-          value={form.dailyPrice}
-          onValueChange={(dailyPrice) =>
-            setForm((f) => ({ ...f, dailyPrice }))
-          }
+        <AdminFormSection
+          icon="payments"
+          title={tp("pricesTitle")}
+          hint={tp("pricesHint")}
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            <AdminField label={tp("monthlyPrice")} htmlFor="price-monthly" required>
+              <AdminCurrencyInput
+                id="price-monthly"
+                required
+                value={form.monthlyPrice}
+                onValueChange={(monthlyPrice) =>
+                  setForm((f) => ({ ...f, monthlyPrice }))
+                }
+              />
+              <p className="mt-1 text-xs text-[#83746b]">{tp("monthlyPriceHint")}</p>
+            </AdminField>
+            <AdminField label={tp("dailyPrice")} htmlFor="price-daily" required>
+              <AdminCurrencyInput
+                id="price-daily"
+                required
+                value={form.dailyPrice}
+                onValueChange={(dailyPrice) =>
+                  setForm((f) => ({ ...f, dailyPrice }))
+                }
+              />
+              <p className="mt-1 text-xs text-[#83746b]">{tp("dailyPriceHint")}</p>
+            </AdminField>
+          </div>
+        </AdminFormSection>
+
+        <AdminFormActions
+          cancelHref={BASE}
+          cancelLabel={t("cancel")}
+          pending={pending}
+          submitLabel={tp("saveDetails")}
+          pendingLabel={t("saving")}
         />
-        <p className="mt-1 text-xs text-[#83746b]">{tp("dailyPriceHint")}</p>
-      </AdminField>
-    </AdminFormPage>
+      </form>
+    </AdminDetailPage>
   );
 }

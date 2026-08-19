@@ -2,16 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Icon } from "@/components/shared/Icon";
 import { useRouter } from "@/i18n/routing";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import {
+  AdminDetailPage,
+  AdminFormActions,
+  AdminFormError,
+  AdminFormSection,
+} from "@/features/admin/components/admin-form-layout";
+import {
   AdminField,
+  AdminPasswordInput,
   AdminSelect,
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
-import { AdminFormPage } from "@/features/admin/crud/admin-form-page";
 import {
   useStaffUser,
   useStaffUserMutations,
@@ -26,7 +31,6 @@ import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
 import { ApiError } from "@/lib/api/errors";
 import { UserRole } from "@/lib/types/auth";
-import { cn } from "@/lib/utils";
 
 const BASE = "/admin/staff";
 
@@ -56,7 +60,6 @@ export function StaffUserForm({ id }: { id?: string }) {
     isEdit ? emptyEditForm : emptyCreateForm,
   );
   const [formError, setFormError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (staffUser) {
@@ -67,6 +70,12 @@ export function StaffUserForm({ id }: { id?: string }) {
       });
     }
   }, [staffUser]);
+
+  const isDirty =
+    !staffUser ||
+    form.name !== staffUser.name ||
+    form.email !== staffUser.email ||
+    form.role !== staffUser.role;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -82,7 +91,6 @@ export function StaffUserForm({ id }: { id?: string }) {
       try {
         await mutations.update.mutateAsync({ id, ...parsed.data });
         showApiSuccess(t("updated"));
-        router.push(BASE);
         router.refresh();
       } catch (err) {
         const msg =
@@ -104,9 +112,9 @@ export function StaffUserForm({ id }: { id?: string }) {
     }
 
     try {
-      await mutations.create.mutateAsync(parsed.data);
+      const created = await mutations.create.mutateAsync(parsed.data);
       showApiSuccess(t("created"));
-      router.push(BASE);
+      router.replace(`${BASE}/${created.id}/edit`);
       router.refresh();
     } catch (err) {
       const msg =
@@ -137,94 +145,100 @@ export function StaffUserForm({ id }: { id?: string }) {
   }
 
   return (
-    <AdminFormPage
-      title={isEdit ? tp("editTitle") : tp("createTitle")}
-      description={tp("formDescription")}
+    <AdminDetailPage
       backHref={BASE}
       backLabel={t("backToList")}
-      error={formError}
-      onSubmit={(e) => void handleSubmit(e)}
-      pending={pending}
-      submitLabel={t("save")}
-      pendingLabel={t("saving")}
-      cancelHref={BASE}
-      cancelLabel={t("cancel")}
+      title={isEdit ? staffUser?.name || tp("editTitle") : tp("createTitle")}
+      description={isEdit ? tp("editDescription") : tp("formDescription")}
+      wide={false}
     >
-      <AdminField label={t("name")} htmlFor="staff-name" required>
-        <input
-          id="staff-name"
-          required
-          autoComplete="name"
-          className={adminInputClassName}
-          value={form.name}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-        />
-      </AdminField>
+      <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
+        <AdminFormError message={formError} />
 
-      <AdminField label={t("email")} htmlFor="staff-email" required>
-        <input
-          id="staff-email"
-          type="email"
-          required
-          autoComplete="email"
-          className={adminInputClassName}
-          value={form.email}
-          onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-        />
-      </AdminField>
-
-      {!isEdit && (
-        <AdminField label={tp("password")} htmlFor="staff-password" required>
-          <div className="relative">
-            <input
-              id="staff-password"
-              type={showPassword ? "text" : "password"}
-              required
-              autoComplete="new-password"
-              className={cn(adminInputClassName, "pr-10")}
-              value={"password" in form ? form.password : ""}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, password: e.target.value }))
-              }
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#6f4627]"
-              aria-label={showPassword ? tp("hidePassword") : tp("showPassword")}
-            >
-              <Icon
-                name={showPassword ? "visibility_off" : "visibility"}
-                size={20}
-              />
-            </button>
-          </div>
-          <p className="mt-1 text-xs text-[#83746b]">{tp("passwordHint")}</p>
-        </AdminField>
-      )}
-
-      <AdminField label={tp("role")} htmlFor="staff-role" required>
-        <AdminSelect
-          id="staff-role"
-          required
-          value={form.role}
-          onChange={(e) =>
-            setForm((f) => ({
-              ...f,
-              role: e.target.value as CreateStaffUserValues["role"],
-            }))
-          }
-          disabled={!isSuperadmin}
+        <AdminFormSection
+          icon="badge"
+          title={tp("identityTitle")}
+          hint={tp("identityHint")}
         >
-          <option value="admin">{tp("roles.admin")}</option>
-          {isSuperadmin && (
-            <option value="superadmin">{tp("roles.superadmin")}</option>
-          )}
-        </AdminSelect>
-        {!isSuperadmin && (
-          <p className="mt-1 text-xs text-[#83746b]">{tp("roleHint")}</p>
-        )}
-      </AdminField>
-    </AdminFormPage>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <AdminField label={t("name")} htmlFor="staff-name" required>
+              <input
+                id="staff-name"
+                required
+                autoComplete="name"
+                className={adminInputClassName}
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              />
+            </AdminField>
+            <AdminField label={t("email")} htmlFor="staff-email" required>
+              <input
+                id="staff-email"
+                type="email"
+                required
+                autoComplete="email"
+                className={adminInputClassName}
+                value={form.email}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, email: e.target.value }))
+                }
+              />
+            </AdminField>
+            <AdminField label={tp("role")} htmlFor="staff-role" required>
+              <AdminSelect
+                id="staff-role"
+                required
+                value={form.role}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    role: e.target.value as CreateStaffUserValues["role"],
+                  }))
+                }
+                disabled={!isSuperadmin}
+              >
+                <option value="admin">{tp("roles.admin")}</option>
+                {isSuperadmin ? (
+                  <option value="superadmin">{tp("roles.superadmin")}</option>
+                ) : null}
+              </AdminSelect>
+              {!isSuperadmin ? (
+                <p className="mt-1 text-xs text-[#83746b]">{tp("roleHint")}</p>
+              ) : null}
+            </AdminField>
+          </div>
+        </AdminFormSection>
+
+        {!isEdit ? (
+          <AdminFormSection
+            icon="lock"
+            title={tp("credentialsTitle")}
+            hint={tp("passwordHint")}
+          >
+            <AdminField label={tp("password")} htmlFor="staff-password" required>
+              <AdminPasswordInput
+                id="staff-password"
+                required
+                value={"password" in form ? form.password : ""}
+                onChange={(password) =>
+                  setForm((f) => ({ ...f, password }))
+                }
+                showLabel={tp("showPassword")}
+                hideLabel={tp("hidePassword")}
+              />
+            </AdminField>
+          </AdminFormSection>
+        ) : null}
+
+        <AdminFormActions
+          cancelHref={BASE}
+          cancelLabel={t("cancel")}
+          pending={pending}
+          submitDisabled={isEdit && !isDirty}
+          submitLabel={isEdit ? tp("saveDetails") : tp("createTitle")}
+          pendingLabel={t("saving")}
+        />
+      </form>
+    </AdminDetailPage>
   );
 }

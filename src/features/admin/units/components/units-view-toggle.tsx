@@ -22,7 +22,7 @@ export function UnitsViewToggle({
 
   return (
     <div
-      className="inline-flex rounded-xl border border-[#e3e2e0] bg-white/80 p-1 shadow-sm"
+      className="glass-panel inline-flex rounded-xl p-1"
       role="tablist"
       aria-label={t("viewMode")}
     >
@@ -36,8 +36,8 @@ export function UnitsViewToggle({
           className={cn(
             "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all",
             value === mode
-              ? "bg-[#6f4627] text-white shadow-sm"
-              : "text-[#51443c] hover:bg-[#f3f0eb]",
+              ? "admin-btn-primary shadow-sm"
+              : "text-[#51443c] hover:bg-white/50",
           )}
         >
           <Icon name={icon} size={18} />

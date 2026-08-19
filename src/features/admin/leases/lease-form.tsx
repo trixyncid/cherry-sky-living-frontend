@@ -8,13 +8,16 @@ import { useRouter } from "@/i18n/routing";
 import {
   AdminDateRangePicker,
   AdminField,
-  AdminFileInput,
   AdminSelect,
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
-import { Icon } from "@/components/shared/Icon";
-import { AdminAttachmentsList } from "@/features/admin/components/admin-attachments-list";
-import { AdminFormPage } from "@/features/admin/crud/admin-form-page";
+import {
+  AdminDetailPage,
+  AdminFormActions,
+  AdminFormError,
+  AdminFormSection,
+} from "@/features/admin/components/admin-form-layout";
+import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
 import { AdminLeaseRenewalActions } from "@/features/admin/leases/lease-renewal-actions";
 import {
   useLease,
@@ -47,6 +50,7 @@ import {
 import { computeLeaseAmount, DAILY_DURATION_DAYS, daysInMonth, MONTHLY_DURATION_DAYS, toMonthEndInputValue } from "@/lib/billing";
 import { parseDateOnly } from "@/lib/date-input";
 import { adminKeys } from "@/lib/query/keys";
+import { cn } from "@/lib/utils";
 import type { LeaseAttachmentKind, LeaseStatus } from "@/lib/types/admin";
 
 const BASE = "/admin/leases";
@@ -60,12 +64,6 @@ type FormState = {
   status: LeaseStatus;
   leaseRenewalId: string;
   attachmentKind: LeaseAttachmentKind;
-};
-
-type PendingLeaseAttachment = {
-  id: string;
-  file: File;
-  kind: LeaseAttachmentKind;
 };
 
 const emptyForm: FormState = {
@@ -106,13 +104,8 @@ export function LeaseForm({ id }: { id?: string }) {
   const mutations = useLeaseMutations();
   const lookups = useAdminLookups();
   const [form, setForm] = useState<FormState>(emptyForm);
-  const [pendingAttachments, setPendingAttachments] = useState<
-    PendingLeaseAttachment[]
-  >([]);
-  const [attachmentsPending, setAttachmentsPending] = useState(false);
   const [attachmentsError, setAttachmentsError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [deletePending, setDeletePending] = useState(false);
 
   const attachments = lease?.attachments ?? lease?.downpaymentAttachments ?? [];
 
@@ -278,46 +271,50 @@ export function LeaseForm({ id }: { id?: string }) {
     }
   }
 
-  function handleAttachmentSelection(files: File[]) {
-    if (files.length === 0) return;
+  async function handleImageUpload(files: File[]) {
+    if (!isEdit || !id) {
+      setAttachmentsError(tp("saveFirstToUpload"));
+      return;
+    }
 
-    const next = files.map((file, index) => ({
-      id: `${file.name}-${file.size}-${file.lastModified}-${Date.now()}-${index}`,
-      file,
-      kind: form.attachmentKind,
-    }));
-
-    setPendingAttachments((current) => [...current, ...next]);
     setAttachmentsError(null);
-  }
-
-  function handleRemovePendingAttachment(attachmentId: string) {
-    setPendingAttachments((current) =>
-      current.filter((item) => item.id !== attachmentId),
+    const results = await Promise.allSettled(
+      files.map((file) =>
+        uploadLeaseAttachment(id, file, form.attachmentKind),
+      ),
     );
-  }
+    const succeeded = results.filter((result) => result.status === "fulfilled");
+    const failed = results.filter((result) => result.status === "rejected");
 
-  async function uploadPendingAttachments(leaseId: string) {
-    if (pendingAttachments.length === 0) return;
+    if (succeeded.length > 0) {
+      showApiSuccess(
+        succeeded.length === 1
+          ? tp("imageUploaded")
+          : tp("imagesUploaded", { count: succeeded.length }),
+      );
+      invalidateLease();
+    }
 
-    setAttachmentsError(null);
-    setAttachmentsPending(true);
-    try {
-      for (const attachment of pendingAttachments) {
-        await uploadLeaseAttachment(leaseId, attachment.file, attachment.kind);
+    if (failed.length > 0) {
+      const first = failed[0];
+      const reason = first && first.status === "rejected" ? first.reason : null;
+      const msg = getErrorMessage(reason, tp("imageUploadFailed"));
+      setAttachmentsError(
+        failed.length > 1
+          ? tp("imagesUploadPartial", {
+              failed: failed.length,
+              total: files.length,
+            })
+          : msg,
+      );
+      showApiError(reason, msg);
+      if (succeeded.length === 0) {
+        throw reason instanceof Error ? reason : new Error(msg);
       }
-      setPendingAttachments([]);
-    } catch (err) {
-      const msg = getErrorMessage(err, tp("imageUploadFailed"));
-      setAttachmentsError(msg);
-      throw err;
-    } finally {
-      setAttachmentsPending(false);
     }
   }
 
   async function handleDeleteAttachment(attachmentId: string) {
-    setDeletePending(true);
     try {
       await deleteLeaseAttachment(attachmentId);
       showApiSuccess(ta("deleted"));
@@ -325,8 +322,6 @@ export function LeaseForm({ id }: { id?: string }) {
     } catch (err) {
       showApiError(err, ta("deleteFailed"));
       throw err;
-    } finally {
-      setDeletePending(false);
     }
   }
 
@@ -382,14 +377,14 @@ export function LeaseForm({ id }: { id?: string }) {
 
     try {
       if (isEdit && id) {
-        const savedLease = await mutations.update.mutateAsync({
+        await mutations.update.mutateAsync({
           id,
           startDate: form.startDate,
           endDate: form.endDate,
           unitPricingId: form.unitPricingId || undefined,
           status: form.status,
         });
-        await uploadPendingAttachments(savedLease.id);
+        invalidateLease();
         showApiSuccess(t("updated"));
       } else {
         const savedLease = await mutations.create.mutateAsync({
@@ -401,11 +396,16 @@ export function LeaseForm({ id }: { id?: string }) {
           leaseRenewalId: form.leaseRenewalId || undefined,
         });
         createdLeaseId = savedLease.id;
-        await uploadPendingAttachments(savedLease.id);
-        showApiSuccess(t("created"));
+        showApiSuccess(
+          form.leaseRenewalId ? t("created") : tp("createdStayToUpload"),
+        );
+        if (form.leaseRenewalId) {
+          router.push("/admin/lease-renewals");
+        } else {
+          router.replace(`${BASE}/${savedLease.id}/edit`);
+        }
+        router.refresh();
       }
-      router.push(form.leaseRenewalId ? "/admin/lease-renewals" : BASE);
-      router.refresh();
     } catch (err) {
       const msg = getErrorMessage(err, t("saveFailed"));
       setFormError(msg);
@@ -420,7 +420,6 @@ export function LeaseForm({ id }: { id?: string }) {
   const pending =
     mutations.create.isPending ||
     mutations.update.isPending ||
-    attachmentsPending ||
     (isEdit && isLoading);
 
   if (isEdit && isLoading && !lease) {
@@ -428,19 +427,18 @@ export function LeaseForm({ id }: { id?: string }) {
   }
 
   return (
-    <AdminFormPage
-      title={isEdit ? t("editTitle") : t("createTitle")}
-      description={tp("formDescription")}
-      backHref={BASE}
+    <AdminDetailPage
+      backHref={form.leaseRenewalId ? "/admin/lease-renewals" : BASE}
       backLabel={t("backToList")}
-      error={formError}
-      onSubmit={(e) => void handleSubmit(e)}
-      pending={pending}
-      submitLabel={t("save")}
-      pendingLabel={t("saving")}
-      cancelHref={form.leaseRenewalId ? "/admin/lease-renewals" : BASE}
-      cancelLabel={t("cancel")}
+      title={isEdit ? t("editTitle") : t("createTitle")}
+      description={isEdit ? tp("editDescription") : tp("formDescription")}
     >
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21.5rem]">
+        <form
+          onSubmit={(e) => void handleSubmit(e)}
+          className="space-y-6"
+        >
+          <AdminFormError message={formError} />
       {!isEdit && renewalPrefill && (
         <div className="rounded-xl border border-[#8b5e3c]/20 bg-[#fef7e0]/40 px-4 py-3 text-sm text-[#51443c]">
           {tr("renewalFormHint")}
@@ -455,7 +453,12 @@ export function LeaseForm({ id }: { id?: string }) {
         </div>
       )}
       {!isEdit && (
-        <>
+        <AdminFormSection
+          icon="group"
+          title={tp("partiesTitle")}
+          hint={tp("partiesHint")}
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
           <AdminField label={t("unit")} htmlFor="lease-unit" required>
             <UnitCombobox
               id="lease-unit"
@@ -482,8 +485,15 @@ export function LeaseForm({ id }: { id?: string }) {
               }
             />
           </AdminField>
-        </>
+          </div>
+        </AdminFormSection>
       )}
+      <AdminFormSection
+        icon="calendar_month"
+        title={tp("termsTitle")}
+        hint={tp("termsHint")}
+      >
+      <div className="space-y-4">
       <AdminField label={tp("leasePeriod")} htmlFor="lease-period" required>
         <AdminDateRangePicker
           id="lease-period"
@@ -710,98 +720,71 @@ export function LeaseForm({ id }: { id?: string }) {
       {isEdit && lease?.leaseRenewal && (
         <AdminLeaseRenewalActions lease={lease} />
       )}
-      <div className="space-y-3 border-t border-[#e3e2e0] pt-4">
-        <div>
-          <h3 className="text-sm font-bold text-[#1a1c1a]">{tp("attachmentsTitle")}</h3>
-          <p className="text-xs text-[#83746b]">
-            {isEdit ? tp("attachmentsEditHint") : tp("attachmentsCreateHint")}
-          </p>
-        </div>
-        <AdminField label={tp("attachmentKind")} htmlFor="lease-attachment-kind">
-          <AdminSelect
-            id="lease-attachment-kind"
-            value={form.attachmentKind}
-            onChange={(e) =>
-              setForm((f) => ({
-                ...f,
-                attachmentKind: e.target.value as LeaseAttachmentKind,
-              }))
+      </div>
+      </AdminFormSection>
+
+          <AdminFormActions
+            cancelHref={form.leaseRenewalId ? "/admin/lease-renewals" : BASE}
+            cancelLabel={t("cancel")}
+            pending={pending}
+            submitLabel={isEdit ? tp("saveDetails") : tp("saveAndAddPhotos")}
+            pendingLabel={t("saving")}
+          />
+        </form>
+
+        <aside className={cn("lg:sticky lg:top-6", isEdit && "max-lg:order-first")}>
+          <AdminFormSection
+            icon="attach_file"
+            title={tp("photosTitle")}
+            hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
+            headerExtra={
+              isEdit && attachments.length > 0 ? (
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#51443c]">
+                  {ta("photoCount", { count: attachments.length })}
+                </span>
+              ) : null
             }
           >
-            <option value="agreement">{tp("kindAgreement")}</option>
-            <option value="downpayment">{tp("kindDownpayment")}</option>
-            <option value="payment">{tp("kindPayment")}</option>
-          </AdminSelect>
-        </AdminField>
-        <AdminField label={tp("attachmentFile")} htmlFor="lease-proof">
-          <AdminFileInput
-            id="lease-proof"
-            multiple
-            selectedCount={pendingAttachments.length}
-            onFilesChange={handleAttachmentSelection}
-          />
-          <p className="mt-1 text-xs text-[#83746b]">
-            {isEdit ? tp("attachmentsEditHint") : tp("attachmentCreateHint")}
-          </p>
-          {attachmentsError ? (
-            <p className="mt-1 text-xs text-[#ba1a1a]">{attachmentsError}</p>
-          ) : null}
-        </AdminField>
-        <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#83746b]">
-            {tp("pendingAttachmentsTitle")}
-          </p>
-          {pendingAttachments.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-[#e3e2e0] bg-[#faf9f6]/80 px-4 py-6 text-center text-sm text-[#83746b]">
-              {tp("pendingAttachmentsEmpty")}
-            </p>
-          ) : (
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {pendingAttachments.map((attachment) => (
-                <li
-                  key={attachment.id}
-                  className="flex items-start justify-between gap-3 rounded-xl border border-[#e3e2e0]/80 bg-white/90 p-3 shadow-sm"
+            {isEdit ? (
+              <AdminField
+                label={tp("attachmentKind")}
+                htmlFor="lease-attachment-kind"
+                className="mb-4"
+              >
+                <AdminSelect
+                  id="lease-attachment-kind"
+                  value={form.attachmentKind}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      attachmentKind: e.target.value as LeaseAttachmentKind,
+                    }))
+                  }
                 >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-[#1a1c1a]">
-                      {attachment.file.name}
-                    </p>
-                    <p className="mt-0.5 text-xs font-medium text-[#6f4627]">
-                      {attachmentKindLabel(attachment.kind)}
-                    </p>
-                    <p className="mt-0.5 text-xs text-[#83746b]">
-                      {tp("pendingAttachmentSize", {
-                        sizeKb: Math.max(
-                          1,
-                          Math.round(attachment.file.size / 1024),
-                        ),
-                      })}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePendingAttachment(attachment.id)}
-                    className="shrink-0 rounded-lg p-1.5 text-[#83746b] transition-colors hover:bg-[#efeeeb] hover:text-[#51443c]"
-                    aria-label={ta("remove")}
-                  >
-                    <Icon name="delete" size={18} />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        {isEdit ? (
-          <AdminAttachmentsList
-            attachments={attachments.map((a) => ({
-              ...a,
-              kindLabel: attachmentKindLabel(a.kind),
-            }))}
-            onDelete={handleDeleteAttachment}
-            deletePending={deletePending}
-          />
-        ) : null}
+                  <option value="agreement">{tp("kindAgreement")}</option>
+                  <option value="downpayment">{tp("kindDownpayment")}</option>
+                  <option value="payment">{tp("kindPayment")}</option>
+                </AdminSelect>
+                <p className="mt-1 text-xs text-[#83746b]">
+                  {tp("attachmentKindHint")}
+                </p>
+              </AdminField>
+            ) : null}
+            <AdminImageGallery
+              attachments={attachments.map((item) => ({
+                ...item,
+                kindLabel: attachmentKindLabel(item.kind),
+              }))}
+              onUpload={handleImageUpload}
+              onDelete={handleDeleteAttachment}
+              disabled={!isEdit}
+              disabledTitle={ta("lockedTitle")}
+              disabledHint={ta("lockedHint")}
+              error={attachmentsError}
+            />
+          </AdminFormSection>
+        </aside>
       </div>
-    </AdminFormPage>
+    </AdminDetailPage>
   );
 }

@@ -8,12 +8,16 @@ import {
   AdminCurrencyInput,
   AdminDatePicker,
   AdminField,
-  AdminFileInput,
   AdminSelect,
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
-import { AdminAttachmentsList } from "@/features/admin/components/admin-attachments-list";
-import { AdminFormPage } from "@/features/admin/crud/admin-form-page";
+import {
+  AdminDetailPage,
+  AdminFormActions,
+  AdminFormError,
+  AdminFormSection,
+} from "@/features/admin/components/admin-form-layout";
+import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
 import {
   useLedgerEntry,
   useLedgerEntryMutations,
@@ -26,8 +30,12 @@ import {
   parseIdrInput,
   toDateInputValue,
 } from "@/features/admin/lib/format";
-import { deleteLedgerEntryAttachment } from "@/lib/api/admin/attachments";
+import {
+  deleteLedgerEntryAttachment,
+  uploadLedgerEntryImage,
+} from "@/lib/api/admin/attachments";
 import { adminKeys } from "@/lib/query/keys";
+import { cn } from "@/lib/utils";
 import type { LedgerEntryType } from "@/lib/types/admin";
 
 const BASE = "/admin/bookkeeping";
@@ -59,9 +67,8 @@ export function LedgerEntryForm({ id }: { id?: string }) {
   const { data: entry, isLoading } = useLedgerEntry(id ?? "", isEdit);
   const mutations = useLedgerEntryMutations();
   const [form, setForm] = useState<FormState>(emptyForm);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [deletePending, setDeletePending] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const attachments = entry?.attachments ?? [];
 
@@ -84,8 +91,15 @@ export function LedgerEntryForm({ id }: { id?: string }) {
     }
   }
 
+  const isDirty =
+    !entry ||
+    form.type !== entry.type ||
+    parseIdrInput(form.amount) !== entry.amount ||
+    form.description !== entry.description ||
+    form.date !== toDateInputValue(entry.date) ||
+    form.propertyId !== (entry.propertyId ?? "");
+
   async function handleDeleteAttachment(attachmentId: string) {
-    setDeletePending(true);
     try {
       await deleteLedgerEntryAttachment(attachmentId);
       showApiSuccess(ta("deleted"));
@@ -93,8 +107,47 @@ export function LedgerEntryForm({ id }: { id?: string }) {
     } catch (err) {
       showApiError(err, ta("deleteFailed"));
       throw err;
-    } finally {
-      setDeletePending(false);
+    }
+  }
+
+  async function handleImageUpload(files: File[]) {
+    if (!isEdit || !id) {
+      setImageError(tp("saveFirstToUpload"));
+      return;
+    }
+
+    setImageError(null);
+    const results = await Promise.allSettled(
+      files.map((file) => uploadLedgerEntryImage(id, file)),
+    );
+    const succeeded = results.filter((result) => result.status === "fulfilled");
+    const failed = results.filter((result) => result.status === "rejected");
+
+    if (succeeded.length > 0) {
+      showApiSuccess(
+        succeeded.length === 1
+          ? tp("imageUploaded")
+          : tp("imagesUploaded", { count: succeeded.length }),
+      );
+      invalidateEntry();
+    }
+
+    if (failed.length > 0) {
+      const first = failed[0];
+      const reason = first && first.status === "rejected" ? first.reason : null;
+      const msg = getErrorMessage(reason, tp("imageUploadFailed"));
+      setImageError(
+        failed.length > 1
+          ? tp("imagesUploadPartial", {
+              failed: failed.length,
+              total: files.length,
+            })
+          : msg,
+      );
+      showApiError(reason, msg);
+      if (succeeded.length === 0) {
+        throw reason instanceof Error ? reason : new Error(msg);
+      }
     }
   }
 
@@ -114,19 +167,19 @@ export function LedgerEntryForm({ id }: { id?: string }) {
       description: form.description.trim(),
       date: form.date,
       propertyId: form.propertyId || null,
-      file: imageFile,
     };
 
     try {
       if (isEdit && id) {
         await mutations.update.mutateAsync({ id, ...payload });
+        invalidateEntry();
         showApiSuccess(t("updated"));
       } else {
-        await mutations.create.mutateAsync(payload);
-        showApiSuccess(t("created"));
+        const created = await mutations.create.mutateAsync(payload);
+        showApiSuccess(tp("createdStayToUpload"));
+        router.replace(`${BASE}/${created.id}/edit`);
+        router.refresh();
       }
-      router.push(BASE);
-      router.refresh();
     } catch (err) {
       const msg = getErrorMessage(err, t("saveFailed"));
       setFormError(msg);
@@ -143,104 +196,131 @@ export function LedgerEntryForm({ id }: { id?: string }) {
     return <p className="text-sm text-[#83746b]">{t("loading")}</p>;
   }
 
+  const photoCount = attachments.length;
+
   return (
-    <AdminFormPage
-      title={isEdit ? t("editTitle") : t("createTitle")}
-      description={tp("formDescription")}
+    <AdminDetailPage
       backHref={BASE}
       backLabel={t("backToList")}
-      error={formError}
-      onSubmit={(e) => void handleSubmit(e)}
-      pending={pending}
-      submitLabel={t("save")}
-      pendingLabel={t("saving")}
-      cancelHref={BASE}
-      cancelLabel={t("cancel")}
+      title={isEdit ? entry?.description || t("editTitle") : t("createTitle")}
+      description={isEdit ? tp("editDescription") : tp("formDescription")}
     >
-      <AdminField label={tp("entryType")} htmlFor="ledger-type" required>
-        <AdminSelect
-          id="ledger-type"
-          required
-          value={form.type}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, type: e.target.value as LedgerEntryType }))
-          }
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21.5rem]">
+        <form
+          onSubmit={(e) => void handleSubmit(e)}
+          className="space-y-6"
         >
-          <option value="income">{tp("typeIncome")}</option>
-          <option value="expense">{tp("typeExpense")}</option>
-        </AdminSelect>
-      </AdminField>
+          <AdminFormError message={formError} />
 
-      <AdminField label={tp("amount")} htmlFor="ledger-amount" required>
-        <AdminCurrencyInput
-          id="ledger-amount"
-          required
-          value={form.amount}
-          onValueChange={(amount) => setForm((f) => ({ ...f, amount }))}
-          placeholder="Rp. 0"
-        />
-      </AdminField>
+          <AdminFormSection
+            icon="receipt_long"
+            title={tp("detailsTitle")}
+            hint={tp("detailsHint")}
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <AdminField label={tp("entryType")} htmlFor="ledger-type" required>
+                <AdminSelect
+                  id="ledger-type"
+                  required
+                  value={form.type}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      type: e.target.value as LedgerEntryType,
+                    }))
+                  }
+                >
+                  <option value="income">{tp("typeIncome")}</option>
+                  <option value="expense">{tp("typeExpense")}</option>
+                </AdminSelect>
+              </AdminField>
+              <AdminField label={tp("amount")} htmlFor="ledger-amount" required>
+                <AdminCurrencyInput
+                  id="ledger-amount"
+                  required
+                  value={form.amount}
+                  onValueChange={(amount) => setForm((f) => ({ ...f, amount }))}
+                  placeholder="Rp. 0"
+                />
+              </AdminField>
+              <AdminField
+                label={t("description")}
+                htmlFor="ledger-description"
+                required
+                className="sm:col-span-2"
+              >
+                <input
+                  id="ledger-description"
+                  required
+                  className={adminInputClassName}
+                  value={form.description}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, description: e.target.value }))
+                  }
+                />
+              </AdminField>
+              <AdminField label={tp("date")} htmlFor="ledger-date" required>
+                <AdminDatePicker
+                  id="ledger-date"
+                  value={form.date}
+                  onChange={(date) => setForm((f) => ({ ...f, date }))}
+                  placeholder={t("pickDate")}
+                />
+              </AdminField>
+              <AdminField label={t("property")} htmlFor="ledger-property">
+                <AdminSelect
+                  id="ledger-property"
+                  value={form.propertyId}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, propertyId: e.target.value }))
+                  }
+                >
+                  <option value="">{tp("noProperty")}</option>
+                  {properties.map((property) => (
+                    <option key={property.id} value={property.id}>
+                      {property.name}
+                    </option>
+                  ))}
+                </AdminSelect>
+              </AdminField>
+            </div>
+          </AdminFormSection>
 
-      <AdminField label={t("description")} htmlFor="ledger-description" required>
-        <input
-          id="ledger-description"
-          required
-          className={adminInputClassName}
-          value={form.description}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, description: e.target.value }))
-          }
-        />
-      </AdminField>
-
-      <AdminField label={tp("date")} htmlFor="ledger-date" required>
-        <AdminDatePicker
-          id="ledger-date"
-          value={form.date}
-          onChange={(date) => setForm((f) => ({ ...f, date }))}
-          placeholder={t("pickDate")}
-        />
-      </AdminField>
-
-      <AdminField label={t("property")} htmlFor="ledger-property">
-        <AdminSelect
-          id="ledger-property"
-          value={form.propertyId}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, propertyId: e.target.value }))
-          }
-        >
-          <option value="">{tp("noProperty")}</option>
-          {properties.map((property) => (
-            <option key={property.id} value={property.id}>
-              {property.name}
-            </option>
-          ))}
-        </AdminSelect>
-      </AdminField>
-
-      <AdminField label={tp("attachment")} htmlFor="ledger-attachment">
-        <AdminFileInput
-          id="ledger-attachment"
-          file={imageFile}
-          onFileChange={setImageFile}
-        />
-        <p className="mt-1 text-xs text-[#83746b]">{tp("attachmentHint")}</p>
-      </AdminField>
-
-      {isEdit ? (
-        <div className="space-y-3">
-          <div>
-            <h3 className="text-sm font-bold text-[#1a1c1a]">{ta("title")}</h3>
-            <p className="text-xs text-[#83746b]">{tp("attachmentSection")}</p>
-          </div>
-          <AdminAttachmentsList
-            attachments={attachments}
-            onDelete={handleDeleteAttachment}
-            deletePending={deletePending}
+          <AdminFormActions
+            cancelHref={BASE}
+            cancelLabel={t("cancel")}
+            pending={pending}
+            submitDisabled={isEdit && !isDirty}
+            submitLabel={isEdit ? tp("saveDetails") : tp("saveAndAddPhotos")}
+            pendingLabel={t("saving")}
           />
-        </div>
-      ) : null}
-    </AdminFormPage>
+        </form>
+
+        <aside className={cn("lg:sticky lg:top-6", isEdit && "max-lg:order-first")}>
+          <AdminFormSection
+            icon="photo_library"
+            title={tp("photosTitle")}
+            hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
+            headerExtra={
+              isEdit && photoCount > 0 ? (
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#51443c]">
+                  {ta("photoCount", { count: photoCount })}
+                </span>
+              ) : null
+            }
+          >
+            <AdminImageGallery
+              attachments={attachments}
+              onUpload={handleImageUpload}
+              onDelete={handleDeleteAttachment}
+              disabled={!isEdit}
+              disabledTitle={ta("lockedTitle")}
+              disabledHint={ta("lockedHint")}
+              error={imageError}
+            />
+          </AdminFormSection>
+        </aside>
+      </div>
+    </AdminDetailPage>
   );
 }

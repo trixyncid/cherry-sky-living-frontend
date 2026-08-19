@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 import { Link } from "@/i18n/routing";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
+import { adminSearchInputClassName } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminPagination } from "@/features/admin/components/admin-pagination";
 import { AdminTableShell } from "@/features/admin/components/admin-table-shell";
@@ -89,7 +90,7 @@ export function TenantLeasesList() {
               setPage(1);
             }}
             placeholder={tp("searchPlaceholder")}
-            className="h-10 w-full rounded-xl border border-[#e3e2e0] bg-white/80 pl-10 pr-4 text-sm outline-none focus:border-[#8b5e3c]/50 focus:ring-2 focus:ring-[#8b5e3c]/15"
+            className={adminSearchInputClassName}
           />
         </div>
       </div>
@@ -161,7 +162,7 @@ export function TenantLeasesList() {
                   <AdminCrudTableCell align="right">
                     <Link
                       href={`${BASE}/${lease.id}`}
-                      className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#efeeeb] hover:text-[#6f4627] sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
+                      className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-white/60 hover:text-[#6f4627] sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
                       aria-label={t("view")}
                     >
                       <Icon name="visibility" size={18} />

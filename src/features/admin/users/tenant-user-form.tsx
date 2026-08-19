@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Icon } from "@/components/shared/Icon";
 import { useRouter } from "@/i18n/routing";
 import {
+  AdminDetailPage,
+  AdminFormActions,
+  AdminFormError,
+  AdminFormSection,
+} from "@/features/admin/components/admin-form-layout";
+import {
   AdminField,
+  AdminPasswordInput,
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
-import { AdminFormPage } from "@/features/admin/crud/admin-form-page";
 import { useTenantUserMutations } from "@/features/admin/hooks/use-admin-queries";
 import {
   createTenantUserSchema,
@@ -17,7 +22,6 @@ import {
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
 import { ApiError } from "@/lib/api/errors";
-import { cn } from "@/lib/utils";
 
 const BASE = "/admin/users";
 
@@ -34,7 +38,6 @@ export function TenantUserForm() {
   const mutations = useTenantUserMutations();
   const [form, setForm] = useState<CreateTenantUserValues>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -64,65 +67,75 @@ export function TenantUserForm() {
   const pending = mutations.create.isPending;
 
   return (
-    <AdminFormPage
-      title={tp("createTitle")}
-      description={tp("formDescription")}
+    <AdminDetailPage
       backHref={BASE}
       backLabel={t("backToList")}
-      error={formError}
-      onSubmit={(e) => void handleSubmit(e)}
-      pending={pending}
-      submitLabel={t("save")}
-      pendingLabel={t("saving")}
-      cancelHref={BASE}
-      cancelLabel={t("cancel")}
+      title={tp("createTitle")}
+      description={tp("formDescription")}
+      wide={false}
     >
-      <AdminField label={t("name")} htmlFor="tenant-name" required>
-        <input
-          id="tenant-name"
-          required
-          autoComplete="name"
-          className={adminInputClassName}
-          value={form.name}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-        />
-      </AdminField>
-      <AdminField label={t("email")} htmlFor="tenant-email" required>
-        <input
-          id="tenant-email"
-          type="email"
-          required
-          autoComplete="email"
-          className={adminInputClassName}
-          value={form.email}
-          onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-        />
-      </AdminField>
-      <AdminField label={tp("password")} htmlFor="tenant-password" required>
-        <div className="relative">
-          <input
-            id="tenant-password"
-            type={showPassword ? "text" : "password"}
-            required
-            autoComplete="new-password"
-            className={cn(adminInputClassName, "pr-10")}
-            value={form.password}
-            onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((v) => !v)}
-            className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#6f4627]"
-            aria-label={showPassword ? tp("hidePassword") : tp("showPassword")}
-          >
-            <Icon
-              name={showPassword ? "visibility_off" : "visibility"}
-              size={20}
+      <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
+        <AdminFormError message={formError} />
+
+        <AdminFormSection
+          icon="person"
+          title={tp("identityTitle")}
+          hint={tp("identityHint")}
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            <AdminField label={t("name")} htmlFor="tenant-name" required>
+              <input
+                id="tenant-name"
+                required
+                autoComplete="name"
+                className={adminInputClassName}
+                value={form.name}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
+              />
+            </AdminField>
+            <AdminField label={t("email")} htmlFor="tenant-email" required>
+              <input
+                id="tenant-email"
+                type="email"
+                required
+                autoComplete="email"
+                className={adminInputClassName}
+                value={form.email}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, email: e.target.value }))
+                }
+              />
+            </AdminField>
+          </div>
+        </AdminFormSection>
+
+        <AdminFormSection
+          icon="lock"
+          title={tp("credentialsTitle")}
+          hint={tp("passwordHint")}
+        >
+          <AdminField label={tp("password")} htmlFor="tenant-password" required>
+            <AdminPasswordInput
+              id="tenant-password"
+              required
+              value={form.password}
+              onChange={(password) => setForm((f) => ({ ...f, password }))}
+              showLabel={tp("showPassword")}
+              hideLabel={tp("hidePassword")}
             />
-          </button>
-        </div>
-        <p className="mt-1 text-xs text-[#83746b]">{tp("passwordHint")}</p>
-      </AdminField>
-    </AdminFormPage>
+          </AdminField>
+        </AdminFormSection>
+
+        <AdminFormActions
+          cancelHref={BASE}
+          cancelLabel={t("cancel")}
+          pending={pending}
+          submitLabel={tp("createTitle")}
+          pendingLabel={t("saving")}
+        />
+      </form>
+    </AdminDetailPage>
   );
 }

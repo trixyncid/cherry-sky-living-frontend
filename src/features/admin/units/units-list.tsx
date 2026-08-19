@@ -179,11 +179,11 @@ export function UnitsList() {
 
       {viewMode === "map" ? (
         isLoading ? (
-          <p className="rounded-2xl border border-[#e3e2e0] bg-white/80 p-10 text-center text-sm text-[#83746b]">
+          <p className="glass-panel rounded-2xl p-10 text-center text-sm text-[#83746b]">
             {t("loading")}
           </p>
         ) : filtered.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-[#e3e2e0] bg-[#faf9f6]/80 p-10 text-center text-sm text-[#83746b]">
+          <p className="glass-panel rounded-2xl border-dashed p-10 text-center text-sm text-[#83746b]">
             {emptyMessage}
           </p>
         ) : (

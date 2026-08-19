@@ -25,7 +25,8 @@ function PopoverAnchor({
 function PopoverContent({
   className,
   align = "start",
-  sideOffset = 4,
+  sideOffset = 6,
+  collisionPadding = 12,
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Content>) {
   return (
@@ -34,8 +35,9 @@ function PopoverContent({
         data-slot="popover-content"
         align={align}
         sideOffset={sideOffset}
+        collisionPadding={collisionPadding}
         className={cn(
-          "z-50 w-auto origin-[--radix-popover-content-transform-origin] rounded-xl border border-[#e3e2e0] bg-white p-0 text-[#1a1c1a] shadow-lg shadow-[#2f312f]/10 outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+          "glass-overlay z-[80] w-auto origin-[--radix-popover-content-transform-origin] overflow-hidden rounded-xl p-0 text-[#1a1c1a] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
           className,
         )}
         {...props}

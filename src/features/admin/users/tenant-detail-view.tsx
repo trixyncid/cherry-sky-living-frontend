@@ -158,7 +158,7 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
 
       <form
         onSubmit={(e) => void handleSave(e)}
-        className="mb-8 rounded-2xl border border-[#e3e2e0]/80 bg-white/90 p-5 shadow-sm sm:p-6"
+        className="glass-panel mb-8 rounded-[1.75rem] p-5 sm:p-6"
       >
         <h2 className="mb-4 text-base font-semibold text-[#1a1c1a]">
           {tp("accountSection")}
@@ -346,7 +346,7 @@ function DetailCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-[#e3e2e0] bg-white/80 p-4">
+    <div className="glass-panel-soft rounded-xl p-4">
       <p className="text-xs font-medium text-[#83746b]">{label}</p>
       {children ?? (
         <p className="mt-1 text-sm font-semibold text-[#1a1c1a]">{value}</p>

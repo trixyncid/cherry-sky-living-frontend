@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
+import { adminSearchInputClassName } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminPagination } from "@/features/admin/components/admin-pagination";
 import { AdminTableShell } from "@/features/admin/components/admin-table-shell";
@@ -102,7 +103,7 @@ export function UsersList() {
             setPage(1);
           }}
           placeholder={tp("searchPlaceholder")}
-          className="h-10 w-full rounded-xl border border-[#e3e2e0] bg-white/80 pl-10 pr-4 text-sm outline-none focus:border-[#8b5e3c]/50 focus:ring-2 focus:ring-[#8b5e3c]/15"
+          className={adminSearchInputClassName}
         />
       </div>
 

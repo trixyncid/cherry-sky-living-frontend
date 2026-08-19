@@ -32,7 +32,7 @@ export function TenantLeaseDetail({ id }: { id: string }) {
       <div className="space-y-4">
         <Link
           href="/tenant/leases"
-          className="inline-flex items-center gap-1 text-sm font-semibold text-[#6f4627] hover:underline"
+          className="glass-control inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-white/80"
         >
           <Icon name="arrow_back" size={18} />
           {t("backToList")}
@@ -57,7 +57,7 @@ export function TenantLeaseDetail({ id }: { id: string }) {
     <div className="space-y-6">
       <Link
         href="/tenant/leases"
-        className="inline-flex items-center gap-1 text-sm font-semibold text-[#6f4627] hover:underline"
+        className="glass-control inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-white/80"
       >
         <Icon name="arrow_back" size={18} />
         {t("backToList")}
@@ -67,7 +67,7 @@ export function TenantLeaseDetail({ id }: { id: string }) {
         <LeaseRenewalPrompt lease={lease} />
       )}
 
-      <div className="rounded-2xl border border-[#e3e2e0] bg-white/80 p-6 shadow-sm">
+      <div className="glass-panel rounded-[1.75rem] p-6">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold text-[#1a1c1a]">
@@ -125,7 +125,7 @@ export function TenantLeaseDetail({ id }: { id: string }) {
         </dl>
       </div>
 
-      <div className="rounded-2xl border border-[#e3e2e0] bg-white/80 p-6 shadow-sm">
+      <div className="glass-panel rounded-[1.75rem] p-6">
         <div className="mb-4">
           <h3 className="text-base font-semibold text-[#1a1c1a]">
             {tp("paymentProofTitle")}
@@ -156,7 +156,7 @@ function DetailItem({
 }) {
   return (
     <div className={className}>
-      <dt className="text-xs font-semibold uppercase tracking-wide text-[#83746b]">
+      <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#83746b]">
         {label}
       </dt>
       <dd className="mt-1 text-sm font-medium text-[#1a1c1a]">{value}</dd>

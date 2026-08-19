@@ -54,8 +54,8 @@ export function UnitsAvailabilityFilter({
           className={cn(
             "inline-flex h-10 items-center gap-1.5 rounded-xl border px-3 text-sm font-medium transition-colors",
             expanded || activeRange
-              ? "border-[#8b5e3c]/40 bg-[#f5e4d4]/50 text-[#6f4627]"
-              : "border-[#e3e2e0] bg-white/80 text-[#51443c] hover:border-[#d0b59b]",
+              ? "border-[#8b5e3c]/35 bg-[#f5e4d4]/55 text-[#6f4627] backdrop-blur-md"
+              : "glass-control text-[#51443c] hover:bg-white/80",
           )}
         >
           <Icon name="event_available" size={18} />
@@ -84,7 +84,7 @@ export function UnitsAvailabilityFilter({
       </div>
 
       {expanded && (
-        <div className="rounded-2xl border border-[#e3e2e0] bg-white/80 p-5 shadow-sm">
+        <div className="glass-panel rounded-2xl p-5">
           <p className="mb-1 text-sm font-medium text-[#51443c]">
             {tp("filters")}
           </p>
@@ -109,7 +109,7 @@ export function UnitsAvailabilityFilter({
                 type="button"
                 onClick={onApply}
                 disabled={isFetching}
-                className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-[#6f4627] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#805533] disabled:opacity-50"
+                className="admin-btn-primary flex h-10 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold disabled:opacity-50"
               >
                 <Icon name="search" size={18} />
                 {tp("search")}
@@ -118,7 +118,7 @@ export function UnitsAvailabilityFilter({
                 <button
                   type="button"
                   onClick={onClear}
-                  className="flex h-10 items-center justify-center rounded-xl border border-[#e3e2e0] bg-white px-4 text-sm font-medium text-[#51443c] transition-colors hover:bg-[#f3f0eb]"
+                  className="glass-control flex h-10 items-center justify-center rounded-xl px-4 text-sm font-medium text-[#51443c] transition-colors hover:bg-white/80"
                 >
                   {tp("clear")}
                 </button>

@@ -37,6 +37,8 @@ export async function getSession(): Promise<AuthSession | null> {
       headers: {
         cookie: cookieHeader,
         "user-agent": headerStore.get("user-agent") ?? "",
+        "x-forwarded-for": headerStore.get("x-forwarded-for") ?? "",
+        "x-real-ip": headerStore.get("x-real-ip") ?? "",
       },
       cache: "no-store",
     });

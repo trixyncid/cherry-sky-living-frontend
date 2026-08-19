@@ -40,8 +40,8 @@ const emptyPassword: AdminPasswordValues = {
 
 function roleBadgeClass(role: string) {
   return role === "superadmin"
-    ? "bg-[#f5e4d4] text-[#6f4627] border-[#e8dfd6]"
-    : "bg-[#efeeeb] text-[#51443c] border-[#e3e2e0]";
+    ? "bg-[#f5e4d4]/80 text-[#6f4627] ring-1 ring-white/60"
+    : "bg-white/45 text-[#51443c] ring-1 ring-white/50";
 }
 
 export function AdminProfileView() {
@@ -135,7 +135,7 @@ export function AdminProfileView() {
         <p className="text-sm text-[#83746b]">{t("loading")}</p>
       ) : profile ? (
         <div className="space-y-6">
-          <section className="rounded-2xl border border-[#e3e2e0] bg-white/80 p-6 shadow-sm">
+          <section className="glass-panel rounded-[1.75rem] p-6">
             <div className="mb-6 flex items-center gap-5">
               <ProfileAvatarPlaceholder
                 className="size-20 ring-4 ring-[#f4f3f1]"
@@ -145,7 +145,7 @@ export function AdminProfileView() {
               <div>
                 <span
                   className={cn(
-                    "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold capitalize",
+                    "inline-flex rounded-full px-2.5 py-1 text-xs font-semibold capitalize backdrop-blur-sm",
                     roleBadgeClass(profile.role),
                   )}
                 >
@@ -198,7 +198,7 @@ export function AdminProfileView() {
                 <button
                   type="submit"
                   disabled={profilePending}
-                  className="rounded-xl bg-[#6f4627] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#805533] disabled:opacity-50"
+                  className="admin-btn-primary rounded-xl px-5 py-2.5 text-sm font-semibold disabled:opacity-50"
                 >
                   {profilePending ? t("saving") : t("save")}
                 </button>
@@ -206,7 +206,7 @@ export function AdminProfileView() {
             </form>
           </section>
 
-          <section className="rounded-2xl border border-[#e3e2e0] bg-white/80 p-6 shadow-sm">
+          <section className="glass-panel rounded-[1.75rem] p-6">
             <h3 className="mb-1 text-sm font-semibold text-[#1a1c1a]">
               {tp("passwordSection")}
             </h3>
@@ -265,7 +265,7 @@ export function AdminProfileView() {
                 <button
                   type="submit"
                   disabled={passwordPending}
-                  className="rounded-xl border border-[#6f4627] bg-[#faf9f6] px-5 py-2.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
+                  className="glass-control rounded-xl px-5 py-2.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-white/80 disabled:opacity-50"
                 >
                   {passwordPending ? tp("updatingPassword") : tp("updatePassword")}
                 </button>

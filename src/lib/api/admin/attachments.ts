@@ -67,6 +67,17 @@ export function uploadLeaseAttachment(
   );
 }
 
+export function uploadLedgerEntryImage(
+  ledgerEntryId: string,
+  file: File,
+): Promise<void> {
+  return uploadAttachment(
+    "/admin/attachments/ledger-entry",
+    { ledgerEntryId },
+    file,
+  );
+}
+
 /** @deprecated Prefer uploadLeaseAttachment */
 export function uploadLeaseDownpaymentImage(
   leaseId: string,
