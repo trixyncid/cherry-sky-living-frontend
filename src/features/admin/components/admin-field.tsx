@@ -197,7 +197,7 @@ export function AdminSelect({
   id,
   name,
   "aria-label": ariaLabel,
-}: React.ComponentProps<"select"> & {
+}: Omit<React.ComponentProps<"select">, "size"> & {
   className?: string;
   selectClassName?: string;
   contentClassName?: string;
