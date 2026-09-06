@@ -10,19 +10,103 @@
         "properties": "Properti"
     },
     "hero": {
-        "title": "Temukan Kost Impian Anda",
+        "title": "Kamar yang terasa seperti rumah",
         "location": "di Medan",
         "scroll": "Gulir",
-        "subtitle": "Kost nyaman dengan fasilitas lengkap di lokasi strategis",
-        "cta": "Lihat Kost Kami",
-        "learnMore": "Pelajari Lebih Lanjut",
-        "scheduleVisit": "Dashboard"
+        "subtitle": "Dua hunian terawat di Medan — kamar berfurnitur, keamanan 24/7, dan tim yang mendampingi Anda dari kunjungan hingga pindahan.",
+        "cta": "Lihat kamar",
+        "learnMore": "Jelajahi opsi",
+        "scheduleVisit": "Dashboard",
+        "eyebrow": "Sedang dibuka · Medan",
+        "trustResidents": "500+ penghuni",
+        "trustSecurity": "Keamanan 24/7",
+        "trustViewing": "Jadwalkan kunjungan",
+        "fromPrice": "Mulai {price}",
+        "roomsOpen": "{count} kamar tersedia",
+        "featuredLabel": "Hunian unggulan",
+        "viewProperty": "Lihat properti"
     },
     "home": {
         "properties": {
             "eyebrow": "Properti Pilihan",
             "title": "Kamar Kost Pilihan di Medan",
             "description": "Telusuri kamar kost pilihan dengan lokasi strategis dan fasilitas lengkap."
+        },
+        "intro": {
+            "title": "Mengubah kamar menjadi rumah di Medan",
+            "description": "Cherry Sky Living menghadirkan kost nyaman di lokasi strategis untuk mahasiswa dan profesional — dengan layanan terpercaya dari pertanyaan pertama hingga pindahan.",
+            "storyEyebrow": "Hidup di rumah ini",
+            "story": "Kamar sudah berfurnitur agar Anda bisa langsung menempati dan menjalani harinya — bukan menghabiskan minggu pertama untuk merapikan. Rumah kami dijaga tetap tenang, aman, dan terawat, dengan tim yang siap dihubungi dari kunjungan pertama sampai serah terima kunci.",
+            "points": {
+                "furnished": "Kamar berfurnitur dengan kebutuhan harian yang sudah lengkap",
+                "security": "Keamanan 24/7 agar rumah tetap tenang dan aman",
+                "support": "Tim yang mendampingi dari kunjungan hingga pindahan"
+            }
+        },
+        "neighborhood": {
+            "eyebrow": "Lokasi",
+            "title": "Jelajahi lingkungan terbaik Anda",
+            "description": "Kunjungi SKYKOST dan CHERRY KOST di Medan. Pilih properti, lihat detailnya, lalu minta jadwal kunjungan ke tim kami.",
+            "requestVisit": "Minta kunjungan"
+        },
+        "faq": {
+            "eyebrow": "Bantuan",
+            "title": "Pertanyaan sebelum Anda menghubungi kami",
+            "description": "Jawaban langsung tentang kunjungan, kamar, dan hunian di Cherry Sky. Masih ragu? Hubungi tim kami melalui WhatsApp.",
+            "contactCta": "Hubungi manajemen",
+            "items": {
+                "visit": {
+                    "q": "Bisakah saya melihat kamar sebelum menyewa?",
+                    "a": "Bisa — kami punya sistem survey terlebih dahulu. Survey hanya bisa dilakukan Senin–Sabtu, 08.00–18.00 WIB. Mohon isi jadwal survey agar admin standby di lokasi.",
+                    "cta": "Jadwalkan survey"
+                },
+                "deposit": {
+                    "q": "Apakah deposit wajib?",
+                    "a": "Iya. Deposit per kamar adalah Rp 400.000 (Cherrykost) dan Rp 300.000 (Skykost). Deposit dikembalikan setelah kontrak selesai dengan syarat tidak ada fasilitas kost atau kamar yang rusak atau hilang. Jika ada, jumlahnya akan dikurangi dari deposit."
+                },
+                "electricity": {
+                    "q": "Apakah tarif bulanan sudah termasuk listrik?",
+                    "a": "Tidak. Biaya kamar tidak termasuk listrik — hanya mencakup fasilitas yang tertera. Penghuni mengisi token listrik masing-masing di depan kamar yang ditempati."
+                },
+                "wifi": {
+                    "q": "Apakah Wi-Fi sudah termasuk?",
+                    "a": "Benar. Kost kami menyediakan Wi-Fi gratis untuk tiap penghuni, dan setiap lantai dilengkapi 2–3 router Wi-Fi."
+                },
+                "availability": {
+                    "q": "Bagaimana saya tahu kamar masih tersedia?",
+                    "a": "Setiap listing menampilkan ketersediaan saat ini. Status bisa berubah cepat — kirim inquiry dan kami akan konfirmasi status terbaru."
+                }
+            },
+            "surveyDialog": {
+                "title": "Jadwalkan survey kamar",
+                "description": "Survey tersedia Senin–Sabtu, 08.00–18.00 WIB. Lengkapi data di bawah ini dan WhatsApp akan terbuka dengan pesan untuk tim kami.",
+                "name": "Nama",
+                "namePlaceholder": "Nama lengkap Anda",
+                "phone": "No. telepon",
+                "phonePlaceholder": "contoh: 08116359119",
+                "surveyDay": "Hari survey",
+                "surveyDayPlaceholder": "Pilih hari",
+                "surveyTime": "Jam survey",
+                "surveyTimePlaceholder": "Pilih jam",
+                "roomType": "Tipe kamar yang ingin dilihat",
+                "roomTypePlaceholder": "contoh: AC kamar mandi dalam",
+                "property": "Properti",
+                "propertyPlaceholder": "Pilih properti",
+                "skykost": "Skykost",
+                "cherrykost": "Cherrykost",
+                "days": {
+                    "monday": "Senin",
+                    "tuesday": "Selasa",
+                    "wednesday": "Rabu",
+                    "thursday": "Kamis",
+                    "friday": "Jumat",
+                    "saturday": "Sabtu"
+                },
+                "submit": "Lanjutkan ke WhatsApp",
+                "required": "Field ini wajib diisi",
+                "invalidPhone": "Masukkan nomor telepon yang valid",
+                "message": "Yth. Cherry Sky Living,\n\nSaya ingin menjadwalkan survey kamar.\n\nNama: {name}\nNo. telepon: {phone}\nHari & jam survey: {surveyDay}, {surveyTime} WIB\nTipe kamar yang ingin dilihat: {roomType}\nProperti: {property}\n\nMohon konfirmasi agar admin standby di lokasi. Terima kasih."
+            }
         },
         "amenities": {
             "badge": "Premium Living",
@@ -112,13 +196,13 @@
         "includeWater": "Termasuk air"
     },
     "cta": {
-        "sendInquiry": "Kirim Pertanyaan",
+        "sendInquiry": "Tanyakan via WhatsApp",
         "bookNow": "Pesan Sekarang",
         "bookViewing": "Jadwalkan Kunjungan",
         "contactOwner": "Hubungi Pemilik",
         "viewDetails": "Lihat Detail",
         "joinWaitlist": "Daftar Tunggu",
-        "whatsapp": "Hubungi via WhatsApp",
+        "whatsapp": "Tanyakan via WhatsApp",
         "call": "Telepon",
         "seeMore": "Lihat Lebih Banyak",
         "applyFilter": "Terapkan Filter",
@@ -188,7 +272,11 @@
         }
     },
     "search": {
-        "title": "Cari Kost",
+        "title": "Cari kamar di Medan",
+        "eyebrow": "SKYKOST · CHERRY KOST",
+        "subtitle": "Filter berdasarkan properti, harga, dan ketersediaan — lalu jadwalkan kunjungan dengan tim kami.",
+        "resultsEyebrow": "Tipe kamar",
+        "resultsTitle": "Kamar tersedia",
         "placeholder": "Cari lokasi, nama kost...",
         "location": "Lokasi",
         "priceRange": "Rentang Harga",
@@ -213,7 +301,20 @@
         "sortPriceDesc": "Harga: Tertinggi",
         "sortNewest": "Terbaru",
         "reset": "Reset",
+        "clearAll": "Hapus semua",
+        "removeFilter": "Hapus filter {label}",
         "apply": "Cari",
+        "findProperties": "Cari Properti",
+        "lookingFor": "Mencari",
+        "priceAny": "Semua harga",
+        "priceUnder1m": "Di bawah Rp 1 jt",
+        "price1to2m": "Rp 1–2 jt",
+        "price2to3m": "Rp 2–3 jt",
+        "price3mPlus": "Rp 3 jt+",
+        "roomsLabel": "Ketersediaan",
+        "filterAll": "Semua",
+        "filterAvailable": "Tersedia",
+        "filterMonthly": "Bulanan",
         "paginationShowing": "Menampilkan {start}–{end} dari {total}",
         "paginationPrevious": "Halaman sebelumnya",
         "paginationNext": "Halaman berikutnya",
@@ -239,6 +340,8 @@
     "propertyDetail": {
         "notFound": "Properti tidak ditemukan",
         "notFoundDescription": "Properti yang Anda cari tidak tersedia",
+        "loadError": "Tidak dapat memuat properti ini",
+        "loadErrorDescription": "Periksa koneksi Anda lalu coba lagi.",
         "breadcrumbHome": "Beranda",
         "breadcrumbSearch": "Cari Kost",
         "aboutProperty": "Tentang properti ini",
@@ -249,7 +352,10 @@
         "noUnitTypes": "Belum ada tipe kamar untuk properti ini",
         "availableRooms": "{available} dari {total} kamar tersedia",
         "backToProperty": "Kembali ke Properti",
-        "unitTypeNotFound": "Tipe kamar tidak ditemukan"
+        "unitTypeNotFound": "Tipe kamar tidak ditemukan",
+        "photos": "Foto",
+        "inquiryTitle": "Tinggal bersama kami",
+        "inquiryHint": "Hubungi tim untuk jadwalkan kunjungan. Anda belum dikenakan biaya."
     },
     "footer": {
         "tagline": "Menemukan hunian nyaman untuk hidup yang lebih baik",
@@ -267,29 +373,33 @@
         "termsConditions": "Syarat & Ketentuan",
         "location": "Medan, Indonesia",
         "website": "Situs web",
-        "email": "Email"
+        "email": "Email",
+        "inquiryTitle": "Jadwalkan kunjungan",
+        "inquiryDescription": "Masukkan nama Anda dan kami akan membuka WhatsApp dengan pesan yang sudah disiapkan untuk tim kami.",
+        "inquiryNamePlaceholder": "Nama Anda",
+        "inquiryButton": "Hubungi kami"
     },
     "whatsapp": {
-        "inquiry": "Halo, saya tertarik dengan {propertyName}",
-        "roomInquiry": "Halo, saya tertarik dengan {roomType} di {propertyName}. Apakah masih tersedia?",
-        "generalInquiry": "Halo, saya ingin menanyakan informasi tentang kost",
-        "visitSchedule": "Halo, saya ingin menjadwalkan kunjungan ke {propertyName}",
+        "inquiry": "Yth. Cherry Sky Living,\n\nSaya ingin meminta informasi lebih lanjut mengenai {propertyName}. Terima kasih.",
+        "roomInquiry": "Yth. Cherry Sky Living,\n\nSaya ingin menanyakan ketersediaan {roomType} di {propertyName}. Mohon informasi mengenai langkah selanjutnya. Terima kasih.",
+        "generalInquiry": "Yth. Cherry Sky Living,\n\nSaya ingin menanyakan ketersediaan kamar dan informasi sewa. Mohon informasi lebih lanjut. Terima kasih.",
+        "visitSchedule": "Yth. Cherry Sky Living,\n\nSaya ingin menjadwalkan kunjungan ke {propertyName}. Mohon informasi mengenai waktu yang tersedia. Terima kasih.",
         "inquiryDialog": {
-            "title": "Kirim Pertanyaan",
-            "description": "Bagikan detail Anda dan preferensi sewa. Kami akan membuka WhatsApp dengan pesan yang sudah siap dikirim.",
-            "name": "Nama",
+            "title": "Tanyakan via WhatsApp",
+            "description": "Mohon lengkapi data di bawah ini. WhatsApp akan terbuka dengan pesan pertanyaan yang sudah disiapkan untuk tim kami. Tidak ada pertanyaan yang dicatat di situs ini.",
+            "name": "Nama lengkap",
             "namePlaceholder": "Nama lengkap Anda",
-            "phone": "Nomor Telepon",
+            "phone": "Nomor telepon",
             "phonePlaceholder": "contoh: 08116359119",
-            "duration": "Durasi Sewa",
+            "duration": "Durasi sewa yang diinginkan",
             "durationPlaceholder": "Pilih durasi",
-            "checkInDate": "Tanggal Check-in",
-            "checkInDatePlaceholder": "Pilih tanggal check-in",
-            "depositNote": "Catatan: Deposit sebesar {amount} wajib dibayar untuk mengamankan kontrak sewa Anda. Pembayaran dilakukan setelah konfirmasi pemesanan.",
-            "submit": "Kirim via WhatsApp",
+            "checkInDate": "Tanggal mulai sewa",
+            "checkInDatePlaceholder": "Pilih tanggal mulai sewa",
+            "depositNote": "Mohon diperhatikan: deposit sebesar {amount} diperlukan untuk melanjutkan perjanjian sewa. Rincian pembayaran akan dikonfirmasi oleh tim kami setelah syarat dan ketentuan disepakati.",
+            "submit": "Lanjutkan ke WhatsApp",
             "required": "Field ini wajib diisi",
             "invalidPhone": "Masukkan nomor telepon yang valid",
-            "bookingMessage": "Halo, saya ingin menanyakan tentang {roomType} di {propertyName}.\n\nNama: {name}\nTelepon: {phone}\nDurasi: {duration}\nTanggal Check-in: {checkInDate}\nDeposit: {deposit}"
+            "bookingMessage": "Yth. Cherry Sky Living,\n\nSaya ingin menanyakan ketersediaan {roomType} di {propertyName}.\n\nRincian pertanyaan:\nNama lengkap: {name}\nNomor telepon: {phone}\nDurasi sewa yang diinginkan: {duration}\nTanggal mulai sewa: {checkInDate}\nDeposit tercatat: {deposit}\n\nMohon informasi lebih lanjut mengenai unit tersebut. Terima kasih."
         }
     },
     "roomDetail": {
@@ -314,7 +424,8 @@
     "common": {
         "brand": {
             "name": "Cherry Sky Living",
-            "fullName": "Cherry Sky Living"
+            "fullName": "Cherry Sky Living",
+            "wordmark": "Cherry Sky"
         },
         "accountSection": "Akun",
         "language": "Bahasa",
@@ -332,20 +443,44 @@
     },
     "about": {
         "hero": {
-            "title": "Tentang Kami",
-            "subtitle": "Partner Terpercaya Anda dalam Mencari Kost yang Sempurna",
-            "description": "Kami berkomitmen untuk menyediakan solusi kost yang nyaman, aman, dan terjangkau bagi mahasiswa dan profesional di Medan."
+            "title": "Hunian yang mengikuti cara Anda tinggal",
+            "subtitle": "Partner terpercaya di Medan",
+            "description": "Cherry Sky Living mengelola dua hunian terawat di Medan — kamar berfurnitur, keamanan 24/7, dan tim yang mendampingi Anda dari kunjungan pertama hingga pindahan.",
+            "eyebrow": "Sejak 2019 · Medan",
+            "ctaRooms": "Lihat kamar",
+            "ctaViewing": "Jadwalkan kunjungan"
         },
         "mission": {
             "title": "Misi Kami",
             "subtitle": "Mengapa Kami Melakukan Ini",
             "description": "Menciptakan lingkungan hunian yang nyaman dan mendukung agar penghuni dapat fokus pada studi dan karir mereka tanpa khawatir tentang kualitas akomodasi.",
             "vision": "Visi Kami",
-            "visionDescription": "Menjadi penyedia kost paling terpercaya dan disukai di Medan, dikenal karena kualitas, layanan, dan kepuasan penghuni."
+            "visionDescription": "Menjadi penyedia kost paling terpercaya dan disukai di Medan, dikenal karena kualitas, layanan, dan kepuasan penghuni.",
+            "eyebrow": "Cerita kami",
+            "storyTitle": "Cara yang lebih tenang untuk tinggal di Medan",
+            "storyDescription": "Kami memulai Cherry Sky agar mahasiswa dan profesional muda bisa menyewa dengan tenang — harga yang jelas, kamar yang terawat, dan orang yang menjawab saat Anda butuh."
+        },
+        "journey": {
+            "eyebrow": "Cara kerjanya",
+            "title": "Dari pesan pertama hingga pindahan",
+            "description": "Tanpa tebak-tebakan. Jalur ke kamar dibuat singkat, jelas, dan manusiawi.",
+            "visit": {
+                "title": "Jadwalkan kunjungan",
+                "description": "Hubungi kami di WhatsApp. Kami konfirmasi waktunya agar ada staf yang menemani Anda melihat kamar dan gedung."
+            },
+            "lease": {
+                "title": "Sepakati syaratnya",
+                "description": "Jika kamarnya cocok, kami konfirmasi ketersediaan, deposit, dan durasi — secara tertulis, sebelum ada pembayaran."
+            },
+            "movein": {
+                "title": "Siap menempati",
+                "description": "Datang ke kamar berfurnitur, Wi-Fi, dan tim yang tetap bisa dihubungi setelah Anda pegang kunci."
+            }
         },
         "values": {
             "title": "Nilai-Nilai Inti Kami",
             "subtitle": "Apa yang Kami Perjuangkan",
+            "description": "Standar yang sama di setiap gedung — agar kamar di Cherry Sky terasa terawat, bukan dadakan.",
             "quality": {
                 "title": "Kualitas Utama",
                 "description": "Kami tidak pernah berkompromi pada kualitas fasilitas dan layanan kami."
@@ -372,16 +507,24 @@
             "satisfactionRate": "Tingkat Kepuasan"
         },
         "cta": {
-            "title": "Siap Menemukan Rumah Sempurna Anda?",
-            "subtitle": "Bergabunglah dengan ratusan penghuni puas yang telah menemukan tempat tinggal ideal mereka bersama kami.",
-            "button": "Lihat Properti Kami"
+            "title": "Siap melihat kamar?",
+            "subtitle": "Telusuri kamar yang tersedia, atau hubungi kami untuk jadwalkan kunjungan di SKYKOST atau CHERRY KOST.",
+            "button": "Lihat kamar",
+            "viewing": "Jadwalkan kunjungan"
         }
     },
     "contact": {
         "hero": {
-            "title": "Hubungi Kami",
+            "title": "Mari cari kamar untuk Anda",
             "subtitle": "Kami ingin mendengar dari Anda",
-            "description": "Ada pertanyaan tentang properti kami? Butuh bantuan menemukan kost yang sempurna? Hubungi kami hari ini!"
+            "description": "Ada pertanyaan tentang listing, kunjungan, atau pindahan? WhatsApp paling cepat — atau kirim pesan dan kami balas pada jam operasional.",
+            "eyebrow": "Cherry Sky Living",
+            "reachTitle": "Hubungi langsung",
+            "whatsapp": "WhatsApp",
+            "call": "Telepon",
+            "email": "Email",
+            "hours": "Jam",
+            "responseTime": "Biasanya dibalas dalam beberapa jam, Senin–Sabtu."
         },
         "info": {
             "title": "Informasi Kontak",
@@ -417,6 +560,7 @@
             "subjectPlaceholder": "Pertanyaan Anda tentang apa?",
             "sendViaWhatsApp": "Kirim via WhatsApp",
             "sendViaEmail": "Kirim via Email",
+            "whatsappMessage": "Yth. Cherry Sky Living,\n\nSaya ingin menanyakan informasi mengenai properti Anda.\n\nNama: {name}\nEmail: {email}\nTelepon: {phone}\nSubjek: {subject}\n\nPesan:\n{message}\n\nTerima kasih.",
             "sending": "Mengirim...",
             "sent": "Pesan terkirim berhasil!",
             "error": "Gagal mengirim pesan. Silakan coba lagi.",
@@ -427,7 +571,10 @@
             "title": "Lokasi Kami",
             "subtitle": "Kunjungi kost kami",
             "directionsButton": "Dapatkan Petunjuk Arah",
-            "coordinates": "Koordinat"
+            "coordinates": "Koordinat",
+            "visitTitle": "Ingin berkunjung?",
+            "visitDescription": "Datang pada jam operasional — hubungi kami dulu agar staf siap menemani.",
+            "visitCta": "Jadwalkan kunjungan"
         }
     },
     "terms": {
@@ -597,6 +744,21 @@
         "dateRangePicker": {
             "selected": "Rentang dipilih",
             "pickBoth": "Pilih tanggal mulai dan selesai",
+            "pickStart": "Pilih mulai",
+            "pickEnd": "Pilih selesai",
+            "start": "Mulai",
+            "end": "Selesai",
+            "stepStart": "Pilih tanggal mulai",
+            "stepEnd": "Pilih tanggal selesai",
+            "stepAdjust": "Sesuaikan rentang",
+            "today": "Hari ini",
+            "clear": "Hapus",
+            "done": "Selesai"
+        },
+        "datePicker": {
+            "selected": "Tanggal dipilih",
+            "pickDate": "Pilih tanggal",
+            "today": "Hari ini",
             "clear": "Hapus",
             "done": "Selesai"
         },
@@ -638,6 +800,9 @@
             "unitProperty": "Unit / Properti",
             "rentAmount": "Jumlah Sewa (IDR)",
             "showing": "Menampilkan {start}–{end} dari {total} entri",
+            "show": "Tampilkan",
+            "entries": "entri",
+            "pageSize": "Entri per halaman",
             "previous": "Halaman sebelumnya",
             "next": "Halaman berikutnya"
         },
@@ -665,6 +830,10 @@
                 "deactivated": {
                     "title": "Akun dinonaktifkan",
                     "description": "Hubungi administrator Anda."
+                },
+                "session": {
+                    "title": "Sesi berakhir",
+                    "description": "Silakan masuk lagi untuk melanjutkan."
                 },
                 "rateLimited": {
                     "title": "Terlalu banyak percobaan",
@@ -748,19 +917,21 @@
             "photoCount": "{count} foto",
             "dropTitle": "Letakkan foto di sini",
             "dropHint": "atau klik untuk memilih · JPG, PNG, WebP, atau GIF · maks. 5 MB",
+            "dropHintWithPdf": "atau klik untuk memilih · JPG, PNG, WebP, GIF, atau PDF · maks. 5 MB",
             "dropActive": "Lepaskan untuk menambahkan",
             "addMore": "Tambah foto",
             "addMoreHint": "Letakkan atau klik",
             "queuedBadge": "Dipilih",
-            "queueHint": "{count} foto siap. Periksa dulu, lalu klik Unggah.",
-            "uploadSelected": "Unggah {count} foto",
+            "queueHint": "{count} file siap. Periksa dulu, lalu klik Unggah.",
+            "uploadSelected": "Unggah {count} file",
             "clearQueue": "Hapus pilihan",
             "removeFromQueue": "Hapus dari pilihan",
             "uploading": "Mengunggah…",
             "lockedTitle": "Foto terbuka setelah Anda menyimpan",
             "lockedHint": "Simpan detail terlebih dahulu. Anda tetap di halaman ini untuk langsung menambah foto.",
             "invalidType": "Hanya gambar JPEG, PNG, WebP, dan GIF yang dapat diunggah.",
-            "tooLarge": "Setiap foto harus 5 MB atau lebih kecil."
+            "invalidTypeWithPdf": "Hanya file JPEG, PNG, WebP, GIF, atau PDF yang dapat diunggah.",
+            "tooLarge": "Setiap file harus 5 MB atau lebih kecil."
         },
         "pages": {
             "overview": {
@@ -779,6 +950,27 @@
                 "stats": {
                     "properties": "Properti",
                     "propertiesHint": "Bangunan dalam portofolio",
+                    "vacantUnits": "Unit kosong",
+                    "vacantUnitsHint": "{occupied} dari {total} terisi",
+                    "activeLeases": "Sewa aktif",
+                    "activeLeasesHint": "{expiring} berakhir dalam jendela perpanjangan",
+                    "accountsReceivable": "Piutang",
+                    "accountsReceivableHint": "{overdue} jatuh tempo · {overdueAmount}",
+                    "awaitingReview": "Menunggu review",
+                    "awaitingReviewHint": "{amount} menunggu konfirmasi",
+                    "monthIncome": "Pendapatan (MTD)",
+                    "monthIncomeHint": "Kontrak aktif: {contracted}",
+                    "monthNet": "Laba bersih (MTD)",
+                    "monthNetHint": "Pengeluaran {expense}",
+                    "expiringSoon": "Segera berakhir",
+                    "expiringSoonHint": "Dalam jendela perpanjangan tiap properti",
+                    "renewalPending": "Perpanjangan menunggu",
+                    "renewalPendingHint": "Penyewa belum memutuskan",
+                    "renewalOverdue": "Perpanjangan terlambat",
+                    "renewalOverdueHint": "Melewati batas konfirmasi",
+                    "renewalIntent": "Niat perpanjangan",
+                    "renewalIntentValue": "{renew} lanjut / {decline} tolak",
+                    "renewalIntentHint": "Sudah dikonfirmasi, belum selesai",
                     "units": "Total unit",
                     "unitsHint": "{occupied} sedang terisi",
                     "leases": "Sewa aktif",
@@ -795,6 +987,21 @@
                     "addUnit": "Kelola unit",
                     "newLease": "Sewa baru",
                     "setPricing": "Atur harga"
+                },
+                "queues": {
+                    "title": "Antrian aksi",
+                    "subtitle": "Pembayaran untuk review, belum lunas jatuh tempo, perpanjangan, dan sewa yang segera berakhir",
+                    "viewAll": "Lihat sewa",
+                    "empty": "Tidak ada yang perlu ditindak sekarang.",
+                    "expiringSoon": "Segera berakhir",
+                    "deadline": "Batas {date}",
+                    "daysLate": "Terlambat {days} hari",
+                    "kinds": {
+                        "review": "Pembayaran menunggu review",
+                        "unpaidOverdue": "Belum lunas & jatuh tempo",
+                        "renewal": "Perpanjangan terlambat",
+                        "expiring": "Sewa segera berakhir"
+                    }
                 },
                 "recent": {
                     "title": "Sewa terbaru",
@@ -941,6 +1148,11 @@
                 "passwordHint": "Minimal 8 karakter. Penyewa akan memakai ini untuk masuk.",
                 "showPassword": "Tampilkan kata sandi",
                 "hidePassword": "Sembunyikan kata sandi",
+                "validation": {
+                    "nameRequired": "Nama wajib diisi",
+                    "emailInvalid": "Alamat email tidak valid",
+                    "passwordMin": "Kata sandi minimal 8 karakter"
+                },
                 "emailExists": "Email ini sudah terdaftar.",
                 "resetPassword": "Reset kata sandi",
                 "resetTitle": "Reset kata sandi penyewa?",
@@ -988,6 +1200,11 @@
                 "passwordHint": "Minimal 8 karakter. Staf akan memakai ini untuk masuk.",
                 "showPassword": "Tampilkan kata sandi",
                 "hidePassword": "Sembunyikan kata sandi",
+                "validation": {
+                    "nameRequired": "Nama wajib diisi",
+                    "emailInvalid": "Alamat email tidak valid",
+                    "passwordMin": "Kata sandi minimal 8 karakter"
+                },
                 "emailExists": "Email ini sudah terdaftar.",
                 "forbiddenAction": "Anda tidak memiliki izin untuk melakukan tindakan ini.",
                 "status": "Status",
@@ -1002,6 +1219,9 @@
                 "activateSuccess": "Akun staf diaktifkan.",
                 "deactivateSuccess": "Akun staf dinonaktifkan.",
                 "deactivateBlocked": "Tidak dapat menonaktifkan akun superadmin terakhir.",
+                "deleteBlocked": "Akun staf ini sudah membuat atau memperbarui data dan tidak dapat dihapus. Nonaktifkan akun saja.",
+                "deleteLastSuperadminBlocked": "Tidak dapat menghapus akun superadmin terakhir.",
+                "deleteSelfBlocked": "Anda tidak dapat menghapus akun sendiri.",
                 "resetPassword": "Reset kata sandi",
                 "resetTitle": "Reset kata sandi staf?",
                 "resetDescription": "Ini akan membuat kata sandi sementara baru untuk \"{name}\" dan mengeluarkan mereka dari semua sesi aktif.",
@@ -1025,7 +1245,7 @@
                 "to": "s/d",
                 "expiring": "Akan berakhir",
                 "formDescription": "Buat atau perbarui perjanjian sewa penyewa.",
-                "editDescription": "Perbarui periode sewa, harga, dan status. Dokumen diunggah terpisah.",
+                "editDescription": "Perbarui periode sewa dan harga. Status pembayaran memakai aksi Konfirmasi / Tolak. Dokumen diunggah terpisah.",
                 "partiesTitle": "Orang & kamar",
                 "partiesHint": "Siapa yang menyewa, dan kamar mana.",
                 "termsTitle": "Syarat sewa",
@@ -1045,6 +1265,9 @@
                 "noTenantsMatch": "Tidak ada penyewa yang cocok dengan pencarian.",
                 "noUnitsMatch": "Tidak ada unit yang cocok dengan pencarian.",
                 "noPricingForUnit": "Belum ada paket harga bulanan untuk tipe unit ini. Tambahkan harga 30 hari di menu Harga terlebih dahulu.",
+                "selectUnitFirstForPricing": "Pilih unit terlebih dahulu untuk melihat paket bulanan yang cocok.",
+                "pricingDailyRate": "Tarif harian untuk prorata: {amount}",
+                "pricingDailyMissing": "Belum ada tarif harian — sewa di tengah bulan membutuhkannya di menu Harga.",
                 "needDailyPricing": "Masuk atau keluar di tengah bulan membutuhkan harga 1 hari untuk tipe unit ini. Tambahkan di menu Harga.",
                 "overlapUnit": "Unit ini sudah memiliki sewa dari {start} hingga {end} yang bertumpuk dengan periode yang dipilih.",
                 "overlapTenant": "Penyewa ini sudah memiliki sewa di {unit} ({property}) dari {start} hingga {end} yang bertumpuk dengan periode yang dipilih.",
@@ -1065,7 +1288,13 @@
                 "endDate": "Tanggal berakhir",
                 "leasePeriod": "Periode sewa",
                 "leasePeriodPlaceholder": "Pilih tanggal mulai dan berakhir",
-                "leasePeriodHint": "Pilih tanggal mulai dan berakhir bebas. Bulan sebagian ditagih dengan tarif harian.",
+                "leasePeriodHint": "Pilih tanggal mulai, lalu bulan berakhir. Tanggal selesai selalu di akhir bulan. Bulan pertama yang sebagian ditagih dengan tarif harian.",
+                "periodStart": "Masuk",
+                "periodEnd": "Keluar",
+                "periodStartHint": "Boleh di tengah bulan",
+                "periodEndHint": "Otomatis akhir bulan",
+                "durationPresets": "Durasi cepat",
+                "durationMonths": "{count, plural, one {# bulan} other {# bulan}}",
                 "amountPreview": "Pratinjau jumlah",
                 "amountDue": "Jumlah yang harus dibayar",
                 "monthlyRate": "Tarif bulanan",
@@ -1085,6 +1314,17 @@
                 "daysLate": "Hari terlambat",
                 "lateFeeAmount": "Denda keterlambatan",
                 "monthlyPackage": "bulanan",
+                "paymentStatus": "Status pembayaran",
+                "paymentStatusHint": "Konfirmasi, tolak, atau kirim ke tinjauan dengan aksi terpisah. Konfirmasi lunas membutuhkan dokumen pembayaran.",
+                "confirmPaid": "Konfirmasi lunas",
+                "rejectToUnpaid": "Tolak ke belum lunas",
+                "markWaitingForReview": "Tandai menunggu tinjauan",
+                "confirmNeedsPayment": "Unggah dokumen pembayaran sebelum mengonfirmasi sewa ini sebagai lunas.",
+                "statusConfirmed": "Sewa ditandai lunas.",
+                "statusRejected": "Sewa ditandai belum lunas.",
+                "statusSubmittedForReview": "Sewa ditandai menunggu tinjauan.",
+                "statusUpdateFailed": "Tidak dapat memperbarui status sewa.",
+                "allowPaidOverride": "Izinkan mengubah tanggal atau harga pada sewa yang sudah lunas.",
                 "stats": {
                     "totalBadge": "Total",
                     "attentionBadge": "Perhatian",
@@ -1173,7 +1413,14 @@
                 "passwordUpdated": "Kata sandi berhasil diperbarui.",
                 "saveFailed": "Gagal memperbarui profil.",
                 "passwordFailed": "Gagal memperbarui kata sandi.",
-                "incorrectCurrentPassword": "Kata sandi saat ini salah."
+                "incorrectCurrentPassword": "Kata sandi saat ini salah.",
+                "validation": {
+                    "nameRequired": "Nama wajib diisi",
+                    "currentPasswordRequired": "Kata sandi saat ini wajib diisi",
+                    "newPasswordMin": "Kata sandi baru minimal 8 karakter",
+                    "confirmPasswordRequired": "Konfirmasi kata sandi baru wajib diisi",
+                    "passwordsMismatch": "Kata sandi tidak cocok"
+                }
             },
             "bookkeeping": {
                 "title": "Buku kas",
@@ -1203,6 +1450,7 @@
                 "invalidDateRange": "Tanggal mulai harus sama dengan atau sebelum tanggal akhir.",
                 "date": "Tanggal",
                 "category": "Kategori",
+                "categoryNone": "Tanpa kategori",
                 "amount": "Jumlah (IDR)",
                 "amountRequired": "Masukkan jumlah yang valid lebih dari nol.",
                 "noProperty": "Semua properti",
@@ -1283,6 +1531,10 @@
                     "title": "Akun dinonaktifkan",
                     "description": "Hubungi administrator Anda."
                 },
+                "session": {
+                    "title": "Sesi berakhir",
+                    "description": "Silakan masuk lagi untuk melanjutkan."
+                },
                 "rateLimited": {
                     "title": "Terlalu banyak percobaan",
                     "description": "Tunggu beberapa menit, lalu coba masuk lagi."
@@ -1290,7 +1542,7 @@
             }
         },
         "attachments": {
-            "empty": "Belum ada bukti pembayaran terunggah.",
+            "empty": "Belum ada dokumen terlampir.",
             "view": "Lihat ukuran penuh"
         },
         "common": {
@@ -1322,8 +1574,8 @@
                 "duration": "Durasi",
                 "address": "Alamat",
                 "city": "Kota",
-                "paymentProofTitle": "Bukti pembayaran",
-                "paymentProofDescription": "Gambar bukti pembayaran yang terunggah untuk sewa ini.",
+                "documentsTitle": "Dokumen sewa",
+                "documentsDescription": "Berkas perjanjian dan pembayaran yang dilampirkan kantor untuk sewa ini.",
                 "amountDue": "Jumlah yang harus dibayar",
                 "paymentDueDate": "Tanggal jatuh tempo",
                 "daysLate": "Hari terlambat",
@@ -1344,7 +1596,7 @@
                     "declineFailed": "Gagal menyimpan respons Anda.",
                     "cancelRequest": "Batalkan permintaan perpanjangan",
                     "cancelFailed": "Gagal membatalkan permintaan perpanjangan.",
-                    "cancelledSuccess": "Permintaan perpanjangan dibatalkan.",
+                    "cancelledSuccess": "Permintaan perpanjangan dibatalkan. Anda dapat mengajukan lagi sebelum batas waktu.",
                     "requestedTitle": "Permintaan perpanjangan terkirim",
                     "requestedDescription": "Kami meninjau permintaan perpanjangan Anda. Anda akan mendapat kabar sebelum {deadline}.",
                     "confirmedTitle": "Perpanjangan dikonfirmasi",
@@ -1406,7 +1658,14 @@
                 "passwordUpdated": "Kata sandi berhasil diperbarui.",
                 "saveFailed": "Gagal memperbarui profil.",
                 "passwordFailed": "Gagal memperbarui kata sandi.",
-                "incorrectCurrentPassword": "Kata sandi saat ini salah."
+                "incorrectCurrentPassword": "Kata sandi saat ini salah.",
+                "validation": {
+                    "nameRequired": "Nama wajib diisi",
+                    "currentPasswordRequired": "Kata sandi saat ini wajib diisi",
+                    "newPasswordMin": "Kata sandi baru minimal 8 karakter",
+                    "confirmPasswordRequired": "Konfirmasi kata sandi baru wajib diisi",
+                    "passwordsMismatch": "Kata sandi tidak cocok"
+                }
             }
         }
     }

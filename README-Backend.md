@@ -19,8 +19,10 @@ Scheduled tasks run inside the same Elysia process via `@elysia/cron` (daily at 
 
 | Job | Schedule | What it does |
 |---|---|---|
-| `expire-leases` | `0 0 0 * * *` | Sets `occupied` units to `vacant` when their paid lease has ended and no other active paid lease covers the unit |
-| `decline-lease-renewals` | `0 0 0 * * *` | Auto-declines renewals past the H-N confirmation deadline when the tenant took **no action** (`isRenewLease=false`). Does not auto-confirm tenants who already requested renewal |
+| `expire-leases` | `0 0 0 * * *` Asia/Jakarta | Sets `occupied` units to `vacant` when their paid lease’s inclusive `endDate` day has passed and no other active paid lease covers the unit. Advisory-locked; outcomes stored in `job_run`. |
+| `decline-lease-renewals` | `0 0 0 * * *` Asia/Jakarta | Auto-declines renewals past the H-N confirmation deadline when the tenant took **no action** (`isRenewLease=false`). Does not auto-confirm tenants who already requested renewal. Advisory-locked + batched; outcomes in `job_run`. |
+
+External schedulers can also `POST /jobs/expire-leases/run` or `POST /jobs/decline-lease-renewals/run` with header `X-Job-Secret: $JOB_SECRET` (or a superadmin session). Losing the advisory lock records `status: skipped` so contention is visible.
 
 ### Billing model (calendar months)
 
@@ -34,6 +36,12 @@ Jobs only run while the server process is running.
 All successful API responses use `{ "data": ... }` unless noted otherwise. List endpoints may also include `summary` or `meta` (see each route).
 
 Rate limiting is enabled by default (`RATE_LIMIT_ENABLED=true`). Upload routes under `/admin/attachments` use a stricter tier (default 20 requests/minute).
+
+**Single-instance assumption:** the limiter is **in-memory** (`lib/rate-limit.ts`). Limits apply per process only and do **not** aggregate across replicas. Run a single API instance (or accept weaker per-replica limits) until a shared store (Redis/DB) is added with multi-instance ops work.
+
+### Hard deletes and object storage
+
+Deletes are **hard deletes** (no soft-delete / audit trail yet). Parent deletes (property, lease, ledger entry) remove DB rows via Prisma cascade and run **best-effort** DigitalOcean Spaces cleanup (`lib/storage-cleanup.ts`) for known attachment keys before the cascade. Explicit attachment DELETE endpoints remove Spaces then DB. Accidental deletes are **not recoverable** from the app — restore from DB/storage backups if needed. Soft-delete + GC may come later.
 
 ### DigitalOcean Spaces (S3)
 
@@ -192,7 +200,7 @@ All errors return a consistent JSON body:
 
 #### `GET /admin/meta/relationships`
 
-Returns the admin entity relationship map: which models link to each other, nested fields returned by each list/detail endpoint, and the property hierarchy tree. Use this to wire the admin frontend without guessing includes.
+Returns a **static** admin entity relationship map (docs): which models link to each other, nested fields returned by each list/detail endpoint, and the property hierarchy tree. This is **not** a live options API for dropdowns — the admin UI loads properties/unit-types from their list endpoints.
 
 **Auth required:** yes
 
@@ -663,6 +671,8 @@ Manage admin and superadmin accounts. **Superadmin only** — regular `admin` us
 
 **Response `200`** — list of staff users (`role`: `admin` or `superadmin`, plus `isActive`, profile fields).
 
+**Errors:** `403` not superadmin
+
 ---
 
 #### `POST /admin/staff`
@@ -691,7 +701,7 @@ Create a new staff account.
 
 #### `GET /admin/staff/:id`
 
-**Error `404`** — staff user not found.
+**Errors:** `403` not superadmin · `404` staff user not found
 
 ---
 
@@ -740,13 +750,14 @@ Same response shape as tenant reset — returns `{ data: { user, temporaryPasswo
 Rental agreements. `endDate` is **always computed** as `startDate + unitPricing.durationDays`.
 
 - Creating a lease does **not** auto-occupy the unit.
-- Creating a lease **also creates** a linked `leaseRenewal` (1:1) with `isRenewLease: false`, `isConfirmed: false`, `markAsCompleted: false`, and `leaseEndDate` set to 5 days before the lease `endDate`.
-- **Overlap prevention:** a new lease is rejected (`409`) if its date range overlaps another lease on the **same unit**, or if the **same tenant** already has any lease (any unit) overlapping that period. Back-to-back leases are allowed when the new `startDate` equals the previous `endDate`. When creating a renewal follow-up lease via `leaseRenewalId`, the parent lease being renewed is excluded from both checks.
+- Creating a lease **also creates** a linked `leaseRenewal` (1:1) with `isRenewLease: false`, `isConfirmed: false`, `markAsCompleted: false`, and `confirmationDeadline` set to `endDate` minus `renewalConfirmDaysBeforeEnd` (default 5 days).
+- **Overlap prevention:** a new lease is rejected (`409`) if its date range overlaps another lease on the **same unit**, or if the **same tenant** already has any lease (any unit) overlapping that period — including unpaid / waiting-for-review leases, which **reserve** the calendar. `Unit.status` stays `vacant` until a **paid** lease covers today. Overlap is checked inside a `SERIALIZABLE` transaction and enforced in Postgres with GiST `EXCLUDE` constraints. Both `startDate` and `endDate` are **inclusive** calendar days (PB-2): a paid lease covers its full `endDate` day, and the next lease must start the calendar day **after**. When creating a renewal follow-up lease via `leaseRenewalId`, the parent lease being renewed is excluded from both checks.
 - When creating a lease to fulfill a tenant renewal, pass `leaseRenewalId` (the existing renewal record's `id`) — the API sets that renewal's `markAsCompleted` to `true` in the same transaction.
-- Renewal flow: tenant responds via `PUT /leases/:id/renewal` (`isRenewLease`) → admin confirms renewal requests via `PUT /admin/leases/:id/renewal` (`isConfirmed`, or auto-confirmed by cron) → admin creates follow-up lease via `POST /admin/leases` with `leaseRenewalId` (`markAsCompleted`). When the tenant declines or cancels (`isRenewLease: false`), the API sets `isConfirmed: true` to record their decision (distinct from the unanswered initial state where both flags are `false`).
-- Setting `status` to `paid` sets the unit to `occupied`.
+- Renewal flow: tenant responds via `PUT /leases/:id/renewal` (`action`: `renew` | `decline` | `cancel`) → admin confirms renewal requests via `PUT /admin/leases/:id/renewal` (`isConfirmed`, or auto-confirmed by cron) → admin creates follow-up lease via `POST /admin/leases` with `leaseRenewalId` (`markAsCompleted`). **Cancel** returns to unanswered (`isRenewLease: false`, `isConfirmed: false`) so the tenant can request again before the deadline. **Decline** records a confirmed no (`isRenewLease: false`, `isConfirmed: true`).
+- Confirming payment (`POST /admin/leases/:id/confirm`) sets `status` to `paid` and the unit to `occupied` when a payment attachment exists. Occupancy is resynced on reject or submit-for-review (including leave-`paid`).
+- Payment status is **admin-only** and uses dedicated endpoints (`confirm` / `reject` / `submit-for-review`). `PUT /admin/leases/:id` no longer accepts `status`. Dates and pricing on a `paid` lease are frozen unless `allowPaidOverride: true`.
 - Deleting a lease sets the unit to `vacant` (cascades to `leaseRenewal`).
-- When `startDate` or `unitPricingId` changes on update, `leaseRenewal.leaseEndDate` is recalculated from the new `endDate`.
+- When `startDate` or `unitPricingId` changes on update, `leaseRenewal.confirmationDeadline` is recalculated from the new `endDate`.
 - After lease `endDate`, the `expire-leases` cron sets the unit back to `vacant` if no other active paid lease exists.
 
 #### `GET /admin/leases`
@@ -816,19 +827,47 @@ When `file` is included, the image is validated, converted to WebP, stored at `c
 
 ```json
 {
-  "status": "paid"
+  "startDate": "2026-05-01",
+  "endDate": "2026-07-31",
+  "unitPricingId": "clx...",
+  "allowPaidOverride": false
 }
 ```
 
 | Field | Type | Required |
 |---|---|---|
 | `startDate` | string (ISO date) | no |
+| `endDate` | string (ISO date) | no |
 | `unitPricingId` | string | no |
-| `status` | `unpaid` \| `waiting_for_review` \| `paid` | no |
+| `allowPaidOverride` | boolean | no — required to change dates or pricing while `status` is `paid` |
 
-`endDate` is recalculated when `startDate` or `unitPricingId` changes (cannot be sent in the body).
+Do **not** send `status` here. Use the confirm / reject / submit-for-review endpoints.
 
-**Errors:** `404` · `409` unit or tenant date overlap · `422`
+**Errors:** `404` · `409` unit or tenant date overlap · `422` (including frozen paid fields)
+
+---
+
+#### `POST /admin/leases/:id/confirm`
+
+Marks the lease `paid`. Allowed from `unpaid` or `waiting_for_review`. Requires at least one lease attachment with `kind: payment`. Occupies the unit when the paid term covers today.
+
+**Errors:** `404` · `422` missing payment attachment or invalid transition
+
+---
+
+#### `POST /admin/leases/:id/reject`
+
+Marks the lease `unpaid`. Allowed from `waiting_for_review` or `paid`. Resyncs unit occupancy.
+
+**Errors:** `404` · `422` invalid transition
+
+---
+
+#### `POST /admin/leases/:id/submit-for-review`
+
+Marks the lease `waiting_for_review`. Allowed from `unpaid` or `paid`. Resyncs unit occupancy.
+
+**Errors:** `404` · `422` invalid transition
 
 ---
 
@@ -850,7 +889,7 @@ Update renewal confirmation for a lease.
 
 **Errors:** `404` lease or renewal not found · `422` validation failed
 
-**Note:** If the tenant took no action (`isRenewLease` still `false`) when the confirmation deadline (`leaseEndDate`) is reached, the `decline-lease-renewals` cron auto-declines at the next midnight run. Tenants who already requested renewal are left for admin confirmation.
+**Note:** If the tenant took no action (`isRenewLease` still `false`) when the confirmation deadline (`confirmationDeadline`) is reached, the `decline-lease-renewals` cron auto-declines at the next midnight run. Tenants who already requested renewal are left for admin confirmation.
 
 ---
 
@@ -1002,7 +1041,10 @@ All fields optional (same as create).
 
 Upload files to DigitalOcean Spaces and persist metadata in attachment tables.
 
-**Image processing (all uploads):** JPEG, PNG, WebP, and GIF are accepted. Images are validated, resized (max dimension from `UPLOAD_MAX_DIMENSION`, default 1920px), converted to WebP, and stored with `public-read` ACL. Max file size defaults to 5 MB (`UPLOAD_MAX_BYTES`).
+**Image / document processing:**
+- **Property, unit type, and ledger uploads:** JPEG, PNG, WebP, and GIF only. Images are validated, resized (max dimension from `UPLOAD_MAX_DIMENSION`, default 1920px), converted to WebP, and stored with `public-read` ACL.
+- **Lease attachments** (`agreement` / `downpayment` / `payment`): images as above **or** PDF (stored as-is, not run through Sharp).
+- Max file size defaults to 5 MB (`UPLOAD_MAX_BYTES`).
 
 **Attachment object shape** (nested on reads as `propertyAttachments`, `unitTypeAttachments`, `downpaymentAttachments`, or `attachments`):
 
@@ -1339,18 +1381,17 @@ Returns the authenticated user's profile (`id`, `name`, `email`, `role`, `emailV
 
 #### `PUT /profile`
 
-Update the authenticated user's profile (`name` and/or `image`). Email cannot be changed on this endpoint.
+Update the authenticated user's display name. Email cannot be changed on this endpoint. Profile **image** is returned on GET when set (e.g. by Better Auth) but is **not** writable via this API until an upload UI exists.
 
 **Request body**
 
 ```json
 {
-  "name": "John Doe",
-  "image": "https://example.com/avatar.jpg"
+  "name": "John Doe"
 }
 ```
 
-At least one of `name` or `image` is required. Pass `"image": null` to remove the profile image.
+`name` is required.
 
 **Response `200`** — updated profile (same shape as `GET /profile`).
 
@@ -1390,13 +1431,13 @@ Change the authenticated user's password. Requires the current password.
 
 ### Leases
 
-Tenants can view their own leases only.
+Tenants can **view** their own leases only. Payment status and attachments are managed by admin (`POST /admin/leases/:id/confirm` | `reject` | `submit-for-review`, and `/admin/attachments/lease`). Tenants cannot upload payment proof or change lease status.
 
 #### `GET /leases`
 
 Returns all leases for the authenticated user.
 
-**Response `200`** — includes `unit` (with `property`, `unitType`), `unitPricing`, `leaseRenewal` (`isRenewLease`, `isConfirmed`, `markAsCompleted`, `leaseEndDate`, etc.), and `downpaymentAttachments` (payment proof images with resolved `url` when available).
+**Response `200`** — includes `unit` (with `property`, `unitType`), `unitPricing`, `leaseRenewal` (`isRenewLease`, `isConfirmed`, `markAsCompleted`, `confirmationDeadline`, etc.), and `downpaymentAttachments` (payment proof images with resolved `url` when available).
 
 ---
 
@@ -1410,23 +1451,29 @@ Returns a single lease for the authenticated user. Same shape as a single item f
 
 #### `PUT /leases/:id/renewal`
 
-Request or cancel a lease renewal for the tenant's own lease.
+Request, decline, or cancel a lease renewal for the tenant's own lease.
 
 ```json
 {
-  "isRenewLease": true
+  "action": "renew"
 }
 ```
 
 | Field | Type | Required |
 |---|---|---|
-| `isRenewLease` | boolean | yes |
+| `action` | `"renew"` \| `"decline"` \| `"cancel"` | yes |
 
-Set `isRenewLease` to `true` to request renewal, or `false` to decline or cancel a pending request. Only **paid** leases can request renewal (`isRenewLease: true`). Declining or cancelling sets `isRenewLease: false` and `isConfirmed: true`. Requesting renewal sets `isRenewLease: true` and resets `isConfirmed` to `false`. Cannot update a renewal that has already been marked completed by admin.
+| Action | Flags set | Notes |
+|---|---|---|
+| `renew` | `isRenewLease: true`, `isConfirmed: false` | Paid leases only; pending admin confirmation |
+| `decline` | `isRenewLease: false`, `isConfirmed: true` | Confirmed no — cannot renew again for this lease |
+| `cancel` | `isRenewLease: false`, `isConfirmed: false` | Undoes a **pending** renew request; tenant can renew again before the deadline |
+
+Cannot update a renewal that has already been marked completed by admin. `cancel` fails unless there is a pending request (`isRenewLease: true` and `isConfirmed: false`).
 
 **Response `200`** — updated `leaseRenewal`.
 
-**Errors:** `404` lease or renewal not found · `422` validation failed (including lease not paid or renewal already completed)
+**Errors:** `404` lease or renewal not found · `422` validation failed (including lease not paid, already declined/confirmed, no pending request to cancel, or renewal already completed)
 
 Admin renewal confirmation (`isConfirmed` on an `isRenewLease: true` request) is via `PUT /admin/leases/:id/renewal`.
 
@@ -1506,9 +1553,9 @@ One renewal record per lease (1:1). Created automatically when a lease is create
 | `id` | string (cuid) | Unique identifier |
 | `leaseId` | string | Parent lease (unique — one renewal per lease) |
 | `isRenewLease` | boolean | Tenant wants to renew (default `false`) |
-| `isConfirmed` | boolean | Decision recorded (default `false`). Set to `true` when the tenant declines/cancels (`isRenewLease: false`), when admin confirms a renewal request, or auto-set by cron after the deadline if still `false`. Unanswered initial state: `isRenewLease: false`, `isConfirmed: false`. Tenant declined: `isRenewLease: false`, `isConfirmed: true`. |
+| `isConfirmed` | boolean | Decision recorded (default `false`). Set to `true` when the tenant **declines**, when admin confirms a renewal request, or auto-set by cron after the deadline if still unanswered. Unanswered / after cancel: `isRenewLease: false`, `isConfirmed: false`. Tenant declined: `isRenewLease: false`, `isConfirmed: true`. Pending renew request: `isRenewLease: true`, `isConfirmed: false`. |
 | `markAsCompleted` | boolean | Admin has created the follow-up lease for this renewal (default `false`; set via `POST /admin/leases` with `leaseRenewalId`) |
-| `leaseEndDate` | datetime | Confirmation deadline — lease `endDate` minus 5 days |
+| `confirmationDeadline` | datetime | Tenant must confirm renew/decline by this time — lease `endDate` minus `renewalConfirmDaysBeforeEnd` |
 | `updatedById` | string | User who last updated this renewal |
 | `createdAt` | datetime | |
 | `updatedAt` | datetime | |

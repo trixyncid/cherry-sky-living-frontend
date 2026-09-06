@@ -19,7 +19,9 @@ import {
     searchPublicUnits,
     type PublicSearchUnitTypeResult,
 } from '@/lib/api/public/search';
+import { getContactWhatsAppNumber } from '@/lib/contact';
 import { publicKeys } from '@/lib/query/keys';
+import { isNotFoundApiError } from '@/lib/api/errors';
 
 function toSlug(value: string) {
     return value
@@ -40,11 +42,16 @@ function mapRoomTypePricings(pricings: PublicPricing[] | undefined) {
         }));
 }
 
-const FALLBACK_THUMBNAILS = [
-    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1200&h=800&fit=crop',
-];
+/** Placeholder only when a property/unit type has no uploaded images. */
+const EMPTY_IMAGE_PLACEHOLDER =
+    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&h=800&fit=crop';
+
+function formatCapacityFromOccupancy(occupancies: number[]): string {
+    if (occupancies.length === 0) return '—';
+    const minOcc = Math.min(...occupancies);
+    const maxOcc = Math.max(...occupancies);
+    return minOcc === maxOcc ? String(minOcc) : `${minOcc}–${maxOcc}`;
+}
 
 function mapPublicPropertyToKost(property: PublicProperty, index: number): Kost {
     const unitTypes = property.unitTypes ?? [];
@@ -75,18 +82,14 @@ function mapPublicPropertyToKost(property: PublicProperty, index: number): Kost 
         const occupancies = (ut.units ?? [])
             .map((u) => u.maxOccupancy)
             .filter((n): n is number => n != null && n > 0);
-        const minOcc = occupancies.length > 0 ? Math.min(...occupancies) : 1;
-        const maxOcc = occupancies.length > 0 ? Math.max(...occupancies) : 1;
-        const capacity =
-            minOcc === maxOcc ? `${minOcc} orang` : `${minOcc}–${maxOcc} orang`;
 
         return {
             id: ut.id,
             name: ut.name,
             price,
             pricings: roomPricings.length > 0 ? roomPricings : undefined,
-            bathroomType: 'bersama' as const,
-            capacity,
+            // Not in public API — omit inventing bathroom/type catalogue fields.
+            capacity: formatCapacityFromOccupancy(occupancies),
             size: ut.size ?? undefined,
             availableCount,
             totalCount,
@@ -97,17 +100,22 @@ function mapPublicPropertyToKost(property: PublicProperty, index: number): Kost 
         };
     });
 
-    const fallbackThumbnail = FALLBACK_THUMBNAILS[index % FALLBACK_THUMBNAILS.length];
-    const thumbnail = propertyImageUrls[0] ?? fallbackThumbnail;
+    const thumbnail = propertyImageUrls[0] ?? EMPTY_IMAGE_PLACEHOLDER;
     const images =
-        propertyImageUrls.length > 0 ? propertyImageUrls : [fallbackThumbnail];
+        propertyImageUrls.length > 0 ? propertyImageUrls : [EMPTY_IMAGE_PLACEHOLDER];
+
+    const description = unitTypes
+        .map((ut) => ut.description?.trim())
+        .filter(Boolean)
+        .join(' · ');
 
     return {
         id: property.id,
         name: property.name,
         slug: toSlug(property.name),
-        type: 'campur',
-        description: '',
+        // Property gender/type is not in the public API yet.
+        type: undefined,
+        description,
         location: {
             address: property.address,
             city: property.city,
@@ -121,7 +129,7 @@ function mapPublicPropertyToKost(property: PublicProperty, index: number): Kost 
         totalRooms,
         availableRooms,
         isFeatured: index < 2,
-        whatsappNumber: '08116359119',
+        whatsappNumber: getContactWhatsAppNumber(),
         createdAt: new Date(),
         updatedAt: new Date(),
     };
@@ -134,6 +142,7 @@ export function useKosts() {
     const query = useQuery({
         queryKey: publicKeys.properties.all(),
         queryFn: listPublicProperties,
+        enabled: true,
     });
 
     const data = useMemo(() => {
@@ -151,6 +160,7 @@ export function useFeaturedKosts() {
     const query = useQuery({
         queryKey: [...publicKeys.properties.all(), 'featured'] as const,
         queryFn: listPublicProperties,
+        enabled: true,
     });
 
     const data = useMemo(() => {
@@ -169,6 +179,8 @@ export function useKost(id: string) {
         queryKey: publicKeys.properties.detail(id),
         queryFn: () => getPublicProperty(id),
         enabled: !!id,
+        retry: (failureCount, error) =>
+            isNotFoundApiError(error) ? false : failureCount < 1,
     });
 
     const data = useMemo(() => {
@@ -176,10 +188,18 @@ export function useKost(id: string) {
         return p ? mapPublicPropertyToKost(p, 0) : null;
     }, [query.data]);
 
-    return { data, isLoading: query.isPending, error: query.error as Error | null };
+    return {
+        data,
+        isLoading: query.isPending,
+        isError: query.isError,
+        isFetching: query.isFetching,
+        error: query.error as Error | null,
+        refetch: query.refetch,
+    };
 }
 
 function mapSearchUnitTypeResults(rows: PublicSearchUnitTypeResult[]): SearchUnitTypeResult[] {
+    const whatsappNumber = getContactWhatsAppNumber();
     return rows.map((row) => ({
         id: row.id,
         propertyId: row.propertyId,
@@ -193,26 +213,20 @@ function mapSearchUnitTypeResults(rows: PublicSearchUnitTypeResult[]): SearchUni
         totalCount: row.totalCount,
         pricings: mapRoomTypePricings(row.pricings),
         minPrice: row.minPrice,
-        whatsappNumber: '08116359119',
+        whatsappNumber,
         size: row.size ?? undefined,
         description: row.description ?? undefined,
     }));
 }
 
 function withSearchFallbackImages(rows: SearchUnitTypeResult[]): SearchUnitTypeResult[] {
-    let fallbackIndex = 0;
-
     return rows.map((row) => {
         if (row.thumbnail) return row;
 
-        const fallback =
-            FALLBACK_THUMBNAILS[fallbackIndex % FALLBACK_THUMBNAILS.length];
-        fallbackIndex += 1;
-
         return {
             ...row,
-            images: [fallback],
-            thumbnail: fallback,
+            images: [EMPTY_IMAGE_PLACEHOLDER],
+            thumbnail: EMPTY_IMAGE_PLACEHOLDER,
         };
     });
 }
@@ -227,6 +241,7 @@ export function useSearchUnitTypes(filters: SearchFilters) {
         queryKey: publicKeys.search.list(apiParams as Record<string, unknown>),
         queryFn: () => searchPublicUnits(apiParams),
         staleTime: 30_000,
+        enabled: true,
     });
 
     const data = useMemo(() => {

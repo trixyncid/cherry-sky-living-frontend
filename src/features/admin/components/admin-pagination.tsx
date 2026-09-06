@@ -1,7 +1,10 @@
 "use client";
 
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
+import { AdminSelect } from "@/features/admin/components/admin-field";
+import { PAGE_SIZE_OPTIONS } from "@/features/admin/crud/use-client-pagination";
 import { cn } from "@/lib/utils";
 
 interface AdminPaginationProps {
@@ -9,6 +12,7 @@ interface AdminPaginationProps {
   pageSize: number;
   total: number;
   onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 }
 
 export function AdminPagination({
@@ -16,8 +20,10 @@ export function AdminPagination({
   pageSize,
   total,
   onPageChange,
+  onPageSizeChange,
 }: AdminPaginationProps) {
   const t = useTranslations("admin.table");
+  const pageSizeId = useId();
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, total);
@@ -25,10 +31,30 @@ export function AdminPagination({
   const pages = buildPageNumbers(page, totalPages);
 
   return (
-    <div className="flex items-center justify-between border-t border-white/40 bg-white/25 px-6 py-4">
-      <p className="text-xs font-medium text-[#5f5e5e]">
-        {t("showing", { start, end, total })}
-      </p>
+    <div className="flex flex-col gap-3 border-t border-white/40 bg-white/25 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="flex items-center gap-2 text-xs font-medium text-[#5f5e5e]">
+          <label htmlFor={pageSizeId}>{t("show")}</label>
+          <AdminSelect
+            id={pageSizeId}
+            size="sm"
+            className="w-[5.25rem] shrink-0"
+            value={String(pageSize)}
+            onChange={(e) => onPageSizeChange(Number(e.target.value))}
+            aria-label={t("pageSize")}
+          >
+            {PAGE_SIZE_OPTIONS.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </AdminSelect>
+          <span>{t("entries")}</span>
+        </div>
+        <p className="text-xs font-medium text-[#5f5e5e]">
+          {t("showing", { start, end, total })}
+        </p>
+      </div>
       <div className="flex gap-1">
         <button
           type="button"

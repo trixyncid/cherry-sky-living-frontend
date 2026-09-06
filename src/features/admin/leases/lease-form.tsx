@@ -19,6 +19,7 @@ import {
 } from "@/features/admin/components/admin-form-layout";
 import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
 import { AdminLeaseRenewalActions } from "@/features/admin/leases/lease-renewal-actions";
+import { AdminLeaseStatusActions } from "@/features/admin/leases/lease-status-actions";
 import {
   useLease,
   useLeaseMutations,
@@ -47,13 +48,22 @@ import {
   deleteLeaseAttachment,
   uploadLeaseAttachment,
 } from "@/lib/api/admin/attachments";
-import { computeLeaseAmount, DAILY_DURATION_DAYS, daysInMonth, MONTHLY_DURATION_DAYS, toMonthEndInputValue } from "@/lib/billing";
-import { parseDateOnly } from "@/lib/date-input";
+import {
+  computeLeaseAmount,
+  DAILY_DURATION_DAYS,
+  daysInMonth,
+  endOfMonth,
+  inclusiveMonthCount,
+  MONTHLY_DURATION_DAYS,
+  toMonthEndInputValue,
+} from "@/lib/billing";
+import { parseDateOnly, toDateOnlyString } from "@/lib/date-input";
 import { adminKeys } from "@/lib/query/keys";
 import { cn } from "@/lib/utils";
-import type { LeaseAttachmentKind, LeaseStatus } from "@/lib/types/admin";
+import type { LeaseAttachmentKind } from "@/lib/types/admin";
 
 const BASE = "/admin/leases";
+const DURATION_PRESETS = [1, 3, 6, 12] as const;
 
 type FormState = {
   unitId: string;
@@ -61,9 +71,9 @@ type FormState = {
   startDate: string;
   endDate: string;
   unitPricingId: string;
-  status: LeaseStatus;
   leaseRenewalId: string;
   attachmentKind: LeaseAttachmentKind;
+  allowPaidOverride: boolean;
 };
 
 const emptyForm: FormState = {
@@ -72,9 +82,9 @@ const emptyForm: FormState = {
   startDate: "",
   endDate: "",
   unitPricingId: "",
-  status: "unpaid",
   leaseRenewalId: "",
   attachmentKind: "downpayment",
+  allowPaidOverride: false,
 };
 
 function applyLeaseDateRange(
@@ -87,6 +97,15 @@ function applyLeaseDateRange(
   }
   const endDate = to ? toMonthEndInputValue(to) : "";
   return { ...prev, startDate: from, endDate };
+}
+
+/** End date = last day of the calendar month that completes `months` inclusive months from start. */
+function endDateForMonthPreset(startDate: string, months: number): string {
+  const start = parseDateOnly(startDate);
+  if (!start || months < 1) return "";
+  return toDateOnlyString(
+    endOfMonth(new Date(start.getFullYear(), start.getMonth() + months - 1, 1)),
+  );
 }
 
 export function LeaseForm({ id }: { id?: string }) {
@@ -236,6 +255,47 @@ export function LeaseForm({ id }: { id?: string }) {
     return monthly.filter((p) => p.unitTypeId === selectedUnit.unitTypeId);
   }, [pricings, selectedUnit]);
 
+  const selectablePricings = useMemo(() => {
+    const monthly = pricings.filter(
+      (p) => p.durationDays === MONTHLY_DURATION_DAYS,
+    );
+    if (!isEdit) {
+      if (!form.unitId) return [];
+      return pricingOptions;
+    }
+    const unitTypeId = selectedUnit?.unitTypeId ?? lease?.unit?.unitTypeId;
+    if (!unitTypeId) return monthly;
+    const forType = monthly.filter((p) => p.unitTypeId === unitTypeId);
+    if (
+      form.unitPricingId &&
+      !forType.some((p) => p.id === form.unitPricingId)
+    ) {
+      const current = monthly.find((p) => p.id === form.unitPricingId);
+      if (current) return [...forType, current];
+    }
+    return forType;
+  }, [
+    isEdit,
+    pricings,
+    form.unitId,
+    form.unitPricingId,
+    pricingOptions,
+    selectedUnit?.unitTypeId,
+    lease?.unit?.unitTypeId,
+  ]);
+
+  const pricingLocked =
+    isEdit && lease?.status === "paid" && !form.allowPaidOverride;
+
+  useEffect(() => {
+    if (isEdit || form.unitPricingId || selectablePricings.length !== 1) return;
+    const only = selectablePricings[0];
+    if (!only) return;
+    setForm((f) =>
+      f.unitPricingId === only.id ? f : { ...f, unitPricingId: only.id },
+    );
+  }, [isEdit, form.unitPricingId, selectablePricings]);
+
   useEffect(() => {
     if (lease) {
       setForm({
@@ -244,9 +304,9 @@ export function LeaseForm({ id }: { id?: string }) {
         startDate: toDateInputValue(lease.startDate),
         endDate: toDateInputValue(lease.endDate),
         unitPricingId: lease.unitPricingId,
-        status: lease.status,
         leaseRenewalId: "",
         attachmentKind: "downpayment",
+        allowPaidOverride: false,
       });
     } else if (!isEdit) {
       const startDate =
@@ -382,7 +442,8 @@ export function LeaseForm({ id }: { id?: string }) {
           startDate: form.startDate,
           endDate: form.endDate,
           unitPricingId: form.unitPricingId || undefined,
-          status: form.status,
+          allowPaidOverride:
+            lease?.status === "paid" ? form.allowPaidOverride : undefined,
         });
         invalidateLease();
         showApiSuccess(t("updated"));
@@ -440,7 +501,7 @@ export function LeaseForm({ id }: { id?: string }) {
         >
           <AdminFormError message={formError} />
       {!isEdit && renewalPrefill && (
-        <div className="rounded-xl border border-[#8b5e3c]/20 bg-[#fef7e0]/40 px-4 py-3 text-sm text-[#51443c]">
+        <div className="rounded-xl border border-ferrugem/20 bg-ferrugem-soft/40 px-4 py-3 text-sm text-[#51443c]">
           {tr("renewalFormHint")}
         </div>
       )}
@@ -495,51 +556,162 @@ export function LeaseForm({ id }: { id?: string }) {
       >
       <div className="space-y-4">
       <AdminField label={tp("leasePeriod")} htmlFor="lease-period" required>
-        <AdminDateRangePicker
-          id="lease-period"
-          from={form.startDate}
-          to={form.endDate}
-          numberOfMonths={2}
-          placeholder={tp("leasePeriodPlaceholder")}
-          onChange={({ from, to }) =>
-            setForm((f) => applyLeaseDateRange(f, from, to))
-          }
-        />
-        <p className="mt-1 text-xs text-[#83746b]">{tp("leasePeriodHint")}</p>
+        <div className="space-y-3">
+          <AdminDateRangePicker
+            id="lease-period"
+            variant="split"
+            from={form.startDate}
+            to={form.endDate}
+            numberOfMonths={2}
+            placeholder={tp("leasePeriodPlaceholder")}
+            fromLabel={tp("periodStart")}
+            toLabel={tp("periodEnd")}
+            fromHint={tp("periodStartHint")}
+            toHint={tp("periodEndHint")}
+            disabled={isEdit && lease?.status === "paid" && !form.allowPaidOverride}
+            onChange={({ from, to }) =>
+              setForm((f) => applyLeaseDateRange(f, from, to))
+            }
+          />
+
+          {!isEdit ||
+          !(lease?.status === "paid" && !form.allowPaidOverride) ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-[#83746b]">
+                {tp("durationPresets")}
+              </span>
+              {DURATION_PRESETS.map((months) => {
+                const start = parseDateOnly(form.startDate);
+                const end = parseDateOnly(form.endDate);
+                const active =
+                  !!start &&
+                  !!end &&
+                  inclusiveMonthCount(start, end) === months;
+                return (
+                  <button
+                    key={months}
+                    type="button"
+                    disabled={!form.startDate}
+                    onClick={() => {
+                      if (!form.startDate) return;
+                      setForm((f) => ({
+                        ...f,
+                        endDate: endDateForMonthPreset(f.startDate, months),
+                      }));
+                    }}
+                    className={cn(
+                      "rounded-full px-3 py-1 text-xs font-semibold transition-all",
+                      active
+                        ? "bg-[#6f4627] text-white shadow-sm"
+                        : "border border-[#e3ddd6] bg-white text-[#51443c] hover:border-[#c9a48a] hover:bg-[#faf6f1]",
+                      "disabled:cursor-not-allowed disabled:opacity-40",
+                    )}
+                  >
+                    {tp("durationMonths", { count: months })}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+
+          <p className="text-xs leading-relaxed text-[#83746b]">
+            {tp("leasePeriodHint")}
+          </p>
+        </div>
       </AdminField>
-      <AdminField label={t("pricing")} htmlFor="lease-pricing" required={!isEdit}>
-        <AdminSelect
-          id="lease-pricing"
-          required={!isEdit}
-          value={form.unitPricingId}
-          onChange={(e) =>
-            setForm((f) => ({
-              ...f,
-              unitPricingId: e.target.value,
-            }))
-          }
-        >
-          <option value="">{t("selectPricing")}</option>
-          {(isEdit
-            ? pricings.filter((p) => p.durationDays === MONTHLY_DURATION_DAYS)
-            : pricingOptions
-          ).map((p) => (
-            <option key={p.id} value={p.id}>
-              {resolvePricingUnitTypeName(p, lookups)} · {tp("monthlyPackage")}{" "}
-              — {formatIdrTable(p.price)}
-            </option>
-          ))}
-        </AdminSelect>
-        {!isEdit && selectedUnit && pricingOptions.length === 0 && (
-          <p className="mt-1 text-xs text-[#ba1a1a]">{tp("noPricingForUnit")}</p>
-        )}
-        {!isEdit &&
-          selectedUnit &&
-          pricingOptions.length > 0 &&
-          !dailyPricing &&
-          needsDailyPricing && (
-            <p className="mt-1 text-xs text-[#ba1a1a]">{tp("needDailyPricing")}</p>
+      <AdminField label={t("pricing")} required={!isEdit}>
+        <div className="space-y-2">
+          {!isEdit && !form.unitId ? (
+            <p className="rounded-2xl border border-dashed border-[#e3ddd6] bg-[#faf9f6]/80 px-4 py-3 text-sm text-[#83746b]">
+              {tp("selectUnitFirstForPricing")}
+            </p>
+          ) : selectablePricings.length === 0 ? (
+            <p className="rounded-2xl border border-[#ba1a1a]/20 bg-[#fff5f5] px-4 py-3 text-sm text-[#ba1a1a]">
+              {tp("noPricingForUnit")}
+            </p>
+          ) : (
+            <div
+              role="radiogroup"
+              aria-label={t("pricing")}
+              className="grid gap-2"
+            >
+              {selectablePricings.map((p) => {
+                const selected = form.unitPricingId === p.id;
+                const packageDaily =
+                  pricings.find(
+                    (row) =>
+                      row.unitTypeId === p.unitTypeId &&
+                      row.durationDays === DAILY_DURATION_DAYS,
+                  ) ?? null;
+                return (
+                  <label
+                    key={p.id}
+                    className={cn(
+                      "relative flex cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3.5 transition-all",
+                      selected
+                        ? "border-[#6f4627]/45 bg-gradient-to-br from-[#fffaf6] to-[#f3ebe3] shadow-[0_8px_20px_-16px_rgba(111,70,39,0.5)]"
+                        : "border-[#e8ddd4] bg-white hover:border-[#d4c0b0] hover:bg-[#faf8f5]",
+                      pricingLocked && "cursor-not-allowed opacity-60",
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="lease-pricing"
+                      value={p.id}
+                      checked={selected}
+                      disabled={pricingLocked}
+                      required={!isEdit}
+                      onChange={() =>
+                        setForm((f) => ({ ...f, unitPricingId: p.id }))
+                      }
+                      className="sr-only"
+                    />
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors",
+                        selected
+                          ? "border-[#6f4627] bg-[#6f4627]"
+                          : "border-[#c9b8a8] bg-white",
+                      )}
+                    >
+                      {selected ? (
+                        <span className="size-1.5 rounded-full bg-white" />
+                      ) : null}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                        <span className="text-sm font-semibold text-[#1a1c1a]">
+                          {resolvePricingUnitTypeName(p, lookups)}
+                        </span>
+                        <span className="text-sm font-semibold tabular-nums text-[#6f4627]">
+                          {formatIdrTable(p.price)}
+                          <span className="ml-1 text-xs font-medium text-[#83746b]">
+                            / {tp("monthlyPackage")}
+                          </span>
+                        </span>
+                      </span>
+                      <span className="mt-1 block text-xs text-[#83746b]">
+                        {packageDaily
+                          ? tp("pricingDailyRate", {
+                              amount: formatIdrTable(packageDaily.price),
+                            })
+                          : tp("pricingDailyMissing")}
+                      </span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
           )}
+          {!isEdit &&
+            selectedUnit &&
+            pricingOptions.length > 0 &&
+            !dailyPricing &&
+            needsDailyPricing && (
+              <p className="text-xs text-[#ba1a1a]">{tp("needDailyPricing")}</p>
+            )}
+        </div>
       </AdminField>
       {amountPreview && "error" in amountPreview ? (
         <div className="rounded-xl border border-[#ba1a1a]/25 bg-[#fff5f5] px-4 py-3 text-sm text-[#ba1a1a]">
@@ -670,20 +842,21 @@ export function LeaseForm({ id }: { id?: string }) {
           />
         </AdminField>
       )}
-      {isEdit && (
-        <AdminField label={t("status")} htmlFor="lease-status">
-          <AdminSelect
-            id="lease-status"
-            value={form.status}
+      {isEdit && lease && (
+        <AdminLeaseStatusActions lease={lease} />
+      )}
+      {isEdit && lease?.status === "paid" && (
+        <label className="flex items-start gap-2 text-sm text-[#51443c]">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={form.allowPaidOverride}
             onChange={(e) =>
-              setForm((f) => ({ ...f, status: e.target.value as LeaseStatus }))
+              setForm((f) => ({ ...f, allowPaidOverride: e.target.checked }))
             }
-          >
-            <option value="unpaid">Unpaid</option>
-            <option value="waiting_for_review">Waiting for Review</option>
-            <option value="paid">Paid</option>
-          </AdminSelect>
-        </AdminField>
+          />
+          <span>{tp("allowPaidOverride")}</span>
+        </label>
       )}
       {isEdit &&
         lease?.status === "unpaid" &&
@@ -774,9 +947,11 @@ export function LeaseForm({ id }: { id?: string }) {
               attachments={attachments.map((item) => ({
                 ...item,
                 kindLabel: attachmentKindLabel(item.kind),
+                contentType: item.contentType,
               }))}
               onUpload={handleImageUpload}
               onDelete={handleDeleteAttachment}
+              allowPdf
               disabled={!isEdit}
               disabledTitle={ta("lockedTitle")}
               disabledHint={ta("lockedHint")}

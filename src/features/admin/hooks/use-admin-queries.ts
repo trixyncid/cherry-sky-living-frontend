@@ -2,10 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  confirmLeasePayment,
   createLease,
   deleteLease,
   getLease,
   listLeases,
+  rejectLeasePayment,
+  submitLeaseForReview,
   updateLease,
   updateLeaseRenewal,
 } from "@/lib/api/admin/leases";
@@ -22,6 +25,7 @@ import {
   getAdminProfile,
   updateAdminProfile,
 } from "@/lib/api/admin/profile";
+import { getAdminDashboard } from "@/lib/api/admin/dashboard";
 import {
   createProperty,
   deleteProperty,
@@ -35,6 +39,7 @@ import {
   getUnitPricing,
   listUnitPricings,
   updateUnitPricing,
+  upsertUnitPricingPackages,
 } from "@/lib/api/admin/unit-pricings";
 import {
   createUnitType,
@@ -53,6 +58,7 @@ import {
 } from "@/lib/api/admin/units";
 import {
   createStaffUser,
+  deleteStaffUser,
   getStaffUser,
   listStaffUsers,
   resetStaffPassword,
@@ -68,12 +74,19 @@ import {
   setTenantUserActive,
 } from "@/lib/api/admin/users";
 import { adminKeys } from "@/lib/query/keys";
-import type { LeaseStatus, LedgerEntryType, UnitStatus } from "@/lib/types/admin";
+import type { LedgerEntryType, UnitStatus } from "@/lib/types/admin";
 
 export function useProperties() {
   return useQuery({
     queryKey: adminKeys.properties.all(),
     queryFn: listProperties,
+  });
+}
+
+export function useAdminDashboard(propertyId?: string) {
+  return useQuery({
+    queryKey: adminKeys.dashboard.overview(propertyId),
+    queryFn: () => getAdminDashboard(propertyId),
   });
 }
 
@@ -87,8 +100,10 @@ export function useProperty(id: string, enabled = true) {
 
 export function usePropertyMutations() {
   const qc = useQueryClient();
-  const invalidate = () =>
+  const invalidate = () => {
     void qc.invalidateQueries({ queryKey: adminKeys.properties.all() });
+    void qc.invalidateQueries({ queryKey: adminKeys.dashboard.all() });
+  };
 
   return {
     create: useMutation({ mutationFn: createProperty, onSuccess: invalidate }),
@@ -181,6 +196,10 @@ export function useUnitPricingMutations() {
       mutationFn: deleteUnitPricing,
       onSuccess: invalidate,
     }),
+    upsertPackages: useMutation({
+      mutationFn: upsertUnitPricingPackages,
+      onSuccess: invalidate,
+    }),
   };
 }
 
@@ -210,7 +229,7 @@ export function useVacantUnits(
       enabled &&
       !!params.startDate &&
       !!params.endDate &&
-      params.startDate < params.endDate,
+      params.startDate <= params.endDate,
   });
 }
 
@@ -227,6 +246,7 @@ export function useUnitMutations() {
   const invalidate = () => {
     void qc.invalidateQueries({ queryKey: adminKeys.units.all() });
     void qc.invalidateQueries({ queryKey: adminKeys.leases.all() });
+    void qc.invalidateQueries({ queryKey: adminKeys.dashboard.all() });
   };
 
   return {
@@ -352,6 +372,7 @@ export function useStaffUserMutations() {
       onSuccess: invalidate,
     }),
     resetPassword: useMutation({ mutationFn: resetStaffPassword }),
+    remove: useMutation({ mutationFn: deleteStaffUser, onSuccess: invalidate }),
   };
 }
 
@@ -360,6 +381,7 @@ export function useLeaseMutations() {
   const invalidate = () => {
     void qc.invalidateQueries({ queryKey: adminKeys.leases.all() });
     void qc.invalidateQueries({ queryKey: adminKeys.units.all() });
+    void qc.invalidateQueries({ queryKey: adminKeys.dashboard.all() });
   };
 
   return {
@@ -377,8 +399,20 @@ export function useLeaseMutations() {
         startDate?: string;
         endDate?: string;
         unitPricingId?: string;
-        status?: LeaseStatus;
+        allowPaidOverride?: boolean;
       }) => updateLease(id, input),
+      onSuccess: invalidate,
+    }),
+    confirmPayment: useMutation({
+      mutationFn: confirmLeasePayment,
+      onSuccess: invalidate,
+    }),
+    rejectPayment: useMutation({
+      mutationFn: rejectLeasePayment,
+      onSuccess: invalidate,
+    }),
+    submitForReview: useMutation({
+      mutationFn: submitLeaseForReview,
       onSuccess: invalidate,
     }),
     confirmRenewal: useMutation({
@@ -413,8 +447,10 @@ export function useLedgerEntry(id: string, enabled = true) {
 
 export function useLedgerEntryMutations() {
   const qc = useQueryClient();
-  const invalidate = () =>
+  const invalidate = () => {
     void qc.invalidateQueries({ queryKey: adminKeys.ledgerEntries.all() });
+    void qc.invalidateQueries({ queryKey: adminKeys.dashboard.all() });
+  };
 
   return {
     create: useMutation({ mutationFn: createLedgerEntry, onSuccess: invalidate }),

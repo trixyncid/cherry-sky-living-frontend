@@ -26,8 +26,8 @@ interface Language {
 }
 
 const LANGUAGES: Language[] = [
-    { code: 'en', name: 'English', countryCode: 'us' },
     { code: 'id', name: 'Bahasa Indonesia', countryCode: 'id' },
+    { code: 'en', name: 'English', countryCode: 'us' },
 ];
 
 export function LanguageSwitcher({ variant = 'navbar', isSolid = true }: LanguageSwitcherProps) {

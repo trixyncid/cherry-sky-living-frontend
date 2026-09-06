@@ -138,3 +138,32 @@ export function setCookieForBrowser(setCookie: string, isHttps: boolean): string
 
   return out;
 }
+
+type CookieWriter = {
+  set: (
+    name: string,
+    value: string,
+    options?: {
+      path?: string;
+      expires?: Date;
+      maxAge?: number;
+      httpOnly?: boolean;
+      secure?: boolean;
+      sameSite?: "lax" | "strict" | "none";
+    },
+  ) => void;
+};
+
+/** Expire session cookies on the frontend origin (Route Handler / Server Action). */
+export function expireSessionCookies(cookieStore: CookieWriter): void {
+  const expired = {
+    path: "/",
+    expires: new Date(0),
+    maxAge: 0,
+    httpOnly: true,
+    sameSite: "lax" as const,
+  };
+
+  cookieStore.set(LOCAL_SESSION_COOKIE_NAME, "", expired);
+  cookieStore.set(SESSION_COOKIE_NAME, "", { ...expired, secure: true });
+}

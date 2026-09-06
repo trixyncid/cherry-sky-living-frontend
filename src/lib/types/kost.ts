@@ -25,8 +25,10 @@ export interface RoomType {
   name: string;
   price: number;
   pricings?: RoomTypePricing[];
-  bathroomType: BathroomType;
-  capacity: string; // e.g., "1-2 orang"
+  /** Present when known; public API does not currently expose bathroom type. */
+  bathroomType?: BathroomType;
+  /** Occupancy range from unit maxOccupancy (e.g. "1" or "1–2"), or "—". */
+  capacity: string;
   size?: number; // in square meters
   availableCount: number;
   totalCount: number;
@@ -73,7 +75,8 @@ export interface Kost {
   id: string;
   name: string;
   slug: string;
-  type: PropertyType;
+  /** Present when known; public API does not currently expose property gender/type. */
+  type?: PropertyType;
   description: string;
   location: Location;
   priceRange: {

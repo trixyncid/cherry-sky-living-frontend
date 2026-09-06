@@ -55,7 +55,7 @@ export function AdminAttachmentsList({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={item.url}
-                alt=""
+                alt={attachmentDisplayName(item.url)}
                 className="size-full object-cover"
               />
             </a>

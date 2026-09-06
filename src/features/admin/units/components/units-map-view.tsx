@@ -34,7 +34,7 @@ function BuildingCard({
 
   return (
     <article className="glass-panel overflow-hidden rounded-[1.75rem]">
-      <header className="relative overflow-hidden border-b border-white/40 bg-gradient-to-br from-[#6f4627]/90 via-[#805533]/85 to-[#8b5e3c]/80 px-5 py-5 text-white backdrop-blur-xl">
+      <header className="relative overflow-hidden border-b border-white/40 bg-gradient-to-br from-maroon-deep/92 via-[#6f4627]/88 to-ferrugem/82 px-5 py-5 text-white backdrop-blur-xl">
         <div
           className="pointer-events-none absolute -right-8 -top-8 size-32 rounded-full bg-white/10"
           aria-hidden

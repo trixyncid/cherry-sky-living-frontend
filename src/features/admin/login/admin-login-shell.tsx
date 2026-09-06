@@ -25,7 +25,7 @@ export function AdminLoginShell({ children }: { children: React.ReactNode }) {
           sizes="100vw"
         />
         <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-[#faf9f6]/90 via-[#faf9f6]/70 to-[#6f4627]/40 backdrop-blur-[2px]"
+          className="absolute inset-0 bg-gradient-to-br from-[#faf9f6]/90 via-ferrugem-soft/45 to-maroon/35 backdrop-blur-[2px]"
           aria-hidden
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -41,7 +41,7 @@ export function AdminLoginShell({ children }: { children: React.ReactNode }) {
       >
         <motion.div
           className="glass-panel-strong rounded-[1.75rem] p-10"
-          whileHover={{ boxShadow: "0 24px 48px -12px rgba(111, 70, 39, 0.16)" }}
+          whileHover={{ boxShadow: "0 24px 48px -12px rgba(90, 36, 48, 0.18)" }}
           transition={{ duration: 0.25 }}
         >
           <motion.div

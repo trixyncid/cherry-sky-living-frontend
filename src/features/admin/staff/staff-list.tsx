@@ -16,6 +16,7 @@ import { AdminAlert } from "@/features/admin/components/admin-alert";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminPagination } from "@/features/admin/components/admin-pagination";
 import { AdminTableShell } from "@/features/admin/components/admin-table-shell";
+import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import {
   AdminCrudTable,
   AdminCrudTableCell,
@@ -24,6 +25,7 @@ import {
 import { Link } from "@/i18n/routing";
 import { getStaffUserSortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
+import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { StaffResetPasswordDialog } from "@/features/admin/staff/staff-reset-password-dialog";
 import {
@@ -42,7 +44,7 @@ const BASE = "/admin/staff";
 
 function roleBadgeClass(role: StaffUser["role"]) {
   return role === "superadmin"
-    ? "bg-[#f5e4d4] text-[#6f4627] border-[#e8dfd6]"
+    ? "bg-ferrugem-soft text-ferrugem border-[#e8dfd6]"
     : "bg-[#efeeeb] text-[#51443c] border-[#e3e2e0]";
 }
 
@@ -53,6 +55,7 @@ export function StaffList() {
   const [search, setSearch] = useState("");
   const [resetUser, setResetUser] = useState<StaffUser | null>(null);
   const [toggleUser, setToggleUser] = useState<StaffUser | null>(null);
+  const deleteDialog = useDeleteDialog<StaffUser>();
   const { data = [], isLoading, error } = useStaffUsers(search || undefined);
   const mutations = useStaffUserMutations();
 
@@ -61,8 +64,17 @@ export function StaffList() {
     [],
   );
 
-  const { page, setPage, pageData, total, pageSize, sortKey, sortDir, onSort } =
-    useClientTable(data, getSortValue, { defaultSortKey: "name" });
+  const {
+    page,
+    setPage,
+    pageData,
+    total,
+    pageSize,
+    setPageSize,
+    sortKey,
+    sortDir,
+    onSort,
+  } = useClientTable(data, getSortValue, { defaultSortKey: "name" });
 
   async function confirmToggleActive() {
     if (!toggleUser) return;
@@ -85,7 +97,29 @@ export function StaffList() {
     }
   }
 
+  async function confirmDelete() {
+    if (!deleteDialog.item) return;
+    try {
+      await mutations.remove.mutateAsync(deleteDialog.item.id);
+      showApiSuccess(t("deleted"));
+      deleteDialog.close();
+    } catch (err) {
+      const msg =
+        err instanceof ApiError && err.code === "CONFLICT"
+          ? err.message.toLowerCase().includes("last superadmin")
+            ? tp("deleteLastSuperadminBlocked")
+            : tp("deleteBlocked")
+          : err instanceof ApiError && err.code === "FORBIDDEN"
+            ? tp("forbiddenAction")
+            : err instanceof ApiError && err.code === "BAD_REQUEST"
+              ? tp("deleteSelfBlocked")
+              : getErrorMessage(err, t("deleteFailed"));
+      showApiError(err, msg);
+    }
+  }
+
   const pending = mutations.setActive.isPending;
+  const deletePending = mutations.remove.isPending;
   const isSuperadmin = currentUser.role === UserRole.SUPERADMIN;
 
   return (
@@ -118,7 +152,7 @@ export function StaffList() {
             setPage(1);
           }}
           placeholder={tp("searchPlaceholder")}
-          className="h-10 w-full rounded-xl border border-[#e3e2e0] bg-white/80 pl-10 pr-4 text-sm outline-none focus:border-[#8b5e3c]/50 focus:ring-2 focus:ring-[#8b5e3c]/15"
+          className="h-10 w-full rounded-xl border border-[#e3e2e0] bg-white/80 pl-10 pr-4 text-sm outline-none focus:border-ferrugem/50 focus:ring-2 focus:ring-ferrugem/15"
         />
       </div>
 
@@ -136,6 +170,7 @@ export function StaffList() {
               pageSize={pageSize}
               total={total}
               onPageChange={setPage}
+              onPageSizeChange={setPageSize}
             />
           ) : undefined
         }
@@ -230,6 +265,15 @@ export function StaffList() {
                         >
                           <Icon name="edit" size={18} />
                         </Link>
+                        <button
+                          type="button"
+                          disabled={isSelf}
+                          onClick={() => deleteDialog.openDelete(user)}
+                          className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#ffdad6]/60 hover:text-[#ba1a1a] disabled:opacity-40 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
+                          aria-label={t("deleteConfirm")}
+                        >
+                          <Icon name="delete" size={18} />
+                        </button>
                       </div>
                     ) : (
                       <span className="text-xs text-[#83746b]">—</span>
@@ -284,6 +328,14 @@ export function StaffList() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AdminDeleteDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => !open && deleteDialog.close()}
+        itemName={deleteDialog.item?.name ?? ""}
+        onConfirm={confirmDelete}
+        pending={deletePending}
+      />
     </>
   );
 }

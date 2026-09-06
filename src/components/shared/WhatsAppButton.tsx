@@ -34,10 +34,10 @@ export function WhatsAppButton({
                     'inline-flex items-center justify-center rounded-full w-12 h-12 bg-[#25D366] hover:bg-[#1fb855] text-white transition-colors shadow-lg',
                     className
                 )}
-                aria-label="Contact via WhatsApp"
+                aria-label="Inquire via WhatsApp"
                 type="button"
             >
-                <Icon name="chat" size={24} />
+                <Icon name="whatsapp" size={24} />
             </button>
         );
     }
@@ -52,7 +52,7 @@ export function WhatsAppButton({
                 )}
                 type="button"
             >
-                <Icon name="chat" size={18} />
+                <Icon name="whatsapp" size={18} />
                 <span>WhatsApp</span>
             </button>
         );
@@ -66,7 +66,7 @@ export function WhatsAppButton({
                 className
             )}
         >
-            <Icon name="chat" size={20} className="mr-2" />
+            <Icon name="whatsapp" size={20} className="mr-2" />
             { label }
         </Button>
     );

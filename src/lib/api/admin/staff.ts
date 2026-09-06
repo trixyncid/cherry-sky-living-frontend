@@ -70,3 +70,11 @@ export async function resetStaffPassword(
   );
   return res.data;
 }
+
+export async function deleteStaffUser(id: string): Promise<StaffUser> {
+  const res = await apiFetch<ApiDataResponse<StaffUser>>(
+    `/admin/staff/${id}`,
+    { method: "DELETE" },
+  );
+  return res.data;
+}

@@ -6,7 +6,8 @@ function toDateOnly(value: string): string {
 }
 
 /**
- * True when ranges share any day. Back-to-back leases (new start = prior end) do not overlap.
+ * True when inclusive calendar ranges share any day (PB-2).
+ * Consecutive leases (new start = day after prior end) do not overlap.
  */
 export function leaseDateRangesOverlap(
   startA: string,
@@ -18,7 +19,7 @@ export function leaseDateRangesOverlap(
   const aEnd = toDateOnly(endA);
   const bStart = toDateOnly(startB);
   const bEnd = toDateOnly(endB);
-  return bStart < aEnd && aStart < bEnd;
+  return bStart <= aEnd && aStart <= bEnd;
 }
 
 export type LeaseOverlapKind = "unit" | "tenant";

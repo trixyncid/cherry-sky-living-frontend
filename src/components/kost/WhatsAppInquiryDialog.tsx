@@ -33,7 +33,7 @@ interface WhatsAppInquiryDialogProps {
     roomName: string;
     pricings: RoomTypePricing[];
     fallbackPrice?: number;
-    variant?: 'default' | 'compact';
+    variant?: 'default' | 'compact' | 'icon';
     className?: string;
     label?: string;
     disabled?: boolean;
@@ -183,7 +183,19 @@ export function WhatsAppInquiryDialog({
     const triggerLabel = label ?? t('cta.sendInquiry');
 
     const triggerButton =
-        variant === 'compact' ? (
+        variant === 'icon' ? (
+            <button
+                type="button"
+                disabled={disabled}
+                aria-label={triggerLabel}
+                className={cn(
+                    'inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366] text-white transition-colors hover:bg-[#1fb855] disabled:cursor-not-allowed disabled:opacity-60',
+                    className,
+                )}
+            >
+                <Icon name="whatsapp" size={16} />
+            </button>
+        ) : variant === 'compact' ? (
             <button
                 type="button"
                 disabled={disabled}
@@ -192,7 +204,7 @@ export function WhatsAppInquiryDialog({
                     className,
                 )}
             >
-                <Icon name="contact_mail" size={18} />
+                <Icon name="whatsapp" size={16} />
                 <span>{triggerLabel}</span>
             </button>
         ) : (
@@ -204,7 +216,7 @@ export function WhatsAppInquiryDialog({
                     className,
                 )}
             >
-                <Icon name="contact_mail" size={20} className="mr-2" />
+                <Icon name="whatsapp" size={18} className="mr-2" />
                 {triggerLabel}
             </Button>
         );
@@ -326,7 +338,7 @@ export function WhatsAppInquiryDialog({
                             type="submit"
                             className="w-full bg-[#25D366] font-semibold text-white hover:bg-[#1fb855] sm:w-auto"
                         >
-                            <Icon name="chat" size={18} className="mr-2" />
+                            <Icon name="whatsapp" size={18} className="mr-2" />
                             {t('whatsapp.inquiryDialog.submit')}
                         </Button>
                     </DialogFooter>

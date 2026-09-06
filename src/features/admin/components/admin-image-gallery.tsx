@@ -12,18 +12,21 @@ import {
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import {
   attachmentDisplayName,
+  isPdfAttachment,
   type AdminAttachmentItem,
 } from "@/features/admin/lib/attachments";
 import { formatDate } from "@/features/admin/lib/format";
 import { cn } from "@/lib/utils";
 
-const ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
+const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
+const DOCUMENT_ACCEPT = `${IMAGE_ACCEPT},application/pdf`;
 const MAX_BYTES = 5 * 1024 * 1024;
 
 type QueuedTile = {
   id: string;
   file: File;
   previewUrl: string;
+  isPdf: boolean;
 };
 
 export function AdminImageGallery({
@@ -34,6 +37,7 @@ export function AdminImageGallery({
   disabledTitle,
   disabledHint,
   error,
+  allowPdf = false,
 }: {
   attachments: AdminAttachmentItem[];
   onUpload: (files: File[]) => Promise<void>;
@@ -42,6 +46,8 @@ export function AdminImageGallery({
   disabledTitle?: string;
   disabledHint?: string;
   error?: string | null;
+  /** When true, accepts PDF in addition to images (lease agreements / proofs). */
+  allowPdf?: boolean;
 }) {
   const t = useTranslations("admin.attachments");
   const inputId = useId();
@@ -57,12 +63,15 @@ export function AdminImageGallery({
   );
   const [deletePending, setDeletePending] = useState(false);
 
+  const accept = allowPdf ? DOCUMENT_ACCEPT : IMAGE_ACCEPT;
   const queuedRef = useRef(queued);
   queuedRef.current = queued;
 
   useEffect(() => {
     return () => {
-      queuedRef.current.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+      queuedRef.current.forEach((item) => {
+        if (!item.isPdf) URL.revokeObjectURL(item.previewUrl);
+      });
     };
   }, []);
 
@@ -83,14 +92,14 @@ export function AdminImageGallery({
     const files = Array.from(fileList);
     if (files.length === 0) return;
 
-    const images = files.filter(isAllowedImage);
-    if (images.length === 0) {
-      setLocalError(t("invalidType"));
+    const allowed = files.filter((file) => isAllowedFile(file, allowPdf));
+    if (allowed.length === 0) {
+      setLocalError(allowPdf ? t("invalidTypeWithPdf") : t("invalidType"));
       resetInput();
       return;
     }
 
-    const oversized = images.find((file) => file.size > MAX_BYTES);
+    const oversized = allowed.find((file) => file.size > MAX_BYTES);
     if (oversized) {
       setLocalError(t("tooLarge"));
       resetInput();
@@ -98,11 +107,15 @@ export function AdminImageGallery({
     }
 
     setLocalError(null);
-    const tiles: QueuedTile[] = images.map((file) => ({
-      id: crypto.randomUUID(),
-      file,
-      previewUrl: URL.createObjectURL(file),
-    }));
+    const tiles: QueuedTile[] = allowed.map((file) => {
+      const isPdf = isPdfFile(file);
+      return {
+        id: crypto.randomUUID(),
+        file,
+        previewUrl: isPdf ? "" : URL.createObjectURL(file),
+        isPdf,
+      };
+    });
     setQueued((current) => [...current, ...tiles]);
     resetInput();
   }
@@ -110,13 +123,15 @@ export function AdminImageGallery({
   function removeQueued(id: string) {
     setQueued((current) => {
       const target = current.find((item) => item.id === id);
-      if (target) URL.revokeObjectURL(target.previewUrl);
+      if (target && !target.isPdf) URL.revokeObjectURL(target.previewUrl);
       return current.filter((item) => item.id !== id);
     });
   }
 
   function clearQueue() {
-    queued.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+    queued.forEach((item) => {
+      if (!item.isPdf) URL.revokeObjectURL(item.previewUrl);
+    });
     setQueued([]);
   }
 
@@ -127,7 +142,9 @@ export function AdminImageGallery({
     setUploading(true);
     try {
       await onUpload(queued.map((item) => item.file));
-      queued.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+      queued.forEach((item) => {
+        if (!item.isPdf) URL.revokeObjectURL(item.previewUrl);
+      });
       setQueued([]);
     } catch {
       // Parent reports the error; keep the selection so the user can retry.
@@ -188,14 +205,14 @@ export function AdminImageGallery({
       onDrop={onDrop}
       className={cn(
         "relative rounded-2xl transition-colors",
-        dragActive && !disabled && "bg-[#8b5e3c]/8",
+        dragActive && !disabled && "bg-ferrugem/8",
       )}
     >
       <input
         ref={inputRef}
         id={inputId}
         type="file"
-        accept={ACCEPT}
+        accept={accept}
         multiple
         disabled={disabled || uploading}
         className="sr-only"
@@ -207,12 +224,18 @@ export function AdminImageGallery({
         <LockedDropzone title={disabledTitle} hint={disabledHint} />
       ) : hasPhotos ? (
         <div className="grid grid-cols-2 gap-2.5">
-          <AddTile onClick={openPicker} compact disabled={uploading} />
+          <AddTile
+            onClick={openPicker}
+            compact
+            disabled={uploading}
+            allowPdf={allowPdf}
+          />
           {queued.map((item) => (
             <QueuedPhoto
               key={item.id}
               src={item.previewUrl}
               name={item.file.name}
+              isPdf={item.isPdf}
               uploading={uploading}
               onRemove={() => removeQueued(item.id)}
             />
@@ -227,7 +250,7 @@ export function AdminImageGallery({
           ))}
         </div>
       ) : (
-        <AddTile onClick={openPicker} />
+        <AddTile onClick={openPicker} allowPdf={allowPdf} />
       )}
 
       {queued.length > 0 && !disabled ? (
@@ -276,12 +299,21 @@ export function AdminImageGallery({
           {preview ? (
             <>
               <div className="relative aspect-[4/3] bg-[#1a1c1a]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={preview.url}
-                  alt={attachmentDisplayName(preview.url)}
-                  className="size-full object-contain"
-                />
+                {isPdfAttachment(preview) ? (
+                  <div className="flex size-full flex-col items-center justify-center gap-3 text-white">
+                    <Icon name="description" size={48} />
+                    <p className="max-w-sm truncate px-4 text-sm font-medium">
+                      {attachmentDisplayName(preview.url)}
+                    </p>
+                  </div>
+                ) : (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={preview.url}
+                    alt={attachmentDisplayName(preview.url)}
+                    className="size-full object-contain"
+                  />
+                )}
               </div>
               <div className="flex items-start justify-between gap-3 px-5 pb-5">
                 <div className="min-w-0">
@@ -330,10 +362,19 @@ export function AdminImageGallery({
   );
 }
 
-function isAllowedImage(file: File) {
-  if (ACCEPT.split(",").includes(file.type)) return true;
+function isPdfFile(file: File) {
+  if (file.type === "application/pdf" || file.type === "application/x-pdf") {
+    return true;
+  }
+  return /\.pdf$/i.test(file.name);
+}
+
+function isAllowedFile(file: File, allowPdf: boolean) {
+  if (IMAGE_ACCEPT.split(",").includes(file.type)) return true;
+  if (allowPdf && isPdfFile(file)) return true;
   if (!file.type) {
-    return /\.(jpe?g|png|webp|gif)$/i.test(file.name);
+    if (/\.(jpe?g|png|webp|gif)$/i.test(file.name)) return true;
+    if (allowPdf && /\.pdf$/i.test(file.name)) return true;
   }
   return false;
 }
@@ -365,10 +406,12 @@ function AddTile({
   onClick,
   compact = false,
   disabled = false,
+  allowPdf = false,
 }: {
   onClick: () => void;
   compact?: boolean;
   disabled?: boolean;
+  allowPdf?: boolean;
 }) {
   const t = useTranslations("admin.attachments");
 
@@ -378,13 +421,13 @@ function AddTile({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#d5c3b8] bg-white/40 text-[#6f4627] transition-all hover:border-[#8b5e3c] hover:bg-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b5e3c]/25 disabled:cursor-not-allowed disabled:opacity-60",
+        "group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#d5c3b8] bg-white/40 text-ferrugem transition-all hover:border-ferrugem hover:bg-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ferrugem/25 disabled:cursor-not-allowed disabled:opacity-60",
         compact ? "aspect-[4/3] px-3 py-4" : "min-h-[13.5rem] px-5 py-8",
       )}
     >
       <span
         className={cn(
-          "mb-2 flex items-center justify-center rounded-full bg-[#8b5e3c]/10 text-[#6f4627] transition-transform group-hover:scale-105",
+          "mb-2 flex items-center justify-center rounded-full bg-ferrugem/10 text-ferrugem transition-transform group-hover:scale-105",
           compact ? "size-10" : "mb-3 size-12",
         )}
       >
@@ -399,7 +442,11 @@ function AddTile({
           compact ? "text-[11px] leading-tight" : "mt-1 max-w-[16rem] text-xs leading-relaxed",
         )}
       >
-        {compact ? t("addMoreHint") : t("dropHint")}
+        {compact
+          ? t("addMoreHint")
+          : allowPdf
+            ? t("dropHintWithPdf")
+            : t("dropHint")}
       </span>
     </button>
   );
@@ -408,20 +455,31 @@ function AddTile({
 function QueuedPhoto({
   src,
   name,
+  isPdf,
   uploading,
   onRemove,
 }: {
   src: string;
   name: string;
+  isPdf: boolean;
   uploading: boolean;
   onRemove: () => void;
 }) {
   const t = useTranslations("admin.attachments");
 
   return (
-    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#efeeeb] ring-2 ring-[#8b5e3c]/70 ring-offset-2 ring-offset-transparent">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={name} className="size-full object-cover" />
+    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#efeeeb] ring-2 ring-ferrugem/70 ring-offset-2 ring-offset-transparent">
+      {isPdf ? (
+        <div className="flex size-full flex-col items-center justify-center gap-1 bg-ferrugem-soft/60 text-ferrugem">
+          <Icon name="description" size={28} />
+          <span className="max-w-[90%] truncate px-2 text-[11px] font-medium">
+            {name}
+          </span>
+        </div>
+      ) : (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img src={src} alt={name} className="size-full object-cover" />
+      )}
       <span className="absolute left-2 top-2 rounded-full bg-[#6f4627] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
         {t("queuedBadge")}
       </span>
@@ -454,6 +512,8 @@ function PhotoTile({
   onDelete: () => void;
 }) {
   const t = useTranslations("admin.attachments");
+  const name = attachmentDisplayName(item.url);
+  const pdf = isPdfAttachment(item);
 
   return (
     <div className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#efeeeb] shadow-sm">
@@ -463,12 +523,21 @@ function PhotoTile({
         className="size-full"
         aria-label={t("view")}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={item.url}
-          alt={attachmentDisplayName(item.url)}
-          className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-        />
+        {pdf ? (
+          <div className="flex size-full flex-col items-center justify-center gap-1 bg-ferrugem-soft/50 text-ferrugem transition-transform duration-300 group-hover:scale-[1.04]">
+            <Icon name="description" size={28} />
+            <span className="max-w-[90%] truncate px-2 text-[11px] font-medium">
+              {name}
+            </span>
+          </div>
+        ) : (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={item.url}
+            alt={name}
+            className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+          />
+        )}
       </button>
       {item.kindLabel ? (
         <span className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-[#1a1c1a]/70 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">

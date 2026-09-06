@@ -1,23 +1,23 @@
 /**
- * Room Detail View
- * Displays comprehensive information about a specific unit type
+ * Room detail — cinematic hero, mosaic photos, glass booking card
  */
 
 'use client';
 
-import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { useLocale, useTranslations } from 'next-intl';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Footer } from '@/components/layout/Footer';
-import { Icon } from '@/components/shared/Icon';
-import { Badge } from '@/components/ui/badge';
 import { ImageGallery } from '@/components/kost/ImageGallery';
 import { RoomDetailSidebar } from '@/components/kost/RoomDetailSidebar';
 import { RoomTypeCard } from '@/components/kost/RoomTypeCard';
 import { KostBreadcrumb, useKostBreadcrumbs } from '@/components/kost/KostBreadcrumb';
+import { Icon } from '@/components/shared/Icon';
+import { Link } from '@/i18n/routing';
 import type { Kost } from '@/lib/types';
 import { sortRoomTypesForDisplay } from '@/lib/utils/kost-display';
+import { formatCapacity } from '@/lib/utils/format';
 
 interface RoomDetailViewProps {
     kost: Kost;
@@ -26,6 +26,7 @@ interface RoomDetailViewProps {
 
 export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
     const t = useTranslations();
+    const locale = useLocale();
     const crumbs = useKostBreadcrumbs();
 
     const roomType = kost.roomTypes.find((rt) => rt.id === roomTypeId);
@@ -40,7 +41,7 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
                         </h2>
                         <Link
                             href={`/kosts/${kost.id}`}
-                            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#6f4627] px-6 py-3 text-white transition-colors hover:bg-[#5a3820]"
+                            className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#6f4627] px-6 py-3 text-white transition-colors hover:bg-[#5a3820]"
                         >
                             <Icon name="arrow_back" size={20} />
                             {t('propertyDetail.backToProperty')}
@@ -55,6 +56,7 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
     const otherRoomTypes = sortRoomTypesForDisplay(
         kost.roomTypes.filter((rt) => rt.id !== roomTypeId),
     );
+    const heroImage = roomType.images[0] || kost.thumbnail;
 
     const breadcrumbItems = [
         crumbs.home,
@@ -65,70 +67,85 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
 
     return (
         <AppLayout>
-            <div className="min-h-screen bg-[#faf9f6] pb-24 pt-16 md:pb-8">
-                <div className="mx-auto max-w-7xl">
-                    <div className="flex flex-col lg:flex-row">
-                        <div className="flex-1 space-y-8 p-6 lg:p-8">
+            <section className="relative flex min-h-[min(42svh,22rem)] w-full flex-col justify-end overflow-hidden hero-atmosphere pt-[max(5rem,calc(4rem+env(safe-area-inset-top)))] lg:min-h-[min(46svh,26rem)]">
+                <div className="absolute inset-0">
+                    {heroImage ? (
+                        <motion.div
+                            initial={{ scale: 1.08 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 1.5, ease: 'easeOut' }}
+                            className="absolute inset-0"
+                        >
+                            <Image
+                                src={heroImage}
+                                alt={roomType.name}
+                                fill
+                                priority
+                                sizes="100vw"
+                                className="object-cover object-center"
+                            />
+                        </motion.div>
+                    ) : null}
+                    <div className="absolute inset-0 hero-overlay-x" />
+                    <div className="absolute inset-0 hero-overlay-y" />
+                </div>
+
+                <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-20 pt-6 lg:px-10 lg:pb-24">
+                    <KostBreadcrumb items={breadcrumbItems} tone="onDark" className="mb-6" />
+
+                    <div className="mb-4 flex flex-wrap gap-2">
+                        {isAvailable ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1a130f]/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
+                                <span className="h-1.5 w-1.5 rounded-full bg-status-vacant" />
+                                {t('status.available')}
+                            </span>
+                        ) : (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1a130f]/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
+                                <span className="h-1.5 w-1.5 rounded-full bg-status-occupied" />
+                                {t('status.full')}
+                            </span>
+                        )}
+                    </div>
+
+                    <motion.h1
+                        initial={{ y: 18, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        className="max-w-3xl text-[2.15rem] font-bold leading-[1.1] tracking-tight text-[#faf9f6] sm:text-5xl"
+                    >
+                        {roomType.name}
+                    </motion.h1>
+                    <p className="mt-2 text-sm font-medium text-white/80 md:text-base">{kost.name}</p>
+                    <p className="mt-2 flex max-w-xl items-start gap-2 text-sm text-white/75">
+                        <Icon name="location_on" size={18} className="mt-0.5 shrink-0 text-[#d4af37]" />
+                        <span>
+                            {kost.location.address}
+                            {kost.location.city ? `, ${kost.location.city}` : ''}
+                        </span>
+                    </p>
+                </div>
+            </section>
+
+            <div className="relative z-10 -mt-8 rounded-t-[2rem] bg-[#faf9f6] pb-10 pt-12 lg:-mt-10 lg:pt-14">
+                <div className="mx-auto max-w-7xl px-6 lg:px-10">
+                    {roomType.images.length > 0 ? (
+                        <div className="mb-6">
                             <ImageGallery
                                 images={roomType.images}
                                 alt={roomType.name}
-                                header={<KostBreadcrumb items={breadcrumbItems} className="mb-1" />}
+                                variant="mosaic"
                             />
+                        </div>
+                    ) : null}
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1, duration: 0.5 }}
-                                className="space-y-4"
-                            >
-                                <div className="flex flex-wrap gap-2">
-                                    {kost.isFeatured && (
-                                        <Badge className="border border-[#e8dfd6] bg-[#f5e4d4] px-3 py-1 text-[#6f4627]">
-                                            <Icon name="verified" size={16} className="mr-1.5" />
-                                            {t('roomDetail.verified')}
-                                        </Badge>
-                                    )}
-                                    {isAvailable && (
-                                        <Badge className="border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700">
-                                            <Icon name="key" size={16} className="mr-1.5" />
-                                            {t('status.available')}
-                                        </Badge>
-                                    )}
-                                    {!isAvailable && roomType.waitlistEnabled && (
-                                        <Badge className="border border-amber-200 bg-amber-50 px-3 py-1 text-amber-700">
-                                            <Icon name="schedule" size={16} className="mr-1.5" />
-                                            {t('status.waitlist')}
-                                        </Badge>
-                                    )}
-                                </div>
-                                <div>
-                                    <h1 className="mb-2 text-3xl font-bold leading-tight tracking-tight text-[#1a1c1a] sm:text-4xl">
-                                        {roomType.name}
-                                    </h1>
-                                    <p className="mb-1 text-base font-medium text-[#83746b]">{kost.name}</p>
-                                    <div className="flex items-center text-[#83746b]">
-                                        <Icon name="location_on" size={20} className="mr-1 text-[#6f4627]" />
-                                        <p className="text-base font-medium">
-                                            {kost.location.address}
-                                            {kost.location.city ? `, ${kost.location.city}` : ''}
-                                        </p>
-                                    </div>
-                                </div>
-                            </motion.div>
-
-                            <hr className="border-[#e8dfd6]" />
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2, duration: 0.5 }}
-                            >
-                                <h3 className="mb-4 text-xl font-bold text-[#1a1c1a]">
+                    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem]">
+                        <div className="space-y-8">
+                            <section>
+                                <h2 className="mb-5 text-2xl font-semibold tracking-tight text-[#1a1c1a]">
                                     {t('roomDetail.roomDetails')}
-                                </h3>
-                                <div className="grid grid-cols-2 gap-4 sm:max-w-md">
+                                </h2>
+                                <div className="grid grid-cols-2 gap-4 sm:max-w-lg">
                                     {roomType.size != null && (
-                                        <div className="flex items-center gap-3 rounded-xl border border-[#e8dfd6] bg-white p-4">
+                                        <div className="glass-card flex items-center gap-3 rounded-2xl p-4">
                                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f5e4d4]">
                                                 <Icon name="square_foot" size={20} className="text-[#6f4627]" />
                                             </div>
@@ -138,55 +155,49 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
                                             </div>
                                         </div>
                                     )}
-                                    <div className="flex items-center gap-3 rounded-xl border border-[#e8dfd6] bg-white p-4">
+                                    <div className="glass-card flex items-center gap-3 rounded-2xl p-4">
                                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f5e4d4]">
                                             <Icon name="people" size={20} className="text-[#6f4627]" />
                                         </div>
                                         <div>
                                             <p className="text-xs text-[#83746b]">{t('roomDetail.capacity')}</p>
-                                            <p className="font-semibold text-[#1a1c1a]">{roomType.capacity}</p>
+                                            <p className="font-semibold text-[#1a1c1a]">
+                                                {formatCapacity(
+                                                    roomType.capacity,
+                                                    locale === 'en' ? 'en' : 'id',
+                                                )}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </section>
 
-                            {roomType.description && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3, duration: 0.5 }}
-                                >
-                                    <h3 className="mb-3 text-xl font-bold text-[#1a1c1a]">
+                            {roomType.description ? (
+                                <section>
+                                    <h2 className="mb-3 text-2xl font-semibold tracking-tight text-[#1a1c1a]">
                                         {t('roomDetail.aboutPlace')}
-                                    </h3>
-                                    <p className="text-base leading-relaxed text-[#51443c]">
+                                    </h2>
+                                    <p className="max-w-2xl text-base leading-relaxed text-[#51443c]">
                                         {roomType.description}
                                     </p>
-                                    {kost.location.nearbyLandmark && (
-                                        <div className="mt-4 rounded-xl border border-[#e8dfd6] bg-[#f5e4d4]/40 p-4">
-                                            <div className="flex items-center gap-2">
-                                                <Icon name="school" size={20} className="text-[#6f4627]" />
-                                                <p className="text-sm font-medium text-[#1a1c1a]">
-                                                    {kost.location.nearbyLandmark}
-                                                </p>
-                                            </div>
+                                    {kost.location.nearbyLandmark ? (
+                                        <div className="mt-4 flex items-center gap-2 rounded-2xl border border-[#e8dfd6] bg-[#f5e4d4]/40 p-4">
+                                            <Icon name="school" size={20} className="text-[#6f4627]" />
+                                            <p className="text-sm font-medium text-[#1a1c1a]">
+                                                {kost.location.nearbyLandmark}
+                                            </p>
                                         </div>
-                                    )}
-                                </motion.div>
-                            )}
+                                    ) : null}
+                                </section>
+                            ) : null}
 
-                            {roomType.availableCount > 0 && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.4, duration: 0.5 }}
-                                    className="rounded-xl border border-[#e8dfd6] bg-white p-6"
-                                >
+                            {roomType.availableCount > 0 ? (
+                                <div className="glass-card rounded-2xl p-6">
                                     <div className="flex items-center justify-between gap-4">
-                                        <div className="flex-1">
-                                            <h4 className="mb-1 font-semibold text-[#1a1c1a]">
+                                        <div>
+                                            <h3 className="mb-1 font-semibold text-[#1a1c1a]">
                                                 {t('roomDetail.availability')}
-                                            </h4>
+                                            </h3>
                                             <p className="text-sm text-[#83746b]">
                                                 {t('roomDetail.availableRooms', {
                                                     available: roomType.availableCount,
@@ -198,32 +209,31 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
                                             <motion.div
                                                 initial={{ width: 0 }}
                                                 animate={{
-                                                    width: `${(roomType.availableCount / roomType.totalCount) * 100}%`,
+                                                    width: `${
+                                                        roomType.totalCount > 0
+                                                            ? (roomType.availableCount / roomType.totalCount) * 100
+                                                            : 0
+                                                    }%`,
                                                 }}
-                                                transition={{ delay: 0.5, duration: 0.8, ease: 'easeOut' }}
+                                                transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
                                                 className="h-2.5 rounded-full bg-[#6f4627]"
                                             />
                                         </div>
                                     </div>
-                                </motion.div>
-                            )}
+                                </div>
+                            ) : null}
 
-                            {otherRoomTypes.length > 0 && (
-                                <motion.section
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.5, duration: 0.5 }}
-                                    className="space-y-5 border-t border-[#e8dfd6] pt-8"
-                                >
+                            {otherRoomTypes.length > 0 ? (
+                                <section className="space-y-4 border-t border-[#e8dfd6] pt-6">
                                     <div>
-                                        <h3 className="text-xl font-bold text-[#1a1c1a]">
+                                        <h2 className="text-2xl font-semibold tracking-tight text-[#1a1c1a]">
                                             {t('propertyDetail.otherRoomTypes')}
-                                        </h3>
+                                        </h2>
                                         <p className="mt-1 text-sm text-[#83746b]">
                                             {t('propertyDetail.otherRoomTypesDescription')}
                                         </p>
                                     </div>
-                                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                    <div className="grid grid-cols-1 gap-3">
                                         {otherRoomTypes.map((other, index) => (
                                             <RoomTypeCard
                                                 key={other.id}
@@ -235,8 +245,8 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
                                             />
                                         ))}
                                     </div>
-                                </motion.section>
-                            )}
+                                </section>
+                            ) : null}
                         </div>
 
                         <RoomDetailSidebar

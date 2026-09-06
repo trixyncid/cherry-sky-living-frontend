@@ -14,8 +14,8 @@ import {
   AdminSelect,
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
+import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import {
-  useProperties,
   useUnit,
   useUnitMutations,
   useUnitTypes,
@@ -24,6 +24,7 @@ import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import { resolveUnitTypePropertyName } from "@/features/admin/lib/entity-display";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import { unitMaxOccupancySchema } from "@/features/admin/properties/schemas";
 import type { UnitStatus } from "@/lib/types/admin";
 
 const BASE = "/admin/units";
@@ -47,7 +48,7 @@ export function UnitForm({ id }: { id?: string }) {
   const tp = useTranslations("admin.pages.units");
   const router = useRouter();
   const isEdit = !!id;
-  const { data: properties = [] } = useProperties();
+  const { properties } = useAdminShell();
   const { data: unit, isLoading } = useUnit(id ?? "", isEdit);
   const mutations = useUnitMutations();
   const lookups = useAdminLookups();
@@ -86,16 +87,22 @@ export function UnitForm({ id }: { id?: string }) {
     e.preventDefault();
     setFormError(null);
 
-    const maxOccupancy = form.maxOccupancy
+    const occupancyRaw = form.maxOccupancy.trim()
       ? Number(form.maxOccupancy)
-      : undefined;
+      : null;
+    const occupancyParsed = unitMaxOccupancySchema.safeParse(occupancyRaw);
+    if (!occupancyParsed.success) {
+      setFormError(occupancyParsed.error.issues[0]?.message ?? t("saveFailed"));
+      return;
+    }
+    const maxOccupancy = occupancyParsed.data;
 
     try {
       if (isEdit && id) {
         await mutations.update.mutateAsync({
           id,
           name: form.name,
-          maxOccupancy: maxOccupancy ?? null,
+          maxOccupancy,
           status,
         });
         showApiSuccess(t("updated"));
@@ -107,7 +114,7 @@ export function UnitForm({ id }: { id?: string }) {
         const created = await mutations.create.mutateAsync({
           name: form.name,
           unitTypeId: form.unitTypeId,
-          maxOccupancy,
+          maxOccupancy: maxOccupancy ?? undefined,
         });
         showApiSuccess(t("created"));
         router.replace(`${BASE}/${created.id}/edit`);

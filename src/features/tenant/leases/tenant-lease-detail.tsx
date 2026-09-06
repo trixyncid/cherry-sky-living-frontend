@@ -128,10 +128,10 @@ export function TenantLeaseDetail({ id }: { id: string }) {
       <div className="glass-panel rounded-[1.75rem] p-6">
         <div className="mb-4">
           <h3 className="text-base font-semibold text-[#1a1c1a]">
-            {tp("paymentProofTitle")}
+            {tp("documentsTitle")}
           </h3>
           <p className="mt-1 text-sm text-[#83746b]">
-            {tp("paymentProofDescription")}
+            {tp("documentsDescription")}
           </p>
         </div>
         <TenantAttachmentsList

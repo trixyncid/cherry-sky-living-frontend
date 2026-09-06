@@ -117,8 +117,17 @@ export function LeaseRenewalsList() {
     [lookups],
   );
 
-  const { page, setPage, pageData, total, pageSize, sortKey, sortDir, onSort } =
-    useClientTable(filtered, getSortValue, { defaultSortKey: "leaseEnd" });
+  const {
+    page,
+    setPage,
+    pageData,
+    total,
+    pageSize,
+    setPageSize,
+    sortKey,
+    sortDir,
+    onSort,
+  } = useClientTable(filtered, getSortValue, { defaultSortKey: "leaseEnd" });
 
   const statusFilters: { key: StatusFilter; label: string }[] = [
     { key: "requested", label: tp("filters.requested") },
@@ -207,6 +216,7 @@ export function LeaseRenewalsList() {
               pageSize={pageSize}
               total={total}
               onPageChange={setPage}
+              onPageSizeChange={setPageSize}
             />
           ) : undefined
         }
@@ -253,8 +263,8 @@ export function LeaseRenewalsList() {
                     {endDate ? formatDate(endDate) : "—"}
                   </AdminCrudTableCell>
                   <AdminCrudTableCell>
-                    {renewal?.leaseEndDate
-                      ? formatDate(renewal.leaseEndDate)
+                    {renewal?.confirmationDeadline
+                      ? formatDate(renewal.confirmationDeadline)
                       : "—"}
                   </AdminCrudTableCell>
                   <AdminCrudTableCell>

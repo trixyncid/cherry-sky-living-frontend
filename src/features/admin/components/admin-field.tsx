@@ -42,7 +42,7 @@ export function AdminField({
 }
 
 const adminControlBase =
-  "glass-control w-full rounded-xl text-sm text-[#1a1c1a] transition-all focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/20";
+  "glass-control w-full rounded-xl text-sm text-[#1a1c1a] transition-all focus:outline-none focus:ring-2 focus:ring-ferrugem/20";
 
 export const adminInputClassName = cn(
   adminControlBase,
@@ -62,7 +62,7 @@ export const adminSearchInputClassName = cn(
 export const adminMenuSearchClassName = cn(
   "h-10 w-full rounded-lg border border-[#e8ddd4] bg-white pl-10 pr-4 text-sm text-[#1a1c1a]",
   "placeholder:text-[#83746b]/60 outline-none",
-  "focus:border-[#8b5e3c]/45 focus:ring-2 focus:ring-[#8b5e3c]/15",
+  "focus:border-ferrugem/45 focus:ring-2 focus:ring-ferrugem/15",
 );
 
 export const adminTextareaClassName = cn(
@@ -186,6 +186,8 @@ export function AdminFileInput({
 export function AdminSelect({
   className,
   selectClassName,
+  contentClassName,
+  size = "default",
   children,
   value,
   defaultValue,
@@ -194,9 +196,12 @@ export function AdminSelect({
   required,
   id,
   name,
+  "aria-label": ariaLabel,
 }: React.ComponentProps<"select"> & {
   className?: string;
   selectClassName?: string;
+  contentClassName?: string;
+  size?: "default" | "sm";
 }) {
   const listboxId = React.useId();
   const [open, setOpen] = React.useState(false);
@@ -204,6 +209,9 @@ export function AdminSelect({
   const itemRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
   const typeaheadRef = React.useRef("");
   const typeaheadTimer = React.useRef<number>(0);
+  const isSm = size === "sm";
+  const chevronSize = isSm ? 16 : 20;
+  const checkSize = isSm ? 16 : 18;
 
   const options = React.useMemo(
     () => optionsFromChildren(children),
@@ -302,7 +310,8 @@ export function AdminSelect({
         <div
           className={cn(
             adminSelectClassName,
-            "flex items-center pr-10 opacity-60",
+            "flex items-center opacity-60",
+            isSm ? "h-8 rounded-lg pl-2.5 pr-7 text-xs" : "pr-10",
             isPlaceholder && "text-[#83746b]/60",
             selectClassName,
           )}
@@ -310,10 +319,13 @@ export function AdminSelect({
           <span className="truncate">{selectedLabel}</span>
         </div>
         <span
-          className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-[#83746b]"
+          className={cn(
+            "pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center text-[#83746b]",
+            isSm ? "w-7" : "w-9",
+          )}
           aria-hidden
         >
-          <Icon name="expand_more" size={20} />
+          <Icon name="expand_more" size={chevronSize} />
         </span>
       </div>
     );
@@ -327,6 +339,7 @@ export function AdminSelect({
             id={id}
             type="button"
             role="combobox"
+            aria-label={ariaLabel}
             aria-expanded={open}
             aria-controls={listboxId}
             disabled={disabled}
@@ -334,26 +347,36 @@ export function AdminSelect({
             className={cn(
               adminSelectClassName,
               "relative flex items-center text-left",
+              isSm && "h-8 rounded-lg pl-2.5 pr-7 text-xs font-semibold",
               isPlaceholder && "text-[#83746b]/60",
               open && "bg-white/90",
               selectClassName,
             )}
           >
-            <span className="truncate pr-8">{selectedLabel}</span>
+            <span className={cn("truncate", isSm ? "pr-5" : "pr-8")}>
+              {selectedLabel}
+            </span>
             <span
-              className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-[#83746b]"
+              className={cn(
+                "pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center text-[#83746b]",
+                isSm ? "w-7" : "w-9",
+              )}
               aria-hidden
             >
               <Icon
                 name="expand_more"
-                size={20}
+                size={chevronSize}
                 className={cn("transition-transform", open && "rotate-180")}
               />
             </span>
           </button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] min-w-[12rem] p-0"
+          className={cn(
+            "w-[var(--radix-popover-trigger-width)] p-0",
+            isSm ? "min-w-[5.5rem]" : "min-w-[12rem]",
+            contentClassName,
+          )}
           align="start"
           onOpenAutoFocus={(event) => event.preventDefault()}
         >
@@ -382,6 +405,7 @@ export function AdminSelect({
                         active: isActive,
                         selected: isSelected,
                       }),
+                      isSm && "px-2.5 py-1.5 text-xs font-semibold",
                       option.disabled && "cursor-not-allowed opacity-50",
                       option.value === "" && !isSelected && "text-[#83746b]",
                     )}
@@ -390,7 +414,7 @@ export function AdminSelect({
                     {isSelected && (
                       <Icon
                         name="check"
-                        size={18}
+                        size={checkSize}
                         className="shrink-0 text-[#6f4627]"
                       />
                     )}

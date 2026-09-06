@@ -57,7 +57,7 @@ export function AdminFormSection({
     <section className={cn("glass-panel rounded-[1.75rem] p-5 sm:p-6", className)}>
       <div className="mb-5 flex items-start justify-between gap-3">
         <div className="flex min-w-0 gap-3">
-          <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#8b5e3c]/10 text-[#6f4627]">
+          <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-ferrugem/10 text-ferrugem">
             <Icon name={icon} size={18} />
           </span>
           <div className="min-w-0">

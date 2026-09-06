@@ -134,7 +134,7 @@ export function getLeaseSortValue(
     case "leaseEnd":
       return getLeaseEndDateValue(lease) ?? "";
     case "deadline":
-      return lease.leaseRenewal?.leaseEndDate ?? "";
+      return lease.leaseRenewal?.confirmationDeadline ?? "";
     default:
       return resolveLeasePropertyName(lease, lookups);
   }
@@ -159,6 +159,8 @@ export function getLedgerEntrySortValue(entry: LedgerEntry, key: string): SortVa
       return entry.description;
     case "property":
       return entry.property?.name ?? "";
+    case "category":
+      return entry.category ?? "";
     case "amount":
       return entry.amount;
     default:

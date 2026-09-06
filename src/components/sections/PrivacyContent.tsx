@@ -133,16 +133,16 @@ export function PrivacyContent() {
     };
 
     return (
-        <section className="w-full py-24 px-6 lg:px-10 bg-white dark:bg-slate-900">
+        <section className="w-full bg-[#faf9f6] px-6 py-24 lg:px-10">
             <div className="max-w-3xl mx-auto">
                 {/* Table of Contents */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mb-16 p-6 bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-2xl"
+                    className="glass-card mb-16 rounded-[1.5rem] p-6"
                 >
-                    <h2 className="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                    <h2 className="mb-4 flex items-center gap-2 font-bold text-[#1a1c1a]">
                         <Icon name="list" size={20} />
                         Table of Contents
                     </h2>
@@ -151,7 +151,7 @@ export function PrivacyContent() {
                             <a
                                 key={section.key}
                                 href={`#section-${index}`}
-                                className="text-sm text-primary hover:text-primary/90 dark:hover:text-primary/80 font-medium transition-colors flex items-center gap-2"
+                                className="flex items-center gap-2 text-sm font-medium text-[#6f4627] transition-colors hover:text-[#805533]"
                             >
                                 <Icon name="arrow_forward" size={14} />
                                 {section.title}
@@ -181,10 +181,10 @@ export function PrivacyContent() {
                                         expandedSection === section.key ? null : section.key
                                     )
                                 }
-                                className="w-full text-left p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-primary/50 transition-all duration-300"
+                                className="glass-card w-full rounded-[1.25rem] p-6 text-left transition-all duration-300 hover:-translate-y-0.5"
                             >
                                 <div className="flex items-center justify-between gap-4">
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                                    <h3 className="text-lg font-bold text-[#1a1c1a]">
                                         {section.title}
                                     </h3>
                                     <Icon
@@ -210,8 +210,8 @@ export function PrivacyContent() {
                                 transition={{ duration: 0.3 }}
                                 className="overflow-hidden"
                             >
-                                <div className="p-6 bg-slate-50 dark:bg-slate-900/50 border-x border-b border-slate-200 dark:border-slate-700 space-y-4">
-                                    <p className="text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+                                <div className="space-y-4 border-x border-b border-[#e3e2e0] bg-white/70 p-6">
+                                    <p className="text-base leading-relaxed text-[#51443c]">
                                         {section.content}
                                     </p>
 
@@ -220,7 +220,7 @@ export function PrivacyContent() {
                                             {section.items.map((item, idx) => (
                                                 <li
                                                     key={idx}
-                                                    className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400"
+                                                    className="flex items-start gap-3 text-sm text-[#51443c]"
                                                 >
                                                     <Icon
                                                         name="check_circle"
@@ -243,19 +243,19 @@ export function PrivacyContent() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mt-16 p-6 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl"
+                    className="glass-card mt-16 rounded-[1.5rem] p-6"
                 >
                     <div className="flex items-start gap-4">
                         <Icon
                             name="info"
                             size={24}
-                            className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-1"
+                            className="mt-1 shrink-0 text-[#6f4627]"
                         />
                         <div>
-                            <h3 className="font-bold text-amber-900 dark:text-amber-100 mb-2">
+                            <h3 className="mb-2 font-bold text-[#1a1c1a]">
                                 Important Notice
                             </h3>
-                            <p className="text-sm text-amber-800 dark:text-amber-200">
+                            <p className="text-sm text-[#51443c]">
                                 We may update this Privacy Policy periodically. Your continued use of our services
                                 following notifications of changes constitutes your acceptance of the updated policy.
                                 We recommend reviewing this policy regularly.
@@ -269,12 +269,12 @@ export function PrivacyContent() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mt-8 p-6 text-center bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700"
+                    className="glass-card mt-8 rounded-[1.5rem] p-6 text-center"
                 >
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                        <strong>📅 {t('lastUpdated')}</strong>
+                    <p className="text-sm text-[#51443c]">
+                        <strong>{t('lastUpdated')}</strong>
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+                    <p className="mt-2 text-xs text-[#83746b]">
                         For data subject access requests or privacy concerns, contact our privacy team
                     </p>
                 </motion.div>

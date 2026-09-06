@@ -1,72 +1,36 @@
 /**
- * Kost Property & Room Detail Page
+ * Kost Property Detail Page
  * - /kosts/{propertyId} → property overview with unit type list
- * - /kosts/{propertyId}--{unitTypeId} → individual unit type detail
+ * - /kosts/{propertyId}--{unitTypeId} → redirected to /kosts/{propertyId}/{unitTypeId}
  */
 
-'use client';
+import { dehydrate } from '@tanstack/react-query';
+import { KostRoutePage } from '@/components/kost/KostRoutePage';
+import { PublicHydration } from '@/components/query/public-hydration';
+import { redirect } from '@/i18n/routing';
+import { createPrefetchQueryClient } from '@/lib/query/get-query-client';
+import { prefetchPublicProperty } from '@/lib/query/prefetch-public';
 
-import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
-import { Link } from '@/i18n/routing';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { Icon } from '@/components/shared/Icon';
-import { PropertyDetailView } from '@/components/kost/PropertyDetailView';
-import { RoomDetailView } from '@/components/kost/RoomDetailView';
-import { useKost } from '@/lib/hooks/use-kost-data';
+export default async function KostDetailPage({
+    params,
+}: {
+    params: Promise<{ id: string; locale: string }>;
+}) {
+    const { id: routeId, locale } = await params;
+    const separatorIndex = routeId.indexOf('--');
 
-export default function KostDetailPage() {
-    const t = useTranslations();
-    const params = useParams();
-    const routeId = params.id as string;
-
-    const separatorIndex = routeId?.indexOf('--');
-    const kostId = separatorIndex > 0 ? routeId.substring(0, separatorIndex) : routeId;
-    const roomTypeId = separatorIndex > 0 ? routeId.substring(separatorIndex + 2) : '';
-
-    const { data: kost, isLoading } = useKost(kostId);
-
-    if (isLoading) {
-        return (
-            <AppLayout>
-                <div className="flex min-h-screen items-center justify-center bg-[#faf9f6] pt-16">
-                    <div className="text-center">
-                        <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-[#6f4627] border-t-transparent" />
-                        <p className="text-slate-500 dark:text-slate-500">{t('common.loading')}</p>
-                    </div>
-                </div>
-            </AppLayout>
-        );
+    if (separatorIndex > 0) {
+        const kostId = routeId.substring(0, separatorIndex);
+        const unitTypeId = routeId.substring(separatorIndex + 2);
+        redirect({ href: `/kosts/${kostId}/${unitTypeId}`, locale });
     }
 
-    if (!kost) {
-        return (
-            <AppLayout>
-                <div className="flex min-h-screen items-center justify-center bg-[#faf9f6] pt-16">
-                    <div className="text-center">
-                        <Icon name="error" size={64} className="mx-auto mb-4 text-[#83746b]" />
-                        <h2 className="mb-2 text-2xl font-bold text-slate-900 dark:text-white">
-                            {t('propertyDetail.notFound')}
-                        </h2>
-                        <p className="mb-6 text-slate-500 dark:text-slate-400">
-                            {t('propertyDetail.notFoundDescription')}
-                        </p>
-                        <Link
-                            href="/"
-                            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-white transition-colors hover:bg-primary/90"
-                        >
-                            <Icon name="home" size={20} />
-                            {t('roomDetail.backToHome')}
-                        </Link>
-                    </div>
-                </div>
-            </AppLayout>
-        );
-    }
+    const queryClient = createPrefetchQueryClient();
+    await prefetchPublicProperty(queryClient, routeId);
 
-    if (roomTypeId) {
-        return <RoomDetailView kost={kost} roomTypeId={roomTypeId} />;
-    }
-
-    return <PropertyDetailView kost={kost} />;
+    return (
+        <PublicHydration state={dehydrate(queryClient)}>
+            <KostRoutePage kostId={routeId} />
+        </PublicHydration>
+    );
 }

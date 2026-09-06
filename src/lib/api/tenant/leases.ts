@@ -18,7 +18,7 @@ export async function getTenantLease(id: string): Promise<Lease> {
 
 export async function updateTenantLeaseRenewal(
   leaseId: string,
-  input: { isRenewLease: boolean },
+  input: { action: "renew" | "decline" | "cancel" },
 ): Promise<LeaseRenewal> {
   const res = await apiFetch<ApiDataResponse<LeaseRenewal>>(
     `/leases/${leaseId}/renewal`,

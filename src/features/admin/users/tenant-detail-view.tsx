@@ -79,7 +79,10 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
     if (!tenant) return;
     setFormError(null);
 
-    const parsed = updateTenantUserSchema.safeParse(form);
+    const parsed = updateTenantUserSchema({
+      nameRequired: tp("validation.nameRequired"),
+      emailInvalid: tp("validation.emailInvalid"),
+    }).safeParse(form);
     if (!parsed.success) {
       setFormError(parsed.error.issues[0]?.message ?? t("saveFailed"));
       return;

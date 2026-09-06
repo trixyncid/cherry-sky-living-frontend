@@ -46,6 +46,9 @@ import {
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
 import type { LedgerEntry, LedgerEntryType } from "@/lib/types/admin";
+import {
+  isLedgerCategoryForType,
+} from "@/lib/ledger-categories";
 import { cn } from "@/lib/utils";
 
 const BASE = "/admin/bookkeeping";
@@ -100,17 +103,32 @@ export function BookkeepingList() {
     error: leasesQueryError,
   } = useLeases(propertyFilter ? { propertyId: propertyFilter } : undefined);
   const entries = data?.data ?? [];
+  const activeEntries = useMemo(
+    () => entries.filter((entry) => entry.reversedAt == null),
+    [entries],
+  );
   const ledgerSummary =
-    data?.summary ?? computeLedgerSummary(entries);
+    data?.summary ?? computeLedgerSummary(activeEntries);
+  const postedRentLeaseIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const entry of activeEntries) {
+      if (entry.leaseId && entry.category === "rent") {
+        ids.add(entry.leaseId);
+      }
+    }
+    return ids;
+  }, [activeEntries]);
   const leaseIncome = useMemo(() => {
-    const paidLeases = leases.filter((l) => l.status === "paid");
+    const paidLeases = leases.filter(
+      (l) => l.status === "paid" && !postedRentLeaseIds.has(l.id),
+    );
     const inRange = startDate || endDate
       ? paidLeases.filter((lease) =>
           isDateInRange(lease.startDate, startDate, endDate),
         )
       : paidLeases;
     return sumPaidLeaseIncome(inRange);
-  }, [leases, startDate, endDate]);
+  }, [leases, startDate, endDate, postedRentLeaseIds]);
   const summary = useMemo(
     () => ({
       income: ledgerSummary.income + leaseIncome,
@@ -126,6 +144,7 @@ export function BookkeepingList() {
   const leaseIncomeEntries = useMemo(() => {
     if (typeFilter === "expense") return [];
     return leases
+      .filter((lease) => !postedRentLeaseIds.has(lease.id))
       .map((lease) =>
         leaseToIncomeEntry(
           lease,
@@ -137,11 +156,11 @@ export function BookkeepingList() {
       )
       .filter((row): row is LedgerEntry => row != null)
       .filter((row) => isDateInRange(row.date, startDate, endDate));
-  }, [leases, typeFilter, tp, lookups, startDate, endDate]);
+  }, [leases, typeFilter, tp, lookups, startDate, endDate, postedRentLeaseIds]);
 
   const allEntries = useMemo(
-    () => [...leaseIncomeEntries, ...entries],
-    [leaseIncomeEntries, entries],
+    () => [...leaseIncomeEntries, ...activeEntries],
+    [leaseIncomeEntries, activeEntries],
   );
 
   const filtered = useMemo(() => {
@@ -161,8 +180,17 @@ export function BookkeepingList() {
     [],
   );
 
-  const { page, setPage, pageData, total, pageSize, sortKey, sortDir, onSort } =
-    useClientTable(filtered, getSortValue, {
+  const {
+    page,
+    setPage,
+    pageData,
+    total,
+    pageSize,
+    setPageSize,
+    sortKey,
+    sortDir,
+    onSort,
+  } = useClientTable(filtered, getSortValue, {
       defaultSortKey: "date",
       defaultSortDirection: "desc",
     });
@@ -291,6 +319,7 @@ export function BookkeepingList() {
               pageSize={pageSize}
               total={total}
               onPageChange={setPage}
+              onPageSizeChange={setPageSize}
             />
           ) : undefined
         }
@@ -306,6 +335,7 @@ export function BookkeepingList() {
               { key: "type", label: tp("entryType") },
               { key: "description", label: t("description") },
               { key: "property", label: t("property") },
+              { key: "category", label: tp("category") },
               { key: "amount", label: tp("amount"), align: "right" },
               { key: "actions", label: t("actions"), align: "right" },
             ]}
@@ -328,6 +358,12 @@ export function BookkeepingList() {
                 </AdminCrudTableCell>
                 <AdminCrudTableCell className="text-[#51443c]">
                   {entry.property?.name ?? tp("noProperty")}
+                </AdminCrudTableCell>
+                <AdminCrudTableCell className="text-[#51443c]">
+                  {entry.category &&
+                  isLedgerCategoryForType(entry.type, entry.category)
+                    ? tp(`categories.${entry.category}`)
+                    : "—"}
                 </AdminCrudTableCell>
                 <AdminCrudTableCell align="right">
                   <span

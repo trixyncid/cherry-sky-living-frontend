@@ -1,4 +1,4 @@
-export type LoginErrorKey = "invalid" | "forbidden" | "deactivated" | "rateLimited";
+export type LoginErrorKey = "invalid" | "forbidden" | "deactivated" | "session" | "rateLimited";
 
 function errorRecord(error: unknown): Record<string, unknown> | null {
   if (!error || typeof error !== "object") return null;

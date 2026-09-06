@@ -1,92 +1,99 @@
 /**
- * About Mission Section Component
- * Displays mission and vision statements
+ * About mission — story + photo, then mission and vision cards
  */
 
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
-import { motion } from 'framer-motion';
-import { Icon } from '@/components/shared/Icon';
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { Icon } from "@/components/shared/Icon";
+
+const STORY_PHOTO =
+  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1200&h=1400&fit=crop&q=80";
 
 export function AboutMission() {
-    const t = useTranslations('about.mission');
+  const t = useTranslations("about.mission");
 
-    return (
-        <section className="w-full py-24 px-6 lg:px-10 bg-white dark:bg-slate-900">
-            <div className="max-w-[1080px] mx-auto">
-                <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
-                    {/* Mission */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8 }}
-                        className="relative"
-                    >
-                        {/* Icon Badge */}
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            whileInView={{ scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-lg shadow-primary/30 mb-6"
-                        >
-                            <Icon name="flag" size={32} />
-                        </motion.div>
+  return (
+    <section className="w-full bg-[#faf9f6] px-6 py-20 lg:px-10">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-16">
+        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#83746b]">
+              {t("eyebrow")}
+            </p>
+            <h2 className="mb-4 max-w-md text-3xl font-semibold tracking-tight text-[#1a1c1a] md:text-4xl">
+              {t("storyTitle")}
+            </h2>
+            <p className="max-w-md text-sm leading-relaxed text-[#83746b] md:text-base">
+              {t("storyDescription")}
+            </p>
+          </motion.div>
 
-                        <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-                            {t('title')}
-                        </h2>
-                        
-                        <p className="text-sm text-primary dark:text-primary/80 font-semibold uppercase tracking-wider mb-4">
-                            {t('subtitle')}
-                        </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative min-h-[320px] overflow-hidden rounded-[1.75rem] md:min-h-[420px]"
+          >
+            <Image
+              src={STORY_PHOTO}
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-cover"
+            />
+          </motion.div>
+        </div>
 
-                        <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed">
-                            {t('description')}
-                        </p>
-
-                        {/* Decorative Element */}
-                        <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-primary/5 dark:bg-primary/10 rounded-full blur-2xl" />
-                    </motion.div>
-
-                    {/* Vision */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        className="relative"
-                    >
-                        {/* Icon Badge */}
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            whileInView={{ scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-                            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#d4af37] to-[#b8941f] text-white shadow-lg shadow-yellow-500/30 mb-6"
-                        >
-                            <Icon name="visibility" size={32} />
-                        </motion.div>
-
-                        <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-                            {t('vision')}
-                        </h2>
-                        
-                        <p className="text-sm text-[#d4af37] dark:text-yellow-400 font-semibold uppercase tracking-wider mb-4">
-                            {t('subtitle')}
-                        </p>
-
-                        <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed">
-                            {t('visionDescription')}
-                        </p>
-
-                        {/* Decorative Element */}
-                        <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-[#d4af37]/5 dark:bg-[#d4af37]/10 rounded-full blur-2xl" />
-                    </motion.div>
-                </div>
+        <div className="grid gap-6 md:grid-cols-2">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="glass-card rounded-[1.75rem] p-8"
+          >
+            <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#6f4627] text-white">
+              <Icon name="flag" size={24} />
             </div>
-        </section>
-    );
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6f4627]">
+              {t("subtitle")}
+            </p>
+            <h3 className="mb-4 text-2xl font-semibold tracking-tight text-[#1a1c1a]">
+              {t("title")}
+            </h3>
+            <p className="text-sm leading-relaxed text-[#51443c] md:text-base">
+              {t("description")}
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.08 }}
+            className="glass-card rounded-[1.75rem] p-8"
+          >
+            <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#d4af37] text-white">
+              <Icon name="visibility" size={24} />
+            </div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#b8941f]">
+              {t("subtitle")}
+            </p>
+            <h3 className="mb-4 text-2xl font-semibold tracking-tight text-[#1a1c1a]">
+              {t("vision")}
+            </h3>
+            <p className="text-sm leading-relaxed text-[#51443c] md:text-base">
+              {t("visionDescription")}
+            </p>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
 }

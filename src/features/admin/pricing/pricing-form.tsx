@@ -15,12 +15,12 @@ import {
   AdminSelect,
 } from "@/features/admin/components/admin-field";
 import {
-  useProperties,
   useUnitPricing,
   useUnitPricingMutations,
   useUnitPricings,
   useUnitTypes,
 } from "@/features/admin/hooks/use-admin-queries";
+import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import {
   formatIdrInput,
@@ -67,7 +67,7 @@ export function PricingForm({ id }: { id?: string }) {
   const isEdit = !!id;
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
-  const { data: properties = [] } = useProperties();
+  const { properties } = useAdminShell();
   const { data: pricing, isLoading } = useUnitPricing(id ?? "", isEdit);
   const unitTypeIdForLoad = pricing?.unitTypeId;
   const siblingUnitTypeId = isEdit ? unitTypeIdForLoad : form.unitTypeId || undefined;
@@ -83,19 +83,6 @@ export function PricingForm({ id }: { id?: string }) {
     if (!form.propertyId) return unitTypes;
     return unitTypes.filter((ut) => ut.propertyId === form.propertyId);
   }, [unitTypes, form.propertyId]);
-
-  const monthlyRow = useMemo(
-    () =>
-      unitTypePricings.find((p) => p.durationDays === MONTHLY_DURATION_DAYS) ??
-      null,
-    [unitTypePricings],
-  );
-  const dailyRow = useMemo(
-    () =>
-      unitTypePricings.find((p) => p.durationDays === DAILY_DURATION_DAYS) ??
-      null,
-    [unitTypePricings],
-  );
 
   useEffect(() => {
     if (pricing) {
@@ -134,22 +121,6 @@ export function PricingForm({ id }: { id?: string }) {
     }
   }, [pricing, unitTypePricings, isEdit, form.unitTypeId]);
 
-  async function upsertPackage(
-    unitTypeId: string,
-    durationDays: number,
-    price: number,
-    existingId?: string,
-  ) {
-    if (existingId) {
-      return mutations.update.mutateAsync({ id: existingId, price });
-    }
-    return mutations.create.mutateAsync({
-      unitTypeId,
-      durationDays,
-      price,
-    });
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
@@ -170,26 +141,12 @@ export function PricingForm({ id }: { id?: string }) {
       return;
     }
 
-    const existingMonthly =
-      monthlyRow ??
-      unitTypePricings.find((p) => p.durationDays === MONTHLY_DURATION_DAYS);
-    const existingDaily =
-      dailyRow ??
-      unitTypePricings.find((p) => p.durationDays === DAILY_DURATION_DAYS);
-
     try {
-      const monthly = await upsertPackage(
-        form.unitTypeId,
-        MONTHLY_DURATION_DAYS,
+      const { monthly } = await mutations.upsertPackages.mutateAsync({
+        unitTypeId: form.unitTypeId,
         monthlyPrice,
-        existingMonthly?.id,
-      );
-      await upsertPackage(
-        form.unitTypeId,
-        DAILY_DURATION_DAYS,
         dailyPrice,
-        existingDaily?.id,
-      );
+      });
       showApiSuccess(isEdit ? t("updated") : t("created"));
       if (!isEdit) {
         router.replace(`${BASE}/${monthly.id}/edit`);
@@ -205,8 +162,7 @@ export function PricingForm({ id }: { id?: string }) {
   }
 
   const pending =
-    mutations.create.isPending ||
-    mutations.update.isPending ||
+    mutations.upsertPackages.isPending ||
     (isEdit && (isLoading || siblingLoading));
 
   if (isEdit && isLoading && !pricing) {

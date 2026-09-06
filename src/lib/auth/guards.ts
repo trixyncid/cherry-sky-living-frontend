@@ -1,51 +1,38 @@
-import { redirect } from "@/i18n/routing";
+import { redirect } from "next/navigation";
 import { getHomePathForRole } from "@/lib/auth/redirects";
 import {
   assertCanAccessAdminPortal,
   assertCanAccessTenantPortal,
 } from "@/lib/auth/role";
 import { resolveSessionRole } from "@/lib/auth/role.server";
-import { type AuthSession, getSession, signOutSession } from "@/lib/auth/server";
+import { type AuthSession, getSession } from "@/lib/auth/server";
 import type { UserRole } from "@/lib/types/auth";
 
-const FORBIDDEN_QUERY = "?error=forbidden";
-const DEACTIVATED_QUERY = "?error=deactivated";
-
-async function rejectWrongPortal(
+function rejectAndSignOut(
   locale: string,
-  loginPath: "/admin/login" | "/tenant/login",
-): Promise<never> {
-  await signOutSession();
-  redirect({ href: `${loginPath}${FORBIDDEN_QUERY}`, locale });
-  throw new Error("Forbidden");
-}
-
-async function rejectDeactivatedAccount(
-  locale: string,
-  loginPath: "/admin/login" | "/tenant/login",
-): Promise<never> {
-  await signOutSession();
-  redirect({ href: `${loginPath}${DEACTIVATED_QUERY}`, locale });
-  throw new Error("Deactivated");
+  portal: "admin" | "tenant",
+  error: "forbidden" | "deactivated",
+): never {
+  const params = new URLSearchParams({ locale, portal, error });
+  redirect(`/api/auth/sign-out?${params.toString()}`);
 }
 
 export async function requireAdmin(locale: string): Promise<AuthSession> {
   const session = await getSession();
 
   if (!session) {
-    redirect({ href: "/admin/login", locale });
-    throw new Error("Unauthorized");
+    redirect(`/${locale}/admin/login`);
   }
 
   if (session.user.isActive === false) {
-    await rejectDeactivatedAccount(locale, "/admin/login");
+    rejectAndSignOut(locale, "admin", "deactivated");
   }
 
   const role = await resolveSessionRole(session.user.role);
   const access = assertCanAccessAdminPortal(role);
 
   if (!access.ok) {
-    await rejectWrongPortal(locale, "/admin/login");
+    rejectAndSignOut(locale, "admin", "forbidden");
   }
 
   return {
@@ -58,19 +45,18 @@ export async function requireTenant(locale: string): Promise<AuthSession> {
   const session = await getSession();
 
   if (!session) {
-    redirect({ href: "/tenant/login", locale });
-    throw new Error("Unauthorized");
+    redirect(`/${locale}/tenant/login`);
   }
 
   if (session.user.isActive === false) {
-    await rejectDeactivatedAccount(locale, "/tenant/login");
+    rejectAndSignOut(locale, "tenant", "deactivated");
   }
 
   const role = await resolveSessionRole(session.user.role);
   const access = assertCanAccessTenantPortal(role);
 
   if (!access.ok) {
-    await rejectWrongPortal(locale, "/tenant/login");
+    rejectAndSignOut(locale, "tenant", "forbidden");
   }
 
   return {
@@ -85,9 +71,6 @@ export async function requireGuest(locale: string) {
 
   if (session) {
     const role = await resolveSessionRole(session.user.role);
-    redirect({
-      href: getHomePathForRole(role ?? session.user.role),
-      locale,
-    });
+    redirect(`/${locale}${getHomePathForRole(role ?? session.user.role)}`);
   }
 }

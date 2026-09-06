@@ -46,6 +46,7 @@ type LedgerEntryInput = {
   category?: string | null;
   date: string;
   propertyId?: string | null;
+  /** Optional on create only — backend create accepts multipart; update is JSON-only. */
   file?: File | null;
 };
 
@@ -86,33 +87,12 @@ export async function createLedgerEntry(
 
 export async function updateLedgerEntry(
   id: string,
-  input: Partial<Omit<LedgerEntryInput, "file">> & { file?: File | null },
+  input: Omit<Partial<LedgerEntryInput>, "file">,
 ): Promise<LedgerEntry> {
-  const { file, ...fields } = input;
-
-  if (file) {
-    const form = new FormData();
-    if (fields.type !== undefined) form.set("type", fields.type);
-    if (fields.amount !== undefined) form.set("amount", String(fields.amount));
-    if (fields.description !== undefined) {
-      form.set("description", fields.description);
-    }
-    if (fields.date !== undefined) form.set("date", fields.date);
-    if (fields.category) form.set("category", fields.category);
-    if (fields.propertyId) form.set("propertyId", fields.propertyId);
-    form.set("file", file);
-
-    const res = await apiFetchFormData<ApiDataResponse<LedgerEntry>>(
-      `/admin/ledger-entries/${id}`,
-      form,
-      "PUT",
-    );
-    return res.data;
-  }
-
+  // Backend PUT is JSON-only. Upload receipts via POST /admin/attachments/ledger-entry.
   const res = await apiFetch<ApiDataResponse<LedgerEntry>>(
     `/admin/ledger-entries/${id}`,
-    { method: "PUT", body: fields },
+    { method: "PUT", body: input },
   );
   return res.data;
 }

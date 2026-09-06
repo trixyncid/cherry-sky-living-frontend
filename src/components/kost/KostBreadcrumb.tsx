@@ -13,9 +13,16 @@ export interface KostBreadcrumbItem {
 interface KostBreadcrumbProps {
     items: KostBreadcrumbItem[];
     className?: string;
+    tone?: 'default' | 'onDark';
 }
 
-export function KostBreadcrumb({ items, className }: KostBreadcrumbProps) {
+export function KostBreadcrumb({
+    items,
+    className,
+    tone = 'default',
+}: KostBreadcrumbProps) {
+    const onDark = tone === 'onDark';
+
     return (
         <nav
             aria-label="Breadcrumb"
@@ -30,13 +37,21 @@ export function KostBreadcrumb({ items, className }: KostBreadcrumbProps) {
                             <Icon
                                 name="chevron_right"
                                 size={16}
-                                className="shrink-0 text-[#b0a29a]"
+                                className={cn(
+                                    'shrink-0',
+                                    onDark ? 'text-white/40' : 'text-[#b0a29a]',
+                                )}
                             />
                         )}
                         {item.href && !isLast ? (
                             <Link
                                 href={item.href}
-                                className="font-medium text-[#83746b] transition-colors hover:text-[#6f4627]"
+                                className={cn(
+                                    'font-medium transition-colors',
+                                    onDark
+                                        ? 'text-white/70 hover:text-white'
+                                        : 'text-[#83746b] hover:text-[#6f4627]',
+                                )}
                             >
                                 {item.label}
                             </Link>
@@ -44,7 +59,13 @@ export function KostBreadcrumb({ items, className }: KostBreadcrumbProps) {
                             <span
                                 className={cn(
                                     'font-medium',
-                                    isLast ? 'text-[#1a1c1a]' : 'text-[#83746b]',
+                                    isLast
+                                        ? onDark
+                                            ? 'text-white'
+                                            : 'text-[#1a1c1a]'
+                                        : onDark
+                                          ? 'text-white/70'
+                                          : 'text-[#83746b]',
                                 )}
                                 aria-current={isLast ? 'page' : undefined}
                             >

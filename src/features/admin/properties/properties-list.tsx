@@ -53,8 +53,17 @@ export function PropertiesList() {
     [],
   );
 
-  const { page, setPage, pageData, total, pageSize, sortKey, sortDir, onSort } =
-    useClientTable(filtered, getSortValue, { defaultSortKey: "name" });
+  const {
+    page,
+    setPage,
+    pageData,
+    total,
+    pageSize,
+    setPageSize,
+    sortKey,
+    sortDir,
+    onSort,
+  } = useClientTable(filtered, getSortValue, { defaultSortKey: "name" });
 
   async function confirmDelete() {
     if (!deleteDialog.item) return;
@@ -92,7 +101,7 @@ export function PropertiesList() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t("searchPlaceholder")}
-          className="h-10 w-full rounded-xl border border-[#e3e2e0] bg-white/80 pl-10 pr-4 text-sm outline-none focus:border-[#8b5e3c]/50 focus:ring-2 focus:ring-[#8b5e3c]/15"
+          className="h-10 w-full rounded-xl border border-[#e3e2e0] bg-white/80 pl-10 pr-4 text-sm outline-none focus:border-ferrugem/50 focus:ring-2 focus:ring-ferrugem/15"
         />
       </div>
 
@@ -110,6 +119,7 @@ export function PropertiesList() {
               pageSize={pageSize}
               total={total}
               onPageChange={setPage}
+              onPageSizeChange={setPageSize}
             />
           ) : undefined
         }

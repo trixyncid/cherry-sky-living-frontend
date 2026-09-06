@@ -1,6 +1,6 @@
 import { getClientApiBaseUrl } from "@/lib/api/base-url";
 import { ApiError, networkError, parseApiError } from "@/lib/api/errors";
-import { handleDeactivatedApiError } from "@/lib/auth/handle-api-auth-error";
+import { handleApiAuthError } from "@/lib/auth/handle-api-auth-error";
 
 export type ApiFetchOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
@@ -48,7 +48,7 @@ export async function apiFetch<T>(
 
   if (!response.ok) {
     const error = parseApiError(response.status, payload);
-    void handleDeactivatedApiError(error);
+    void handleApiAuthError(error);
     throw error;
   }
 
@@ -96,7 +96,7 @@ export async function apiFetchFormData<T>(
 
   if (!response.ok) {
     const error = parseApiError(response.status, payload);
-    void handleDeactivatedApiError(error);
+    void handleApiAuthError(error);
     throw error;
   }
 

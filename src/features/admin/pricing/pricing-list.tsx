@@ -128,8 +128,17 @@ export function PricingList() {
     [lookups],
   );
 
-  const { page, setPage, pageData, total, pageSize, sortKey, sortDir, onSort } =
-    useClientTable(filtered, getSortValue, { defaultSortKey: "unitType" });
+  const {
+    page,
+    setPage,
+    pageData,
+    total,
+    pageSize,
+    setPageSize,
+    sortKey,
+    sortDir,
+    onSort,
+  } = useClientTable(filtered, getSortValue, { defaultSortKey: "unitType" });
 
   async function confirmDelete() {
     if (!deleteDialog.item) return;
@@ -182,6 +191,7 @@ export function PricingList() {
               pageSize={pageSize}
               total={total}
               onPageChange={setPage}
+              onPageSizeChange={setPageSize}
             />
           ) : undefined
         }

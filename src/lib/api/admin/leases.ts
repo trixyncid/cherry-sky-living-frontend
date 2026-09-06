@@ -5,7 +5,6 @@ import type {
   Lease,
   LeaseAttachmentKind,
   LeaseRenewal,
-  LeaseStatus,
 } from "@/lib/types/admin";
 
 export async function listLeases(filters?: {
@@ -72,13 +71,37 @@ export async function updateLease(
     startDate: string;
     endDate: string;
     unitPricingId: string;
-    status: LeaseStatus;
+    allowPaidOverride: boolean;
   }>,
 ): Promise<Lease> {
   const res = await apiFetch<ApiDataResponse<Lease>>(`/admin/leases/${id}`, {
     method: "PUT",
     body: input,
   });
+  return res.data;
+}
+
+export async function confirmLeasePayment(id: string): Promise<Lease> {
+  const res = await apiFetch<ApiDataResponse<Lease>>(
+    `/admin/leases/${id}/confirm`,
+    { method: "POST" },
+  );
+  return res.data;
+}
+
+export async function rejectLeasePayment(id: string): Promise<Lease> {
+  const res = await apiFetch<ApiDataResponse<Lease>>(
+    `/admin/leases/${id}/reject`,
+    { method: "POST" },
+  );
+  return res.data;
+}
+
+export async function submitLeaseForReview(id: string): Promise<Lease> {
+  const res = await apiFetch<ApiDataResponse<Lease>>(
+    `/admin/leases/${id}/submit-for-review`,
+    { method: "POST" },
+  );
   return res.data;
 }
 

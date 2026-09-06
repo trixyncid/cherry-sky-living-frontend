@@ -1,6 +1,4 @@
-import { getClientApiBaseUrl } from "@/lib/api/base-url";
-import { apiFetch } from "@/lib/api/client";
-import { parseApiError } from "@/lib/api/errors";
+import { apiFetch, apiFetchFormData } from "@/lib/api/client";
 import type {
   ApiDataResponse,
   LedgerEntryAttachment,
@@ -21,16 +19,7 @@ async function uploadAttachment(
   }
   form.set("file", file);
 
-  const response = await fetch(`${getClientApiBaseUrl()}${path}`, {
-    method: "POST",
-    credentials: "include",
-    body: form,
-  });
-
-  if (!response.ok) {
-    const payload = await response.json().catch(() => null);
-    throw parseApiError(response.status, payload);
-  }
+  await apiFetchFormData<unknown>(path, form, "POST");
 }
 
 export function uploadPropertyImage(

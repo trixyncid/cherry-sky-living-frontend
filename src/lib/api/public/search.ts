@@ -1,5 +1,4 @@
 import { apiFetch } from "@/lib/api/client";
-import { ApiError } from "@/lib/api/errors";
 import type {
   PublicAttachment,
   PublicPricing,
@@ -108,12 +107,5 @@ export async function searchPublicUnits(
   params: PublicSearchParams = {},
 ): Promise<PublicSearchResponse> {
   const query = buildQueryString(params);
-  try {
-    return await apiFetch<PublicSearchResponse>(`/public/search${query}`);
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
-      return apiFetch<PublicSearchResponse>(`/search${query}`);
-    }
-    throw error;
-  }
+  return apiFetch<PublicSearchResponse>(`/public/search${query}`);
 }

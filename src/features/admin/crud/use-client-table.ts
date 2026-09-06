@@ -19,7 +19,6 @@ export function useClientTable<T>(
   getSortValue: (item: T, key: string) => SortValue,
   options: UseClientTableOptions = {},
 ) {
-  const pageSize = options.pageSize ?? DEFAULT_PAGE_SIZE;
   const { sortKey, sortDir, toggleSort, sortedItems } = useClientSort(
     items,
     getSortValue,
@@ -27,10 +26,8 @@ export function useClientTable<T>(
     options.defaultSortDirection,
   );
 
-  const { page, setPage, pageData, total, totalPages } = useClientPagination(
-    sortedItems,
-    pageSize,
-  );
+  const { page, setPage, pageData, total, totalPages, pageSize, setPageSize } =
+    useClientPagination(sortedItems, options.pageSize ?? DEFAULT_PAGE_SIZE);
 
   const onSort = useCallback(
     (key: string) => {
@@ -46,6 +43,7 @@ export function useClientTable<T>(
     pageData,
     total,
     pageSize,
+    setPageSize,
     totalPages,
     sortKey,
     sortDir,

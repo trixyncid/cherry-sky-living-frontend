@@ -46,8 +46,17 @@ export function UnitsTableView({
     [lookups],
   );
 
-  const { page, setPage, pageData, total, pageSize, sortKey, sortDir, onSort } =
-    useClientTable(units, getSortValue, { defaultSortKey: "name" });
+  const {
+    page,
+    setPage,
+    pageData,
+    total,
+    pageSize,
+    setPageSize,
+    sortKey,
+    sortDir,
+    onSort,
+  } = useClientTable(units, getSortValue, { defaultSortKey: "name" });
 
   return (
     <AdminTableShell
@@ -58,6 +67,7 @@ export function UnitsTableView({
             pageSize={pageSize}
             total={total}
             onPageChange={setPage}
+            onPageSizeChange={setPageSize}
           />
         ) : undefined
       }

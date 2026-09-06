@@ -9,6 +9,18 @@ export type ApiErrorCode =
   | "INTERNAL_SERVER_ERROR"
   | "NETWORK";
 
+/** Backend AppError codes (excludes client-only NETWORK). */
+const KNOWN_BACKEND_CODES = new Set<string>([
+  "BAD_REQUEST",
+  "UNAUTHORIZED",
+  "FORBIDDEN",
+  "NOT_FOUND",
+  "CONFLICT",
+  "UNPROCESSABLE",
+  "TOO_MANY_REQUESTS",
+  "INTERNAL_SERVER_ERROR",
+]);
+
 interface BackendErrorBody {
   success?: boolean;
   error?: {
@@ -29,15 +41,17 @@ export class ApiError extends Error {
   }
 }
 
+function asApiErrorCode(value: string | undefined): ApiErrorCode | undefined {
+  if (!value || !KNOWN_BACKEND_CODES.has(value)) return undefined;
+  return value as ApiErrorCode;
+}
+
 export function parseApiError(
   status: number,
   body: unknown,
   fallbackMessage = "Request failed",
 ): ApiError {
   const parsed = body as BackendErrorBody | null;
-  const code =
-    (parsed?.error?.code as ApiErrorCode | undefined) ??
-    "INTERNAL_SERVER_ERROR";
   const message = parsed?.error?.message ?? fallbackMessage;
 
   const statusToCode: Partial<Record<number, ApiErrorCode>> = {
@@ -50,9 +64,23 @@ export function parseApiError(
     429: "TOO_MANY_REQUESTS",
   };
 
-  return new ApiError(statusToCode[status] ?? code, message, status);
+  const fromStatus = statusToCode[status];
+  const fromBody = asApiErrorCode(parsed?.error?.code);
+
+  // Prefer HTTP status mapping when present; otherwise trust a known body code.
+  const code =
+    fromStatus ?? fromBody ?? "INTERNAL_SERVER_ERROR";
+
+  return new ApiError(code, message, status);
 }
 
 export function networkError(message = "Network request failed"): ApiError {
   return new ApiError("NETWORK", message, 0);
+}
+
+export function isNotFoundApiError(error: unknown): boolean {
+  return (
+    error instanceof ApiError &&
+    (error.status === 404 || error.code === "NOT_FOUND")
+  );
 }

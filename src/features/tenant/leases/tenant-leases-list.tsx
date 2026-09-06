@@ -55,8 +55,17 @@ export function TenantLeasesList() {
     [],
   );
 
-  const { page, setPage, pageData, total, pageSize, sortKey, sortDir, onSort } =
-    useClientTable(filtered, getSortValue, { defaultSortKey: "period" });
+  const {
+    page,
+    setPage,
+    pageData,
+    total,
+    pageSize,
+    setPageSize,
+    sortKey,
+    sortDir,
+    onSort,
+  } = useClientTable(filtered, getSortValue, { defaultSortKey: "period" });
 
   const renewalNotices = useMemo(
     () => data.filter((lease) => getTenantRenewalView(lease) !== "none"),
@@ -109,6 +118,7 @@ export function TenantLeasesList() {
               pageSize={pageSize}
               total={total}
               onPageChange={setPage}
+              onPageSizeChange={setPageSize}
             />
           ) : undefined
         }

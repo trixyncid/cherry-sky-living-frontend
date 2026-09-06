@@ -1,85 +1,60 @@
 /**
  * Privacy Policy Hero Section
- * Hero section for privacy policy page with background and animations
  */
 
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
-import { motion } from 'framer-motion';
-import { Icon } from '@/components/shared/Icon';
+import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
+import { Icon } from "@/components/shared/Icon";
 
 export function PrivacyHero() {
-    const t = useTranslations('privacy.hero');
+  const t = useTranslations("privacy.hero");
 
-    return (
-        <section className="relative w-full py-32 px-6 lg:px-10 bg-gradient-to-b from-[#0f172a] via-slate-900 to-white dark:to-slate-900 overflow-hidden min-h-[500px] flex items-center justify-center">
-            {/* Animated Background Elements */}
-            <div className="absolute inset-0 overflow-hidden">
-                <motion.div
-                    animate={{ y: [0, 20, 0], opacity: [0.3, 0.5, 0.3] }}
-                    transition={{ duration: 8, repeat: Infinity }}
-                    className="absolute -top-40 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] pointer-events-none"
-                />
-                <motion.div
-                    animate={{ y: [0, -20, 0], opacity: [0.2, 0.4, 0.2] }}
-                    transition={{ duration: 10, repeat: Infinity, delay: 1 }}
-                    className="absolute -bottom-40 left-0 w-[400px] h-[400px] bg-[#d4af37]/10 rounded-full blur-[100px] pointer-events-none"
-                />
-            </div>
+  return (
+    <section className="relative flex min-h-[460px] w-full items-center justify-center overflow-hidden hero-atmosphere px-6 py-32 lg:px-10">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage:
+            'url("https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&h=1080&fit=crop")',
+        }}
+      />
+      <div className="absolute inset-0 hero-overlay-x" />
+      <div className="absolute inset-0 hero-overlay-y" />
 
-            {/* Content */}
-            <div className="max-w-3xl mx-auto text-center relative z-10">
-                {/* Icon Badge */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                    className="inline-flex items-center justify-center mb-8"
-                >
-                    <div className="p-4 bg-white/10 border border-white/20 rounded-2xl backdrop-blur-sm">
-                        <Icon name="privacy_tip" size={40} className="text-primary" />
-                    </div>
-                </motion.div>
-
-                {/* Main Title */}
-                <motion.h1
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.1 }}
-                    className="text-4xl lg:text-6xl font-bold text-white mb-6 tracking-tight"
-                >
-                    {t('title')}
-                </motion.h1>
-
-                {/* Subtitle */}
-                <motion.p
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className="text-lg lg:text-2xl text-blue-200 mb-6 font-semibold"
-                >
-                    {t('subtitle')}
-                </motion.p>
-
-                {/* Description */}
-                <motion.p
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.3 }}
-                    className="text-base lg:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed"
-                >
-                    {t('description')}
-                </motion.p>
-
-                {/* Divider */}
-                <motion.div
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ duration: 0.8, delay: 0.4 }}
-                    className="h-1 w-24 bg-gradient-to-r from-primary to-[#d4af37] rounded-full mx-auto mt-8"
-                />
-            </div>
-        </section>
-    );
+      <div className="relative z-10 mx-auto max-w-3xl text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="mb-8 inline-flex"
+        >
+          <div className="glass-chip rounded-2xl p-4">
+            <Icon name="privacy_tip" size={40} className="text-white" />
+          </div>
+        </motion.div>
+        <motion.h1
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 text-4xl font-bold tracking-tight text-white lg:text-6xl"
+        >
+          {t("title")}
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 text-lg font-semibold text-[#f5e4d4] lg:text-2xl"
+        >
+          {t("subtitle")}
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-auto max-w-2xl text-base leading-relaxed text-[#f5f2ee] lg:text-lg"
+        >
+          {t("description")}
+        </motion.p>
+      </div>
+    </section>
+  );
 }

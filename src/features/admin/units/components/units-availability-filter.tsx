@@ -54,7 +54,7 @@ export function UnitsAvailabilityFilter({
           className={cn(
             "inline-flex h-10 items-center gap-1.5 rounded-xl border px-3 text-sm font-medium transition-colors",
             expanded || activeRange
-              ? "border-[#8b5e3c]/35 bg-[#f5e4d4]/55 text-[#6f4627] backdrop-blur-md"
+              ? "border-ferrugem/35 bg-ferrugem-soft/55 text-ferrugem backdrop-blur-md"
               : "glass-control text-[#51443c] hover:bg-white/80",
           )}
         >

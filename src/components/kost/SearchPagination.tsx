@@ -46,7 +46,7 @@ export function SearchPagination({ pagination, onPageChange }: SearchPaginationP
                     type="button"
                     disabled={page <= 1}
                     onClick={() => onPageChange(page - 1)}
-                    className="rounded-lg p-1.5 text-[#51443c] transition-colors hover:bg-[#f5e4d4]/60 disabled:opacity-40"
+                    className="rounded-lg p-1.5 text-[#51443c] transition-colors hover:bg-[#1a1c1a]/8 disabled:opacity-40"
                     aria-label={t('paginationPrevious')}
                 >
                     <Icon name="chevron_left" size={20} />
@@ -67,8 +67,8 @@ export function SearchPagination({ pagination, onPageChange }: SearchPaginationP
                             className={cn(
                                 'flex size-8 items-center justify-center rounded-lg text-sm font-semibold transition-colors',
                                 p === page
-                                    ? 'bg-[#6f4627] text-white'
-                                    : 'text-[#1a1c1a] hover:bg-[#f5e4d4]/60',
+                                    ? 'bg-[#1a1c1a] text-white'
+                                    : 'text-[#1a1c1a] hover:bg-[#1a1c1a]/8',
                             )}
                         >
                             {p}
@@ -79,7 +79,7 @@ export function SearchPagination({ pagination, onPageChange }: SearchPaginationP
                     type="button"
                     disabled={page >= totalPages}
                     onClick={() => onPageChange(page + 1)}
-                    className="rounded-lg p-1.5 text-[#51443c] transition-colors hover:bg-[#f5e4d4]/60 disabled:opacity-40"
+                    className="rounded-lg p-1.5 text-[#51443c] transition-colors hover:bg-[#1a1c1a]/8 disabled:opacity-40"
                     aria-label={t('paginationNext')}
                 >
                     <Icon name="chevron_right" size={20} />

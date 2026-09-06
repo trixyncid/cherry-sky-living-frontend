@@ -38,8 +38,8 @@ export function getTenantRenewalView(lease: Lease): TenantRenewalView {
   if (renewal.isRenewLease) return "requested";
   if (!canRequestLeaseRenewal(lease)) return "none";
   if (isRenewalDismissed(renewal.id)) return "none";
-  // Hidden during the final 5 days before lease end (leaseEndDate = endDate − 5 days).
-  if (isInFinalFiveDaysBeforeEnd(renewal.leaseEndDate, lease.endDate)) return "none";
+  // Hidden during the final window before lease end (confirmationDeadline = endDate − N days).
+  if (isInFinalFiveDaysBeforeEnd(renewal.confirmationDeadline, lease.endDate)) return "none";
   return "prompt";
 }
 
@@ -78,7 +78,7 @@ export function getTenantRenewalDisplayStatus(
   if (renewal.isConfirmed && !renewal.isRenewLease) return "declined";
   if (lease.status !== "paid") return "not_eligible";
   if (isRenewalDismissed(renewal.id)) return "declined";
-  if (isInFinalFiveDaysBeforeEnd(renewal.leaseEndDate, lease.endDate)) {
+  if (isInFinalFiveDaysBeforeEnd(renewal.confirmationDeadline, lease.endDate)) {
     return "window_closed";
   }
   return "action_needed";

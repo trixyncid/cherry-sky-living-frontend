@@ -56,3 +56,14 @@ export async function deleteUnitPricing(id: string): Promise<UnitPricing> {
   );
   return res.data;
 }
+
+export async function upsertUnitPricingPackages(input: {
+  unitTypeId: string;
+  monthlyPrice: number;
+  dailyPrice: number;
+}): Promise<{ monthly: UnitPricing; daily: UnitPricing }> {
+  const res = await apiFetch<
+    ApiDataResponse<{ monthly: UnitPricing; daily: UnitPricing }>
+  >("/admin/unit-pricings/packages", { method: "PUT", body: input });
+  return res.data;
+}

@@ -8,7 +8,7 @@ import { ProfileAvatarPlaceholder } from "@/components/shared/profile-avatar-pla
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { tenantNavItems } from "@/features/tenant/constants/nav-items";
 import { useTenantShell } from "@/features/tenant/components/tenant-shell-context";
-import { authClient } from "@/lib/auth/client";
+import { signOutClient } from "@/lib/auth/sign-out-client";
 import { cn } from "@/lib/utils";
 
 function resolveActiveNavHref(pathname: string): string | null {
@@ -36,7 +36,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   async function confirmSignOut() {
     setSigningOut(true);
     try {
-      await authClient.signOut();
+      await signOutClient();
       onNavigate?.();
       setSignOutOpen(false);
       router.push("/tenant/login");
@@ -53,14 +53,14 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         onClick={onNavigate}
         className="mb-6 flex items-center gap-3 rounded-2xl px-1.5 py-1 transition-opacity hover:opacity-90"
       >
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#8b5e3c] to-[#6f4627] shadow-[0_8px_20px_rgb(111_70_39/0.28)] ring-1 ring-white/30">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-ferrugem to-maroon-deep shadow-[0_8px_20px_rgb(90_36_48/0.32)] ring-1 ring-white/30">
           <Icon name="apartment" size={24} filled className="text-white" />
         </div>
         <div>
           <p className="truncate text-base font-bold tracking-tight text-[#1a1c1a]">
             {tc("brand.name")}
           </p>
-          <p className="text-[11px] font-medium tracking-wide text-[#8b5e3c]">
+          <p className="text-[11px] font-medium tracking-wide text-ferrugem">
             {t("portalName")}
           </p>
         </div>
@@ -81,7 +81,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   className={cn(
                     "group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition-all duration-200",
                     active
-                      ? "bg-gradient-to-r from-[#6f4627]/92 to-[#8b5e3c]/90 text-white shadow-[0_8px_18px_rgb(111_70_39/0.22)] ring-1 ring-white/20"
+                      ? "bg-gradient-to-r from-[#6f4627]/95 to-ferrugem/90 text-white shadow-[0_8px_18px_rgb(90_36_48/0.26)] ring-1 ring-white/20"
                       : "text-[#51443c] hover:bg-white/45 hover:text-[#1a1c1a]",
                   )}
                 >
@@ -97,12 +97,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       name={item.icon}
                       size={18}
                       filled={active}
-                      className={active ? "text-white" : "text-[#6f4627]"}
+                      className={active ? "text-white" : "text-ferrugem"}
                     />
                   </span>
                   <span className="truncate">{t(item.labelKey)}</span>
                   {active && (
-                    <span className="ml-auto size-1.5 shrink-0 rounded-full bg-white/90 shadow-[0_0_8px_white]" />
+                    <span className="ml-auto size-1.5 shrink-0 rounded-full bg-ferrugem-soft shadow-[0_0_8px_rgb(240_212_200/0.9)]" />
                   )}
                 </Link>
               </li>

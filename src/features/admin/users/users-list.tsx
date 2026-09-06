@@ -53,8 +53,17 @@ export function UsersList() {
     [],
   );
 
-  const { page, setPage, pageData, total, pageSize, sortKey, sortDir, onSort } =
-    useClientTable(data, getSortValue, { defaultSortKey: "name" });
+  const {
+    page,
+    setPage,
+    pageData,
+    total,
+    pageSize,
+    setPageSize,
+    sortKey,
+    sortDir,
+    onSort,
+  } = useClientTable(data, getSortValue, { defaultSortKey: "name" });
 
   async function confirmToggleActive() {
     if (!toggleUser) return;
@@ -121,6 +130,7 @@ export function UsersList() {
               pageSize={pageSize}
               total={total}
               onPageChange={setPage}
+              onPageSizeChange={setPageSize}
             />
           ) : undefined
         }

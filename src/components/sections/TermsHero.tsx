@@ -1,92 +1,65 @@
 /**
  * Terms Hero Section Component
- * Hero section for the terms and conditions page
  */
 
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
-import { motion } from 'framer-motion';
-import { Icon } from '@/components/shared/Icon';
+import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
+import { Icon } from "@/components/shared/Icon";
 
 export function TermsHero() {
-    const t = useTranslations('terms.hero');
+  const t = useTranslations("terms.hero");
 
-    return (
-        <div className="relative w-full min-h-[400px] md:min-h-[500px] flex items-center justify-center bg-[#0f172a] overflow-hidden">
-            {/* Background Image */}
-            <motion.div
-                initial={{ scale: 1.1 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 1.5, ease: "easeOut" }}
-                className="absolute inset-0 w-full h-full"
-            >
-                <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{
-                        backgroundImage: 'url("https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&h=1080&fit=crop")',
-                    }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/95 via-[#0f172a]/70 to-[#0f172a]/50" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent opacity-80" />
-            </motion.div>
+  return (
+    <div className="relative flex min-h-[420px] w-full items-center justify-center overflow-hidden hero-atmosphere md:min-h-[500px]">
+      <motion.div
+        initial={{ scale: 1.1 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
+        className="absolute inset-0 h-full w-full"
+      >
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              'url("https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&h=1080&fit=crop")',
+          }}
+        />
+        <div className="absolute inset-0 hero-overlay-x" />
+        <div className="absolute inset-0 hero-overlay-y" />
+      </motion.div>
 
-            {/* Decorative Gradients */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px]" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#d4af37]/10 rounded-full blur-[120px]" />
-
-            {/* Content */}
-            <div className="relative z-10 max-w-4xl w-full px-6 lg:px-10 flex flex-col items-center gap-8 text-center">
-                {/* Accent Line */}
-                <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: 80 }}
-                    transition={{ delay: 0.5, duration: 0.8 }}
-                    className="h-1 bg-[#d4af37] shadow-[0_0_20px_rgba(212,175,55,0.5)] rounded-full"
-                />
-
-                {/* Icon */}
-                <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                    className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-700 text-white shadow-lg shadow-primary/30"
-                >
-                    <Icon name="policy" size={32} />
-                </motion.div>
-
-                {/* Title */}
-                <div className="overflow-visible">
-                    <motion.h1
-                        initial={{ y: 50, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.2, duration: 0.8, type: "spring", stiffness: 50 }}
-                        className="text-white text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight"
-                    >
-                        {t('title')}
-                    </motion.h1>
-                </div>
-
-                {/* Subtitle */}
-                <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.8 }}
-                    className="text-slate-300 text-lg md:text-xl font-light"
-                >
-                    {t('subtitle')}
-                </motion.p>
-
-                {/* Description */}
-                <motion.p
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6, duration: 0.8 }}
-                    className="text-slate-300 text-base md:text-lg font-light max-w-2xl leading-relaxed border-l-2 border-primary pl-6"
-                >
-                    {t('description')}
-                </motion.p>
-            </div>
-        </div>
-    );
+      <div className="relative z-10 flex w-full max-w-4xl flex-col items-center gap-6 px-6 text-center lg:px-10">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="glass-chip inline-flex h-16 w-16 items-center justify-center rounded-2xl text-white"
+        >
+          <Icon name="policy" size={32} />
+        </motion.div>
+        <motion.h1
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl"
+        >
+          {t("title")}
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-lg font-light text-[#f5f2ee] md:text-xl"
+        >
+          {t("subtitle")}
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="max-w-2xl text-base font-light leading-relaxed text-[#f5f2ee]"
+        >
+          {t("description")}
+        </motion.p>
+      </div>
+    </div>
+  );
 }

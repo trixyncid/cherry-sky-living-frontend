@@ -10,8 +10,7 @@ export async function getAdminProfile(): Promise<AdminProfile> {
 }
 
 export async function updateAdminProfile(input: {
-  name?: string;
-  image?: string | null;
+  name: string;
 }): Promise<AdminProfile> {
   const res = await apiFetch<ApiDataResponse<AdminProfile>>("/profile", {
     method: "PUT",

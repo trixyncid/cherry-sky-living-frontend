@@ -96,7 +96,7 @@ export function AdminLeaseRenewalActions({
               {tp("confirmationDeadline")}
             </dt>
             <dd className="font-medium text-[#1a1c1a]">
-              {formatDate(renewal.leaseEndDate)}
+              {formatDate(renewal.confirmationDeadline)}
             </dd>
           </div>
           <div>

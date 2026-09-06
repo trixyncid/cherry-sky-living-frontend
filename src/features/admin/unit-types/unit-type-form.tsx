@@ -17,8 +17,8 @@ import {
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
 import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
+import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import {
-  useProperties,
   useUnitType,
   useUnitTypeMutations,
 } from "@/features/admin/hooks/use-admin-queries";
@@ -28,6 +28,7 @@ import {
 } from "@/lib/api/admin/attachments";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import { unitTypeSizeSchema } from "@/features/admin/properties/schemas";
 import { adminKeys } from "@/lib/query/keys";
 import { cn } from "@/lib/utils";
 
@@ -54,7 +55,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
   const router = useRouter();
   const qc = useQueryClient();
   const isEdit = !!id;
-  const { data: properties = [] } = useProperties();
+  const { properties } = useAdminShell();
   const { data: unitType, isLoading } = useUnitType(id ?? "", isEdit);
   const mutations = useUnitTypeMutations();
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -91,7 +92,13 @@ export function UnitTypeForm({ id }: { id?: string }) {
     e.preventDefault();
     setFormError(null);
 
-    const size = form.size ? Number(form.size) : null;
+    const sizeRaw = form.size.trim() ? Number(form.size) : null;
+    const sizeParsed = unitTypeSizeSchema.safeParse(sizeRaw);
+    if (!sizeParsed.success) {
+      setFormError(sizeParsed.error.issues[0]?.message ?? t("saveFailed"));
+      return;
+    }
+    const size = sizeParsed.data;
 
     try {
       if (isEdit && id) {

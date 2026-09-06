@@ -34,11 +34,11 @@ export function useTenantLeaseMutations() {
     updateRenewal: useMutation({
       mutationFn: ({
         leaseId,
-        isRenewLease,
+        action,
       }: {
         leaseId: string;
-        isRenewLease: boolean;
-      }) => updateTenantLeaseRenewal(leaseId, { isRenewLease }),
+        action: "renew" | "decline" | "cancel";
+      }) => updateTenantLeaseRenewal(leaseId, { action }),
       onSuccess: invalidate,
     }),
   };

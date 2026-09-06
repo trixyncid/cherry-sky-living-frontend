@@ -89,9 +89,9 @@ export function generateInquiryMessage(
     roomType?: string
 ): string {
     if (roomType) {
-        return `Halo, saya tertarik dengan ${roomType} di ${propertyName}. Apakah masih tersedia?`;
+        return `Yth. Cherry Sky Living,\n\nSaya ingin menanyakan ketersediaan ${roomType} di ${propertyName}. Mohon informasi mengenai langkah selanjutnya. Terima kasih.`;
     }
-    return `Halo, saya tertarik dengan ${propertyName}. Saya ingin mengetahui informasi lebih lanjut.`;
+    return `Yth. Cherry Sky Living,\n\nSaya ingin meminta informasi lebih lanjut mengenai ${propertyName}. Terima kasih.`;
 }
 
 /**
@@ -100,7 +100,7 @@ export function generateInquiryMessage(
  * @returns Pre-filled visit scheduling message
  */
 export function generateVisitMessage(propertyName: string): string {
-    return `Halo, saya ingin menjadwalkan kunjungan ke ${propertyName}. Kapan waktu yang tersedia?`;
+    return `Yth. Cherry Sky Living,\n\nSaya ingin menjadwalkan kunjungan ke ${propertyName}. Mohon informasi mengenai waktu yang tersedia. Terima kasih.`;
 }
 
 /**
@@ -125,19 +125,28 @@ export function formatAvailability(
 }
 
 /**
- * Format room capacity
- * @param capacity - Capacity string (e.g., "1-2 orang")
- * @param locale - Locale for translation
- * @returns Formatted capacity string
+ * Format room capacity for display.
+ * Accepts numeric ranges from the public mapper ("1", "1–2") or legacy
+ * Indonesian strings ("1-2 orang") and localizes the person unit.
  */
 export function formatCapacity(
     capacity: string,
     locale: 'id' | 'en' = 'id'
 ): string {
+    if (!capacity || capacity === '—') return capacity;
+
+    const cleaned = capacity
+        .replace(/\s*orang\s*/gi, '')
+        .replace(/\s*persons?\s*/gi, '')
+        .trim();
+
+    if (!cleaned) return capacity;
+
+    const isSingular = cleaned === '1';
     if (locale === 'en') {
-        return capacity.replace('orang', 'persons').replace('person', 'person');
+        return `${cleaned} ${isSingular ? 'person' : 'persons'}`;
     }
-    return capacity;
+    return `${cleaned} orang`;
 }
 
 /**

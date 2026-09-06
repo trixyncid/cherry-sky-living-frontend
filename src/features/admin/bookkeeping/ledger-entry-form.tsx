@@ -18,10 +18,10 @@ import {
   AdminFormSection,
 } from "@/features/admin/components/admin-form-layout";
 import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
+import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import {
   useLedgerEntry,
   useLedgerEntryMutations,
-  useProperties,
 } from "@/features/admin/hooks/use-admin-queries";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
@@ -36,12 +36,17 @@ import {
 } from "@/lib/api/admin/attachments";
 import { adminKeys } from "@/lib/query/keys";
 import { cn } from "@/lib/utils";
+import {
+  isLedgerCategoryForType,
+  ledgerCategoriesForType,
+} from "@/lib/ledger-categories";
 import type { LedgerEntryType } from "@/lib/types/admin";
 
 const BASE = "/admin/bookkeeping";
 
 type FormState = {
   type: LedgerEntryType;
+  category: string;
   amount: string;
   description: string;
   date: string;
@@ -50,9 +55,10 @@ type FormState = {
 
 const emptyForm: FormState = {
   type: "income",
+  category: "",
   amount: "",
   description: "",
-  date: new Date().toISOString().slice(0, 10),
+  date: toDateInputValue(new Date()),
   propertyId: "",
 };
 
@@ -63,7 +69,7 @@ export function LedgerEntryForm({ id }: { id?: string }) {
   const router = useRouter();
   const qc = useQueryClient();
   const isEdit = !!id;
-  const { data: properties = [] } = useProperties();
+  const { properties } = useAdminShell();
   const { data: entry, isLoading } = useLedgerEntry(id ?? "", isEdit);
   const mutations = useLedgerEntryMutations();
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -76,6 +82,7 @@ export function LedgerEntryForm({ id }: { id?: string }) {
     if (entry) {
       setForm({
         type: entry.type,
+        category: entry.category ?? "",
         amount: formatIdrInput(entry.amount),
         description: entry.description,
         date: toDateInputValue(entry.date),
@@ -94,6 +101,7 @@ export function LedgerEntryForm({ id }: { id?: string }) {
   const isDirty =
     !entry ||
     form.type !== entry.type ||
+    form.category !== (entry.category ?? "") ||
     parseIdrInput(form.amount) !== entry.amount ||
     form.description !== entry.description ||
     form.date !== toDateInputValue(entry.date) ||
@@ -163,6 +171,7 @@ export function LedgerEntryForm({ id }: { id?: string }) {
 
     const payload = {
       type: form.type,
+      category: form.category || null,
       amount,
       description: form.description.trim(),
       date: form.date,
@@ -223,15 +232,35 @@ export function LedgerEntryForm({ id }: { id?: string }) {
                   id="ledger-type"
                   required
                   value={form.type}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const type = e.target.value as LedgerEntryType;
                     setForm((f) => ({
                       ...f,
-                      type: e.target.value as LedgerEntryType,
-                    }))
-                  }
+                      type,
+                      category: isLedgerCategoryForType(type, f.category)
+                        ? f.category
+                        : "",
+                    }));
+                  }}
                 >
                   <option value="income">{tp("typeIncome")}</option>
                   <option value="expense">{tp("typeExpense")}</option>
+                </AdminSelect>
+              </AdminField>
+              <AdminField label={tp("category")} htmlFor="ledger-category">
+                <AdminSelect
+                  id="ledger-category"
+                  value={form.category}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, category: e.target.value }))
+                  }
+                >
+                  <option value="">{tp("categoryNone")}</option>
+                  {ledgerCategoriesForType(form.type).map((category) => (
+                    <option key={category} value={category}>
+                      {tp(`categories.${category}`)}
+                    </option>
+                  ))}
                 </AdminSelect>
               </AdminField>
               <AdminField label={tp("amount")} htmlFor="ledger-amount" required>

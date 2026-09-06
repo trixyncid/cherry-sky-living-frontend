@@ -43,8 +43,8 @@ export function Amenities() {
             className="relative w-full overflow-hidden bg-[#faf9f6] py-20 px-6 text-[#1a1c1a] lg:px-10"
         >
             {/* Background Gradients */}
-            <div className="pointer-events-none absolute right-0 top-0 h-[420px] w-[420px] -translate-y-1/2 translate-x-1/3 rounded-full bg-[#f5e4d4]/70 blur-[120px]" />
-            <div className="pointer-events-none absolute bottom-0 left-0 h-[380px] w-[380px] translate-y-1/3 -translate-x-1/3 rounded-full bg-[#e3e2e0]/70 blur-[100px]" />
+            <div className="pointer-events-none absolute right-0 top-0 h-[420px] w-[420px] -translate-y-1/2 translate-x-1/3 rounded-full bg-[#f5e4d4]/35 blur-[120px]" />
+            <div className="pointer-events-none absolute bottom-0 left-0 h-[380px] w-[380px] translate-y-1/3 -translate-x-1/3 rounded-full bg-[#e3e2e0]/40 blur-[100px]" />
 
             <div className="relative z-10 mx-auto max-w-[1080px]">
                 <div className="mb-16 text-center">
@@ -52,7 +52,7 @@ export function Amenities() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#e3e2e0] bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-[#6f4627]"
+                        className="mb-4 inline-flex items-center gap-2 rounded-full glass-chip-light px-3 py-1 text-xs font-semibold uppercase tracking-widest text-[#6f4627]"
                     >
                         <Icon name="star" size={14} filled />
                         <span>{t('badge')}</span>
@@ -88,9 +88,9 @@ export function Amenities() {
                             key={id}
                             variants={item}
                             whileHover={{ y: -5 }}
-                            className="group flex flex-col items-center gap-5 rounded-2xl border border-[#e3e2e0] bg-white/90 p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#d0b59b] hover:shadow-md"
+                            className="glass-card group flex flex-col items-center gap-5 rounded-[1.5rem] p-6 text-center transition-all duration-300 hover:-translate-y-1"
                         >
-                            <div className="rounded-2xl bg-[#f5e4d4]/60 p-3 text-[#6f4627] transition-colors duration-300 group-hover:bg-[#f0d8bf]">
+                            <div className="rounded-2xl bg-[#f5e4d4] p-3 text-[#6f4627] transition-colors duration-300 group-hover:bg-[#eed9c6]">
                                 <Icon name={amenityIcons[id]} size={32} className="!text-3xl" />
                             </div>
                             <div className="text-center space-y-2">

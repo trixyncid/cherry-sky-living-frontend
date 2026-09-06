@@ -43,7 +43,11 @@ export function TenantUserForm() {
     e.preventDefault();
     setFormError(null);
 
-    const parsed = createTenantUserSchema.safeParse(form);
+    const parsed = createTenantUserSchema({
+      nameRequired: tp("validation.nameRequired"),
+      emailInvalid: tp("validation.emailInvalid"),
+      passwordMin: tp("validation.passwordMin"),
+    }).safeParse(form);
     if (!parsed.success) {
       setFormError(parsed.error.issues[0]?.message ?? t("saveFailed"));
       return;

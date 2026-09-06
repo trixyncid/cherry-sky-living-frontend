@@ -165,7 +165,8 @@ export interface LeaseRenewal {
   isRenewLease: boolean;
   isConfirmed: boolean;
   markAsCompleted: boolean;
-  leaseEndDate: string;
+  /** ISO datetime — tenant must confirm renew/decline by this deadline (not lease endDate). */
+  confirmationDeadline: string;
   updatedById: string;
   updatedBy?: UnitUserRef;
   createdAt: string;
@@ -218,6 +219,10 @@ export interface LedgerEntry {
   category: string | null;
   date: string;
   propertyId: string | null;
+  /** Set for auto-posted rent rows linked to a lease. */
+  leaseId?: string | null;
+  /** Soft-void timestamp; excluded from income summaries when set. */
+  reversedAt?: string | null;
   property?: Pick<Property, "id" | "name" | "city">;
   attachments?: LedgerEntryAttachment[];
   createdBy?: UnitUserRef;
@@ -239,6 +244,68 @@ export interface ApiLedgerListResponse {
 
 export interface ApiDataResponse<T> {
   data: T;
+}
+
+export interface AdminDashboardLeaseSummary {
+  id: string;
+  status: LeaseStatus;
+  amountDue: number;
+  startDate: string;
+  endDate: string;
+  propertyId: string;
+  paymentDueDate?: string;
+  daysLate?: number;
+  property?: { id: string; name: string };
+  unit?: { id: string; name: string };
+  user?: UnitUserRef;
+  leaseRenewal?: {
+    id: string;
+    isRenewLease: boolean;
+    isConfirmed: boolean;
+    markAsCompleted: boolean;
+    confirmationDeadline: string;
+  } | null;
+}
+
+export interface AdminDashboard {
+  asOf: string;
+  period: {
+    start: string;
+    endExclusive: string;
+    label: string;
+  };
+  portfolio: {
+    propertyCount: number;
+    totalUnits: number;
+    occupiedUnits: number;
+    vacantUnits: number;
+    occupancyPercent: number;
+  };
+  collections: {
+    accountsReceivable: number;
+    awaitingReviewCount: number;
+    awaitingReviewAmount: number;
+    unpaidOverdueCount: number;
+    unpaidOverdueAmount: number;
+    monthIncome: number;
+    monthExpense: number;
+    monthNet: number;
+    contractedActiveValue: number;
+  };
+  leases: {
+    activePaid: number;
+    expiringSoonCount: number;
+    renewalPendingCount: number;
+    renewalOverdueCount: number;
+    renewalIntentRenew: number;
+    renewalIntentDecline: number;
+  };
+  queues: {
+    awaitingReview: AdminDashboardLeaseSummary[];
+    unpaidOverdue: AdminDashboardLeaseSummary[];
+    overdueRenewals: AdminDashboardLeaseSummary[];
+    expiringSoon: AdminDashboardLeaseSummary[];
+  };
 }
 
 export function isUnitOccupied(status: UnitStatus | string): boolean {

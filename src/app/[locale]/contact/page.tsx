@@ -1,37 +1,30 @@
 /**
  * Contact Page - Cherry Sky Living
- * Complete contact page with hero, form, info, and map
  */
 
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { Footer } from '@/components/layout/Footer';
-import { ContactHero } from '@/components/sections/ContactHero';
-import { ContactInfo } from '@/components/sections/ContactInfo';
-import { ContactForm } from '@/components/sections/ContactForm';
-import { ContactMap } from '@/components/sections/ContactMap';
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Footer } from "@/components/layout/Footer";
+import { ContactForm } from "@/components/sections/ContactForm";
+import { ContactHero } from "@/components/sections/ContactHero";
+import { ContactInfo } from "@/components/sections/ContactInfo";
+import { ContactMap } from "@/components/sections/ContactMap";
 
 export default function ContactPage() {
-    const t = useTranslations();
+  return (
+    <AppLayout>
+      <ContactHero />
 
-    return (
-        <AppLayout>
-            {/* Hero Section */}
-            <ContactHero />
+      <section className="w-full bg-[#faf9f6] px-6 py-20 lg:px-10">
+        <div className="mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-start">
+          <ContactForm />
+          <ContactInfo />
+        </div>
+      </section>
 
-            {/* Contact Info Section */}
-            <ContactInfo />
-
-            {/* Contact Form Section */}
-            <ContactForm />
-
-            {/* Map Section */}
-            <ContactMap />
-
-            {/* Footer */}
-            <Footer />
-        </AppLayout>
-    );
+      <ContactMap />
+      <Footer />
+    </AppLayout>
+  );
 }

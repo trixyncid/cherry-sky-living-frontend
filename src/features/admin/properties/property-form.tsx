@@ -30,6 +30,7 @@ import {
   parseIdrInput,
 } from "@/features/admin/lib/format";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import { propertyFormSchema } from "@/features/admin/properties/schemas";
 import { adminKeys } from "@/lib/query/keys";
 import { cn } from "@/lib/utils";
 
@@ -103,14 +104,23 @@ export function PropertyForm({ id }: { id?: string }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
-    const payload = {
-      name: form.name,
-      address: form.address,
-      city: form.city,
+
+    const parsed = propertyFormSchema.safeParse({
+      name: form.name.trim(),
+      address: form.address.trim(),
+      city: form.city.trim(),
       paymentDueDay: Number(form.paymentDueDay),
       lateFeePerDay: parseIdrInput(form.lateFeePerDay),
       renewalConfirmDaysBeforeEnd: Number(form.renewalConfirmDaysBeforeEnd),
-    };
+    });
+
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message ?? t("saveFailed");
+      setFormError(msg);
+      return;
+    }
+
+    const payload = parsed.data;
     try {
       if (isEdit && id) {
         await mutations.update.mutateAsync({ id, ...payload });

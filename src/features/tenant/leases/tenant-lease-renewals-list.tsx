@@ -83,7 +83,7 @@ export function TenantLeaseRenewalsList() {
         <div className="mb-6 grid gap-3 sm:grid-cols-3">
           <AdminStatCard
             icon="autorenew"
-            iconClassName="bg-[#8b5e3c]/12 text-[#6f4627]"
+            iconClassName="bg-ferrugem/12 text-ferrugem"
             label={tp("stats.total")}
             value={metrics.total}
           />
@@ -193,7 +193,7 @@ function RenewalCard({ lease }: { lease: Lease }) {
           />
           <DetailItem
             label={tp("respondBy")}
-            value={formatDate(renewal.leaseEndDate)}
+            value={formatDate(renewal.confirmationDeadline)}
           />
         </dl>
 

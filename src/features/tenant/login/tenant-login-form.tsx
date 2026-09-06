@@ -16,6 +16,7 @@ import {
 } from "@/features/admin/login/schemas";
 import { getTenantProfile } from "@/lib/api/tenant/profile";
 import { authClient } from "@/lib/auth/client";
+import { signOutClient } from "@/lib/auth/sign-out-client";
 import { loginErrorKeyFromAuthError, type LoginErrorKey } from "@/lib/auth/errors";
 import { getHomePathForRole } from "@/lib/auth/redirects";
 import {
@@ -41,7 +42,7 @@ const fieldMotion = {
 const inputClassName = cn(
   "glass-control block w-full rounded-xl py-2.5 pl-10 pr-3 text-base text-[#1a1c1a]",
   "transition-all placeholder:text-[#51443c]/50",
-  "focus:outline-none focus:ring-2 focus:ring-[#6f4627]/20",
+  "focus:outline-none focus:ring-2 focus:ring-ferrugem/20",
 );
 
 function showLoginError(
@@ -59,6 +60,7 @@ export function TenantLoginForm() {
   const searchParams = useSearchParams();
   const forbiddenFromUrl = searchParams.get("error") === "forbidden";
   const deactivatedFromUrl = searchParams.get("error") === "deactivated";
+  const sessionFromUrl = searchParams.get("error") === "session";
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
@@ -72,6 +74,12 @@ export function TenantLoginForm() {
       showLoginError(t, "deactivated");
     }
   }, [deactivatedFromUrl, t]);
+
+  useEffect(() => {
+    if (sessionFromUrl) {
+      showLoginError(t, "session");
+    }
+  }, [sessionFromUrl, t]);
 
   const form = useForm({
     defaultValues: {
@@ -118,7 +126,7 @@ export function TenantLoginForm() {
       const access = assertCanAccessTenantPortal(role);
 
       if (!access.ok || !role) {
-        await authClient.signOut();
+        await signOutClient();
         showLoginError(t, access.isStaff ? "forbidden" : "invalid");
         return;
       }
@@ -244,7 +252,7 @@ export function TenantLoginForm() {
                   "admin-btn-primary mt-2 flex w-full items-center justify-center rounded-xl border border-transparent",
                   "px-4 py-2.5 text-sm font-semibold",
                   "transition-all duration-200",
-                  "focus:outline-none focus:ring-2 focus:ring-[#6f4627] focus:ring-offset-2",
+                  "focus:outline-none focus:ring-2 focus:ring-ferrugem focus:ring-offset-2",
                   "disabled:cursor-not-allowed disabled:opacity-60",
                 )}
                 whileHover={{ scale: isSubmitting ? 1 : 1.01 }}

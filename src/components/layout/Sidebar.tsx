@@ -55,7 +55,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="left" className="w-[280px] bg-[#f3f0eb] sm:w-[320px] p-0 text-[#1a1c1a]">
+            <SheetContent side="left" className="glass-card w-[280px] p-0 text-[#1a1c1a] sm:w-[320px]">
                 <SheetHeader className="p-6 pb-4">
                     <SheetTitle className="flex items-center gap-2 text-left">
                         <div className="text-[#6f4627]">

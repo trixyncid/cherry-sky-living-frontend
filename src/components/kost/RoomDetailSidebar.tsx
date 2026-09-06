@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 import { Icon } from '@/components/shared/Icon';
 import { WhatsAppInquiryDialog } from '@/components/kost/WhatsAppInquiryDialog';
 import type { RoomTypePricing } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils/format';
+import { formatCurrency, generateWhatsAppURL } from '@/lib/utils/format';
 import { getDurationLabel } from '@/lib/utils/kost-display';
 
 interface RoomDetailSidebarProps {
@@ -33,6 +33,10 @@ export function RoomDetailSidebar({
     totalCount,
 }: RoomDetailSidebarProps) {
     const t = useTranslations();
+    const customerServiceWhatsAppURL = generateWhatsAppURL(
+        whatsappNumber,
+        t('whatsapp.roomInquiry', { roomType: roomName, propertyName }),
+    );
 
     const pricingRows =
         pricings.length > 0
@@ -42,15 +46,15 @@ export function RoomDetailSidebar({
               : [];
 
     return (
-        <div className="shrink-0 border-t border-[#e8dfd6] bg-[#faf9f6] p-6 lg:w-[360px] lg:border-l lg:border-t-0 lg:p-8">
-            <div className="sticky top-24 space-y-5">
+        <div className="lg:sticky lg:top-24 lg:self-start">
+            <div className="space-y-5">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1, duration: 0.5 }}
-                    className="rounded-2xl border border-[#e8dfd6] bg-white p-6 shadow-sm"
+                    className="glass-card rounded-[1.5rem] p-6"
                 >
-                    <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[#83746b]">
+                    <h3 className="mb-5 text-sm font-semibold uppercase tracking-wide text-[#83746b]">
                         {t('pricing.packages')}
                     </h3>
 
@@ -102,7 +106,7 @@ export function RoomDetailSidebar({
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2, duration: 0.5 }}
-                    className="flex items-center gap-4 rounded-2xl border border-[#e8dfd6] bg-white p-4"
+                    className="glass-card flex items-center gap-4 rounded-[1.5rem] p-4"
                 >
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5e4d4]">
                         <Icon name="support_agent" size={24} className="text-[#6f4627]" />
@@ -112,12 +116,13 @@ export function RoomDetailSidebar({
                         <p className="text-xs text-[#83746b]">Property Manager</p>
                     </div>
                     <a
-                        href={`https://wa.me/${whatsappNumber}`}
+                        href={customerServiceWhatsAppURL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[#83746b] transition-colors hover:text-[#6f4627]"
+                        aria-label={t('cta.whatsapp')}
                     >
-                        <Icon name="chat" size={20} />
+                        <Icon name="whatsapp" size={20} />
                     </a>
                 </motion.div>
             </div>

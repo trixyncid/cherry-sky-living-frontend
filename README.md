@@ -9,7 +9,7 @@ The REST API is documented separately in [README-Backend.md](./README-Backend.md
 | Area | Description |
 |---|---|
 | **Public website** | Homepage, property listings, room search, property/room detail pages, WhatsApp inquiry, contact, about, terms, and privacy |
-| **Tenant portal** | Sign in, view leases and payment proof, respond to renewal prompts, manage profile and password |
+| **Tenant portal** | Sign in, view leases and attached documents, respond to renewal prompts, manage profile and password |
 | **Admin suite** | Dashboard, properties, unit types, units, pricing, leases, lease renewals, tenants, staff (superadmin), and bookkeeping |
 
 Supported languages: **English** and **Indonesian** (`/en/...`, `/id/...`).

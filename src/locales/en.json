@@ -10,19 +10,103 @@
         "properties": "Properties"
     },
     "hero": {
-        "title": "Find Your Dream Kost",
+        "title": "A room that feels like home",
         "location": "in Medan",
         "scroll": "Scroll",
-        "subtitle": "Comfortable boarding house with complete facilities in strategic locations",
-        "cta": "View Our Properties",
-        "learnMore": "Learn More",
-        "scheduleVisit": "Dashboard"
+        "subtitle": "Two well-kept residences in Medan — furnished rooms, 24/7 security, and a team that stays with you from viewing to move-in.",
+        "cta": "View rooms",
+        "learnMore": "Explore options",
+        "scheduleVisit": "Dashboard",
+        "eyebrow": "Now leasing · Medan",
+        "trustResidents": "500+ residents",
+        "trustSecurity": "24/7 security",
+        "trustViewing": "Book a viewing",
+        "fromPrice": "From {price}",
+        "roomsOpen": "{count} rooms open",
+        "featuredLabel": "Featured stay",
+        "viewProperty": "View property"
     },
     "home": {
         "properties": {
             "eyebrow": "Featured Properties",
             "title": "Curated Kost Rooms in Medan",
             "description": "Browse curated boarding rooms with strategic locations and complete facilities."
+        },
+        "intro": {
+            "title": "Turning rooms into a home in Medan",
+            "description": "Cherry Sky Living curates comfortable, well-located kost for students and professionals — with trusted service from first inquiry to move-in.",
+            "storyEyebrow": "Life in the house",
+            "story": "The rooms are furnished so you can move in and get on with your week — not spend the first days making a space livable. We keep the houses quiet, secure, and looked after, with a team that stays reachable from the first viewing through to your keys.",
+            "points": {
+                "furnished": "Furnished rooms with what you actually use every day",
+                "security": "24/7 security so the house stays calm and safe",
+                "support": "A team that walks with you from viewing to move-in"
+            }
+        },
+        "neighborhood": {
+            "eyebrow": "Locations",
+            "title": "Explore the best of your neighborhood",
+            "description": "Visit SKYKOST and CHERRY KOST in Medan. Pin a property, review the details, and request a viewing with our team.",
+            "requestVisit": "Request visit"
+        },
+        "faq": {
+            "eyebrow": "Support",
+            "title": "Questions before you inquire",
+            "description": "Straightforward answers about visits, rooms, and living with Cherry Sky. Still unsure? Message our team on WhatsApp.",
+            "contactCta": "Contact management",
+            "items": {
+                "visit": {
+                    "q": "Can I visit a room before I rent?",
+                    "a": "Yes — we schedule a survey visit first. Surveys are available Monday–Saturday, 08:00–18:00 WIB. Please share your preferred schedule so our admin can be on standby at the location.",
+                    "cta": "Schedule a survey"
+                },
+                "deposit": {
+                    "q": "Is a deposit required?",
+                    "a": "Yes. The deposit is Rp 400,000 per room for Cherrykost and Rp 300,000 per room for Skykost. It is returned after the lease ends if no facilities or room items are damaged or missing. Any damage or loss is deducted from the deposit."
+                },
+                "electricity": {
+                    "q": "Does the monthly rate include electricity?",
+                    "a": "No. The room rate covers only the listed facilities. Each resident tops up their own electricity token at the meter in front of their room."
+                },
+                "wifi": {
+                    "q": "Is Wi-Fi included?",
+                    "a": "Yes. Free Wi-Fi is provided for every resident, with 2–3 Wi-Fi routers on each floor."
+                },
+                "availability": {
+                    "q": "How do I know if a room is still available?",
+                    "a": "Each listing shows current vacancy. Availability changes quickly — send an inquiry and we will confirm the latest status for you."
+                }
+            },
+            "surveyDialog": {
+                "title": "Schedule a room survey",
+                "description": "Surveys are available Monday–Saturday, 08:00–18:00 WIB. Fill in your details and we will open WhatsApp with a prepared message for our team.",
+                "name": "Full name",
+                "namePlaceholder": "Your full name",
+                "phone": "Phone number",
+                "phonePlaceholder": "e.g. 08116359119",
+                "surveyDay": "Survey day",
+                "surveyDayPlaceholder": "Select a day",
+                "surveyTime": "Survey time",
+                "surveyTimePlaceholder": "Select a time",
+                "roomType": "Room type to view",
+                "roomTypePlaceholder": "e.g. AC private bathroom",
+                "property": "Property",
+                "propertyPlaceholder": "Select property",
+                "skykost": "Skykost",
+                "cherrykost": "Cherrykost",
+                "days": {
+                    "monday": "Monday",
+                    "tuesday": "Tuesday",
+                    "wednesday": "Wednesday",
+                    "thursday": "Thursday",
+                    "friday": "Friday",
+                    "saturday": "Saturday"
+                },
+                "submit": "Continue to WhatsApp",
+                "required": "This field is required",
+                "invalidPhone": "Please enter a valid phone number",
+                "message": "Dear Cherry Sky Living,\n\nI would like to schedule a room survey.\n\nName: {name}\nPhone: {phone}\nSurvey day & time: {surveyDay}, {surveyTime} WIB\nRoom type to view: {roomType}\nProperty: {property}\n\nPlease confirm so an admin can be on standby. Thank you."
+            }
         },
         "amenities": {
             "badge": "Premium Living",
@@ -112,13 +196,13 @@
         "includeWater": "Including water"
     },
     "cta": {
-        "sendInquiry": "Send Inquiry",
+        "sendInquiry": "Inquire via WhatsApp",
         "bookNow": "Book Now",
         "bookViewing": "Book Viewing",
         "contactOwner": "Contact Owner",
         "viewDetails": "View Details",
         "joinWaitlist": "Join Waitlist",
-        "whatsapp": "Contact via WhatsApp",
+        "whatsapp": "Inquire via WhatsApp",
         "call": "Call",
         "seeMore": "See More",
         "applyFilter": "Apply Filters",
@@ -188,7 +272,11 @@
         }
     },
     "search": {
-        "title": "Search Kost",
+        "title": "Find a room in Medan",
+        "eyebrow": "SKYKOST · CHERRY KOST",
+        "subtitle": "Filter by property, price, and availability — then book a viewing with the team.",
+        "resultsEyebrow": "Room types",
+        "resultsTitle": "Available rooms",
         "placeholder": "Search location, kost name...",
         "location": "Location",
         "priceRange": "Price Range",
@@ -213,7 +301,20 @@
         "sortPriceDesc": "Price: High to low",
         "sortNewest": "Newest",
         "reset": "Reset",
+        "clearAll": "Clear all",
+        "removeFilter": "Remove {label} filter",
         "apply": "Search",
+        "findProperties": "Find Properties",
+        "lookingFor": "Looking for",
+        "priceAny": "Any price",
+        "priceUnder1m": "Under Rp 1 jt",
+        "price1to2m": "Rp 1–2 jt",
+        "price2to3m": "Rp 2–3 jt",
+        "price3mPlus": "Rp 3 jt+",
+        "roomsLabel": "Availability",
+        "filterAll": "All",
+        "filterAvailable": "Available",
+        "filterMonthly": "Monthly",
         "paginationShowing": "Showing {start}–{end} of {total}",
         "paginationPrevious": "Previous page",
         "paginationNext": "Next page",
@@ -239,6 +340,8 @@
     "propertyDetail": {
         "notFound": "Property not found",
         "notFoundDescription": "The property you are looking for is not available",
+        "loadError": "Could not load this property",
+        "loadErrorDescription": "Check your connection and try again.",
         "breadcrumbHome": "Home",
         "breadcrumbSearch": "Search Kost",
         "aboutProperty": "About this property",
@@ -249,7 +352,10 @@
         "noUnitTypes": "No room types available for this property yet",
         "availableRooms": "{available} of {total} rooms available",
         "backToProperty": "Back to Property",
-        "unitTypeNotFound": "Room type not found"
+        "unitTypeNotFound": "Room type not found",
+        "photos": "Photos",
+        "inquiryTitle": "Stay with us",
+        "inquiryHint": "Message the team to book a viewing. You won’t be charged yet."
     },
     "footer": {
         "tagline": "Finding comfortable living for a better life",
@@ -267,29 +373,33 @@
         "termsConditions": "Terms & Conditions",
         "location": "Medan, Indonesia",
         "website": "Website",
-        "email": "Email"
+        "email": "Email",
+        "inquiryTitle": "Request a viewing",
+        "inquiryDescription": "Tell us your name and we will open WhatsApp with a prepared message for our team.",
+        "inquiryNamePlaceholder": "Your name",
+        "inquiryButton": "Message us"
     },
     "whatsapp": {
-        "inquiry": "Hello, I'm interested in {propertyName}",
-        "roomInquiry": "Hello, I'm interested in {roomType} at {propertyName}. Is it still available?",
-        "generalInquiry": "Hello, I would like to inquire about the boarding house",
-        "visitSchedule": "Hello, I would like to schedule a visit to {propertyName}",
+        "inquiry": "Dear Cherry Sky Living,\n\nI would like to request further information regarding {propertyName}. Thank you.",
+        "roomInquiry": "Dear Cherry Sky Living,\n\nI would like to inquire about the availability of {roomType} at {propertyName}. Kindly advise on the next steps. Thank you.",
+        "generalInquiry": "Dear Cherry Sky Living,\n\nI would like to inquire about available rooms and rental information. Kindly advise at your earliest convenience. Thank you.",
+        "visitSchedule": "Dear Cherry Sky Living,\n\nI would like to schedule a viewing of {propertyName}. Please let me know the available times. Thank you.",
         "inquiryDialog": {
-            "title": "Send an Inquiry",
-            "description": "Share your details and preferred stay. We'll open WhatsApp with your message ready to send.",
-            "name": "Name",
+            "title": "Inquire via WhatsApp",
+            "description": "Please complete your details below. WhatsApp will open with a prepared inquiry for our team. No inquiry is recorded on this website.",
+            "name": "Full name",
             "namePlaceholder": "Your full name",
-            "phone": "Telephone Number",
+            "phone": "Contact number",
             "phonePlaceholder": "e.g. 08116359119",
-            "duration": "Duration of Stay",
+            "duration": "Preferred rental duration",
             "durationPlaceholder": "Select duration",
-            "checkInDate": "Check-in Date",
-            "checkInDatePlaceholder": "Select check-in date",
-            "depositNote": "Note: A deposit of {amount} is required to secure your lease. This will be collected upon booking confirmation.",
-            "submit": "Message via WhatsApp",
+            "checkInDate": "Preferred move-in date",
+            "checkInDatePlaceholder": "Select move-in date",
+            "depositNote": "Please note: a deposit of {amount} is required to proceed with a lease. Payment details will be confirmed by our team after the terms have been agreed.",
+            "submit": "Continue to WhatsApp",
             "required": "This field is required",
             "invalidPhone": "Please enter a valid phone number",
-            "bookingMessage": "Hello, I would like to inquire about {roomType} at {propertyName}.\n\nName: {name}\nPhone: {phone}\nDuration: {duration}\nCheck-in Date: {checkInDate}\nDeposit: {deposit}"
+            "bookingMessage": "Dear Cherry Sky Living,\n\nI would like to inquire about the availability of {roomType} at {propertyName}.\n\nInquiry details:\nFull name: {name}\nContact number: {phone}\nPreferred rental duration: {duration}\nPreferred move-in date: {checkInDate}\nDeposit noted: {deposit}\n\nKindly provide further information regarding this unit. Thank you."
         }
     },
     "roomDetail": {
@@ -314,7 +424,8 @@
     "common": {
         "brand": {
             "name": "Cherry Sky Living",
-            "fullName": "Cherry Sky Living"
+            "fullName": "Cherry Sky Living",
+            "wordmark": "Cherry Sky"
         },
         "accountSection": "Account",
         "language": "Language",
@@ -332,20 +443,44 @@
     },
     "about": {
         "hero": {
-            "title": "About Us",
-            "subtitle": "Your Trusted Partner in Finding the Perfect Boarding House",
-            "description": "We are committed to providing comfortable, safe, and affordable boarding house solutions for students and professionals in Medan."
+            "title": "Homes built around how you live",
+            "subtitle": "Your trusted partner in Medan",
+            "description": "Cherry Sky Living runs two well-kept residences in Medan — furnished rooms, 24/7 security, and a team that stays with you from first viewing to move-in.",
+            "eyebrow": "Since 2019 · Medan",
+            "ctaRooms": "View rooms",
+            "ctaViewing": "Book a viewing"
         },
         "mission": {
             "title": "Our Mission",
             "subtitle": "Why We Do What We Do",
             "description": "To create a comfortable and supportive living environment that enables residents to focus on their studies and careers without worrying about accommodation quality.",
             "vision": "Our Vision",
-            "visionDescription": "To become the most trusted and preferred boarding house provider in Medan, known for quality, service, and resident satisfaction."
+            "visionDescription": "To become the most trusted and preferred boarding house provider in Medan, known for quality, service, and resident satisfaction.",
+            "eyebrow": "Our story",
+            "storyTitle": "A calmer way to live in Medan",
+            "storyDescription": "We started Cherry Sky so students and young professionals could rent with confidence — clear pricing, looked-after rooms, and people who answer when you need them."
+        },
+        "journey": {
+            "eyebrow": "How it works",
+            "title": "From first message to move-in",
+            "description": "No guesswork. We keep the path to a room short, clear, and human.",
+            "visit": {
+                "title": "Book a viewing",
+                "description": "Message us on WhatsApp. We’ll confirm a time so someone is there to walk you through the room and the building."
+            },
+            "lease": {
+                "title": "Agree the terms",
+                "description": "Once you like a room, we confirm availability, deposit, and duration — in writing, before anything is paid."
+            },
+            "movein": {
+                "title": "Move in ready",
+                "description": "Arrive to a furnished room, Wi-Fi, and a team that stays reachable after you have the keys."
+            }
         },
         "values": {
             "title": "Our Core Values",
             "subtitle": "What We Stand For",
+            "description": "The same standards in every building — so a room at Cherry Sky feels looked after, not improvised.",
             "quality": {
                 "title": "Quality First",
                 "description": "We never compromise on the quality of our facilities and services."
@@ -372,16 +507,24 @@
             "satisfactionRate": "Satisfaction Rate"
         },
         "cta": {
-            "title": "Ready to Find Your Perfect Home?",
-            "subtitle": "Join hundreds of satisfied residents who have found their ideal living space with us.",
-            "button": "View Our Properties"
+            "title": "Ready to see a room?",
+            "subtitle": "Browse available rooms, or message us to schedule a viewing at SKYKOST or CHERRY KOST.",
+            "button": "View rooms",
+            "viewing": "Book a viewing"
         }
     },
     "contact": {
         "hero": {
-            "title": "Get in Touch",
+            "title": "Let’s find you a room",
             "subtitle": "We'd love to hear from you",
-            "description": "Have questions about our properties? Need assistance finding the perfect boarding house? Contact us today!"
+            "description": "Questions about a listing, a viewing, or moving in? WhatsApp is the fastest way — or send a note and we’ll reply during business hours.",
+            "eyebrow": "Cherry Sky Living",
+            "reachTitle": "Reach us directly",
+            "whatsapp": "WhatsApp",
+            "call": "Call",
+            "email": "Email",
+            "hours": "Hours",
+            "responseTime": "Usually replies within a few hours, Monday–Saturday."
         },
         "info": {
             "title": "Contact Information",
@@ -417,6 +560,7 @@
             "subjectPlaceholder": "What is your question about?",
             "sendViaWhatsApp": "Send via WhatsApp",
             "sendViaEmail": "Send via Email",
+            "whatsappMessage": "Dear Cherry Sky Living,\n\nI would like to inquire about your properties.\n\nName: {name}\nEmail: {email}\nPhone: {phone}\nSubject: {subject}\n\nMessage:\n{message}\n\nThank you.",
             "sending": "Sending...",
             "sent": "Message sent successfully!",
             "error": "Error sending message. Please try again.",
@@ -427,7 +571,10 @@
             "title": "Our Locations",
             "subtitle": "Visit our boarding houses",
             "directionsButton": "Get Directions",
-            "coordinates": "Coordinates"
+            "coordinates": "Coordinates",
+            "visitTitle": "Planning a visit?",
+            "visitDescription": "Come during business hours — message us first so someone is ready to show you around.",
+            "visitCta": "Book a viewing"
         }
     },
     "terms": {
@@ -597,6 +744,21 @@
         "dateRangePicker": {
             "selected": "Selected range",
             "pickBoth": "Pick a start and end date",
+            "pickStart": "Pick start",
+            "pickEnd": "Pick end",
+            "start": "Start",
+            "end": "End",
+            "stepStart": "Choose a start date",
+            "stepEnd": "Choose an end date",
+            "stepAdjust": "Adjust the range",
+            "today": "Today",
+            "clear": "Clear",
+            "done": "Done"
+        },
+        "datePicker": {
+            "selected": "Selected date",
+            "pickDate": "Pick a date",
+            "today": "Today",
             "clear": "Clear",
             "done": "Done"
         },
@@ -638,6 +800,9 @@
             "unitProperty": "Unit / Property",
             "rentAmount": "Rent Amount (IDR)",
             "showing": "Showing {start} to {end} of {total} entries",
+            "show": "Show",
+            "entries": "entries",
+            "pageSize": "Entries per page",
             "previous": "Previous page",
             "next": "Next page"
         },
@@ -665,6 +830,10 @@
                 "deactivated": {
                     "title": "Account deactivated",
                     "description": "Contact your administrator."
+                },
+                "session": {
+                    "title": "Session expired",
+                    "description": "Please sign in again to continue."
                 },
                 "rateLimited": {
                     "title": "Too many attempts",
@@ -748,19 +917,21 @@
             "photoCount": "{count} photos",
             "dropTitle": "Drop photos here",
             "dropHint": "or click to browse · JPG, PNG, WebP, or GIF · max 5 MB",
+            "dropHintWithPdf": "or click to browse · JPG, PNG, WebP, GIF, or PDF · max 5 MB",
             "dropActive": "Drop to add",
             "addMore": "Add photos",
             "addMoreHint": "Drop or click",
             "queuedBadge": "Selected",
-            "queueHint": "{count} photo(s) ready. Review, then click Upload.",
-            "uploadSelected": "Upload {count} photo(s)",
+            "queueHint": "{count} file(s) ready. Review, then click Upload.",
+            "uploadSelected": "Upload {count} file(s)",
             "clearQueue": "Clear",
             "removeFromQueue": "Remove from selection",
             "uploading": "Uploading…",
             "lockedTitle": "Photos unlock after you save",
             "lockedHint": "Save the details first. You'll stay on this page so you can add photos right away.",
             "invalidType": "Only JPEG, PNG, WebP, and GIF images can be uploaded.",
-            "tooLarge": "Each photo must be 5 MB or smaller."
+            "invalidTypeWithPdf": "Only JPEG, PNG, WebP, GIF, or PDF files can be uploaded.",
+            "tooLarge": "Each file must be 5 MB or smaller."
         },
         "pages": {
             "overview": {
@@ -779,6 +950,27 @@
                 "stats": {
                     "properties": "Properties",
                     "propertiesHint": "Buildings in your portfolio",
+                    "vacantUnits": "Vacant units",
+                    "vacantUnitsHint": "{occupied} of {total} occupied",
+                    "activeLeases": "Active leases",
+                    "activeLeasesHint": "{expiring} expiring in the renewal window",
+                    "accountsReceivable": "Accounts receivable",
+                    "accountsReceivableHint": "{overdue} unpaid overdue · {overdueAmount}",
+                    "awaitingReview": "Awaiting review",
+                    "awaitingReviewHint": "{amount} pending confirmation",
+                    "monthIncome": "Income (MTD)",
+                    "monthIncomeHint": "Contracted active: {contracted}",
+                    "monthNet": "Net P&L (MTD)",
+                    "monthNetHint": "Expenses {expense}",
+                    "expiringSoon": "Expiring soon",
+                    "expiringSoonHint": "Within each property’s renewal window",
+                    "renewalPending": "Renewals pending",
+                    "renewalPendingHint": "Tenants still deciding",
+                    "renewalOverdue": "Renewals overdue",
+                    "renewalOverdueHint": "Past confirmation deadline",
+                    "renewalIntent": "Renewal intent",
+                    "renewalIntentValue": "{renew} renew / {decline} decline",
+                    "renewalIntentHint": "Confirmed, not yet completed",
                     "units": "Total units",
                     "unitsHint": "{occupied} currently occupied",
                     "leases": "Active leases",
@@ -795,6 +987,21 @@
                     "addUnit": "Manage units",
                     "newLease": "New lease",
                     "setPricing": "Set pricing"
+                },
+                "queues": {
+                    "title": "Action queue",
+                    "subtitle": "Payments to review, overdue unpaid, renewals, and leases ending soon",
+                    "viewAll": "View leases",
+                    "empty": "Nothing needs attention right now.",
+                    "expiringSoon": "Expiring soon",
+                    "deadline": "Deadline {date}",
+                    "daysLate": "{days} days late",
+                    "kinds": {
+                        "review": "Payment awaiting review",
+                        "unpaidOverdue": "Unpaid overdue",
+                        "renewal": "Renewal overdue",
+                        "expiring": "Lease expiring soon"
+                    }
                 },
                 "recent": {
                     "title": "Recent leases",
@@ -941,6 +1148,11 @@
                 "passwordHint": "Minimum 8 characters. The tenant will use this to sign in.",
                 "showPassword": "Show password",
                 "hidePassword": "Hide password",
+                "validation": {
+                    "nameRequired": "Name is required",
+                    "emailInvalid": "Invalid email address",
+                    "passwordMin": "Password must be at least 8 characters"
+                },
                 "emailExists": "This email is already registered.",
                 "resetPassword": "Reset password",
                 "resetTitle": "Reset tenant password?",
@@ -988,6 +1200,11 @@
                 "passwordHint": "Minimum 8 characters. The staff member will use this to sign in.",
                 "showPassword": "Show password",
                 "hidePassword": "Hide password",
+                "validation": {
+                    "nameRequired": "Name is required",
+                    "emailInvalid": "Invalid email address",
+                    "passwordMin": "Password must be at least 8 characters"
+                },
                 "emailExists": "This email is already registered.",
                 "forbiddenAction": "You do not have permission to perform this action.",
                 "status": "Status",
@@ -1002,6 +1219,9 @@
                 "activateSuccess": "Staff account activated.",
                 "deactivateSuccess": "Staff account deactivated.",
                 "deactivateBlocked": "Cannot deactivate the last superadmin account.",
+                "deleteBlocked": "This staff account has created or updated records and cannot be deleted. Deactivate the account instead.",
+                "deleteLastSuperadminBlocked": "Cannot delete the last superadmin account.",
+                "deleteSelfBlocked": "You cannot delete your own account.",
                 "resetPassword": "Reset password",
                 "resetTitle": "Reset staff password?",
                 "resetDescription": "This will generate a new temporary password for \"{name}\" and sign them out of all active sessions.",
@@ -1025,7 +1245,7 @@
                 "to": "to",
                 "expiring": "Expiring",
                 "formDescription": "Create or update a tenant lease agreement.",
-                "editDescription": "Update the lease period, pricing, and status. Documents upload separately.",
+                "editDescription": "Update the lease period and pricing. Payment status uses Confirm / Reject actions. Documents upload separately.",
                 "partiesTitle": "People & room",
                 "partiesHint": "Who is renting, and which room.",
                 "termsTitle": "Lease terms",
@@ -1045,6 +1265,9 @@
                 "noTenantsMatch": "No tenants match your search.",
                 "noUnitsMatch": "No units match your search.",
                 "noPricingForUnit": "No monthly pricing package exists for this unit type. Add a 30-day price under Pricing first.",
+                "selectUnitFirstForPricing": "Choose a unit first to see matching monthly packages.",
+                "pricingDailyRate": "Daily rate for stubs: {amount}",
+                "pricingDailyMissing": "No daily rate set — mid-month stays need one under Pricing.",
                 "needDailyPricing": "Mid-month move-in or move-out needs a 1-day price for this unit type. Add it under Pricing.",
                 "overlapUnit": "This unit already has a lease from {start} to {end} that overlaps the selected period.",
                 "overlapTenant": "This tenant already has a lease at {unit} ({property}) from {start} to {end} that overlaps the selected period.",
@@ -1065,7 +1288,13 @@
                 "endDate": "End date",
                 "leasePeriod": "Lease period",
                 "leasePeriodPlaceholder": "Select start and end dates",
-                "leasePeriodHint": "Pick any start and end date. Partial months are billed at the daily rate.",
+                "leasePeriodHint": "Pick a start date, then an end month. The end date always snaps to month-end. Partial first months use the daily rate.",
+                "periodStart": "Move-in",
+                "periodEnd": "Move-out",
+                "periodStartHint": "Any calendar day",
+                "periodEndHint": "Snaps to month-end",
+                "durationPresets": "Quick length",
+                "durationMonths": "{count, plural, one {# month} other {# months}}",
                 "amountPreview": "Amount preview",
                 "amountDue": "Amount due",
                 "monthlyRate": "Monthly rate",
@@ -1085,6 +1314,17 @@
                 "daysLate": "Days late",
                 "lateFeeAmount": "Late fee",
                 "monthlyPackage": "monthly",
+                "paymentStatus": "Payment status",
+                "paymentStatusHint": "Confirm, reject, or send to review with dedicated actions. Confirming paid requires a payment document.",
+                "confirmPaid": "Confirm paid",
+                "rejectToUnpaid": "Reject to unpaid",
+                "markWaitingForReview": "Mark waiting for review",
+                "confirmNeedsPayment": "Upload a payment document before confirming this lease as paid.",
+                "statusConfirmed": "Lease marked as paid.",
+                "statusRejected": "Lease marked as unpaid.",
+                "statusSubmittedForReview": "Lease marked as waiting for review.",
+                "statusUpdateFailed": "Could not update lease status.",
+                "allowPaidOverride": "Allow changing dates or pricing on this paid lease.",
                 "stats": {
                     "totalBadge": "Total",
                     "attentionBadge": "Attention",
@@ -1173,7 +1413,14 @@
                 "passwordUpdated": "Password updated successfully.",
                 "saveFailed": "Failed to update profile.",
                 "passwordFailed": "Failed to update password.",
-                "incorrectCurrentPassword": "Current password is incorrect."
+                "incorrectCurrentPassword": "Current password is incorrect.",
+                "validation": {
+                    "nameRequired": "Name is required",
+                    "currentPasswordRequired": "Current password is required",
+                    "newPasswordMin": "New password must be at least 8 characters",
+                    "confirmPasswordRequired": "Please confirm your new password",
+                    "passwordsMismatch": "Passwords do not match"
+                }
             },
             "bookkeeping": {
                 "title": "Bookkeeping",
@@ -1203,6 +1450,7 @@
                 "invalidDateRange": "Start date must be on or before end date.",
                 "date": "Date",
                 "category": "Category",
+                "categoryNone": "Uncategorized",
                 "amount": "Amount (IDR)",
                 "amountRequired": "Enter a valid amount greater than zero.",
                 "noProperty": "All properties",
@@ -1283,6 +1531,10 @@
                     "title": "Account deactivated",
                     "description": "Contact your administrator."
                 },
+                "session": {
+                    "title": "Session expired",
+                    "description": "Please sign in again to continue."
+                },
                 "rateLimited": {
                     "title": "Too many attempts",
                     "description": "Please wait a few minutes and try signing in again."
@@ -1290,7 +1542,7 @@
             }
         },
         "attachments": {
-            "empty": "No payment proof uploaded yet.",
+            "empty": "No documents attached yet.",
             "view": "View full size"
         },
         "common": {
@@ -1322,8 +1574,8 @@
                 "duration": "Duration",
                 "address": "Address",
                 "city": "City",
-                "paymentProofTitle": "Payment proof",
-                "paymentProofDescription": "Images uploaded as proof of payment for this lease.",
+                "documentsTitle": "Lease documents",
+                "documentsDescription": "Agreement and payment files attached by the office for this lease.",
                 "amountDue": "Amount due",
                 "paymentDueDate": "Payment due date",
                 "daysLate": "Days late",
@@ -1344,7 +1596,7 @@
                     "declineFailed": "Failed to save your response.",
                     "cancelRequest": "Cancel renewal request",
                     "cancelFailed": "Failed to cancel renewal request.",
-                    "cancelledSuccess": "Renewal request cancelled.",
+                    "cancelledSuccess": "Renewal request cancelled. You can request again before the deadline.",
                     "requestedTitle": "Renewal request submitted",
                     "requestedDescription": "We're reviewing your request to renew. You'll hear back before {deadline}.",
                     "confirmedTitle": "Renewal confirmed",
@@ -1406,7 +1658,14 @@
                 "passwordUpdated": "Password updated successfully.",
                 "saveFailed": "Failed to update profile.",
                 "passwordFailed": "Failed to update password.",
-                "incorrectCurrentPassword": "Current password is incorrect."
+                "incorrectCurrentPassword": "Current password is incorrect.",
+                "validation": {
+                    "nameRequired": "Name is required",
+                    "currentPasswordRequired": "Current password is required",
+                    "newPasswordMin": "New password must be at least 8 characters",
+                    "confirmPasswordRequired": "Please confirm your new password",
+                    "passwordsMismatch": "Passwords do not match"
+                }
             }
         }
     }

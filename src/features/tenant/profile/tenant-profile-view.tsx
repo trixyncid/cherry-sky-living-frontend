@@ -17,8 +17,8 @@ import {
   showApiSuccess,
 } from "@/features/admin/lib/show-api-error";
 import {
-  tenantPasswordSchema,
-  tenantProfileSchema,
+  createPasswordSchema,
+  createProfileSchema,
   type TenantPasswordValues,
   type TenantProfileValues,
 } from "@/features/tenant/profile/schemas";
@@ -67,7 +67,9 @@ export function TenantProfileView() {
     e.preventDefault();
     setProfileError(null);
 
-    const parsed = tenantProfileSchema.safeParse(profileForm);
+    const parsed = createProfileSchema({
+      nameRequired: tp("validation.nameRequired"),
+    }).safeParse(profileForm);
     if (!parsed.success) {
       setProfileError(parsed.error.issues[0]?.message ?? tp("saveFailed"));
       return;
@@ -88,7 +90,13 @@ export function TenantProfileView() {
     e.preventDefault();
     setPasswordError(null);
 
-    const parsed = tenantPasswordSchema.safeParse(passwordForm);
+    const parsed = createPasswordSchema({
+      nameRequired: tp("validation.nameRequired"),
+      currentPasswordRequired: tp("validation.currentPasswordRequired"),
+      newPasswordMin: tp("validation.newPasswordMin"),
+      confirmPasswordRequired: tp("validation.confirmPasswordRequired"),
+      passwordsMismatch: tp("validation.passwordsMismatch"),
+    }).safeParse(passwordForm);
     if (!parsed.success) {
       setPasswordError(parsed.error.issues[0]?.message ?? tp("passwordFailed"));
       return;
@@ -137,7 +145,7 @@ export function TenantProfileView() {
                 label={profile.name}
               />
               <div>
-                <span className="inline-flex rounded-full bg-[#f5e4d4]/80 px-2.5 py-1 text-xs font-semibold text-[#6f4627] ring-1 ring-white/60 backdrop-blur-sm">
+                <span className="inline-flex rounded-full bg-ferrugem-soft/80 px-2.5 py-1 text-xs font-semibold text-ferrugem ring-1 ring-white/60 backdrop-blur-sm">
                   {th("roleTenant")}
                 </span>
                 <p className="mt-2 text-xs text-[#83746b]">

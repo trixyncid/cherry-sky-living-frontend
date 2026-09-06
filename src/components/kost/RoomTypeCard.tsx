@@ -1,18 +1,17 @@
 /**
- * Room Type Card Component
- * Displays individual room type with backend pricing, description, and availability
+ * Room Type Card — compact row for comparing unit types at a glance
  */
 
 'use client';
 
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { motion } from 'framer-motion';
 import { Icon } from '@/components/shared/Icon';
 import { WhatsAppInquiryDialog } from '@/components/kost/WhatsAppInquiryDialog';
 import type { RoomTypeCardProps } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils/format';
+import { formatCapacity, formatCurrency } from '@/lib/utils/format';
 import { getDurationLabel } from '@/lib/utils/kost-display';
 import { cn } from '@/lib/utils';
 
@@ -24,9 +23,10 @@ export function RoomTypeCard({
     index = 0,
 }: RoomTypeCardProps & { index?: number; kostId?: string }) {
     const t = useTranslations();
+    const locale = useLocale();
     const isAvailable = roomType.status === 'available' && roomType.availableCount > 0;
 
-    const detailHref = kostId ? `/kosts/${kostId}--${roomType.id}` : null;
+    const detailHref = kostId ? `/kosts/${kostId}/${roomType.id}` : null;
 
     const pricingRows =
         roomType.pricings && roomType.pricings.length > 0
@@ -35,143 +35,150 @@ export function RoomTypeCard({
               ? [{ id: roomType.id, durationDays: 30, price: roomType.price }]
               : [];
 
-    const cardContent = (
-        <>
-            <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#f5e4d4]">
-                {roomType.images?.[0] ? (
-                    <Image
-                        src={roomType.images[0]}
-                        alt={roomType.name}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                        <Icon name="image" size={48} className="text-[#c4b5a8]" />
-                    </div>
-                )}
+    const startingPricing =
+        pricingRows.find((pricing) => pricing.durationDays === 30) ?? pricingRows[0];
 
+    const image = (
+        <div className="relative h-36 w-full overflow-hidden bg-[#f5e4d4] sm:h-full sm:min-h-[8.75rem] sm:w-[9.5rem] lg:w-40">
+            {roomType.images?.[0] ? (
+                <Image
+                    src={roomType.images[0]}
+                    alt={roomType.name}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+            ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                    <Icon name="image" size={32} className="text-[#c4b5a8]" />
+                </div>
+            )}
+
+            <div className="absolute bottom-2 left-2">
                 {isAvailable ? (
-                    <div className="absolute bottom-3 left-3">
-                        <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                            {t('propertyDetail.availableRooms', {
-                                available: roomType.availableCount,
-                                total: roomType.totalCount,
-                            })}
-                        </span>
-                    </div>
-                ) : (
-                    <div className="absolute bottom-3 left-3">
-                        <span className="rounded-full bg-[#83746b] px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                            {t('status.full')}
-                        </span>
-                    </div>
-                )}
-            </div>
-
-            <div className="flex flex-1 flex-col gap-3 p-5 pb-0">
-                <div>
-                    <h3 className="mb-1 line-clamp-1 text-lg font-bold text-[#1a1c1a] transition-colors group-hover:text-[#6f4627]">
-                        {roomType.name}
-                    </h3>
-                    {roomType.description && (
-                        <p className="line-clamp-2 text-sm leading-relaxed text-[#83746b]">
-                            {roomType.description}
-                        </p>
-                    )}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3 text-xs text-[#83746b]">
-                    {roomType.size != null && (
-                        <span className="inline-flex items-center gap-1">
-                            <Icon name="square_foot" size={14} />
-                            {roomType.size} m²
-                        </span>
-                    )}
-                    <span className="inline-flex items-center gap-1">
-                        <Icon name="group" size={14} />
-                        {roomType.capacity}
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#1a130f]/80 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-md">
+                        <span className="h-1.5 w-1.5 rounded-full bg-status-vacant" />
+                        {t('propertyDetail.availableRooms', {
+                            available: roomType.availableCount,
+                            total: roomType.totalCount,
+                        })}
                     </span>
-                </div>
-
-                {pricingRows.length > 0 ? (
-                    <ul className="space-y-1.5 rounded-xl border border-[#f0e6dc] bg-[#faf9f6] p-3">
-                        {pricingRows.map((pricing) => (
-                            <li
-                                key={`${pricing.id}-${pricing.durationDays}`}
-                                className="flex items-center justify-between gap-3 text-sm"
-                            >
-                                <span className="text-[#83746b]">
-                                    {getDurationLabel(pricing.durationDays, t)}
-                                </span>
-                                <span className="shrink-0 font-semibold text-[#1a1c1a]">
-                                    {formatCurrency(pricing.price)}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
                 ) : (
-                    <p className="text-xs text-[#83746b]">{t('search.noPricing')}</p>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#1a130f]/80 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-md">
+                        <span className="h-1.5 w-1.5 rounded-full bg-status-occupied" />
+                        {t('status.full')}
+                    </span>
                 )}
             </div>
-        </>
+        </div>
     );
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: index * 0.08, duration: 0.45 }}
-            className="h-full"
+            transition={{ delay: index * 0.06, duration: 0.4 }}
         >
-            <div
+            <article
                 className={cn(
-                    'group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#e8dfd6] bg-white transition-all duration-300',
-                    'hover:-translate-y-1 hover:border-[#d4c4b4] hover:shadow-lg',
+                    'group relative flex flex-col overflow-hidden rounded-2xl glass-card transition-all duration-300 sm:flex-row sm:items-stretch',
+                    'hover:-translate-y-0.5',
                     !isAvailable && 'opacity-80',
                 )}
             >
                 {detailHref ? (
-                    <Link href={detailHref} className="block">
-                        {cardContent}
+                    <Link href={detailHref} className="block shrink-0 sm:self-stretch">
+                        {image}
                     </Link>
                 ) : (
-                    <div>{cardContent}</div>
+                    <div className="shrink-0 sm:self-stretch">{image}</div>
                 )}
 
-                <div className="mt-auto grid grid-cols-2 gap-2 border-t border-[#f0e6dc] p-5 pt-4">
-                    {detailHref ? (
-                        <Link
-                            href={detailHref}
-                            className="flex items-center justify-center gap-1.5 rounded-lg bg-[#6f4627] px-3 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-[#5a3820]"
-                        >
-                            <Icon name="visibility" size={14} />
-                            {t('cta.viewDetails')}
-                        </Link>
-                    ) : (
-                        <span className="flex items-center justify-center gap-1.5 rounded-lg bg-[#6f4627] px-3 py-2.5 text-xs font-semibold text-white">
-                            <Icon name="visibility" size={14} />
-                            {t('cta.viewDetails')}
-                        </span>
-                    )}
-                    {isAvailable ? (
-                        <WhatsAppInquiryDialog
-                            phoneNumber={whatsappNumber}
-                            propertyName={kostName}
-                            roomName={roomType.name}
-                            pricings={roomType.pricings ?? []}
-                            fallbackPrice={roomType.price}
-                            variant="compact"
-                            className="h-full w-full justify-center rounded-lg px-3 py-2.5 text-xs font-semibold"
-                        />
-                    ) : (
-                        <span className="flex h-full items-center justify-center rounded-lg bg-[#f0e6dc] px-3 py-2.5 text-xs font-semibold text-[#83746b]">
-                            {t('status.full')}
-                        </span>
-                    )}
+                <div className="flex min-w-0 flex-1 flex-col">
+                    <div className="flex flex-1 flex-col gap-1.5 px-4 py-3">
+                        {detailHref ? (
+                            <Link href={detailHref}>
+                                <h3 className="line-clamp-1 text-base font-bold text-[#1a1c1a] transition-colors group-hover:text-[#6f4627]">
+                                    {roomType.name}
+                                </h3>
+                            </Link>
+                        ) : (
+                            <h3 className="line-clamp-1 text-base font-bold text-[#1a1c1a]">
+                                {roomType.name}
+                            </h3>
+                        )}
+
+                        {roomType.description ? (
+                            <p className="line-clamp-1 text-xs leading-relaxed text-[#83746b]">
+                                {roomType.description}
+                            </p>
+                        ) : null}
+
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#83746b]">
+                            {roomType.size != null && (
+                                <span className="inline-flex items-center gap-1">
+                                    <Icon name="square_foot" size={13} />
+                                    {roomType.size} m²
+                                </span>
+                            )}
+                            <span className="inline-flex items-center gap-1">
+                                <Icon name="group" size={13} />
+                                {formatCapacity(
+                                    roomType.capacity,
+                                    locale === 'en' ? 'en' : 'id',
+                                )}
+                            </span>
+                        </div>
+
+                        {startingPricing ? (
+                            <p className="mt-auto pt-1">
+                                <span className="text-sm font-bold text-[#1a1c1a]">
+                                    {formatCurrency(startingPricing.price)}
+                                </span>
+                                <span className="ml-1 text-[11px] text-[#83746b]">
+                                    {getDurationLabel(startingPricing.durationDays, t)}
+                                </span>
+                            </p>
+                        ) : (
+                            <p className="mt-auto pt-1 text-xs text-[#83746b]">
+                                {t('search.noPricing')}
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 border-t border-[#eee4db] px-4 py-2.5">
+                        {detailHref ? (
+                            <Link
+                                href={detailHref}
+                                className="flex items-center justify-center gap-1.5 rounded-full bg-[#6f4627] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#5a3820]"
+                            >
+                                <Icon name="visibility" size={14} />
+                                {t('cta.viewDetails')}
+                            </Link>
+                        ) : (
+                            <span className="flex items-center justify-center gap-1.5 rounded-full bg-[#6f4627] px-3 py-2 text-xs font-semibold text-white">
+                                <Icon name="visibility" size={14} />
+                                {t('cta.viewDetails')}
+                            </span>
+                        )}
+                        {isAvailable ? (
+                            <WhatsAppInquiryDialog
+                                phoneNumber={whatsappNumber}
+                                propertyName={kostName}
+                                roomName={roomType.name}
+                                pricings={roomType.pricings ?? []}
+                                fallbackPrice={roomType.price}
+                                variant="compact"
+                                className="h-full w-full justify-center rounded-full px-3 py-2 text-xs font-semibold"
+                            />
+                        ) : (
+                            <span className="flex items-center justify-center rounded-full bg-[#f0e6dc] px-3 py-2 text-xs font-semibold text-[#83746b]">
+                                {t('status.full')}
+                            </span>
+                        )}
+                    </div>
                 </div>
-            </div>
+            </article>
         </motion.div>
     );
 }

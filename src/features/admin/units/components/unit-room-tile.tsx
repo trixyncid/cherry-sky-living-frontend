@@ -49,7 +49,7 @@ export const UnitRoomTile = memo(function UnitRoomTile({
         type="button"
         onClick={() => onSelect(unit)}
         className={cn(
-          "flex w-full flex-col items-start gap-2 rounded-xl border-2 p-3 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b5e3c]/40 focus-visible:ring-offset-2",
+          "flex w-full flex-col items-start gap-2 rounded-xl border-2 p-3 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ferrugem/40 focus-visible:ring-offset-2",
           styles.tile,
         )}
         aria-label={t("roomAria", { name: unit.name, status: t(`status.${status}`) })}
@@ -73,7 +73,7 @@ export const UnitRoomTile = memo(function UnitRoomTile({
         className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 hidden w-52 -translate-x-1/2 opacity-0 transition-opacity duration-150 group-hover:opacity-100 sm:block"
         role="tooltip"
       >
-        <div className="glass-panel-strong rounded-xl p-3">
+        <div className="glass-overlay rounded-xl p-3">
           <p className="text-sm font-semibold text-[#1a1c1a]">{unit.name}</p>
           <p className="mt-0.5 text-xs text-[#83746b]">{unitType}</p>
           <div className="mt-2 flex items-center gap-1.5 text-xs">

@@ -29,24 +29,41 @@ function dateLocale(appLocale?: string): string {
   return appLocale === "en" ? "en-US" : "id-ID";
 }
 
+const BUSINESS_TIMEZONE = "Asia/Jakarta";
+
 export function formatDate(value: string | Date, appLocale?: string): string {
   const date = typeof value === "string" ? new Date(value) : value;
   return new Intl.DateTimeFormat(dateLocale(appLocale), {
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: BUSINESS_TIMEZONE,
   }).format(date);
 }
 
+/** YYYY-MM-DD for date inputs — Asia/Jakarta calendar day (not UTC). */
 export function toDateInputValue(value: string | Date): string {
   const date = typeof value === "string" ? new Date(value) : value;
-  return date.toISOString().slice(0, 10);
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: BUSINESS_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
 }
 
+/** Next calendar day as YYYY-MM-DD (date-only arithmetic, no UTC shift). */
 export function dayAfterDate(value: string | Date): string {
-  const date = typeof value === "string" ? new Date(value) : new Date(value);
-  date.setDate(date.getDate() + 1);
-  return toDateInputValue(date);
+  const key =
+    typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)
+      ? value.slice(0, 10)
+      : toDateInputValue(value);
+  const [y, m, d] = key.split("-").map(Number);
+  const next = new Date(Date.UTC(y, m - 1, d + 1));
+  const yy = next.getUTCFullYear();
+  const mm = String(next.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(next.getUTCDate()).padStart(2, "0");
+  return `${yy}-${mm}-${dd}`;
 }
 
 export function formatIdrCompact(amount: number): string {

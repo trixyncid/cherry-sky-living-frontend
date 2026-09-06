@@ -83,14 +83,14 @@ export function AdminStatCard({
   const cardClass = cn(
     "glass-panel group relative overflow-hidden rounded-2xl p-5 transition-all duration-300",
     href &&
-      "hover:-translate-y-0.5 hover:border-white/80 hover:shadow-[0_16px_40px_-16px_rgba(111,70,39,0.22)]",
+      "hover:-translate-y-0.5 hover:border-white/80 hover:shadow-[0_16px_40px_-16px_rgba(90,36,48,0.24)]",
     className,
   );
 
   if (href) {
     return (
       <Link href={href} className={cardClass}>
-        <div className="absolute -right-8 -top-8 size-28 rounded-full bg-[#6f4627]/8 blur-2xl transition-transform duration-500 group-hover:scale-125" />
+        <div className="absolute -right-8 -top-8 size-28 rounded-full bg-ferrugem/10 blur-2xl transition-transform duration-500 group-hover:scale-125" />
         {content}
       </Link>
     );
@@ -99,7 +99,7 @@ export function AdminStatCard({
   return (
     <article className={cardClass}>
       <div
-        className="absolute -right-8 -top-8 size-28 rounded-full bg-[#6f4627]/8 blur-2xl"
+        className="absolute -right-8 -top-8 size-28 rounded-full bg-maroon/8 blur-2xl"
         aria-hidden
       />
       {content}

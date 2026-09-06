@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 interface ImageGalleryProps {
     images: string[];
     alt?: string;
-    variant?: 'default' | 'compact';
+    variant?: 'default' | 'compact' | 'mosaic';
     backHref?: string;
     backLabel?: string;
     header?: React.ReactNode;
@@ -37,28 +37,82 @@ export function ImageGallery({
     const remainingCount = Math.max(0, images.length - (variant === 'compact' ? 4 : 4));
 
     const isCompact = variant === 'compact';
+    const isMosaic = variant === 'mosaic';
+    const mosaicSideImages = images.slice(1, 3);
+    const mosaicRemaining = Math.max(0, images.length - 3);
 
     return (
         <>
-            <div className={cn('space-y-4', isCompact && 'space-y-3')}>
+            <div className={cn('space-y-4', isCompact && 'space-y-3', isMosaic && 'space-y-0')}>
                 {header}
                 {!header && backHref && backLabel && (
                     <Link
                         href={backHref}
-                        className="inline-flex items-center gap-2 text-sm font-medium text-[#51443c] transition-colors hover:text-[#6f4627] dark:text-slate-400 dark:hover:text-primary"
+                        className="inline-flex items-center gap-2 text-sm font-medium text-[#51443c] transition-colors hover:text-[#6f4627]"
                     >
                         <Icon name="arrow_back" size={18} />
                         {backLabel}
                     </Link>
                 )}
 
+                {isMosaic ? (
+                    <div
+                        id="photos"
+                        className="grid h-[min(16rem,52vw)] grid-cols-4 grid-rows-2 gap-2 sm:gap-3 md:h-[min(18rem,30vw)]"
+                    >
+                        <button
+                            type="button"
+                            onClick={() => setShowAllPhotos(true)}
+                            className={cn(
+                                'relative overflow-hidden rounded-[1.5rem] bg-[#efe8e0]',
+                                mosaicSideImages.length > 0
+                                    ? 'col-span-4 md:col-span-2 md:row-span-2'
+                                    : 'col-span-4 row-span-2',
+                            )}
+                        >
+                            <img
+                                src={images[0] || '/placeholder-room.jpg'}
+                                alt={alt}
+                                className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                            />
+                        </button>
+                        {mosaicSideImages.map((image, index) => {
+                            const isLast = index === mosaicSideImages.length - 1;
+                            return (
+                                <button
+                                    key={image}
+                                    type="button"
+                                    onClick={() => setShowAllPhotos(true)}
+                                    className={cn(
+                                        'relative col-span-2 overflow-hidden rounded-[1.5rem] bg-[#efe8e0] md:col-span-1',
+                                        mosaicSideImages.length === 1 && 'md:row-span-2',
+                                    )}
+                                >
+                                    <img
+                                        src={image}
+                                        alt={`${alt} ${index + 2}`}
+                                        className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                                    />
+                                    {isLast && mosaicRemaining > 0 ? (
+                                        <span className="absolute inset-0 flex items-center justify-center bg-[#1a130f]/55 text-sm font-semibold text-white">
+                                            {t('roomDetail.viewAllPhotos', {
+                                                count: images.length,
+                                            })}
+                                        </span>
+                                    ) : null}
+                                </button>
+                            );
+                        })}
+                    </div>
+                ) : (
+                <>
                 {/* Main Hero Image */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5 }}
                     className={cn(
-                        'relative w-full cursor-pointer overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-700 group',
+                        'relative w-full cursor-pointer overflow-hidden rounded-2xl bg-[#efe8e0] group',
                         isCompact
                             ? 'aspect-[16/9] max-h-48 sm:max-h-56 md:max-h-64'
                             : 'aspect-video',
@@ -71,7 +125,7 @@ export function ImageGallery({
                         alt={`${alt} ${selectedIndex + 1}`}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-md flex items-center gap-1.5 hover:bg-black/70 transition-colors">
+                    <div className="glass-chip absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/20">
                         <Icon name="photo_library" size={14} />
                         <span>{t('roomDetail.viewAllPhotos', { count: images.length })}</span>
                     </div>
@@ -94,7 +148,7 @@ export function ImageGallery({
                             <motion.div
                                 key={actualIndex}
                                 className={cn(
-                                    'relative cursor-pointer overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-700',
+                                    'relative cursor-pointer overflow-hidden rounded-xl bg-[#efe8e0]',
                                     isCompact ? 'aspect-[4/3] max-h-16 sm:max-h-20' : 'aspect-[4/3]',
                                     selectedIndex === actualIndex && 'ring-2 ring-primary',
                                 )}
@@ -113,13 +167,13 @@ export function ImageGallery({
                     {remainingCount > 0 && (
                         <div
                             className={cn(
-                                'flex cursor-pointer items-center justify-center rounded-lg bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700',
+                                'flex cursor-pointer items-center justify-center rounded-xl bg-[#f5e4d4] transition-colors hover:bg-[#eed9c6]',
                                 isCompact ? 'aspect-[4/3] max-h-16 sm:max-h-20' : 'aspect-[4/3]',
                             )}
                             onClick={() => setShowAllPhotos(true)}
                         >
                             <span className={cn(
-                                'font-semibold text-slate-600 dark:text-slate-300',
+                                'font-semibold text-[#51443c]',
                                 isCompact ? 'text-xs' : 'text-sm',
                             )}>
                                 {t('roomDetail.morePhotos', { count: remainingCount })}
@@ -127,6 +181,8 @@ export function ImageGallery({
                         </div>
                     )}
                 </motion.div>
+                )}
+                </>
                 )}
             </div>
 

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "@/i18n/routing";
 import { authClient } from "@/lib/auth/client";
+import { signOutClient } from "@/lib/auth/sign-out-client";
 
 type Portal = "admin" | "tenant";
 
@@ -29,7 +30,7 @@ export function SessionGuard({
 
       if (user && user.isActive === false) {
         handling.current = true;
-        await authClient.signOut();
+        await signOutClient();
         router.push(`${loginPath(portal)}?error=deactivated`);
         router.refresh();
       }

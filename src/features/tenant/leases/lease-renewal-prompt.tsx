@@ -42,7 +42,7 @@ export function LeaseRenewalPrompt({
     try {
       await mutations.updateRenewal.mutateAsync({
         leaseId: lease.id,
-        isRenewLease: true,
+        action: "renew",
       });
       clearRenewalDismissal(renewal!.id);
       showApiSuccess(t("requestedSuccess"));
@@ -56,7 +56,7 @@ export function LeaseRenewalPrompt({
     try {
       await mutations.updateRenewal.mutateAsync({
         leaseId: lease.id,
-        isRenewLease: false,
+        action: "decline",
       });
       dismissRenewalPrompt(renewal!.id);
       showApiSuccess(t("declinedSuccess"));
@@ -66,16 +66,17 @@ export function LeaseRenewalPrompt({
     }
   }
 
-  /** Dismiss = real decline: record on server, then hide locally. */
+  /** "No renew" records a confirmed decline on the server. */
   const handleDismiss = handleDecline;
 
   async function handleCancelRequest() {
     try {
       await mutations.updateRenewal.mutateAsync({
         leaseId: lease.id,
-        isRenewLease: false,
+        action: "cancel",
       });
-      dismissRenewalPrompt(renewal!.id);
+      // Return to unanswered — show the prompt again so they can re-request.
+      clearRenewalDismissal(renewal!.id);
       showApiSuccess(t("cancelledSuccess"));
       onResponded?.();
     } catch (err) {
@@ -92,7 +93,7 @@ export function LeaseRenewalPrompt({
         tone="pending"
         title={t("requestedTitle")}
         description={t("requestedDescription", {
-          deadline: formatDate(renewal.leaseEndDate),
+          deadline: formatDate(renewal.confirmationDeadline),
         })}
         action={
           !compact ? (
@@ -126,13 +127,13 @@ export function LeaseRenewalPrompt({
   return (
     <div
       className={cn(
-        "glass-panel rounded-[1.75rem] p-5 ring-1 ring-[#8b5e3c]/15",
+        "glass-panel rounded-[1.75rem] p-5 ring-1 ring-ferrugem/20",
         compact && "p-4",
         className,
       )}
     >
       <div className="flex gap-4">
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#8b5e3c]/12 text-[#6f4627] shadow-[inset_0_1px_0_rgb(255_255_255/0.55)]">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-ferrugem/12 text-ferrugem shadow-[inset_0_1px_0_rgb(255_255_255/0.55)]">
           <Icon name="autorenew" size={24} />
         </div>
         <div className="min-w-0 flex-1">
@@ -141,7 +142,7 @@ export function LeaseRenewalPrompt({
             {t("promptDescription", {
               unit: lease.unit?.name ?? "—",
               endDate: lease.endDate ? formatDate(lease.endDate) : "—",
-              deadline: formatDate(renewal.leaseEndDate),
+              deadline: formatDate(renewal.confirmationDeadline),
             })}
           </p>
           {!compact && (

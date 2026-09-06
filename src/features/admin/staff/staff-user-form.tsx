@@ -82,7 +82,10 @@ export function StaffUserForm({ id }: { id?: string }) {
     setFormError(null);
 
     if (isEdit && id) {
-      const parsed = updateStaffUserSchema.safeParse(form);
+      const parsed = updateStaffUserSchema({
+        nameRequired: tp("validation.nameRequired"),
+        emailInvalid: tp("validation.emailInvalid"),
+      }).safeParse(form);
       if (!parsed.success) {
         setFormError(parsed.error.issues[0]?.message ?? t("saveFailed"));
         return;
@@ -105,7 +108,11 @@ export function StaffUserForm({ id }: { id?: string }) {
       return;
     }
 
-    const parsed = createStaffUserSchema.safeParse(form);
+    const parsed = createStaffUserSchema({
+      nameRequired: tp("validation.nameRequired"),
+      emailInvalid: tp("validation.emailInvalid"),
+      passwordMin: tp("validation.passwordMin"),
+    }).safeParse(form);
     if (!parsed.success) {
       setFormError(parsed.error.issues[0]?.message ?? t("saveFailed"));
       return;

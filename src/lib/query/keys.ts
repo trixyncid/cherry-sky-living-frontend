@@ -58,6 +58,11 @@ export const adminKeys = {
     }) => [...adminKeys.ledgerEntries.all(), filters ?? {}] as const,
     detail: (id: string) => [...adminKeys.ledgerEntries.all(), id] as const,
   },
+  dashboard: {
+    all: () => [...adminKeys.all, "dashboard"] as const,
+    overview: (propertyId?: string) =>
+      [...adminKeys.dashboard.all(), { propertyId: propertyId ?? "" }] as const,
+  },
   profile: {
     all: () => [...adminKeys.all, "profile"] as const,
   },

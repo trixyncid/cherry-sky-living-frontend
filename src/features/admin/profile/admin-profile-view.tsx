@@ -18,8 +18,8 @@ import {
   showApiSuccess,
 } from "@/features/admin/lib/show-api-error";
 import {
-  adminPasswordSchema,
-  adminProfileSchema,
+  createAdminPasswordSchema,
+  createAdminProfileSchema,
   type AdminPasswordValues,
   type AdminProfileValues,
 } from "@/features/admin/profile/schemas";
@@ -40,7 +40,7 @@ const emptyPassword: AdminPasswordValues = {
 
 function roleBadgeClass(role: string) {
   return role === "superadmin"
-    ? "bg-[#f5e4d4]/80 text-[#6f4627] ring-1 ring-white/60"
+    ? "bg-ferrugem-soft/80 text-ferrugem ring-1 ring-white/60"
     : "bg-white/45 text-[#51443c] ring-1 ring-white/50";
 }
 
@@ -73,7 +73,9 @@ export function AdminProfileView() {
     e.preventDefault();
     setProfileError(null);
 
-    const parsed = adminProfileSchema.safeParse(profileForm);
+    const parsed = createAdminProfileSchema({
+      nameRequired: tp("validation.nameRequired"),
+    }).safeParse(profileForm);
     if (!parsed.success) {
       setProfileError(parsed.error.issues[0]?.message ?? tp("saveFailed"));
       return;
@@ -94,7 +96,13 @@ export function AdminProfileView() {
     e.preventDefault();
     setPasswordError(null);
 
-    const parsed = adminPasswordSchema.safeParse(passwordForm);
+    const parsed = createAdminPasswordSchema({
+      nameRequired: tp("validation.nameRequired"),
+      currentPasswordRequired: tp("validation.currentPasswordRequired"),
+      newPasswordMin: tp("validation.newPasswordMin"),
+      confirmPasswordRequired: tp("validation.confirmPasswordRequired"),
+      passwordsMismatch: tp("validation.passwordsMismatch"),
+    }).safeParse(passwordForm);
     if (!parsed.success) {
       setPasswordError(parsed.error.issues[0]?.message ?? tp("passwordFailed"));
       return;

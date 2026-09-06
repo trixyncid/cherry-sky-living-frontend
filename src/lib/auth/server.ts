@@ -69,10 +69,9 @@ export async function getSession(): Promise<AuthSession | null> {
 /**
  * Invalidate the current session on the API.
  *
- * Note: we intentionally do not mutate Next.js cookies here, because this
- * helper is used from layouts/other server components where cookie mutation
- * is not allowed. The Better Auth backend is responsible for clearing its
- * own session cookie on the API origin.
+ * Cookie mutation is not allowed from Server Components. Callers that need
+ * to clear the frontend session should redirect to GET /api/auth/sign-out
+ * (see `requireAdmin` / `requireTenant` wrong-portal handling).
  */
 export async function signOutSession(): Promise<void> {
   const cookieStore = await cookies();

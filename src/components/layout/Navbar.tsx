@@ -27,7 +27,8 @@ interface NavLink {
 function hasHeroOverlay(pathname: string) {
     return (
         /^\/(en|id)\/?$/.test(pathname) ||
-        /^\/(en|id)\/(about|contact|search-kosts)\/?$/.test(pathname)
+        /^\/(en|id)\/(about|contact|search-kosts|terms|privacy)\/?$/.test(pathname) ||
+        /^\/(en|id)\/kosts(\/|$)/.test(pathname)
     );
 }
 
@@ -73,19 +74,13 @@ function NavbarLink({ href, label, pathname, isSolid }: NavbarLinkProps) {
             {isActive ? (
                 <motion.span
                     layoutId="navbar-active-line"
-                    className={cn(
-                        'absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full',
-                        isSolid ? 'bg-[#6f4627]' : 'bg-[#f4bb92]',
-                    )}
+                    className="absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-ferrugem"
                     transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
             ) : (
                 <span
                     aria-hidden
-                    className={cn(
-                        'absolute bottom-0 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full opacity-0 transition-all duration-300 ease-out group-hover:w-4 group-hover:opacity-50',
-                        isSolid ? 'bg-[#6f4627]' : 'bg-[#f4bb92]',
-                    )}
+                    className="absolute bottom-0 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-ferrugem opacity-0 transition-all duration-300 ease-out group-hover:w-4 group-hover:opacity-50"
                 />
             )}
         </Link>
@@ -142,9 +137,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             animate={{ y: 0 }}
             className={cn(
                 'fixed left-0 right-0 top-0 z-50 transition-all duration-300',
-                isSolid
-                    ? 'border-b border-[#e3e2e0] bg-[#faf9f6]/95 backdrop-blur-xl'
-                    : 'bg-transparent',
+                isSolid ? 'glass-nav' : 'glass-nav-hero',
             )}
         >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -157,16 +150,16 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                                 whileTap={{ scale: 0.96 }}
                                 transition={{ type: 'spring', stiffness: 400, damping: 22 }}
                                 className={cn(
-                                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-shadow duration-300',
+                                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-shadow duration-300',
                                     isSolid
                                         ? 'bg-[#6f4627] group-hover:shadow-[0_4px_16px_rgba(111,70,39,0.35)]'
-                                        : 'border border-white/30 bg-[#faf9f6]/90 shadow-lg backdrop-blur-sm group-hover:shadow-[0_4px_20px_rgba(0,0,0,0.15)]',
+                                        : 'bg-white/10 ring-1 ring-white/25 group-hover:bg-white/18',
                                 )}
                             >
                                 <Icon
                                     name="apartment"
                                     size={20}
-                                    className={cn(isSolid ? 'text-white' : 'text-[#1a1c1a]')}
+                                    className="text-white"
                                 />
                             </motion.div>
                             <span
@@ -209,10 +202,10 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                             <Link
                                 href="/tenant/login"
                                 className={cn(
-                                    'group/portal hidden h-9 items-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-all duration-300 sm:inline-flex',
+                                    'group/portal hidden h-9 items-center gap-2 border px-4 text-sm font-semibold transition-all duration-300 sm:inline-flex',
                                     isSolid
-                                        ? 'border-[#d5c3b8] bg-white/85 text-[#6f4627] shadow-[0_2px_10px_rgba(111,70,39,0.07)] hover:border-[#8b5e3c]/55 hover:bg-[#f5e4d4]/75 hover:shadow-[0_4px_18px_rgba(111,70,39,0.14)]'
-                                        : 'border-white/35 bg-white/12 text-white shadow-[0_4px_16px_rgba(0,0,0,0.1)] backdrop-blur-md hover:border-white/55 hover:bg-white/22 hover:shadow-[0_6px_22px_rgba(0,0,0,0.14)]',
+                                        ? 'glass-chip-light rounded-xl text-[#6f4627] hover:border-[#8b5e3c]/55 hover:bg-[#f5e4d4]/75'
+                                        : 'rounded-full border-white/35 bg-transparent text-white hover:border-white/60 hover:bg-white/10',
                                 )}
                             >
                                 <span
@@ -220,7 +213,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                                         'flex h-6 w-6 items-center justify-center rounded-md transition-colors duration-300',
                                         isSolid
                                             ? 'bg-[#f5e4d4]/80 text-[#6f4627] group-hover/portal:bg-[#6f4627] group-hover/portal:text-white'
-                                            : 'bg-white/18 text-white group-hover/portal:bg-white/30',
+                                            : 'bg-white/10 text-white group-hover/portal:bg-white/20',
                                     )}
                                 >
                                     <Icon name="login" size={15} />

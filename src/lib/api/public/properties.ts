@@ -66,44 +66,19 @@ function unwrapItem<T>(payload: { data: T } | T | null | undefined): T | null {
 }
 
 export async function listPublicProperties(): Promise<PublicProperty[]> {
-  try {
-    const res = await apiFetch<PublicPropertiesResponse | PublicProperty[]>(
-      "/public/properties",
-    );
-    return unwrapList(res);
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
-      const fallback = await apiFetch<PublicPropertiesResponse | PublicProperty[]>(
-        "/properties",
-      );
-      return unwrapList(fallback);
-    }
-    throw error;
-  }
+  const res = await apiFetch<PublicPropertiesResponse | PublicProperty[]>(
+    "/public/properties",
+  );
+  return unwrapList(res);
 }
 
 export async function getPublicProperty(id: string): Promise<PublicProperty> {
-  try {
-    const res = await apiFetch<PublicPropertyResponse | PublicProperty>(
-      `/public/properties/${id}`,
-    );
-    const property = unwrapItem(res);
-    if (!property) {
-      throw new ApiError("NOT_FOUND", "Property not found", 404);
-    }
-    return property;
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
-      const fallback = await apiFetch<PublicPropertyResponse | PublicProperty>(
-        `/properties/${id}`,
-      );
-      const property = unwrapItem(fallback);
-      if (!property) {
-        throw new ApiError("NOT_FOUND", "Property not found", 404);
-      }
-      return property;
-    }
-    throw error;
+  const res = await apiFetch<PublicPropertyResponse | PublicProperty>(
+    `/public/properties/${id}`,
+  );
+  const property = unwrapItem(res);
+  if (!property) {
+    throw new ApiError("NOT_FOUND", "Property not found", 404);
   }
+  return property;
 }
-

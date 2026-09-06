@@ -71,8 +71,17 @@ export function LeasesList() {
     [lookups],
   );
 
-  const { page, setPage, pageData, total, pageSize, sortKey, sortDir, onSort } =
-    useClientTable(filtered, getSortValue, { defaultSortKey: "period" });
+  const {
+    page,
+    setPage,
+    pageData,
+    total,
+    pageSize,
+    setPageSize,
+    sortKey,
+    sortDir,
+    onSort,
+  } = useClientTable(filtered, getSortValue, { defaultSortKey: "period" });
 
   async function confirmDelete() {
     if (!deleteDialog.item) return;
@@ -123,6 +132,7 @@ export function LeasesList() {
               pageSize={pageSize}
               total={total}
               onPageChange={setPage}
+              onPageSizeChange={setPageSize}
             />
           ) : undefined
         }

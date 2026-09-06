@@ -5,7 +5,15 @@ export type AdminAttachmentItem = {
   url: string;
   createdAt?: string;
   kindLabel?: string;
+  contentType?: string | null;
 };
+
+export function isPdfAttachment(
+  item: Pick<AdminAttachmentItem, "url" | "contentType">,
+): boolean {
+  if (item.contentType?.toLowerCase().includes("pdf")) return true;
+  return /\.pdf(?:$|\?)/i.test(item.url);
+}
 
 export function countPropertyAttachments(property: Property): number {
   if (property._count?.propertyAttachments != null) {
