@@ -5,14 +5,12 @@ import { Link } from "@/i18n/routing";
 import { Icon } from "@/components/shared/Icon";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
 import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
-import {
-  formatDate,
-  formatIdrTable,
-} from "@/features/admin/lib/format";
+import { formatDate } from "@/features/admin/lib/format";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { useTenantLease } from "@/features/tenant/hooks/use-tenant-queries";
 import { TenantAttachmentsList } from "@/features/tenant/components/tenant-attachments-list";
 import { LeaseRenewalPrompt } from "@/features/tenant/leases/lease-renewal-prompt";
+import { TenantLeasePaymentSummary } from "@/features/tenant/leases/tenant-lease-payment-summary";
 import { getTenantRenewalView } from "@/features/tenant/lib/lease-renewal";
 import type { LeaseAttachmentKind } from "@/lib/types/admin";
 
@@ -42,10 +40,8 @@ export function TenantLeaseDetail({ id }: { id: string }) {
     );
   }
 
-  const rent = lease.unitPricing?.price ?? 0;
   const renewalView = getTenantRenewalView(lease);
   const attachments = lease.attachments ?? lease.downpaymentAttachments ?? [];
-  const isUnpaid = lease.status === "unpaid";
 
   function kindLabel(kind: LeaseAttachmentKind): string {
     if (kind === "agreement") return tp("kindAgreement");
@@ -67,51 +63,38 @@ export function TenantLeaseDetail({ id }: { id: string }) {
         <LeaseRenewalPrompt lease={lease} />
       )}
 
-      <div className="glass-panel rounded-[1.75rem] p-6">
-        <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-semibold text-[#1a1c1a]">
-              {lease.unit?.name ?? "—"}
-            </h2>
-            <p className="mt-1 text-sm text-[#51443c]">
-              {lease.unit?.property?.name ?? "—"}
-              {lease.unit?.unitType?.name
-                ? ` · ${lease.unit.unitType.name}`
-                : ""}
-            </p>
-          </div>
-          <LeaseStatusBadge status={lease.status} />
+      <div className="flex flex-wrap items-start justify-between gap-4 px-1">
+        <div>
+          <h2 className="text-xl font-semibold text-[#1a1c1a]">
+            {lease.unit?.name ?? "—"}
+          </h2>
+          <p className="mt-1 text-sm text-[#51443c]">
+            {lease.unit?.property?.name ?? "—"}
+            {lease.unit?.unitType?.name
+              ? ` · ${lease.unit.unitType.name}`
+              : ""}
+          </p>
         </div>
+        <LeaseStatusBadge status={lease.status} />
+      </div>
 
+      <TenantLeasePaymentSummary lease={lease} />
+
+      <div className="glass-panel rounded-[1.75rem] p-6">
+        <div className="mb-4">
+          <h3 className="text-base font-semibold text-[#1a1c1a]">
+            {tp("detailsTitle")}
+          </h3>
+          <p className="mt-1 text-sm text-[#83746b]">
+            {tp("detailsDescription")}
+          </p>
+        </div>
         <dl className="grid gap-4 sm:grid-cols-2">
           <DetailItem label={tp("startDate")} value={formatDate(lease.startDate)} />
           <DetailItem
             label={tp("endDate")}
             value={lease.endDate ? formatDate(lease.endDate) : "—"}
           />
-          <DetailItem label={t("rent")} value={formatIdrTable(rent)} />
-          <DetailItem
-            label={tp("amountDue")}
-            value={formatIdrTable(lease.amountDue)}
-          />
-          {isUnpaid && lease.paymentDueDate != null && (
-            <DetailItem
-              label={tp("paymentDueDate")}
-              value={formatDate(lease.paymentDueDate)}
-            />
-          )}
-          {isUnpaid && lease.daysLate != null && (
-            <DetailItem
-              label={tp("daysLate")}
-              value={String(lease.daysLate)}
-            />
-          )}
-          {isUnpaid && lease.lateFeeAmount != null && (
-            <DetailItem
-              label={tp("lateFeeAmount")}
-              value={formatIdrTable(lease.lateFeeAmount)}
-            />
-          )}
           {lease.unit?.property?.address && (
             <DetailItem
               label={tp("address")}

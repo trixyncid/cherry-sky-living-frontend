@@ -6,6 +6,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -144,22 +145,24 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                 <div className="flex h-16 items-center justify-between gap-3">
                     {/* Left: logo */}
                     <div className="flex min-w-0 items-center gap-2">
-                        <Link href="/" className="group flex min-w-0 items-center gap-2">
+                        <Link href="/" className="group flex min-w-0 items-center gap-2.5">
                             <motion.div
-                                whileHover={{ scale: 1.06, rotate: -2 }}
-                                whileTap={{ scale: 0.96 }}
+                                whileHover={{ scale: 1.04 }}
+                                whileTap={{ scale: 0.97 }}
                                 transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-                                className={cn(
-                                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-shadow duration-300',
-                                    isSolid
-                                        ? 'bg-[#6f4627] group-hover:shadow-[0_4px_16px_rgba(111,70,39,0.35)]'
-                                        : 'bg-white/10 ring-1 ring-white/25 group-hover:bg-white/18',
-                                )}
+                                className="shrink-0"
                             >
-                                <Icon
-                                    name="apartment"
-                                    size={20}
-                                    className="text-white"
+                                <Image
+                                    src="/logo.svg"
+                                    alt={t('common.brand.name')}
+                                    width={36}
+                                    height={36}
+                                    className={cn(
+                                        'h-9 w-9 object-contain transition-[filter] duration-300',
+                                        !isSolid &&
+                                            'drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]',
+                                    )}
+                                    priority
                                 />
                             </motion.div>
                             <span
@@ -167,7 +170,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                                     'truncate text-lg font-bold tracking-tight transition-colors duration-300',
                                     isSolid
                                         ? 'text-[#1a1c1a] group-hover:text-[#6f4627]'
-                                        : 'text-[#faf9f6] drop-shadow-lg group-hover:text-white',
+                                        : 'text-[#faf9f6] [text-shadow:0_1px_2px_rgba(0,0,0,0.45),0_4px_16px_rgba(0,0,0,0.25)] group-hover:text-white',
                                 )}
                             >
                                 {t('common.brand.name')}

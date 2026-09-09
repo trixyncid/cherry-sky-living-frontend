@@ -1,6 +1,2 @@
-/** Admin login marketing assets (from design reference). */
-export const ADMIN_LOGIN_BACKGROUND_IMAGE =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBiybdzXSyxNDsRRZKhASr6tDgLDe760Okjt8RPnj6UDyMyPYVO2Bko1rYuu0ZIWGbWiCgswZPIUpR1zEMSZXH4qZa04iPOU3A9Kt8coEEUZL-AFAMQdBf4tHOgIphaHRJ1iTmU_1kXLjej9jEaE3tM8YhC8xEZLH4BAUrgl0xpUL6rAlTFoanRTWpjIjxFeMBw82Ch3vgUVpvH5hW-7SbjYxWQWfdxUlgMlVd14riGtJK3FUYt1vvu_6eU2roDLRU762ZO_YSaX6A";
-
-export const ADMIN_LOGIN_LOGO_IMAGE =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBMQu8jXgppiv2r8DZM7oJrqMmur5oyXhsAdKgDew2BRPfZnO32N1mXOrwuwkdoq6yEAlsLqaXRR3ieEwhe_gofttIf7d3mnev1tZRb58H9zD63OjzGNyJAocT-JSU1abSb6b9hUdrzcqz0NNOVCd1VZJQ7pgp5It6nw9a3qhG6JfUW4XgQgjTrzXMZ_3d3fdr5RTkVeWjCsBcDLnm2F78GoMEEeizqxFLIP4NOASHGkztKpDCkbsNopUQ3CY1mwY5XlQ6y_2C1vEI";
+/** Shared login marketing assets — matches public Hero. */
+export const LOGIN_BACKGROUND_IMAGE = "/assets/cherry-kost.jpeg";

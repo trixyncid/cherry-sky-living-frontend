@@ -22,6 +22,7 @@ interface HomeNeighborhoodProps {
 export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
   const t = useTranslations("home.neighborhood");
   const tCta = useTranslations("cta");
+  const tPricing = useTranslations("pricing");
   const tWhatsapp = useTranslations("whatsapp");
 
   const visitUrl = featured
@@ -107,6 +108,9 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
                 {featured.priceRange.min > 0 && (
                   <span className="font-semibold text-[#1a1c1a]">
                     {formatCurrency(featured.priceRange.min)}
+                    <span className="ml-0.5 font-medium text-[#83746b]">
+                      {tPricing("perMonth")}
+                    </span>
                   </span>
                 )}
               </div>

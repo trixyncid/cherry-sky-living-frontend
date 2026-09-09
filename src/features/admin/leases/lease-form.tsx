@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/routing";
+import { Icon } from "@/components/shared/Icon";
 import {
   AdminDateRangePicker,
   AdminField,
@@ -18,6 +19,8 @@ import {
   AdminFormSection,
 } from "@/features/admin/components/admin-form-layout";
 import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
+import { LeaseAmountReceipt } from "@/features/admin/leases/lease-amount-receipt";
+import { LeaseInvoiceDownloadButton } from "@/features/admin/leases/lease-invoice-download-button";
 import { AdminLeaseRenewalActions } from "@/features/admin/leases/lease-renewal-actions";
 import { AdminLeaseStatusActions } from "@/features/admin/leases/lease-status-actions";
 import {
@@ -717,110 +720,28 @@ export function LeaseForm({ id }: { id?: string }) {
         <div className="rounded-xl border border-[#ba1a1a]/25 bg-[#fff5f5] px-4 py-3 text-sm text-[#ba1a1a]">
           {amountPreview.error}
         </div>
-      ) : amountPreview ? (
-        <div className="rounded-xl border border-[#e3e2e0] bg-[#faf9f6]/80 px-4 py-3 text-sm text-[#51443c]">
-          <p className="font-semibold text-[#1a1c1a]">{tp("amountPreview")}</p>
-          <dl className="mt-2 grid gap-1.5 sm:grid-cols-2">
-            {amountPreviewDetails ? (
-              <>
-                <div className="flex justify-between gap-2 sm:block">
-                  <dt className="text-xs text-[#83746b]">{tp("monthlyRate")}</dt>
-                  <dd className="font-medium text-[#1a1c1a]">
-                    {formatIdrTable(amountPreviewDetails.monthlyRate)}
-                  </dd>
-                </div>
-                {amountPreview.dailyRate > 0 ? (
-                  <div className="flex justify-between gap-2 sm:block">
-                    <dt className="text-xs text-[#83746b]">{tp("dailyRate")}</dt>
-                    <dd className="font-medium text-[#1a1c1a]">
-                      {formatIdrTable(amountPreviewDetails.dailyRate)}
-                    </dd>
-                  </div>
-                ) : null}
-              </>
-            ) : null}
-            {amountPreview.stubDays > 0 || amountPreview.endStubDays > 0 ? (
-              <>
-                {amountPreview.stubDays > 0 ? (
-                  <div className="flex justify-between gap-2 sm:block">
-                    <dt className="text-xs text-[#83746b]">{tp("stubDays")}</dt>
-                    <dd className="font-medium text-[#1a1c1a]">
-                      {amountPreview.stubDays}
-                    </dd>
-                  </div>
-                ) : null}
-                {amountPreviewDetails && amountPreview.stubDays > 0 ? (
-                  <div className="flex justify-between gap-2 sm:block">
-                    <dt className="text-xs text-[#83746b]">
-                      {tp("startStubSubtotal")}
-                    </dt>
-                    <dd className="font-medium text-[#1a1c1a]">
-                      {amountPreview.stubDays} x{" "}
-                      {formatIdrTable(amountPreviewDetails.dailyRate)} ={" "}
-                      {formatIdrTable(amountPreviewDetails.startStubSubtotal)}
-                    </dd>
-                  </div>
-                ) : null}
-                {amountPreview.endStubDays > 0 ? (
-                  <div className="flex justify-between gap-2 sm:block">
-                    <dt className="text-xs text-[#83746b]">{tp("endStubDays")}</dt>
-                    <dd className="font-medium text-[#1a1c1a]">
-                      {amountPreview.endStubDays}
-                    </dd>
-                  </div>
-                ) : null}
-                {amountPreviewDetails && amountPreview.endStubDays > 0 ? (
-                  <div className="flex justify-between gap-2 sm:block">
-                    <dt className="text-xs text-[#83746b]">
-                      {tp("endStubSubtotal")}
-                    </dt>
-                    <dd className="font-medium text-[#1a1c1a]">
-                      {amountPreview.endStubDays} x{" "}
-                      {formatIdrTable(amountPreviewDetails.dailyRate)} ={" "}
-                      {formatIdrTable(amountPreviewDetails.endStubSubtotal)}
-                    </dd>
-                  </div>
-                ) : null}
-              </>
-            ) : null}
-            <div className="flex justify-between gap-2 sm:block">
-              <dt className="text-xs text-[#83746b]">{tp("fullMonths")}</dt>
-              <dd className="font-medium text-[#1a1c1a]">
-                {amountPreview.fullMonths}
-              </dd>
-            </div>
-            {amountPreviewDetails && amountPreview.fullMonths > 0 ? (
-              <div className="flex justify-between gap-2 sm:block">
-                <dt className="text-xs text-[#83746b]">{tp("monthlySubtotal")}</dt>
-                <dd className="font-medium text-[#1a1c1a]">
-                  {amountPreview.fullMonths} x{" "}
-                  {formatIdrTable(amountPreviewDetails.monthlyRate)} ={" "}
-                  {formatIdrTable(amountPreviewDetails.monthlySubtotal)}
-                </dd>
-              </div>
-            ) : null}
-            <div className="flex justify-between gap-2 sm:block">
-              <dt className="text-xs text-[#83746b]">{tp("amountDue")}</dt>
-              <dd className="font-medium text-[#1a1c1a]">
-                {formatIdrTable(amountPreview.amountDue)}
-              </dd>
-            </div>
-          </dl>
-          {amountPreviewDetails ? (
-            <div className="mt-3 rounded-lg border border-[#e8ddd4] bg-white/70 px-3 py-2 text-xs text-[#51443c]">
-              <p className="font-medium text-[#1a1c1a]">{tp("calculationFormula")}</p>
-              <p className="mt-1">
-                {formatIdrTable(amountPreviewDetails.startStubSubtotal)}
-                {" + "}
-                {formatIdrTable(amountPreviewDetails.monthlySubtotal)}
-                {" + "}
-                {formatIdrTable(amountPreviewDetails.endStubSubtotal)}
-                {" = "}
-                {formatIdrTable(amountPreview.amountDue)}
-              </p>
-            </div>
-          ) : null}
-        </div>
+      ) : amountPreview && amountPreviewDetails ? (
+        <LeaseAmountReceipt
+          breakdown={amountPreview}
+          details={amountPreviewDetails}
+          startDate={form.startDate}
+          endDate={form.endDate}
+          unitLabel={
+            selectedUnit?.name ?? lease?.unit?.name ?? null
+          }
+          propertyLabel={
+            selectedUnit
+              ? resolveUnitPropertyName(selectedUnit, lookups)
+              : lease?.unit
+                ? resolveLeasePropertyName(lease, lookups)
+                : null
+          }
+          headerAction={
+            isEdit && lease ? (
+              <LeaseInvoiceDownloadButton lease={lease} variant="secondary" />
+            ) : null
+          }
+        />
       ) : null}
       {overlapConflicts.length > 0 && (
         <div className="space-y-2 rounded-xl border border-[#ba1a1a]/25 bg-[#fff5f5] px-4 py-3 text-sm text-[#51443c]">
@@ -844,6 +765,26 @@ export function LeaseForm({ id }: { id?: string }) {
       )}
       {isEdit && lease && (
         <AdminLeaseStatusActions lease={lease} />
+      )}
+      {isEdit && lease && (
+        <div className="rounded-xl border border-[#d5c3b8]/55 bg-gradient-to-br from-white/80 via-[#faf9f6]/90 to-ferrugem-soft/30 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex min-w-0 items-start gap-3">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#8b5e3c] via-[#6f4627] to-maroon text-white shadow-[0_8px_20px_rgb(90_36_48/0.18)] ring-1 ring-white/40">
+                <Icon name="picture_as_pdf" size={20} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-[#1a1c1a]">
+                  {tp("invoice.sectionTitle")}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-[#83746b]">
+                  {tp("invoice.sectionHint")}
+                </p>
+              </div>
+            </div>
+            <LeaseInvoiceDownloadButton lease={lease} />
+          </div>
+        </div>
       )}
       {isEdit && lease?.status === "paid" && (
         <label className="flex items-start gap-2 text-sm text-[#51443c]">

@@ -1,6 +1,7 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 import { ProfileAvatarPlaceholder } from "@/components/shared/profile-avatar-placeholder";
@@ -9,10 +10,12 @@ import {
   adminNavGroups,
   adminNavItems,
   type AdminNavGroup,
+  type AdminNavPageKey,
 } from "@/features/admin/constants/nav-items";
 import { UserRole } from "@/lib/types/auth";
 import { AdminSignOutDialog } from "@/features/admin/components/admin-sign-out-dialog";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
+import { useLeases } from "@/features/admin/hooks/use-admin-queries";
 import { signOutClient } from "@/lib/auth/sign-out-client";
 import { cn } from "@/lib/utils";
 
@@ -38,11 +41,39 @@ function resolveActiveNavHref(pathname: string): string | null {
   ).href;
 }
 
+function NavCountBadge({
+  count,
+  active,
+  label,
+}: {
+  count: number;
+  active: boolean;
+  label: string;
+}) {
+  if (count <= 0) return null;
+  const display = count > 99 ? "99+" : String(count);
+
+  return (
+    <span
+      className={cn(
+        "ml-auto inline-flex min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none tabular-nums",
+        active
+          ? "bg-white/20 text-white ring-1 ring-white/35"
+          : "bg-[linear-gradient(135deg,#a44a32_0%,#6f4627_100%)] text-white shadow-[0_4px_10px_rgb(90_36_48/0.28)]",
+      )}
+      aria-label={label}
+    >
+      {display}
+    </span>
+  );
+}
+
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const t = useTranslations("admin");
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAdminShell();
+  const { data: leases = [] } = useLeases();
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
 
@@ -61,6 +92,22 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
   const profileActive = pathname.startsWith("/admin/profile");
   const navGroups = navGroupsForRole(user.role);
+  const pendingRenewalReviews = useMemo(
+    () =>
+      leases.filter((lease) => {
+        const renewal = lease.leaseRenewal;
+        return (
+          Boolean(renewal?.isRenewLease) &&
+          !renewal?.isConfirmed &&
+          !renewal?.markAsCompleted
+        );
+      }).length,
+    [leases],
+  );
+
+  const navBadges: Partial<Record<AdminNavPageKey, number>> = {
+    leaseRenewals: pendingRenewalReviews,
+  };
 
   return (
     <>
@@ -69,9 +116,14 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         onClick={onNavigate}
         className="mb-6 flex items-center gap-3 rounded-2xl px-1.5 py-1 transition-opacity hover:opacity-90"
       >
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-ferrugem to-maroon-deep shadow-[0_8px_20px_rgb(90_36_48/0.32)] ring-1 ring-white/30">
-          <Icon name="apartment" size={24} filled className="text-white" />
-        </div>
+        <Image
+          src="/logo.svg"
+          alt={t("brand.name")}
+          width={44}
+          height={44}
+          className="size-11 shrink-0 object-contain"
+          priority
+        />
         <div>
           <p className="truncate text-base font-bold tracking-tight text-[#1a1c1a]">
             {t("brand.name")}
@@ -91,6 +143,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             <ul className="space-y-1">
               {group.items.map((item) => {
                 const active = resolveActiveNavHref(pathname) === item.href;
+                const badgeCount = navBadges[item.key] ?? 0;
                 return (
                   <li key={item.key}>
                     <Link
@@ -118,9 +171,19 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                           className={active ? "text-white" : "text-ferrugem"}
                         />
                       </span>
-                      <span className="truncate">{t(item.labelKey)}</span>
-                      {active && (
-                        <span className="ml-auto size-1.5 shrink-0 rounded-full bg-ferrugem-soft shadow-[0_0_8px_rgb(240_212_200/0.9)]" />
+                      <span className="min-w-0 truncate">{t(item.labelKey)}</span>
+                      {badgeCount > 0 ? (
+                        <NavCountBadge
+                          count={badgeCount}
+                          active={active}
+                          label={t("nav.leaseRenewalsPending", {
+                            count: badgeCount,
+                          })}
+                        />
+                      ) : (
+                        active && (
+                          <span className="ml-auto size-1.5 shrink-0 rounded-full bg-ferrugem-soft shadow-[0_0_8px_rgb(240_212_200/0.9)]" />
+                        )
                       )}
                     </Link>
                   </li>

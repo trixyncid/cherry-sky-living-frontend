@@ -22,6 +22,7 @@ import {
 import { getContactWhatsAppNumber } from '@/lib/contact';
 import { publicKeys } from '@/lib/query/keys';
 import { isNotFoundApiError } from '@/lib/api/errors';
+import { MONTHLY_DURATION_DAYS } from '@/lib/billing';
 
 function toSlug(value: string) {
     return value
@@ -29,6 +30,32 @@ function toSlug(value: string) {
         .trim()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '');
+}
+
+function finitePrices(pricings: PublicPricing[] | undefined): number[] {
+    return (pricings ?? [])
+        .map((p) => p.price)
+        .filter((price): price is number => Number.isFinite(price));
+}
+
+/** Prefer monthly package prices for public "starting from" displays. */
+function publicDisplayPrices(pricings: PublicPricing[] | undefined): number[] {
+    const monthly = (pricings ?? [])
+        .filter(
+            (p) =>
+                p.durationDays === MONTHLY_DURATION_DAYS &&
+                Number.isFinite(p.price),
+        )
+        .map((p) => p.price);
+    return monthly.length > 0 ? monthly : finitePrices(pricings);
+}
+
+function minPriceOf(prices: number[]): number {
+    return prices.length > 0 ? Math.min(...prices) : 0;
+}
+
+function maxPriceOf(prices: number[]): number {
+    return prices.length > 0 ? Math.max(...prices) : 0;
 }
 
 function mapRoomTypePricings(pricings: PublicPricing[] | undefined) {
@@ -55,10 +82,11 @@ function formatCapacityFromOccupancy(occupancies: number[]): string {
 
 function mapPublicPropertyToKost(property: PublicProperty, index: number): Kost {
     const unitTypes = property.unitTypes ?? [];
-    const allPricings = unitTypes.flatMap((ut) => ut.pricings ?? []);
-    const prices = allPricings.map((p) => p.price).filter((p) => Number.isFinite(p));
-    const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
-    const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+    const displayPrices = unitTypes.flatMap((ut) =>
+        publicDisplayPrices(ut.pricings),
+    );
+    const minPrice = minPriceOf(displayPrices);
+    const maxPrice = maxPriceOf(displayPrices);
 
     const totalRooms = unitTypes.reduce((sum, ut) => sum + (ut.units?.length ?? 0), 0);
     const availableRooms = unitTypes.reduce(
@@ -70,8 +98,7 @@ function mapPublicPropertyToKost(property: PublicProperty, index: number): Kost 
         property.propertyAttachments?.map((a) => a.url).filter(Boolean) ?? [];
 
     const roomTypes = unitTypes.map((ut) => {
-        const utPrices = (ut.pricings ?? []).map((p) => p.price).filter((p) => Number.isFinite(p));
-        const price = utPrices.length > 0 ? Math.min(...utPrices) : minPrice;
+        const price = minPriceOf(publicDisplayPrices(ut.pricings)) || minPrice;
         const totalCount = ut.units?.length ?? 0;
         const availableCount = (ut.units ?? []).filter((u) => u.status === 'vacant').length;
         const unitTypeImages =

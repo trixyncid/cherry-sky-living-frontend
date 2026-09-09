@@ -28,7 +28,7 @@ const fieldMotion = {
     opacity: 1,
     y: 0,
     transition: {
-      delay: 0.2 + i * 0.06,
+      delay: 0.28 + i * 0.06,
       duration: 0.45,
       ease: [0.22, 1, 0.36, 1] as const,
     },
@@ -38,7 +38,7 @@ const fieldMotion = {
 const inputClassName = cn(
   "glass-control block w-full rounded-xl py-2.5 pl-10 pr-3 text-base text-[#1a1c1a]",
   "transition-all placeholder:text-[#51443c]/50",
-  "focus:outline-none focus:ring-2 focus:ring-ferrugem/20",
+  "focus:outline-none focus:ring-2 focus:ring-ferrugem/25",
 );
 
 function showLoginError(
@@ -129,16 +129,19 @@ export function AdminLoginForm() {
   });
 
   return (
-    <AdminLoginShell>
-      <motion.div variants={fieldMotion} custom={0} initial="hidden" animate="visible">
-        <h1 className="text-center text-2xl font-semibold tracking-tight text-[#1a1c1a]">
-          {t("title")}
-        </h1>
-        <p className="mt-1 text-center text-base text-[#51443c]">{t("subtitle")}</p>
-      </motion.div>
+    <AdminLoginShell portal="admin">
+      <motion.h1
+        className="text-lg font-semibold tracking-tight text-[#1a1c1a]"
+        variants={fieldMotion}
+        custom={0}
+        initial="hidden"
+        animate="visible"
+      >
+        {t("title")}
+      </motion.h1>
 
       <form
-        className="mt-6 space-y-6"
+        className="mt-5 space-y-5"
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -163,7 +166,7 @@ export function AdminLoginForm() {
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Icon name="mail" size={20} className="text-[#5f5e5e]" />
+                  <Icon name="mail" size={20} className="text-[#83746b]" />
                 </div>
                 <input
                   id="admin-email"
@@ -199,7 +202,7 @@ export function AdminLoginForm() {
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Icon name="lock" size={20} className="text-[#5f5e5e]" />
+                  <Icon name="lock" size={20} className="text-[#83746b]" />
                 </div>
                 <input
                   id="admin-password"
@@ -215,7 +218,7 @@ export function AdminLoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#6f4627]"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#83746b] transition-colors hover:text-[#6f4627]"
                   aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                 >
                   <Icon
@@ -240,10 +243,10 @@ export function AdminLoginForm() {
                 type="submit"
                 disabled={!canSubmit || isSubmitting}
                 className={cn(
-                  "admin-btn-primary mt-2 flex w-full items-center justify-center rounded-xl border border-transparent",
-                  "px-4 py-2.5 text-sm font-semibold",
+                  "admin-btn-primary mt-1 flex w-full items-center justify-center rounded-xl border border-transparent",
+                  "px-4 py-3 text-sm font-semibold",
                   "transition-all duration-200",
-                  "focus:outline-none focus:ring-2 focus:ring-ferrugem focus:ring-offset-2",
+                  "focus:outline-none focus:ring-2 focus:ring-ferrugem focus:ring-offset-2 focus:ring-offset-[#faf9f6]",
                   "disabled:cursor-not-allowed disabled:opacity-60",
                 )}
                 whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
@@ -257,13 +260,13 @@ export function AdminLoginForm() {
       </form>
 
       <motion.div
-        className="mt-8 border-t border-white/40 pt-6 text-center"
+        className="mt-8 border-t border-[#d5c3b8]/55 pt-5 text-center"
         variants={fieldMotion}
         custom={4}
         initial="hidden"
         animate="visible"
       >
-        <p className="text-xs font-medium text-[#5f5e5e]">{t("securityNote")}</p>
+        <p className="text-xs font-medium text-[#83746b]">{t("securityNote")}</p>
       </motion.div>
     </AdminLoginShell>
   );

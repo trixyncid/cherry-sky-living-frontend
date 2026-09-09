@@ -29,6 +29,8 @@ export interface DatePickerProps {
   popoverClassName?: string;
   fromDate?: Date;
   toDate?: Date;
+  /** Extra per-day disable rules (combined with fromDate/toDate). */
+  isDateDisabled?: (date: Date) => boolean;
 }
 
 export function DatePicker({
@@ -41,6 +43,7 @@ export function DatePicker({
   popoverClassName,
   fromDate,
   toDate,
+  isDateDisabled,
 }: DatePickerProps) {
   const appLocale = useLocale();
   const t = useTranslations("admin.datePicker");
@@ -53,6 +56,7 @@ export function DatePicker({
     const today = new Date();
     if (fromDate && today < fromDate) return;
     if (toDate && today > toDate) return;
+    if (isDateDisabled?.(today)) return;
     onChange(toDateOnlyString(today));
     setOpen(false);
   }
@@ -112,6 +116,7 @@ export function DatePicker({
           disabled={(date) => {
             if (fromDate && date < fromDate) return true;
             if (toDate && date > toDate) return true;
+            if (isDateDisabled?.(date)) return true;
             return false;
           }}
           defaultMonth={selected}

@@ -12,8 +12,7 @@ import { Link } from "@/i18n/routing";
 import { generateWhatsAppURL } from "@/lib/utils/format";
 import { getContactWhatsAppNumber } from "@/lib/contact";
 
-const ABOUT_PHOTO =
-  "https://images.unsplash.com/photo-1600585153490-76fb20a32601?w=1920&h=1080&fit=crop&q=80";
+const ABOUT_PHOTO = "/assets/skykost.jpeg";
 
 export function AboutHero() {
   const t = useTranslations("about.hero");
@@ -34,11 +33,11 @@ export function AboutHero() {
         >
           <Image
             src={ABOUT_PHOTO}
-            alt=""
+            alt="SKY KOST"
             fill
             priority
             sizes="100vw"
-            className="object-cover object-center"
+            className="object-cover object-[center_45%]"
           />
         </motion.div>
         <div className="absolute inset-0 hero-overlay-x" />

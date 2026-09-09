@@ -6,7 +6,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,20 +18,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { DatePicker } from "@/components/date-picker";
 import { Icon } from "@/components/shared/Icon";
 import { RequiredMark } from "@/components/shared/required-mark";
+import { SelectMenu } from "@/components/shared/select-menu";
+import { formatDate } from "@/features/admin/lib/format";
+import { listPublicProperties } from "@/lib/api/public/properties";
 import { getContactWhatsAppNumber } from "@/lib/contact";
+import { parseDateOnly } from "@/lib/date-input";
+import { publicKeys } from "@/lib/query/keys";
 import { generateWhatsAppURL } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
-
-const SURVEY_DAYS = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-] as const;
 
 const SURVEY_TIMES = [
   "08:00",
@@ -46,31 +44,26 @@ const SURVEY_TIMES = [
   "18:00",
 ] as const;
 
-const PROPERTIES = ["skykost", "cherrykost"] as const;
-
 interface FormState {
   name: string;
   phone: string;
-  surveyDay: string;
+  surveyDate: string;
   surveyTime: string;
-  roomType: string;
-  property: string;
+  propertyId: string;
+  unitTypeId: string;
 }
 
 interface FormErrors {
   name?: string;
   phone?: string;
-  surveyDay?: string;
+  surveyDate?: string;
   surveyTime?: string;
-  roomType?: string;
-  property?: string;
+  propertyId?: string;
+  unitTypeId?: string;
 }
 
 const inputClassName =
-  "w-full rounded-xl border border-[#e3e2e0] bg-white px-4 py-3 text-[#1a1c1a] transition-colors placeholder:text-[#b0a29a] focus:border-[#8b5e3c]/60 focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/15";
-
-const selectClassName =
-  "w-full appearance-none rounded-xl border border-[#e3e2e0] bg-white py-3 pl-4 pr-10 text-[#1a1c1a] transition-colors focus:border-[#8b5e3c]/60 focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/15";
+  "h-[3.25rem] w-full rounded-xl border border-[#e3e2e0] bg-white px-4 text-[#1a1c1a] transition-colors placeholder:text-[#b0a29a] focus:border-[#8b5e3c]/60 focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/15";
 
 const inputErrorClassName =
   "border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/15";
@@ -78,11 +71,22 @@ const inputErrorClassName =
 const emptyForm: FormState = {
   name: "",
   phone: "",
-  surveyDay: "",
+  surveyDate: "",
   surveyTime: "",
-  roomType: "",
-  property: "",
+  propertyId: "",
+  unitTypeId: "",
 };
+
+function startOfToday(): Date {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
+/** Surveys are Monday–Saturday only. */
+function isSurveyDateDisabled(date: Date): boolean {
+  return date.getDay() === 0;
+}
 
 interface SurveyScheduleDialogProps {
   triggerLabel: string;
@@ -94,11 +98,51 @@ export function SurveyScheduleDialog({
   className,
 }: SurveyScheduleDialogProps) {
   const t = useTranslations("home.faq.surveyDialog");
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [errors, setErrors] = useState<FormErrors>({});
 
   const phoneNumber = useMemo(() => getContactWhatsAppNumber(), []);
+  const today = useMemo(() => startOfToday(), []);
+
+  const { data: properties = [], isLoading: propertiesLoading } = useQuery({
+    queryKey: publicKeys.properties.all(),
+    queryFn: listPublicProperties,
+    enabled: open,
+  });
+
+  const selectedProperty = useMemo(
+    () => properties.find((property) => property.id === form.propertyId),
+    [properties, form.propertyId],
+  );
+
+  const propertyOptions = useMemo(
+    () =>
+      properties.map((property) => ({
+        value: property.id,
+        label: property.name,
+      })),
+    [properties],
+  );
+
+  const unitTypeOptions = useMemo(
+    () =>
+      (selectedProperty?.unitTypes ?? []).map((unitType) => ({
+        value: unitType.id,
+        label: unitType.name,
+      })),
+    [selectedProperty],
+  );
+
+  const timeOptions = useMemo(
+    () =>
+      SURVEY_TIMES.map((time) => ({
+        value: time,
+        label: time,
+      })),
+    [],
+  );
 
   const resetForm = () => {
     setForm(emptyForm);
@@ -112,13 +156,41 @@ export function SurveyScheduleDialog({
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handlePropertyChange = (value: string) => {
+    setForm((prev) => ({ ...prev, propertyId: value, unitTypeId: "" }));
+    setErrors((prev) => ({
+      ...prev,
+      propertyId: undefined,
+      unitTypeId: undefined,
+    }));
+  };
+
+  const handleUnitTypeChange = (value: string) => {
+    setForm((prev) => ({ ...prev, unitTypeId: value }));
+    if (errors.unitTypeId) {
+      setErrors((prev) => ({ ...prev, unitTypeId: undefined }));
+    }
+  };
+
+  const handleSurveyDateChange = (value: string) => {
+    setForm((prev) => ({ ...prev, surveyDate: value }));
+    if (errors.surveyDate) {
+      setErrors((prev) => ({ ...prev, surveyDate: undefined }));
+    }
+  };
+
+  const handleSurveyTimeChange = (value: string) => {
+    setForm((prev) => ({ ...prev, surveyTime: value }));
+    if (errors.surveyTime) {
+      setErrors((prev) => ({ ...prev, surveyTime: undefined }));
     }
   };
 
@@ -133,17 +205,22 @@ export function SurveyScheduleDialog({
     } else if (!/^[\d\s+\-()]{8,}$/.test(form.phone.trim())) {
       nextErrors.phone = t("invalidPhone");
     }
-    if (!form.surveyDay) {
-      nextErrors.surveyDay = t("required");
+    if (!form.propertyId) {
+      nextErrors.propertyId = t("required");
+    }
+    if (!form.unitTypeId) {
+      nextErrors.unitTypeId = t("required");
+    }
+    if (!form.surveyDate) {
+      nextErrors.surveyDate = t("required");
+    } else {
+      const selected = parseDateOnly(form.surveyDate);
+      if (!selected || isSurveyDateDisabled(selected) || selected < today) {
+        nextErrors.surveyDate = t("invalidDate");
+      }
     }
     if (!form.surveyTime) {
       nextErrors.surveyTime = t("required");
-    }
-    if (!form.roomType.trim()) {
-      nextErrors.roomType = t("required");
-    }
-    if (!form.property) {
-      nextErrors.property = t("required");
     }
 
     setErrors(nextErrors);
@@ -154,16 +231,21 @@ export function SurveyScheduleDialog({
     e.preventDefault();
     if (!validate()) return;
 
-    const propertyLabel =
-      form.property === "cherrykost" ? t("cherrykost") : t("skykost");
-    const dayLabel = t(`days.${form.surveyDay as (typeof SURVEY_DAYS)[number]}`);
+    const propertyLabel = selectedProperty?.name ?? form.propertyId;
+    const unitTypeLabel =
+      unitTypeOptions.find((unitType) => unitType.value === form.unitTypeId)
+        ?.label ?? form.unitTypeId;
+    const selectedDate = parseDateOnly(form.surveyDate);
+    const surveyDateLabel = selectedDate
+      ? formatDate(selectedDate, locale)
+      : form.surveyDate;
 
     const message = t("message", {
       name: form.name.trim(),
       phone: form.phone.trim(),
-      surveyDay: dayLabel,
+      surveyDay: surveyDateLabel,
       surveyTime: form.surveyTime,
-      roomType: form.roomType.trim(),
+      roomType: unitTypeLabel,
       property: propertyLabel,
     });
 
@@ -175,6 +257,14 @@ export function SurveyScheduleDialog({
     setOpen(false);
     resetForm();
   };
+
+  const unitTypePlaceholder = !form.propertyId
+    ? t("unitSelectPropertyFirst")
+    : propertiesLoading
+      ? t("unitsLoading")
+      : unitTypeOptions.length === 0
+        ? t("noUnitsAvailable")
+        : t("unitPlaceholder");
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -242,41 +332,82 @@ export function SurveyScheduleDialog({
             )}
           </div>
 
+          <div>
+            <label
+              htmlFor="survey-property"
+              className="mb-2 block text-sm font-semibold text-[#1a1c1a]"
+            >
+              {t("property")}
+              <RequiredMark className="ml-0.5" />
+            </label>
+            <SelectMenu
+              id="survey-property"
+              value={form.propertyId}
+              onChange={handlePropertyChange}
+              options={propertyOptions}
+              disabled={propertiesLoading}
+              placeholder={
+                propertiesLoading
+                  ? t("propertiesLoading")
+                  : t("propertyPlaceholder")
+              }
+              className={cn(errors.propertyId && inputErrorClassName)}
+              aria-label={t("property")}
+            />
+            {errors.propertyId && (
+              <p className="mt-1 text-xs text-red-500">{errors.propertyId}</p>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="survey-unit-type"
+              className="mb-2 block text-sm font-semibold text-[#1a1c1a]"
+            >
+              {t("unit")}
+              <RequiredMark className="ml-0.5" />
+            </label>
+            <SelectMenu
+              id="survey-unit-type"
+              value={form.unitTypeId}
+              onChange={handleUnitTypeChange}
+              options={unitTypeOptions}
+              disabled={!form.propertyId || unitTypeOptions.length === 0}
+              placeholder={unitTypePlaceholder}
+              className={cn(errors.unitTypeId && inputErrorClassName)}
+              aria-label={t("unit")}
+            />
+            {errors.unitTypeId && (
+              <p className="mt-1 text-xs text-red-500">{errors.unitTypeId}</p>
+            )}
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label
-                htmlFor="survey-day"
+                htmlFor="survey-date"
                 className="mb-2 block text-sm font-semibold text-[#1a1c1a]"
               >
-                {t("surveyDay")}
+                {t("surveyDate")}
                 <RequiredMark className="ml-0.5" />
               </label>
-              <div className="relative">
-                <select
-                  id="survey-day"
-                  name="surveyDay"
-                  value={form.surveyDay}
-                  onChange={handleChange}
-                  className={cn(
-                    selectClassName,
-                    errors.surveyDay && inputErrorClassName,
-                  )}
-                >
-                  <option value="">{t("surveyDayPlaceholder")}</option>
-                  {SURVEY_DAYS.map((day) => (
-                    <option key={day} value={day}>
-                      {t(`days.${day}`)}
-                    </option>
-                  ))}
-                </select>
-                <Icon
-                  name="expand_more"
-                  size={20}
-                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#83746b]"
-                />
-              </div>
-              {errors.surveyDay && (
-                <p className="mt-1 text-xs text-red-500">{errors.surveyDay}</p>
+              <DatePicker
+                id="survey-date"
+                value={form.surveyDate}
+                onChange={handleSurveyDateChange}
+                fromDate={today}
+                isDateDisabled={isSurveyDateDisabled}
+                placeholder={t("surveyDatePlaceholder")}
+                popoverClassName="z-[90]"
+                className={cn(
+                  "h-[3.25rem] min-h-[3.25rem] gap-2.5 rounded-xl border-[#e3e2e0] bg-white px-3 py-0 shadow-none hover:border-[#c4b0a4] hover:shadow-none focus:border-[#8b5e3c]/60 focus:bg-white focus:ring-[#8b5e3c]/15",
+                  "[&>span:first-child]:size-6 [&>span:first-child]:rounded-lg [&>span:first-child]:bg-[#6f4627]/10",
+                  !form.surveyDate && "text-[#b0a29a]",
+                  errors.surveyDate && inputErrorClassName,
+                )}
+              />
+              {errors.surveyDate && (
+                <p className="mt-1 text-xs text-red-500">{errors.surveyDate}</p>
               )}
             </div>
 
@@ -288,96 +419,19 @@ export function SurveyScheduleDialog({
                 {t("surveyTime")}
                 <RequiredMark className="ml-0.5" />
               </label>
-              <div className="relative">
-                <select
-                  id="survey-time"
-                  name="surveyTime"
-                  value={form.surveyTime}
-                  onChange={handleChange}
-                  className={cn(
-                    selectClassName,
-                    errors.surveyTime && inputErrorClassName,
-                  )}
-                >
-                  <option value="">{t("surveyTimePlaceholder")}</option>
-                  {SURVEY_TIMES.map((time) => (
-                    <option key={time} value={time}>
-                      {time}
-                    </option>
-                  ))}
-                </select>
-                <Icon
-                  name="expand_more"
-                  size={20}
-                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#83746b]"
-                />
-              </div>
+              <SelectMenu
+                id="survey-time"
+                value={form.surveyTime}
+                onChange={handleSurveyTimeChange}
+                options={timeOptions}
+                placeholder={t("surveyTimePlaceholder")}
+                className={cn(errors.surveyTime && inputErrorClassName)}
+                aria-label={t("surveyTime")}
+              />
               {errors.surveyTime && (
                 <p className="mt-1 text-xs text-red-500">{errors.surveyTime}</p>
               )}
             </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="survey-room-type"
-              className="mb-2 block text-sm font-semibold text-[#1a1c1a]"
-            >
-              {t("roomType")}
-              <RequiredMark className="ml-0.5" />
-            </label>
-            <input
-              id="survey-room-type"
-              name="roomType"
-              type="text"
-              value={form.roomType}
-              onChange={handleChange}
-              placeholder={t("roomTypePlaceholder")}
-              className={cn(
-                inputClassName,
-                errors.roomType && inputErrorClassName,
-              )}
-            />
-            {errors.roomType && (
-              <p className="mt-1 text-xs text-red-500">{errors.roomType}</p>
-            )}
-          </div>
-
-          <div>
-            <label
-              htmlFor="survey-property"
-              className="mb-2 block text-sm font-semibold text-[#1a1c1a]"
-            >
-              {t("property")}
-              <RequiredMark className="ml-0.5" />
-            </label>
-            <div className="relative">
-              <select
-                id="survey-property"
-                name="property"
-                value={form.property}
-                onChange={handleChange}
-                className={cn(
-                  selectClassName,
-                  errors.property && inputErrorClassName,
-                )}
-              >
-                <option value="">{t("propertyPlaceholder")}</option>
-                {PROPERTIES.map((property) => (
-                  <option key={property} value={property}>
-                    {t(property)}
-                  </option>
-                ))}
-              </select>
-              <Icon
-                name="expand_more"
-                size={20}
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#83746b]"
-              />
-            </div>
-            {errors.property && (
-              <p className="mt-1 text-xs text-red-500">{errors.property}</p>
-            )}
           </div>
 
           <DialogFooter className="pt-2">

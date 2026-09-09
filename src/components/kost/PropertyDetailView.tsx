@@ -124,6 +124,9 @@ export function PropertyDetailView({ kost }: PropertyDetailViewProps) {
                             <span className="text-xl font-semibold text-white">
                                 {formatCurrency(kost.priceRange.min, { compact: true })}
                             </span>
+                            <span className="ml-1 text-sm text-white/60">
+                                {t('pricing.perMonth')}
+                            </span>
                         </p>
                     ) : null}
 
@@ -274,6 +277,9 @@ export function PropertyDetailView({ kost }: PropertyDetailViewProps) {
                                         </span>
                                         <span className="text-2xl font-bold text-[#1a1c1a]">
                                             {formatCurrency(kost.priceRange.min)}
+                                        </span>
+                                        <span className="ml-1 text-sm font-medium text-[#83746b]">
+                                            {t('pricing.perMonth')}
                                         </span>
                                     </p>
                                 ) : null}

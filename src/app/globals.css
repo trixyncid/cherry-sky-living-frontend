@@ -251,17 +251,22 @@
 
   /* ——— Public marketing: Estoria-style glass (brand colors only) ——— */
   .glass-nav {
-    background: rgb(250 249 246 / 0.72);
-    backdrop-filter: blur(22px) saturate(1.6);
-    -webkit-backdrop-filter: blur(22px) saturate(1.6);
-    border-bottom: 1px solid rgb(255 255 255 / 0.45);
+    background: rgb(250 249 246 / 0.92);
+    backdrop-filter: blur(24px) saturate(1.55);
+    -webkit-backdrop-filter: blur(24px) saturate(1.55);
+    border-bottom: 1px solid rgb(213 195 184 / 0.55);
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.7),
-      0 8px 28px rgb(47 49 47 / 0.06);
+      inset 0 1px 0 rgb(255 255 255 / 0.75),
+      0 10px 32px rgb(47 49 47 / 0.1);
   }
 
   .glass-nav-hero {
-    background: transparent;
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--maroon-deep) 32%, transparent) 0%,
+      color-mix(in srgb, var(--maroon-deep) 10%, transparent) 65%,
+      transparent 100%
+    );
     border-bottom: 1px solid transparent;
     box-shadow: none;
   }
@@ -313,8 +318,9 @@
     background-image: linear-gradient(
       to top,
       var(--maroon-deep) 0%,
-      color-mix(in srgb, var(--maroon-deep) 18%, transparent) 48%,
-      color-mix(in srgb, var(--ferrugem) 28%, transparent) 100%
+      color-mix(in srgb, var(--maroon-deep) 22%, transparent) 42%,
+      color-mix(in srgb, var(--maroon-deep) 42%, transparent) 72%,
+      color-mix(in srgb, var(--maroon-deep) 58%, transparent) 100%
     );
   }
 
@@ -447,11 +453,11 @@
 
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .glass-nav {
-      background: rgb(250 249 246 / 0.96);
+      background: rgb(250 249 246 / 0.98);
     }
 
     .glass-nav-hero {
-      background: transparent;
+      background: rgb(61 24 32 / 0.45);
     }
 
     .glass-hero {

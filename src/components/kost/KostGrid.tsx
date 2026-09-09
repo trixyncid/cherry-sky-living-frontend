@@ -189,7 +189,7 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
                         href={inquiryUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#d5c3b8] bg-white text-[#25D366] hover:border-[#25D366]/40 hover:bg-[#f4fbf6]"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#25D366] bg-white text-[#25D366] hover:bg-[#f4fbf6]"
                         aria-label={t("cta.sendInquiry")}
                       >
                         <Icon name="whatsapp" size={16} />

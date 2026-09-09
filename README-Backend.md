@@ -28,7 +28,7 @@ External schedulers can also `POST /jobs/expire-leases/run` or `POST /jobs/decli
 
 - Unit pricing supports **monthly (30)** and **daily (1)** packages. Mid-month stub days use the admin-set **1-day** price (not monthly ÷ days). Full months use the 30-day price.
 - Per-property settings (editable in admin property form): `paymentDueDay` (default 5), `lateFeePerDay` (default Rp 100.000), `renewalConfirmDaysBeforeEnd` (default 5). Snapshotted onto each lease at create.
-- Unpaid leases expose computed `paymentDueDate`, `daysLate`, and `lateFeeAmount` on GET.
+- Unpaid leases expose computed `paymentDueDate`, `daysLate`, and `lateFeeAmount` on GET. Confirming payment auto-posts accrued late fee as a `late_fee` income row.
 - Lease attachments are typed: `agreement` | `downpayment` | `payment` (multiple allowed).
 
 Jobs only run while the server process is running.
@@ -849,7 +849,7 @@ Do **not** send `status` here. Use the confirm / reject / submit-for-review endp
 
 #### `POST /admin/leases/:id/confirm`
 
-Marks the lease `paid`. Allowed from `unpaid` or `waiting_for_review`. Requires at least one lease attachment with `kind: payment`. Occupies the unit when the paid term covers today.
+Marks the lease `paid`. Allowed from `unpaid` or `waiting_for_review`. Requires at least one lease attachment with `kind: payment`. Occupies the unit when the paid term covers today. Also posts `rent` income (and accrued `late_fee` when applicable) to the ledger.
 
 **Errors:** `404` · `422` missing payment attachment or invalid transition
 

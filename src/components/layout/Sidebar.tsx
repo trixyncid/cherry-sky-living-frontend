@@ -5,6 +5,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import {
@@ -58,9 +59,13 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
             <SheetContent side="left" className="glass-card w-[280px] p-0 text-[#1a1c1a] sm:w-[320px]">
                 <SheetHeader className="p-6 pb-4">
                     <SheetTitle className="flex items-center gap-2 text-left">
-                        <div className="text-[#6f4627]">
-                            <Icon name="apartment" size={28} />
-                        </div>
+                        <Image
+                            src="/logo.svg"
+                            alt={t('common.brand.name')}
+                            width={32}
+                            height={32}
+                            className="size-8 shrink-0 object-contain"
+                        />
                         <span className="text-xl font-bold">{t('common.brand.name')}</span>
                     </SheetTitle>
                 </SheetHeader>

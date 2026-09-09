@@ -63,15 +63,6 @@ export function AdminHeader() {
           <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
             <LanguageSwitcher variant="navbar" isSolid />
 
-            <button
-              type="button"
-              className="relative flex size-10 items-center justify-center rounded-xl text-[#51443c] transition-colors hover:bg-white/50"
-              aria-label={th("notifications")}
-            >
-              <Icon name="notifications" size={22} />
-              <span className="absolute right-2 top-2 size-2 rounded-full bg-[#ba1a1a] ring-2 ring-white/80" />
-            </button>
-
             <div className="hidden h-8 w-px bg-white/50 sm:block" />
 
             <Link

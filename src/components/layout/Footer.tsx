@@ -5,6 +5,7 @@
 
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Icon } from "@/components/shared/Icon";
@@ -48,9 +49,13 @@ export function Footer() {
         <div className="mb-16 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10">
           <div className="flex flex-col gap-6 lg:col-span-5">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-[#6f4627] p-2.5">
-                <Icon name="apartment" className="text-white" size={28} />
-              </div>
+              <Image
+                src="/logo.svg"
+                alt={t("common.brand.fullName")}
+                width={44}
+                height={44}
+                className="size-11 shrink-0 object-contain"
+              />
               <h3 className="text-2xl font-semibold tracking-tight">
                 {t("common.brand.fullName")}
               </h3>
