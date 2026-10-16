@@ -1,5 +1,5 @@
 /**
- * Neighborhood map with overlapping featured-property glass card
+ * Neighborhood — map + featured residence with visit CTAs
  */
 
 "use client";
@@ -34,7 +34,7 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
 
   return (
     <section className="w-full bg-[#faf9f6] px-6 py-20 lg:px-10">
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-2">
+      <div className="mx-auto grid w-full max-w-7xl items-start gap-12 lg:grid-cols-2 lg:gap-14">
         <div>
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#83746b]">
             {t("eyebrow")}
@@ -42,20 +42,20 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
           <h2 className="mb-4 max-w-md text-3xl font-semibold tracking-tight text-[#1a1c1a] md:text-4xl">
             {t("title")}
           </h2>
-          <p className="mb-8 max-w-md text-sm leading-relaxed text-[#83746b]">
+          <p className="mb-8 max-w-md text-sm leading-relaxed text-[#83746b] md:text-base">
             {t("description")}
           </p>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
+            initial={{ opacity: 0, scale: 0.99 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="relative overflow-hidden rounded-[1.75rem] border border-[#e3e2e0]"
+            className="overflow-hidden rounded-[1.5rem] border border-[#e3e2e0]"
           >
             <iframe
               src={MEDAN_MAP_EMBED_URL}
               width="100%"
-              height="420"
+              height="400"
               style={{ border: 0 }}
               allowFullScreen
               loading="lazy"
@@ -67,71 +67,86 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
 
         {featured ? (
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative"
+            className="flex flex-col"
           >
-            <div className="overflow-hidden rounded-[1.75rem] ring-1 ring-ferrugem/35">
-              <div className="relative aspect-[4/5] w-full bg-[#f5e4d4]">
-                {featured.thumbnail ? (
-                  <Image
-                    src={featured.thumbnail}
-                    alt={featured.name}
-                    fill
-                    className="object-cover"
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[1.5rem] bg-[#f5e4d4] sm:aspect-[5/6]">
+              {featured.thumbnail ? (
+                <Image
+                  src={featured.thumbnail}
+                  alt={featured.name}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                  className="object-cover"
+                />
+              ) : null}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-maroon-deep/90 via-maroon-deep/45 to-transparent p-6 pt-24 text-white">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
+                  {featured.location.district || featured.location.city}
+                </p>
+                <h3 className="mt-1 text-2xl font-semibold tracking-tight">
+                  {featured.name}
+                </h3>
+                <p className="mt-2 flex items-start gap-1.5 text-sm text-white/80">
+                  <Icon
+                    name="location_on"
+                    size={16}
+                    className="mt-0.5 shrink-0"
                   />
-                ) : null}
+                  <span className="line-clamp-2">
+                    {featured.location.address}
+                    {featured.location.city
+                      ? `, ${featured.location.city}`
+                      : ""}
+                  </span>
+                </p>
               </div>
             </div>
 
-            <div className="glass-card absolute right-6 bottom-6 left-6 rounded-2xl p-5 md:left-auto md:w-[320px]">
-              <h3 className="text-lg font-semibold text-[#1a1c1a]">
-                {featured.name}
-              </h3>
-              <p className="mt-1 flex items-start gap-1 text-xs text-[#83746b]">
-                <Icon
-                  name="location_on"
-                  size={14}
-                  className="mt-0.5 shrink-0"
-                />
-                <span className="line-clamp-2">
-                  {featured.location.address}
-                  {featured.location.city ? `, ${featured.location.city}` : ""}
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-b border-[#e3e2e0] pb-5">
+              <div className="flex flex-wrap gap-4 text-sm text-[#51443c]">
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon
+                    name="meeting_room"
+                    size={16}
+                    className="text-[#71130d]"
+                  />
+                  {t("roomsAvailable", {
+                    available: featured.availableRooms,
+                    total: featured.totalRooms,
+                  })}
                 </span>
-              </p>
-              <div className="mt-3 flex flex-wrap gap-3 text-xs text-[#51443c]">
-                <span className="inline-flex items-center gap-1">
-                  <Icon name="meeting_room" size={14} />
-                  {featured.availableRooms}/{featured.totalRooms}
-                </span>
-                {featured.priceRange.min > 0 && (
+                {featured.priceRange.min > 0 ? (
                   <span className="font-semibold text-[#1a1c1a]">
                     {formatCurrency(featured.priceRange.min)}
                     <span className="ml-0.5 font-medium text-[#83746b]">
                       {tPricing("perMonth")}
                     </span>
                   </span>
-                )}
-              </div>
-              <div className="mt-4 flex items-center gap-2">
-                <Link
-                  href={`/kosts/${featured.id}`}
-                  className="inline-flex h-9 flex-1 items-center justify-center rounded-xl border border-[#d5c3b8] bg-white/70 text-xs font-semibold text-[#1a1c1a]"
-                >
-                  {tCta("viewDetails")}
-                </Link>
-                {visitUrl ? (
-                  <a
-                    href={visitUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-9 flex-1 items-center justify-center rounded-xl bg-[#6f4627] px-3 text-xs font-semibold text-white"
-                  >
-                    {t("requestVisit")}
-                  </a>
                 ) : null}
               </div>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link
+                href={`/kosts/${featured.id}`}
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-xl border border-[#d5c3b8] bg-white px-4 text-sm font-semibold text-[#1a1c1a] transition-colors hover:bg-[#f5f2ee] sm:flex-none"
+              >
+                {tCta("viewDetails")}
+              </Link>
+              {visitUrl ? (
+                <a
+                  href={visitUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#71130d] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#8a1a12] sm:flex-none"
+                >
+                  <Icon name="whatsapp" size={16} />
+                  {t("requestVisit")}
+                </a>
+              ) : null}
             </div>
           </motion.div>
         ) : null}

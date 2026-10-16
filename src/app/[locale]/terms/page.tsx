@@ -1,26 +1,24 @@
 /**
- * Terms & Conditions Page - Cherry Sky Living
- * Displays company terms and conditions with full i18n support
+ * Terms page — readable document with sticky table of contents.
  */
 
-'use client';
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { LegalView } from "./legal-view";
 
-import { AppLayout } from '@/components/layout/AppLayout';
-import { Footer } from '@/components/layout/Footer';
-import { TermsHero } from '@/components/sections/TermsHero';
-import { TermsContent } from '@/components/sections/TermsContent';
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "terms.hero" });
+  return {
+    title: `${t("title")} · Cherry Sky Living`,
+    description: t("description"),
+  };
+}
 
-export default function TermsPage() {
-    return (
-        <AppLayout>
-            {/* Hero Section */}
-            <TermsHero />
-
-            {/* Terms Content Section */}
-            <TermsContent />
-
-            {/* Footer */}
-            <Footer />
-        </AppLayout>
-    );
+export default function Page() {
+  return <LegalView />;
 }

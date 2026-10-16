@@ -27,7 +27,7 @@ export function TenantAttachmentsList({
 
   if (visible.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-white/50 bg-white/30 px-4 py-6 text-center text-sm text-[#83746b]">
+      <p className="rounded-xl border border-dashed border-white/50 bg-white/30 px-4 py-6 text-center text-sm text-[#6b6b6b]">
         {t("empty")}
       </p>
     );
@@ -51,7 +51,7 @@ export function TenantAttachmentsList({
               className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-white/40"
             >
               {pdf ? (
-                <div className="flex size-full flex-col items-center justify-center gap-0.5 text-[#6f4627]">
+                <div className="flex size-full flex-col items-center justify-center gap-0.5 text-[#71130d]">
                   <Icon name="description" size={22} />
                   <span className="px-1 text-[9px] font-semibold uppercase tracking-wide">
                     PDF
@@ -67,16 +67,16 @@ export function TenantAttachmentsList({
               )}
             </a>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-[#1a1c1a]">
+              <p className="truncate text-sm font-semibold text-[#141414]">
                 {name}
               </p>
               {item.kindLabel ? (
-                <p className="mt-0.5 text-xs font-medium text-[#6f4627]">
+                <p className="mt-0.5 text-xs font-medium text-[#71130d]">
                   {item.kindLabel}
                 </p>
               ) : null}
               {item.createdAt ? (
-                <p className="mt-0.5 text-xs text-[#83746b]">
+                <p className="mt-0.5 text-xs text-[#6b6b6b]">
                   {formatDate(item.createdAt)}
                 </p>
               ) : null}
@@ -84,7 +84,7 @@ export function TenantAttachmentsList({
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#6f4627] hover:text-[#805533]"
+                className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#71130d] hover:text-[#8a1a12]"
               >
                 <Icon name="open_in_new" size={14} />
                 {t("view")}

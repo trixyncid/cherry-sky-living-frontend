@@ -6,8 +6,5 @@ export const queryDefaultOptions: DefaultOptions = {
     gcTime: 5 * 60_000,
     retry: 1,
     refetchOnWindowFocus: false,
-    // Admin/tenant client components SSR without session cookies. Public
-    // routes prefetch on the server and dehydrate into this client.
-    enabled: typeof window !== "undefined",
   },
 };

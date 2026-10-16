@@ -119,10 +119,11 @@ export function usePropertyMutations() {
   };
 }
 
-export function useUnitTypes(propertyId?: string) {
+export function useUnitTypes(propertyId?: string, enabled = true) {
   return useQuery({
     queryKey: adminKeys.unitTypes.list(propertyId),
     queryFn: () => listUnitTypes(propertyId),
+    enabled,
   });
 }
 
@@ -319,7 +320,8 @@ export function useTenantUserMutations() {
       }: {
         id: string;
         name: string;
-        email: string;
+        phoneNumber: string;
+        email?: string | null;
       }) => updateTenantUser(id, input),
       onSuccess: invalidate,
     }),

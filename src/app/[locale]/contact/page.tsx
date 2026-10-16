@@ -1,30 +1,34 @@
 /**
- * Contact Page - Cherry Sky Living
+ * Contact Page — channels, inquiry form, residence locations.
  */
 
-"use client";
+import { dehydrate } from "@tanstack/react-query";
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { PublicHydration } from "@/components/query/public-hydration";
+import { createPrefetchQueryClient } from "@/lib/query/get-query-client";
+import { prefetchPublicProperties } from "@/lib/query/prefetch-public";
+import { ContactView } from "./contact-view";
 
-import { AppLayout } from "@/components/layout/AppLayout";
-import { Footer } from "@/components/layout/Footer";
-import { ContactForm } from "@/components/sections/ContactForm";
-import { ContactHero } from "@/components/sections/ContactHero";
-import { ContactInfo } from "@/components/sections/ContactInfo";
-import { ContactMap } from "@/components/sections/ContactMap";
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "contact.hero" });
+  return {
+    title: `${t("title")} · Cherry Sky Living`,
+    description: t("description"),
+  };
+}
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const queryClient = createPrefetchQueryClient();
+  await prefetchPublicProperties(queryClient);
   return (
-    <AppLayout>
-      <ContactHero />
-
-      <section className="w-full bg-[#faf9f6] px-6 py-20 lg:px-10">
-        <div className="mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-start">
-          <ContactForm />
-          <ContactInfo />
-        </div>
-      </section>
-
-      <ContactMap />
-      <Footer />
-    </AppLayout>
+    <PublicHydration state={dehydrate(queryClient)}>
+      <ContactView />
+    </PublicHydration>
   );
 }

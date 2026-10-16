@@ -1,21 +1,21 @@
 /**
- * About hero — cinematic story, trust facts, conversion CTAs
+ * About hero — brand-led cinematic story + conversion CTAs
  */
 
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 import { Link } from "@/i18n/routing";
-import { generateWhatsAppURL } from "@/lib/utils/format";
 import { getContactWhatsAppNumber } from "@/lib/contact";
+import { generateWhatsAppURL } from "@/lib/utils/format";
 
 const ABOUT_PHOTO = "/assets/skykost.jpeg";
 
 export function AboutHero() {
   const t = useTranslations("about.hero");
+  const tBrand = useTranslations("common.brand");
   const tWhatsapp = useTranslations("whatsapp");
   const viewingUrl = generateWhatsAppURL(
     getContactWhatsAppNumber(),
@@ -23,82 +23,77 @@ export function AboutHero() {
   );
 
   return (
-    <section className="relative flex min-h-[min(78svh,40rem)] w-full flex-col justify-center overflow-hidden hero-atmosphere pt-[max(5rem,calc(4rem+env(safe-area-inset-top)))] lg:h-[min(70svh,44rem)]">
+    <section className="relative flex min-h-[min(78svh,40rem)] w-full flex-col justify-end overflow-hidden hero-atmosphere pt-[max(5rem,calc(4rem+env(safe-area-inset-top)))] lg:min-h-[min(70svh,44rem)]">
       <div className="absolute inset-0">
         <motion.div
-          initial={{ scale: 1.08 }}
+          initial={false}
           animate={{ scale: 1 }}
-          transition={{ duration: 1.6, ease: "easeOut" }}
-          className="absolute inset-0"
+          transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute inset-0 origin-center will-change-transform"
         >
-          <Image
+          <img
             src={ABOUT_PHOTO}
-            alt="SKY KOST"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[center_45%]"
+            alt={tBrand("fullName")}
+            className="absolute inset-0 h-full w-full object-cover object-[center_45%]"
+            fetchPriority="high"
+            decoding="async"
           />
         </motion.div>
         <div className="absolute inset-0 hero-overlay-x" />
         <div className="absolute inset-0 hero-overlay-y" />
+        <div className="absolute inset-0 bg-gradient-to-r from-maroon-deep/55 via-transparent to-transparent" />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 py-16 lg:px-10">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-14 pt-24 sm:pb-16 lg:px-10 lg:pb-20">
         <motion.p
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur-md"
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="text-[clamp(2.1rem,5.5vw,3.5rem)] font-bold leading-[0.95] tracking-[-0.03em] text-[#faf9f6]"
         >
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#d4af37]" />
-          {t("eyebrow")}
+          {tBrand("fullName")}
         </motion.p>
 
         <motion.h1
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{
-            delay: 0.1,
-            duration: 0.55,
-            type: "spring",
-            stiffness: 70,
-          }}
-          className="max-w-3xl text-[2.15rem] font-bold leading-[1.1] tracking-tight text-[#faf9f6] sm:text-5xl lg:text-[3.25rem]"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-5 max-w-2xl text-xl font-medium leading-snug tracking-tight text-[#f5f2ee] sm:text-2xl lg:text-[1.7rem]"
         >
           {t("title")}
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.26, duration: 0.45 }}
-          className="mt-4 max-w-xl text-sm font-light leading-relaxed text-[#f5f2ee]/90 md:text-base"
+          transition={{ delay: 0.24, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-4 max-w-xl text-sm font-light leading-relaxed text-[#f5f2ee]/85 md:text-[15px]"
         >
           {t("description")}
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.45 }}
+          transition={{ delay: 0.36, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="mt-8 flex flex-wrap items-center gap-3"
         >
-          <Link
-            href="/search-kosts"
-            className="inline-flex items-center gap-2 rounded-full bg-[#6f4627] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_rgb(111_70_39_/_0.35)] hover:bg-[#805533]"
-          >
-            {t("ctaRooms")}
-            <Icon name="arrow_forward" size={16} />
-          </Link>
           <a
             href={viewingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md hover:bg-white/15"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#71130d] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#8a1a12]"
           >
             <Icon name="whatsapp" size={16} />
             {t("ctaViewing")}
           </a>
+          <Link
+            href="/search-kosts"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/18"
+          >
+            {t("ctaRooms")}
+            <Icon name="arrow_forward" size={16} />
+          </Link>
         </motion.div>
       </div>
     </section>

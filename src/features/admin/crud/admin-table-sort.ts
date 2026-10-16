@@ -187,6 +187,8 @@ export function getTenantUserSortValue(user: TenantUser, key: string): SortValue
   switch (key) {
     case "name":
       return user.name;
+    case "phone":
+      return user.phoneNumber ?? "";
     case "email":
       return user.email;
     case "status":

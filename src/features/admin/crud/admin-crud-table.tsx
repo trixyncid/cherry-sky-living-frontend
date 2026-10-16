@@ -46,7 +46,7 @@ function SortIndicator({
     <Icon
       name={direction === "asc" ? "arrow_upward" : "arrow_downward"}
       size={16}
-      className="text-[#6f4627]"
+      className="text-[#71130d]"
     />
   );
 }
@@ -107,10 +107,10 @@ export function AdminCrudTable({
                   data-sorted={active ? "true" : undefined}
                   onClick={() => onSort(col.key)}
                   className={cn(
-                    "group/th inline-flex w-full items-center gap-1.5 text-sm font-semibold text-[#51443c] transition-colors hover:text-[#6f4627]",
+                    "group/th inline-flex w-full items-center gap-1.5 text-sm font-semibold text-[#51443c] transition-colors hover:text-[#71130d]",
                     col.align === "right" && "justify-end",
                     col.align === "center" && "justify-center",
-                    active && "text-[#6f4627]",
+                    active && "text-[#71130d]",
                   )}
                   aria-label={
                     active

@@ -36,16 +36,16 @@ import { formatDate } from "@/features/admin/lib/format";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
 import {
   updateTenantUserSchema,
-  type UpdateTenantUserValues,
 } from "@/features/admin/users/schemas";
 import { TenantResetPasswordDialog } from "@/features/admin/users/tenant-reset-password-dialog";
 import { Link } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
+import { displayEmailOrEmpty } from "@/lib/phone";
 import { cn } from "@/lib/utils";
 
 const BASE = "/admin/users";
 
-const emptyForm: UpdateTenantUserValues = { name: "", email: "" };
+const emptyForm = { name: "", phoneNumber: "", email: "" };
 
 interface TenantDetailViewProps {
   id: string;
@@ -59,14 +59,18 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
   const { data: tenant, isLoading, error } = useTenantUser(id);
   const mutations = useTenantUserMutations();
   const lookups = useAdminLookups();
-  const [form, setForm] = useState<UpdateTenantUserValues>(emptyForm);
+  const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
   const [resetOpen, setResetOpen] = useState(false);
   const [toggleOpen, setToggleOpen] = useState(false);
 
   useEffect(() => {
     if (tenant) {
-      setForm({ name: tenant.name, email: tenant.email });
+      setForm({
+        name: tenant.name,
+        phoneNumber: tenant.phoneNumber ?? "",
+        email: displayEmailOrEmpty(tenant.email),
+      });
     }
   }, [tenant]);
 
@@ -82,6 +86,8 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
     const parsed = updateTenantUserSchema({
       nameRequired: tp("validation.nameRequired"),
       emailInvalid: tp("validation.emailInvalid"),
+      phoneRequired: tp("validation.phoneRequired"),
+      phoneInvalid: tp("validation.phoneInvalid"),
     }).safeParse(form);
     if (!parsed.success) {
       setFormError(parsed.error.issues[0]?.message ?? t("saveFailed"));
@@ -89,7 +95,13 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
     }
 
     try {
-      await mutations.update.mutateAsync({ id: tenant.id, ...parsed.data });
+      await mutations.update.mutateAsync({
+        id: tenant.id,
+        name: parsed.data.name,
+        phoneNumber: parsed.data.phoneNumber,
+        // Empty clears to placeholder on the server
+        email: parsed.data.email ?? null,
+      });
       showApiSuccess(t("updated"));
     } catch (err) {
       const msg =
@@ -103,7 +115,11 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
 
   function handleCancel() {
     if (!tenant) return;
-    setForm({ name: tenant.name, email: tenant.email });
+    setForm({
+      name: tenant.name,
+      phoneNumber: tenant.phoneNumber ?? "",
+      email: displayEmailOrEmpty(tenant.email),
+    });
     setFormError(null);
   }
 
@@ -137,13 +153,15 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
   }
 
   const isDirty =
-    form.name !== tenant.name || form.email !== tenant.email;
+    form.name !== tenant.name ||
+    form.phoneNumber !== (tenant.phoneNumber ?? "") ||
+    form.email !== displayEmailOrEmpty(tenant.email);
 
   return (
     <>
       <Link
         href={BASE}
-        className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#6f4627] transition-colors hover:text-[#805533]"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#71130d] transition-colors hover:text-[#8a1a12]"
       >
         <Icon name="arrow_back" size={18} />
         {t("backToList")}
@@ -186,11 +204,25 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
               }
             />
           </AdminField>
-          <AdminField label={t("email")} htmlFor="tenant-email" required>
+          <AdminField label={tp("phone")} htmlFor="tenant-phone" required>
+            <input
+              id="tenant-phone"
+              type="tel"
+              required
+              autoComplete="tel"
+              inputMode="tel"
+              placeholder={tp("phonePlaceholder")}
+              className={adminInputClassName}
+              value={form.phoneNumber}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, phoneNumber: e.target.value }))
+              }
+            />
+          </AdminField>
+          <AdminField label={tp("emailOptional")} htmlFor="tenant-email">
             <input
               id="tenant-email"
               type="email"
-              required
               autoComplete="email"
               className={adminInputClassName}
               value={form.email}
@@ -198,6 +230,9 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                 setForm((f) => ({ ...f, email: e.target.value }))
               }
             />
+            <p className="mt-1 text-xs text-[#83746b]">
+              {tp("emailOptionalHint")}
+            </p>
           </AdminField>
         </div>
 
@@ -281,7 +316,7 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                 <AdminCrudTableCell align="right">
                   <Link
                     href={`/admin/leases/${lease.id}/edit`}
-                    className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#efeeeb] hover:text-[#6f4627]"
+                    className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#efeeeb] hover:text-[#71130d]"
                     aria-label={t("editTitle")}
                   >
                     <Icon name="edit" size={18} />

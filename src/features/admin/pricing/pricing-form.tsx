@@ -77,10 +77,13 @@ export function PricingForm({ id }: { id?: string }) {
     );
   const mutations = useUnitPricingMutations();
 
-  const { data: unitTypes = [] } = useUnitTypes(form.propertyId || undefined);
+  const { data: unitTypes = [] } = useUnitTypes(
+    form.propertyId || undefined,
+    !!form.propertyId || isEdit,
+  );
 
   const availableUnitTypes = useMemo(() => {
-    if (!form.propertyId) return unitTypes;
+    if (!form.propertyId) return [];
     return unitTypes.filter((ut) => ut.propertyId === form.propertyId);
   }, [unitTypes, form.propertyId]);
 
@@ -121,6 +124,18 @@ export function PricingForm({ id }: { id?: string }) {
     }
   }, [pricing, unitTypePricings, isEdit, form.unitTypeId]);
 
+  // "Set price" links prefill the property and room type.
+  useEffect(() => {
+    if (isEdit) return;
+    const params = new URLSearchParams(window.location.search);
+    const propertyId = params.get("propertyId");
+    const unitTypeId = params.get("unitTypeId");
+    if (!propertyId) return;
+    setForm((f) =>
+      f.propertyId ? f : { ...f, propertyId, unitTypeId: unitTypeId ?? "" },
+    );
+  }, [isEdit]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
@@ -142,14 +157,14 @@ export function PricingForm({ id }: { id?: string }) {
     }
 
     try {
-      const { monthly } = await mutations.upsertPackages.mutateAsync({
+      await mutations.upsertPackages.mutateAsync({
         unitTypeId: form.unitTypeId,
         monthlyPrice,
         dailyPrice,
       });
       showApiSuccess(isEdit ? t("updated") : t("created"));
       if (!isEdit) {
-        router.replace(`${BASE}/${monthly.id}/edit`);
+        router.replace(BASE);
         router.refresh();
         return;
       }
@@ -219,13 +234,17 @@ export function PricingForm({ id }: { id?: string }) {
               <AdminSelect
                 id="price-unit-type"
                 required
-                disabled={isEdit}
+                disabled={isEdit || !form.propertyId}
                 value={form.unitTypeId}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, unitTypeId: e.target.value }))
                 }
               >
-                <option value="">{t("selectUnitType")}</option>
+                <option value="">
+                  {!form.propertyId && !isEdit
+                    ? t("selectPropertyFirst")
+                    : t("selectUnitType")}
+                </option>
                 {(isEdit ? unitTypes : availableUnitTypes).map((ut) => (
                   <option key={ut.id} value={ut.id}>
                     {ut.name}

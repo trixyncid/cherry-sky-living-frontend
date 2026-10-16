@@ -9,6 +9,7 @@ export async function getTenantProfile(): Promise<TenantProfile> {
 
 export async function updateTenantProfile(input: {
   name: string;
+  phoneNumber: string;
 }): Promise<TenantProfile> {
   const res = await apiFetch<ApiDataResponse<TenantProfile>>("/profile", {
     method: "PUT",

@@ -90,8 +90,8 @@ export function LeaseInvoiceDownloadButton({
       className={cn(
         "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50",
         variant === "primary"
-          ? "bg-[#6f4627] text-white hover:opacity-90"
-          : "border border-[#6f4627]/30 bg-white text-[#6f4627] hover:bg-[#efeeeb]",
+          ? "bg-[#71130d] text-white hover:opacity-90"
+          : "border border-[#71130d]/30 bg-white text-[#71130d] hover:bg-[#efeeeb]",
         className,
       )}
     >

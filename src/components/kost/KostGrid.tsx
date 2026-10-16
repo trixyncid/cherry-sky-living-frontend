@@ -119,7 +119,7 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
                   href={`/kosts/${kost.id}`}
                 />
                 <div className="pointer-events-none absolute left-3 top-3 z-10">
-                  <span className="rounded-full bg-[#1a130f]/75 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
+                  <span className="rounded-lg bg-[#1a130f]/75 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
                     {t("propertyDetail.availableRooms", {
                       available: kost.availableRooms,
                       total: kost.totalRooms,
@@ -130,7 +130,7 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
 
               <div className="flex flex-1 flex-col gap-3 p-5">
                 <div>
-                  <h3 className="mb-1 line-clamp-1 text-lg font-bold text-[#1a1c1a] group-hover:text-[#6f4627]">
+                  <h3 className="mb-1 line-clamp-1 text-lg font-bold text-[#1a1c1a] group-hover:text-[#71130d]">
                     {kost.name}
                   </h3>
                   <p className="flex items-start gap-1 text-sm text-[#83746b]">
@@ -189,7 +189,7 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
                         href={inquiryUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#25D366] bg-white text-[#25D366] hover:bg-[#f4fbf6]"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[#25D366] bg-white text-[#25D366] transition-colors hover:bg-[#f4fbf6]"
                         aria-label={t("cta.sendInquiry")}
                       >
                         <Icon name="whatsapp" size={16} />
@@ -197,7 +197,7 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
                     ) : null}
                     <Link
                       href={`/kosts/${kost.id}`}
-                      className="inline-flex h-9 items-center rounded-full bg-[#6f4627] px-4 text-xs font-semibold text-white hover:bg-[#805533]"
+                      className="inline-flex h-9 items-center rounded-xl bg-[#71130d] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#8a1a12]"
                     >
                       {t("cta.viewDetails")}
                     </Link>

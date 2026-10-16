@@ -16,7 +16,7 @@ export function UnitsViewToggle({
   const t = useTranslations("admin.pages.units");
 
   const options: { mode: UnitsViewMode; icon: string; label: string }[] = [
-    { mode: "map", icon: "grid_view", label: t("mapView") },
+    { mode: "map", icon: "apartment", label: t("mapView") },
     { mode: "table", icon: "table_rows", label: t("tableView") },
   ];
 

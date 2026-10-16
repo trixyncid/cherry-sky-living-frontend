@@ -1,154 +1,172 @@
 /**
- * Footer Component
- * Dark charcoal footer with inquiry strip and oversized brand wordmark
+ * Footer (§5.14) — full-bleed photo background carrying an optional final
+ * CTA card, then brand + contacts, three link columns and a legal bar.
  */
 
 "use client";
 
 import Image from "next/image";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-import { Icon } from "@/components/shared/Icon";
+import { useLocale, useTranslations } from "next-intl";
+import type { ReactNode } from "react";
+import { localized, siteConfig } from "@/config/site";
 import { Link } from "@/i18n/routing";
-import { generateWhatsAppURL } from "@/lib/utils/format";
-import { getContactWhatsAppNumber } from "@/lib/contact";
+import { track } from "@/lib/analytics";
+import { useKosts } from "@/lib/hooks/use-kost-data";
 
-const CONTACT_EMAIL = "info@cherryskykost.com";
+const FOOTER_PHOTO = "/assets/skykost.jpeg";
 
-export function Footer() {
+interface FooterProps {
+  /** Final call-to-action card shown above the footer columns. */
+  cta?: ReactNode;
+}
+
+export function Footer({ cta }: FooterProps) {
   const t = useTranslations();
+  const locale = useLocale();
   const currentYear = new Date().getFullYear();
-  const [name, setName] = useState("");
+  const { data: kosts } = useKosts();
+  const socials = Object.entries(siteConfig.social).filter(([, url]) => url);
 
-  const footerLinks = [
-    { label: t("nav.about"), href: "/about" },
-    { label: t("nav.search"), href: "/search-kosts" },
-    { label: t("nav.contact"), href: "/contact" },
-    { label: t("footer.termsConditions"), href: "/terms" },
-    { label: t("footer.privacyPolicy"), href: "/privacy" },
+  const columns = [
+    {
+      title: t("footer.explore"),
+      links: [
+        { label: t("nav.rooms"), href: "/search-kosts" },
+        { label: t("nav.residences"), href: "/residences" },
+        { label: t("nav.facilities"), href: "/facilities" },
+        { label: t("nav.location"), href: "/location" },
+      ],
+    },
+    {
+      title: t("footer.support"),
+      links: [
+        { label: t("nav.faq"), href: "/faq" },
+        { label: t("nav.contact"), href: "/contact" },
+        { label: t("footer.tenantPortal"), href: "/tenant/login" },
+      ],
+    },
+    {
+      title: t("footer.company"),
+      links: [
+        { label: t("nav.about"), href: "/about" },
+        { label: t("nav.home"), href: "/" },
+        ...socials.map(([name, url]) => ({
+          label: name === "googleMaps" ? "Google Maps" : name,
+          href: url,
+          external: true,
+        })),
+      ],
+    },
   ];
 
-  const handleInquiry = (event: React.FormEvent) => {
-    event.preventDefault();
-    const intro = name.trim()
-      ? `Dear Cherry Sky Living,\n\nMy name is ${name.trim()}. I would like to schedule a viewing and learn more about available rooms.`
-      : t("whatsapp.generalInquiry");
-    window.open(
-      generateWhatsAppURL(getContactWhatsAppNumber(), intro),
-      "_blank",
-      "noopener,noreferrer",
-    );
-  };
-
   return (
-    <footer className="relative w-full overflow-hidden bg-maroon-deep px-6 pt-16 pb-0 text-[#f2f1ee] lg:px-10">
-      <div className="pointer-events-none absolute right-0 top-0 h-[420px] w-[420px] rounded-full bg-maroon/40 blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-24 left-0 h-[360px] w-[360px] rounded-full bg-ferrugem/20 blur-[100px]" />
+    <footer className="relative w-full overflow-hidden bg-[#1c0b0a] text-white">
+      <Image
+        src={FOOTER_PHOTO}
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover object-bottom opacity-70"
+      />
+      {/* Dark at the top (where the CTA sits), photo shows through below */}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,#1c0b0a_0%,rgb(28_11_10/0.75)_35%,rgb(28_11_10/0.55)_65%,rgb(28_11_10/0.85)_100%)]" />
 
-      <div className="relative mx-auto max-w-7xl">
-        <div className="mb-16 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10">
-          <div className="flex flex-col gap-6 lg:col-span-5">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/logo.svg"
-                alt={t("common.brand.fullName")}
-                width={44}
-                height={44}
-                className="size-11 shrink-0 object-contain"
-              />
-              <h3 className="text-2xl font-semibold tracking-tight">
-                {t("common.brand.fullName")}
-              </h3>
-            </div>
-            <p className="max-w-sm text-sm leading-relaxed text-[#c8c6c5]">
-              {t("footer.tagline")}
+      <div className="relative mx-auto w-full max-w-[90rem] px-5 sm:px-8">
+        {cta ? <div className="pt-14 lg:pt-20">{cta}</div> : null}
+
+        <div className="grid gap-10 pb-10 pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:pt-20">
+          <div>
+            <p className="text-[clamp(1.75rem,2.4vw,2.2rem)] font-medium tracking-[-0.035em]">
+              {t("common.brand.fullName")}
             </p>
-
-            <form
-              onSubmit={handleInquiry}
-              className="max-w-md rounded-2xl border border-white/12 bg-white/[0.06] p-4"
-            >
-              <p className="mb-1 text-sm font-semibold text-white">
-                {t("footer.inquiryTitle")}
-              </p>
-              <p className="mb-3 text-xs leading-relaxed text-white/70">
-                {t("footer.inquiryDescription")}
-              </p>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={t("footer.inquiryNamePlaceholder")}
-                  className="h-11 flex-1 rounded-xl border border-white/15 bg-maroon-deep/40 px-3 text-sm text-white placeholder:text-white/50 focus:border-white/40 focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#6f4627] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#805533]"
-                >
-                  <Icon name="whatsapp" size={16} />
-                  {t("footer.inquiryButton")}
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <div className="lg:col-span-3 lg:col-start-7">
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">
-              {t("footer.quickLinks")}
-            </h4>
-            <ul className="space-y-3">
-              {footerLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-[#c8c6c5] transition-colors hover:text-white"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="lg:col-span-3">
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">
-              {t("footer.contact")}
-            </h4>
-            <ul className="space-y-3 text-sm text-[#c8c6c5]">
-              <li className="flex items-center gap-2">
-                <Icon name="location_on" size={16} />
-                {t("footer.location")}
-              </li>
+            <p className="mt-3 max-w-md text-base leading-relaxed text-white/80">
+              {t("footer.about")}
+            </p>
+            <ul className="mt-6 flex flex-col gap-1.5 text-[15px] text-white/80">
               <li>
                 <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="flex items-center gap-2 transition-colors hover:text-white"
+                  href={`tel:${siteConfig.phone.replace(/[^\d+]/g, "")}`}
+                  onClick={() => track("click_call", { location: "footer" })}
+                  className="hover:text-white"
                 >
-                  <Icon name="mail" size={16} />
-                  {CONTACT_EMAIL}
+                  {siteConfig.phone}
                 </a>
+                {" · "}
+                <a
+                  href={`mailto:${siteConfig.email}`}
+                  className="hover:text-white"
+                >
+                  {siteConfig.email}
+                </a>
+              </li>
+              {(kosts ?? []).map((kost) => (
+                <li key={kost.id}>
+                  <span className="text-white">{kost.name}</span>
+                  {" · "}
+                  {[kost.location.address, kost.location.city]
+                    .filter(Boolean)
+                    .join(", ")}
+                </li>
+              ))}
+              <li>
+                {t("footer.viewingHours")}:{" "}
+                {localized(siteConfig.viewingHours.days, locale)}{" "}
+                {siteConfig.viewingHours.time}
               </li>
             </ul>
           </div>
+
+          <nav
+            aria-label={t("footer.menu")}
+            className="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:justify-items-end"
+          >
+            {columns.map((col) => (
+              <div key={col.title} className="min-w-[9rem]">
+                <p className="border-b border-white/25 pb-3 text-sm uppercase tracking-[0.06em] text-white/85">
+                  {col.title}
+                </p>
+                <ul className="mt-4 flex flex-col gap-2.5">
+                  {col.links.map((link) => (
+                    <li key={link.href}>
+                      {"external" in link && link.external ? (
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[15px] capitalize text-white/85 transition-colors hover:text-white"
+                        >
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link
+                          href={link.href}
+                          className="text-[15px] text-white/85 transition-colors hover:text-white"
+                        >
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm text-[#c8c6c5] md:flex-row">
-          <p>{t("footer.copyright", { year: currentYear })}</p>
-          <span className="flex items-center gap-2">
-            <Icon name="location_on" size={16} />
-            {t("footer.location")}
-          </span>
+        <div className="flex flex-col gap-3 border-t border-white/20 py-6 text-sm text-white/80 sm:flex-row sm:items-center sm:justify-between">
+          <p suppressHydrationWarning>
+            {t("footer.copyright", { year: currentYear })}
+          </p>
+          <p className="flex flex-wrap gap-x-2">
+            <Link href="/privacy" className="hover:text-white">
+              {t("footer.privacyPolicy")}
+            </Link>
+            <span aria-hidden>·</span>
+            <Link href="/terms" className="hover:text-white">
+              {t("footer.termsConditions")}
+            </Link>
+          </p>
         </div>
-      </div>
-
-      <div className="relative mx-auto mt-8 max-w-7xl overflow-hidden">
-        <p
-          aria-hidden
-          className="select-none text-center text-[18vw] font-bold leading-[0.72] tracking-tight text-white/12 md:text-[10rem] lg:text-[12rem]"
-        >
-          {t("common.brand.wordmark")}
-        </p>
       </div>
     </footer>
   );

@@ -1,7 +1,7 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
-import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,40 +13,39 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
+import { AdminSearchInput } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminPagination } from "@/features/admin/components/admin-pagination";
-import { AdminTableShell } from "@/features/admin/components/admin-table-shell";
+import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
-import {
-  AdminCrudTable,
-  AdminCrudTableCell,
-  AdminCrudTableRow,
-} from "@/features/admin/crud/admin-crud-table";
-import { Link } from "@/i18n/routing";
 import { getStaffUserSortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
-import { useAdminShell } from "@/features/admin/components/admin-shell-context";
-import { StaffResetPasswordDialog } from "@/features/admin/staff/staff-reset-password-dialog";
 import {
   useStaffUserMutations,
   useStaffUsers,
 } from "@/features/admin/hooks/use-admin-queries";
-import { formatDate } from "@/features/admin/lib/format";
+import {
+  EmptyPanel,
+  IconAction,
+  panel,
+  SkeletonCards,
+} from "@/features/admin/inventory/inventory-kit";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import { formatDate } from "@/features/admin/lib/format";
+import {
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
+import { Avatar, StatusDot } from "@/features/admin/operations/ops-kit";
+import { StaffResetPasswordDialog } from "@/features/admin/staff/staff-reset-password-dialog";
+import { Link } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
 import type { StaffUser } from "@/lib/types/admin";
 import { UserRole } from "@/lib/types/auth";
 import { cn } from "@/lib/utils";
 
 const BASE = "/admin/staff";
-
-function roleBadgeClass(role: StaffUser["role"]) {
-  return role === "superadmin"
-    ? "bg-ferrugem-soft text-ferrugem border-[#e8dfd6]"
-    : "bg-[#efeeeb] text-[#51443c] border-[#e3e2e0]";
-}
 
 export function StaffList() {
   const t = useTranslations("admin.crud");
@@ -64,17 +63,8 @@ export function StaffList() {
     [],
   );
 
-  const {
-    page,
-    setPage,
-    pageData,
-    total,
-    pageSize,
-    setPageSize,
-    sortKey,
-    sortDir,
-    onSort,
-  } = useClientTable(data, getSortValue, { defaultSortKey: "name" });
+  const { page, setPage, pageData, total, pageSize, setPageSize } =
+    useClientTable(data, getSortValue, { defaultSortKey: "name" });
 
   async function confirmToggleActive() {
     if (!toggleUser) return;
@@ -84,7 +74,9 @@ export function StaffList() {
         id: toggleUser.id,
         isActive: nextActive,
       });
-      showApiSuccess(nextActive ? tp("activateSuccess") : tp("deactivateSuccess"));
+      showApiSuccess(
+        nextActive ? tp("activateSuccess") : tp("deactivateSuccess"),
+      );
       setToggleUser(null);
     } catch (err) {
       const msg =
@@ -121,6 +113,8 @@ export function StaffList() {
   const pending = mutations.setActive.isPending;
   const deletePending = mutations.remove.isPending;
   const isSuperadmin = currentUser.role === UserRole.SUPERADMIN;
+  const to = useTranslations("admin.pages.operations");
+  const locale = useLocale();
 
   return (
     <>
@@ -138,153 +132,176 @@ export function StaffList() {
         }
       />
 
-      <div className="relative mb-4 max-w-md">
-        <Icon
-          name="search"
-          size={20}
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#83746b]"
-        />
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          placeholder={tp("searchPlaceholder")}
-          className="h-10 w-full rounded-xl border border-[#e3e2e0] bg-white/80 pl-10 pr-4 text-sm outline-none focus:border-ferrugem/50 focus:ring-2 focus:ring-ferrugem/15"
-        />
-      </div>
+      <div className="mb-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="flex flex-col gap-4">
+          <AdminSearchInput
+            value={search}
+            onChange={(v) => {
+              setSearch(v);
+              setPage(1);
+            }}
+            placeholder={tp("searchPlaceholder")}
+            className="w-full sm:max-w-md"
+          />
 
-      {error && (
-        <div className="mb-4">
-          <AdminAlert message={getErrorMessage(error, t("loadFailed"))} />
-        </div>
-      )}
+          {error && (
+            <AdminAlert message={getErrorMessage(error, t("loadFailed"))} />
+          )}
 
-      <AdminTableShell
-        footer={
-          !isLoading && total > 0 ? (
-            <AdminPagination
-              page={page}
-              pageSize={pageSize}
-              total={total}
-              onPageChange={setPage}
-              onPageSizeChange={setPageSize}
-            />
-          ) : undefined
-        }
-      >
-        {isLoading ? (
-          <p className="p-8 text-center text-sm text-[#83746b]">{t("loading")}</p>
-        ) : data.length === 0 ? (
-          <p className="p-8 text-center text-sm text-[#83746b]">{tp("empty")}</p>
-        ) : (
-          <AdminCrudTable
-            columns={[
-              { key: "name", label: t("name") },
-              { key: "email", label: t("email") },
-              { key: "role", label: tp("role") },
-              { key: "status", label: tp("status") },
-              { key: "joined", label: tp("joined") },
-              { key: "actions", label: t("actions"), align: "right" },
-            ]}
-            sortKey={sortKey}
-            sortDirection={sortDir}
-            onSort={onSort}
-          >
-            {pageData.map((user) => {
-              const isSelf = user.id === currentUser.id;
+          {isLoading ? (
+            <SkeletonCards count={2} className="sm:grid-cols-2" />
+          ) : data.length === 0 ? (
+            <EmptyPanel icon="badge" title={tp("empty")} />
+          ) : (
+            (["superadmin", "admin"] as const).map((role) => {
+              const members = pageData.filter((u) => u.role === role);
+              if (members.length === 0) return null;
               return (
-                <AdminCrudTableRow key={user.id} className="group">
-                  <AdminCrudTableCell className="font-semibold">
-                    {user.name}
-                    {isSelf && (
-                      <span className="ml-2 text-xs font-medium text-[#83746b]">
-                        ({tp("you")})
-                      </span>
-                    )}
-                  </AdminCrudTableCell>
-                  <AdminCrudTableCell className="text-[#51443c]">
-                    {user.email}
-                  </AdminCrudTableCell>
-                  <AdminCrudTableCell>
-                    <span
-                      className={cn(
-                        "inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize",
-                        roleBadgeClass(user.role),
-                      )}
-                    >
-                      {tp(`roles.${user.role}`)}
+                <section key={role}>
+                  <h3 className="mb-3 flex items-center gap-2 text-[15px] font-medium text-[#141414]">
+                    <Icon
+                      name={role === "superadmin" ? "shield_person" : "badge"}
+                      size={18}
+                      className="text-[#71130d]"
+                    />
+                    {tp(`roles.${role}`)}
+                    <span className="rounded-full bg-white px-2 py-0.5 text-sm font-normal text-[#6b6b6b]">
+                      {members.length}
                     </span>
-                  </AdminCrudTableCell>
-                  <AdminCrudTableCell>
-                    <span
-                      className={cn(
-                        "inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold",
-                        user.isActive
-                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                          : "border-[#e3e2e0] bg-[#efeeeb] text-[#83746b]",
-                      )}
-                    >
-                      {user.isActive ? tp("statusActive") : tp("statusInactive")}
-                    </span>
-                  </AdminCrudTableCell>
-                  <AdminCrudTableCell className="text-[#51443c]">
-                    {formatDate(user.createdAt)}
-                  </AdminCrudTableCell>
-                  <AdminCrudTableCell align="right">
-                    {isSuperadmin ? (
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setResetUser(user)}
-                          className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#efeeeb] hover:text-[#6f4627] sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
-                          aria-label={tp("resetPassword")}
+                  </h3>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {members.map((user) => {
+                      const isSelf = user.id === currentUser.id;
+                      return (
+                        <article
+                          key={user.id}
+                          className={cn(
+                            panel,
+                            "flex flex-col gap-4 p-5",
+                            isSelf && "ring-2 ring-[#e8bfb9]",
+                          )}
                         >
-                          <Icon name="lock_reset" size={18} />
-                        </button>
-                        <button
-                          type="button"
-                          disabled={isSelf}
-                          onClick={() => setToggleUser(user)}
-                          className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#efeeeb] hover:text-[#6f4627] disabled:opacity-40 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
-                          aria-label={
-                            user.isActive ? tp("deactivate") : tp("activate")
-                          }
-                        >
-                          <Icon
-                            name={user.isActive ? "person_off" : "person"}
-                            size={18}
-                          />
-                        </button>
-                        <Link
-                          href={`${BASE}/${user.id}/edit`}
-                          className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#efeeeb] hover:text-[#6f4627] sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
-                          aria-label={t("editTitle")}
-                        >
-                          <Icon name="edit" size={18} />
-                        </Link>
-                        <button
-                          type="button"
-                          disabled={isSelf}
-                          onClick={() => deleteDialog.openDelete(user)}
-                          className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#ffdad6]/60 hover:text-[#ba1a1a] disabled:opacity-40 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
-                          aria-label={t("deleteConfirm")}
-                        >
-                          <Icon name="delete" size={18} />
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-[#83746b]">—</span>
-                    )}
-                  </AdminCrudTableCell>
-                </AdminCrudTableRow>
+                          <div className="flex items-start gap-3">
+                            <div className="relative">
+                              <Avatar
+                                name={user.name}
+                                seed={user.id}
+                                muted={!user.isActive}
+                                className="size-12 text-base"
+                              />
+                              <span className="absolute bottom-0 right-0">
+                                <StatusDot active={user.isActive} />
+                              </span>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="flex items-center gap-2 truncate text-[15px] font-medium text-[#141414]">
+                                <span className="truncate">{user.name}</span>
+                                {isSelf ? (
+                                  <span className="shrink-0 rounded-full bg-[#f3dedb] px-2 py-0.5 text-[11px] font-semibold text-[#71130d]">
+                                    {tp("you")}
+                                  </span>
+                                ) : null}
+                              </p>
+                              <p className="truncate text-sm text-[#6b6b6b]">
+                                {user.email}
+                              </p>
+                              <p className="mt-1 text-xs text-[#857f77]">
+                                {user.isActive
+                                  ? tp("statusActive")
+                                  : tp("statusInactive")}{" "}
+                                ·{" "}
+                                {to("joined", {
+                                  date: formatDate(user.createdAt, locale),
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                          {isSuperadmin ? (
+                            <div className="flex items-center gap-2 border-t border-[#f6f0ef] pt-3">
+                              <Link
+                                href={`${BASE}/${user.id}/edit`}
+                                className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#ece4e2] bg-white px-4 text-sm font-medium text-[#141414] hover:border-[#e8bfb9] hover:text-[#71130d]"
+                              >
+                                <Icon name="edit" size={16} />
+                                {t("editTitle")}
+                              </Link>
+                              <IconAction
+                                icon="lock_reset"
+                                label={tp("resetPassword")}
+                                onClick={() => setResetUser(user)}
+                              />
+                              <IconAction
+                                icon={
+                                  user.isActive ? "person_off" : "person_check"
+                                }
+                                label={
+                                  user.isActive
+                                    ? tp("deactivate")
+                                    : tp("activate")
+                                }
+                                onClick={() => setToggleUser(user)}
+                                disabled={isSelf}
+                              />
+                              <IconAction
+                                icon="delete"
+                                tone="danger"
+                                label={t("deleteConfirm")}
+                                onClick={() => deleteDialog.openDelete(user)}
+                                disabled={isSelf}
+                              />
+                            </div>
+                          ) : null}
+                        </article>
+                      );
+                    })}
+                  </div>
+                </section>
               );
-            })}
-          </AdminCrudTable>
-        )}
-      </AdminTableShell>
+            })
+          )}
+          {!isLoading && total > pageSize ? (
+            <div className={cn(panel, "overflow-hidden")}>
+              <AdminPagination
+                page={page}
+                pageSize={pageSize}
+                total={total}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+              />
+            </div>
+          ) : null}
+        </div>
+
+        {/* Who can do what */}
+        <aside className="h-fit rounded-[1.75rem] bg-[#1c0b0a] p-5 text-white lg:sticky lg:top-0">
+          <p className="text-sm text-white/70">{to("rolesGuide")}</p>
+          <ul className="mt-3 space-y-3">
+            {(["superadmin", "admin"] as const).map((role) => (
+              <li
+                key={role}
+                className="rounded-2xl border border-white/10 bg-white/[0.06] p-4"
+              >
+                <p className="flex items-center gap-2 font-medium">
+                  <Icon
+                    name={role === "superadmin" ? "shield_person" : "badge"}
+                    size={18}
+                  />
+                  {tp(`roles.${role}`)}
+                  <span className="ml-auto text-sm tabular-nums text-white/70">
+                    {data.filter((u) => u.role === role).length}
+                  </span>
+                </p>
+                <p className="mt-1.5 text-sm text-white/75">
+                  {to(`roleCan.${role}`)}
+                </p>
+              </li>
+            ))}
+          </ul>
+          {!isSuperadmin ? (
+            <p className="mt-3 text-xs text-white/60">{to("superadminOnly")}</p>
+          ) : null}
+        </aside>
+      </div>
 
       <StaffResetPasswordDialog
         user={resetUser}
@@ -292,11 +309,16 @@ export function StaffList() {
         onOpenChange={(open) => !open && setResetUser(null)}
       />
 
-      <Dialog open={toggleUser !== null} onOpenChange={(open) => !open && setToggleUser(null)}>
+      <Dialog
+        open={toggleUser !== null}
+        onOpenChange={(open) => !open && setToggleUser(null)}
+      >
         <DialogContent showCloseButton={!pending}>
           <DialogHeader>
             <DialogTitle>
-              {toggleUser?.isActive ? tp("deactivateTitle") : tp("activateTitle")}
+              {toggleUser?.isActive
+                ? tp("deactivateTitle")
+                : tp("activateTitle")}
             </DialogTitle>
             <DialogDescription>
               {toggleUser?.isActive

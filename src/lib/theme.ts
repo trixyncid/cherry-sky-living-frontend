@@ -3,8 +3,8 @@
  */
 
 export const colors = {
-  primary: "#6f4627",
-  primaryContainer: "#8b5e3c",
+  primary: "#71130d",
+  primaryContainer: "#8a1a12",
   onPrimary: "#ffffff",
   onPrimaryContainer: "#ffe3d1",
   inversePrimary: "#f4bb92",

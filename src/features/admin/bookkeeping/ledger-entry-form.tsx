@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
+import { useEffect, useState } from "react";
 import {
   AdminCurrencyInput,
   AdminDatePicker,
@@ -24,23 +23,27 @@ import {
   useLedgerEntryMutations,
 } from "@/features/admin/hooks/use-admin-queries";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
 import {
   formatIdrInput,
   parseIdrInput,
   toDateInputValue,
 } from "@/features/admin/lib/format";
 import {
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
+import { useRouter } from "@/i18n/routing";
+import {
   deleteLedgerEntryAttachment,
   uploadLedgerEntryImage,
 } from "@/lib/api/admin/attachments";
-import { adminKeys } from "@/lib/query/keys";
-import { cn } from "@/lib/utils";
 import {
   isLedgerCategoryForType,
   ledgerCategoriesForType,
 } from "@/lib/ledger-categories";
+import { adminKeys } from "@/lib/query/keys";
 import type { LedgerEntryType } from "@/lib/types/admin";
+import { cn } from "@/lib/utils";
 
 const BASE = "/admin/bookkeeping";
 
@@ -78,6 +81,14 @@ export function LedgerEntryForm({ id }: { id?: string }) {
 
   const attachments = entry?.attachments ?? [];
 
+  // "+ Income" / "+ Expense" buttons preselect the entry type.
+  useEffect(() => {
+    if (isEdit) return;
+    const type = new URLSearchParams(window.location.search).get("type");
+    if (type === "income" || type === "expense")
+      setForm((f) => (f.type === type ? f : { ...f, type, category: "" }));
+  }, [isEdit]);
+
   useEffect(() => {
     if (entry) {
       setForm({
@@ -94,7 +105,9 @@ export function LedgerEntryForm({ id }: { id?: string }) {
   function invalidateEntry() {
     void qc.invalidateQueries({ queryKey: adminKeys.ledgerEntries.all() });
     if (id) {
-      void qc.invalidateQueries({ queryKey: adminKeys.ledgerEntries.detail(id) });
+      void qc.invalidateQueries({
+        queryKey: adminKeys.ledgerEntries.detail(id),
+      });
     }
   }
 
@@ -215,10 +228,7 @@ export function LedgerEntryForm({ id }: { id?: string }) {
       description={isEdit ? tp("editDescription") : tp("formDescription")}
     >
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21.5rem]">
-        <form
-          onSubmit={(e) => void handleSubmit(e)}
-          className="space-y-6"
-        >
+        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
           <AdminFormError message={formError} />
 
           <AdminFormSection
@@ -227,7 +237,11 @@ export function LedgerEntryForm({ id }: { id?: string }) {
             hint={tp("detailsHint")}
           >
             <div className="grid gap-4 sm:grid-cols-2">
-              <AdminField label={tp("entryType")} htmlFor="ledger-type" required>
+              <AdminField
+                label={tp("entryType")}
+                htmlFor="ledger-type"
+                required
+              >
                 <AdminSelect
                   id="ledger-type"
                   required
@@ -325,7 +339,9 @@ export function LedgerEntryForm({ id }: { id?: string }) {
           />
         </form>
 
-        <aside className={cn("lg:sticky lg:top-6", isEdit && "max-lg:order-first")}>
+        <aside
+          className={cn("lg:sticky lg:top-6", isEdit && "max-lg:order-first")}
+        >
           <AdminFormSection
             icon="photo_library"
             title={tp("photosTitle")}

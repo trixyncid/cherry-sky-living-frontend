@@ -116,7 +116,7 @@ export function AdminLeaseRenewalActions({
             type="button"
             disabled={confirming || mutations.confirmRenewal.isPending}
             onClick={() => void handleConfirm()}
-            className="inline-flex items-center gap-1 rounded-lg bg-[#6f4627] px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded-lg bg-[#71130d] px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <Icon name="check" size={16} />
             {confirming ? tp("confirming") : tp("confirm")}
@@ -125,7 +125,7 @@ export function AdminLeaseRenewalActions({
         {canCreateLease && (
           <Link
             href={buildRenewalLeaseHref(lease)}
-            className="inline-flex items-center gap-1 rounded-lg border border-[#6f4627]/30 bg-white px-3 py-1.5 text-xs font-semibold text-[#6f4627] transition-colors hover:bg-[#efeeeb]"
+            className="inline-flex items-center gap-1 rounded-lg border border-[#71130d]/30 bg-white px-3 py-1.5 text-xs font-semibold text-[#71130d] transition-colors hover:bg-[#efeeeb]"
           >
             <Icon name="post_add" size={16} />
             {tp("createRenewalLease")}

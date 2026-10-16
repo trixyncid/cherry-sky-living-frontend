@@ -35,7 +35,7 @@ interface HeroSearchBarProps {
 
 function FieldLabel({ icon, children }: { icon: string; children: ReactNode }) {
   return (
-    <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">
+    <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[#6b6b6b]">
       <Icon name={icon} size={14} />
       {children}
     </span>
@@ -49,7 +49,7 @@ function SelectWrap({ children }: { children: ReactNode }) {
       <Icon
         name="expand_more"
         size={18}
-        className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-white/55"
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6b6b6b]"
       />
     </div>
   );
@@ -153,7 +153,7 @@ export function HeroSearchBar({
   };
 
   const fieldClass =
-    "w-full appearance-none bg-transparent pr-6 text-sm font-medium text-white placeholder:text-white/50 focus:outline-none";
+    "h-12 w-full appearance-none rounded-xl border border-[#cfc5c1] bg-white pl-4 pr-9 text-base font-medium text-[#141414] placeholder:text-[#6b6b6b] focus:border-[#141414] focus:outline-none";
 
   const pills: {
     id: string;
@@ -190,17 +190,17 @@ export function HeroSearchBar({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.45, duration: 0.5 }}
       className={cn(
-        "relative z-20 w-full px-6 lg:px-10",
+        "relative z-20 w-full",
         overlapping && "-mb-14 md:-mb-16",
       )}
     >
       <form
         onSubmit={handleSubmit}
-        className="glass-search mx-auto w-full max-w-7xl rounded-3xl p-3 [color-scheme:dark] sm:p-4"
+        className="mx-auto w-full rounded-[1.25rem] bg-white p-3 shadow-[0_24px_60px_-34px_rgb(20_16_14/0.35)] sm:p-4"
       >
         <div className="flex flex-col gap-3 md:flex-row md:items-end">
-          <div className="grid min-w-0 flex-1 grid-cols-2 gap-3 lg:grid-cols-3 lg:gap-0">
-            <label className="order-1 flex flex-col gap-1.5 px-3 py-1 lg:border-r lg:border-white/12">
+          <div className="grid min-w-0 flex-1 grid-cols-2 gap-3 lg:grid-cols-3">
+            <label className="order-1 flex flex-col gap-1.5">
               <FieldLabel icon="apartment">{t("lookingFor")}</FieldLabel>
               <SelectWrap>
                 <select
@@ -224,18 +224,18 @@ export function HeroSearchBar({
               </SelectWrap>
             </label>
 
-            <label className="order-3 col-span-2 flex flex-col gap-1.5 px-3 py-1 lg:order-2 lg:col-span-1 lg:border-r lg:border-white/12">
+            <label className="order-3 col-span-2 flex flex-col gap-1.5 lg:order-2 lg:col-span-1">
               <FieldLabel icon="location_on">{t("location")}</FieldLabel>
               <input
                 type="search"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder={t("placeholder")}
-                className="w-full bg-transparent text-sm font-medium text-white placeholder:text-white/50 focus:outline-none"
+                className="h-12 w-full rounded-xl border border-[#cfc5c1] bg-white px-4 text-base font-medium text-[#141414] placeholder:text-[#6b6b6b] focus:border-[#141414] focus:outline-none"
               />
             </label>
 
-            <label className="order-2 flex flex-col gap-1.5 px-3 py-1 lg:order-3">
+            <label className="order-2 flex flex-col gap-1.5 lg:order-3">
               <FieldLabel icon="payments">{t("priceRange")}</FieldLabel>
               <SelectWrap>
                 <select
@@ -268,7 +268,7 @@ export function HeroSearchBar({
           <Button
             type="submit"
             size="lg"
-            className="h-12 w-full shrink-0 rounded-2xl bg-[#6f4627] px-6 text-sm font-semibold text-white hover:bg-[#805533] md:mb-1 md:w-auto"
+            className="h-12 w-full shrink-0 rounded-full bg-[#71130d] px-6 text-[15px] font-semibold text-white hover:bg-[#8a1a12] md:w-auto"
           >
             <Icon name="search" size={18} className="mr-2" />
             {t("findProperties")}
@@ -285,7 +285,7 @@ export function HeroSearchBar({
                 className={cn(
                   "rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors",
                   pill.active
-                    ? "bg-[#6f4627] text-white"
+                    ? "bg-[#71130d] text-white"
                     : "border border-white/20 bg-white/10 text-white/80 hover:bg-white/15",
                 )}
               >

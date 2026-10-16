@@ -60,11 +60,11 @@ export function ContactInfo() {
         </h2>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="overflow-hidden rounded-[1.5rem] border border-[#e3e2e0] divide-y divide-[#e3e2e0]">
         {contactDetails.map((detail, index) => {
           const content = (
             <>
-              <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f5e4d4] text-[#6f4627]">
+              <div className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#f5e4d4] text-[#71130d]">
                 <Icon name={detail.icon} size={20} />
               </div>
               <div className="min-w-0">
@@ -88,22 +88,20 @@ export function ContactInfo() {
           return (
             <motion.div
               key={detail.id}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.06 }}
+              transition={{ delay: index * 0.05 }}
             >
               {detail.href ? (
                 <a
                   href={detail.href}
-                  className="glass-card flex gap-4 rounded-[1.5rem] p-5 transition-colors hover:border-[#6f4627]/30"
+                  className="flex gap-4 bg-[#faf9f6] p-5 transition-colors hover:bg-white"
                 >
                   {content}
                 </a>
               ) : (
-                <div className="glass-card flex gap-4 rounded-[1.5rem] p-5">
-                  {content}
-                </div>
+                <div className="flex gap-4 bg-[#faf9f6] p-5">{content}</div>
               )}
             </motion.div>
           );

@@ -11,7 +11,6 @@ function show(variant: ToastVariant, message: string, options?: ToastOptions) {
   const payload = {
     description: options?.description,
     duration: options?.duration ?? 4000,
-    icon: null,
   };
 
   switch (variant) {

@@ -27,7 +27,7 @@ export function AdminDetailPage({
     <div className={cn("mx-auto", wide ? "max-w-5xl" : "max-w-3xl", className)}>
       <Link
         href={backHref}
-        className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#6f4627] transition-colors hover:text-[#805533]"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#71130d] transition-colors hover:text-[#8a1a12]"
       >
         <Icon name="arrow_back" size={18} />
         {backLabel}

@@ -48,7 +48,7 @@ export function UnitRowActions({
       ) : (
         <Link
           href={buildCreateLeaseHref(unit.id, suggestedLeaseStartDate)}
-          className={cn(actionClass, "hover:bg-[#fef7e0]/80 hover:text-[#6f4627]")}
+          className={cn(actionClass, "hover:bg-[#fef7e0]/80 hover:text-[#71130d]")}
           aria-label={tp("createLease")}
           title={tp("createLease")}
         >
@@ -57,7 +57,7 @@ export function UnitRowActions({
       )}
       <Link
         href={`${UNITS_BASE}/${unit.id}/edit`}
-        className={cn(actionClass, "hover:bg-[#efeeeb] hover:text-[#6f4627]")}
+        className={cn(actionClass, "hover:bg-[#efeeeb] hover:text-[#71130d]")}
         aria-label={tc("editTitle")}
         title={tc("editTitle")}
       >

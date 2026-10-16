@@ -7,14 +7,21 @@
         "login": "Login",
         "register": "Register",
         "about": "About",
-        "properties": "Properties"
+        "properties": "Properties",
+        "rooms": "Rooms",
+        "residences": "Residences",
+        "facilities": "Facilities",
+        "location": "Location",
+        "faq": "FAQ",
+        "checkAvailability": "Check availability",
+        "explore": "Explore"
     },
     "hero": {
-        "title": "A room that feels like home",
+        "title": "Furnished rooms. Quiet houses. Ready when you are.",
         "location": "in Medan",
         "scroll": "Scroll",
-        "subtitle": "Two well-kept residences in Medan — furnished rooms, 24/7 security, and a team that stays with you from viewing to move-in.",
-        "cta": "View rooms",
+        "subtitle": "Two well-kept residences in Medan — with 24/7 security and a team that stays with you from the first viewing to your keys.",
+        "cta": "See available rooms",
         "learnMore": "Explore options",
         "scheduleVisit": "Dashboard",
         "eyebrow": "Now leasing · Medan",
@@ -24,36 +31,145 @@
         "fromPrice": "From {price}/month",
         "roomsOpen": "{count} rooms open",
         "featuredLabel": "Featured stay",
-        "viewProperty": "View property"
+        "viewProperty": "View property",
+        "titleLead": "Furnished rooms. Quiet houses.",
+        "titleAccent": "Ready when you are.",
+        "chatWhatsApp": "Chat on WhatsApp",
+        "availableNow": "{count, plural, =0 {No rooms open right now} one {# room available now} other {# rooms available now}}",
+        "acrossResidences": "{count, plural, one {at # residence} other {across # residences}} in {city}",
+        "waitlistHint": "Message us to join the waitlist for the next opening.",
+        "roomsOfTotal": "{available} of {total} rooms open",
+        "roomTypes": "{count, plural, one {# room type} other {# room types}}",
+        "fullyBooked": "Fully booked",
+        "monthlyFrom": "Monthly from",
+        "perMonth": "/month",
+        "trustNote": "Managed directly by the owner, with no agents or middlemen in between.",
+        "statRooms": "Rooms available now",
+        "statPrice": "Starting monthly rent",
+        "statResidences": "Residences",
+        "statResidencesIn": "Residences in {city}",
+        "searchTitle": "Find your room",
+        "searchProperty": "Residence",
+        "searchBudget": "Monthly budget",
+        "searchMoveIn": "Move-in date",
+        "searchMoveInPlaceholder": "Any date",
+        "searchSubmit": "Search rooms",
+        "tagline": "study.work.rest",
+        "featuredTab": "Show {name}",
+        "viewResidence": "View residence",
+        "night": {
+            "searchPlaceholder": "Search by area, residence or room…",
+            "searchCta": "Search rooms",
+            "suggestBudget": "Available rooms under {price} a month",
+            "suggestResidence": "{name}: {count} rooms open now",
+            "suggestMonthly": "Monthly stay, moving in this week",
+            "whyTitle": "Why residents stay",
+            "liveTitle": "Live availability",
+            "liveResidence": "{name}: {available} of {total} open",
+            "liveAsk": "{name}: ask us about availability",
+            "liveViewings": "Viewings {days}, {time}",
+            "liveReply": "Replies personally on WhatsApp",
+            "cornerLeft": "Two residences in Medan, managed directly by the owner",
+            "cornerRight": "Monthly rent from",
+            "seeRooms": "See available rooms"
+        },
+        "finder": {
+            "residence": "Residence",
+            "anyResidence": "Any residence",
+            "moveIn": "Move-in",
+            "anyTime": "Any time",
+            "thisWeek": "This week",
+            "nextMonth": "Next month",
+            "pickDate": "Or pick a date",
+            "budget": "Budget",
+            "anyBudget": "Any budget",
+            "availableNow": "Available now",
+            "monthly": "Monthly stays",
+            "show": "{count, plural, one {Show # room type} other {Show # room types}}",
+            "showShort": "Search",
+            "none": "No matches yet",
+            "noneHint": "Try another budget or residence.",
+            "openCount": "{count} open",
+            "typesCount": "{count, plural, =0 {none} one {# type} other {# types}}",
+            "summary": "{rooms} rooms open across {types} room types",
+            "ariaFinder": "Find a room",
+            "anyShort": "Any"
+        }
     },
     "home": {
         "properties": {
-            "eyebrow": "Featured Properties",
-            "title": "Curated Kost Rooms in Medan",
-            "description": "Browse curated boarding rooms with strategic locations and complete facilities."
+            "eyebrow": "Available now",
+            "title": "Find your room in Medan",
+            "description": "Compare CHERRY KOST and SKYKOST — real vacancy, clear pricing, and rooms you can visit before you decide.",
+            "browseAll": "Browse all rooms",
+            "roomsOpen": "{count} rooms currently open"
         },
         "intro": {
-            "title": "Turning rooms into a home in Medan",
-            "description": "Cherry Sky Living curates comfortable, well-located kost for students and professionals — with trusted service from first inquiry to move-in.",
+            "title": "A place you can settle into — not just sleep in",
+            "description": "Cherry Sky Living looks after two residences for students and professionals who want comfort without the hassle of setting up from scratch.",
             "storyEyebrow": "Life in the house",
-            "story": "The rooms are furnished so you can move in and get on with your week — not spend the first days making a space livable. We keep the houses quiet, secure, and looked after, with a team that stays reachable from the first viewing through to your keys.",
+            "story": "Rooms arrive furnished so your first week is about living — not shopping for basics. We keep the houses quiet, secure, and looked after, with a team reachable from viewing through to keys.",
+            "photoCherry": "CHERRY KOST residence exterior",
+            "photoSky": "SKYKOST residence exterior",
             "points": {
-                "furnished": "Furnished rooms with what you actually use every day",
-                "security": "24/7 security so the house stays calm and safe",
-                "support": "A team that walks with you from viewing to move-in"
+                "furnished": "Furnished rooms with what you use every day",
+                "security": "24/7 security so the house stays calm",
+                "support": "A team with you from viewing to move-in"
+            },
+            "eyebrow": "About us"
+        },
+        "journey": {
+            "eyebrow": "How it works",
+            "title": "From first message to move-in",
+            "description": "No guesswork. Four clear steps — and a human on the other side of WhatsApp.",
+            "step": "Step {n}",
+            "visit": {
+                "title": "Book a viewing",
+                "description": "Tell us when you can come. We’ll confirm a time so someone is there to walk you through the room."
+            },
+            "lease": {
+                "title": "Agree the terms",
+                "description": "Once a room fits, we confirm availability, deposit, and duration in writing — before anything is paid."
+            },
+            "movein": {
+                "title": "Move in ready",
+                "description": "Arrive to a furnished room, Wi-Fi, and a team that stays reachable after you have the keys."
+            },
+            "titleLead": "From first message",
+            "titleAccent": "to your own keys.",
+            "hours": "Surveys Mon–Sat · 08:00–18:00 WIB",
+            "choose": {
+                "title": "Pick a room",
+                "description": "Browse live availability and monthly prices. Every room shows exactly what is included."
             }
+        },
+        "cta": {
+            "eyebrow": "Ready to visit?",
+            "title": "See a room before you commit",
+            "description": "Surveys run Monday–Saturday, 08:00–18:00 WIB. Pick a time and we’ll meet you at the property.",
+            "schedule": "Schedule a survey",
+            "whatsapp": "Message us",
+            "liveTitle": "{count, plural, =0 {Be first in line for the next room.} one {# room is open today.} other {# rooms are open today.}}",
+            "titleAccent": "Come and see it in person.",
+            "seeRooms": "See available rooms",
+            "reachOut": "Reach out",
+            "getInTouch": "Get in touch",
+            "whatsappLabel": "WhatsApp",
+            "emailLabel": "Email",
+            "hoursLabel": "Viewing hours"
         },
         "neighborhood": {
             "eyebrow": "Locations",
-            "title": "Explore the best of your neighborhood",
-            "description": "Visit SKYKOST and CHERRY KOST in Medan. Pin a property, review the details, and request a viewing with our team.",
-            "requestVisit": "Request visit"
+            "title": "Close to daily life in Medan",
+            "description": "SKYKOST and CHERRY KOST sit in practical neighborhoods — easy to reach, easy to settle into. Pin a property, then request a visit.",
+            "requestVisit": "Request a visit",
+            "roomsAvailable": "{available} of {total} rooms open"
         },
         "faq": {
-            "eyebrow": "Support",
-            "title": "Questions before you inquire",
-            "description": "Straightforward answers about visits, rooms, and living with Cherry Sky. Still unsure? Message our team on WhatsApp.",
-            "contactCta": "Contact management",
+            "eyebrow": "Before you decide",
+            "title": "Questions tenants ask first",
+            "description": "Clear answers on visits, deposits, and daily living. Still unsure? Message us on WhatsApp — we reply personally.",
+            "contactCta": "Talk to management",
             "items": {
                 "visit": {
                     "q": "Can I visit a room before I rent?",
@@ -75,6 +191,42 @@
                 "availability": {
                     "q": "How do I know if a room is still available?",
                     "a": "Each listing shows current vacancy. Availability changes quickly — send an inquiry and we will confirm the latest status for you."
+                },
+                "parking": {
+                    "q": "Is there parking?",
+                    "a": "Yes. Residents have dedicated parking space for motorcycles and cars."
+                },
+                "minimumStay": {
+                    "q": "What is the minimum stay?",
+                    "a": ""
+                },
+                "payment": {
+                    "q": "Which payment methods do you accept?",
+                    "a": ""
+                },
+                "guests": {
+                    "q": "Can I have guests over?",
+                    "a": ""
+                },
+                "curfew": {
+                    "q": "Is there a curfew?",
+                    "a": ""
+                },
+                "gender": {
+                    "q": "Are the houses male, female, or mixed?",
+                    "a": ""
+                },
+                "pets": {
+                    "q": "Are pets allowed?",
+                    "a": ""
+                },
+                "maintenance": {
+                    "q": "How quickly are repairs handled?",
+                    "a": ""
+                },
+                "cancellation": {
+                    "q": "What if I need to cancel or move out early?",
+                    "a": ""
                 }
             },
             "surveyDialog": {
@@ -101,30 +253,125 @@
                 "invalidPhone": "Please enter a valid phone number",
                 "invalidDate": "Choose a Monday–Saturday date from today onward",
                 "message": "Dear Cherry Sky Living,\n\nI would like to schedule a room survey.\n\nName: {name}\nPhone: {phone}\nSurvey date & time: {surveyDay}, {surveyTime} WIB\nRoom type to view: {roomType}\nProperty: {property}\n\nPlease confirm so an admin can be on standby. Thank you."
-            }
+            },
+            "cardTitle": "Talk to the owner",
+            "cardSub": "Replies personally on WhatsApp"
         },
         "amenities": {
-            "badge": "Premium Living",
-            "title": "Featured Facilities",
-            "description": "Enjoy modern living with complete facilities designed for you.",
+            "badge": "Included for residents",
+            "title": "What makes living here easier",
+            "description": "The essentials are already in place — so you can focus on work, campus, and rest.",
             "items": {
                 "wifi": {
-                    "title": "High-Speed WiFi",
-                    "description": "Free fast internet on every floor and in every room."
+                    "title": "High-speed Wi-Fi",
+                    "description": "Free internet on every floor, with multiple routers for steady coverage."
                 },
                 "ac": {
-                    "title": "Full AC",
-                    "description": "Every room has AC for maximum comfort."
+                    "title": "Air-conditioned rooms",
+                    "description": "Every room has AC so Medan’s heat stays outside."
                 },
                 "security": {
-                    "title": "24/7 Security",
-                    "description": "24-hour CCTV and on-site security for your safety."
+                    "title": "24/7 security",
+                    "description": "CCTV and on-site presence so the house stays calm and looked after."
                 },
                 "parking": {
-                    "title": "Spacious Parking",
-                    "description": "Secure parking for motorcycles and cars."
+                    "title": "Resident parking",
+                    "description": "Dedicated space for motorcycles and cars belonging to residents."
                 }
-            }
+            },
+            "titleLead": "Move in with a suitcase,",
+            "titleAccent": "not a moving truck.",
+            "photoCaption": "Every room arrives ready to live in.",
+            "included": "Included in your rent",
+            "paidSeparately": "Paid separately",
+            "electricity": "Electricity: a prepaid token at your own room meter, so you only pay for what you use.",
+            "deposit": "Refundable deposit: Rp 400.000 at Cherry Kost or Rp 300.000 at Sky Kost.",
+            "noAgent": "No agent fees. You deal with the owner directly.",
+            "extra": {
+                "furnished": {
+                    "title": "Fully furnished",
+                    "description": "Bed, wardrobe and the everyday basics are already in the room."
+                },
+                "support": {
+                    "title": "A team that answers",
+                    "description": "Message us on WhatsApp and a real person from the house replies."
+                }
+            },
+            "seeRooms": "See available rooms"
+        },
+        "residences": {
+            "eyebrow": "Available now",
+            "titleLead": "Hand-picked rooms,",
+            "titleAccent": "ready to move into.",
+            "description": "Real vacancy, clear monthly prices, and every room open for a viewing before you decide.",
+            "browseAll": "Browse all rooms",
+            "updated": "Availability updated {date}",
+            "availableCount": "{count, plural, one {# room available} other {# rooms available}}",
+            "fullyBooked": "Fully booked",
+            "roomsOfTotal": "{available} of {total} open",
+            "perMonth": "/month",
+            "noPrice": "Price on request",
+            "bookViewing": "Book a viewing",
+            "joinWaitlist": "Join waitlist",
+            "viewRoom": "View {name}",
+            "emptyTitle": "Every room is taken right now.",
+            "emptyDescription": "Rooms open up regularly. Message us and we'll tell you the moment one is free.",
+            "emptyCta": "Join the waitlist",
+            "live": "Live availability",
+            "prev": "Previous rooms",
+            "next": "Next rooms"
+        },
+        "houses": {
+            "eyebrow": "Two residences",
+            "titleLead": "Two houses,",
+            "titleAccent": "one standard of care.",
+            "description": "Both residences are owned and looked after directly: same team, same house rules, same quick replies. Pick the one that fits your day.",
+            "roomsOpen": "{available} of {total} rooms open",
+            "fullyBooked": "Fully booked right now",
+            "monthlyRent": "Monthly rent",
+            "roomTypes": "Room types",
+            "viewRooms": "View rooms",
+            "requestVisit": "Request a visit",
+            "directions": "Directions",
+            "loadMap": "Show map",
+            "mapHint": "The map loads only when you open it, to keep this page fast.",
+            "askAvailability": "Ask us about availability"
+        },
+        "floating": {
+            "seeRooms": "See rooms",
+            "whatsapp": "WhatsApp",
+            "chatLabel": "Chat with us on WhatsApp",
+            "call": "Call us"
+        },
+        "continuation": {
+            "lead": "Whether you're starting university, beginning a new job, or simply want a calmer place to live,",
+            "accent": "we help you find a furnished room that fits your budget, your routine and the way you like to live.",
+            "iconRooms": "Browse available rooms",
+            "iconChat": "Chat with us on WhatsApp",
+            "iconLocation": "See where the residences are",
+            "photoRoom": "A furnished room at {name}",
+            "photoHouse": "{name} residence"
+        },
+        "overview": {
+            "pill": "Overview",
+            "titleLead": "Live close to everything.",
+            "titleAccent": "Come home to calm, furnished rooms.",
+            "cta": "Explore rooms",
+            "tag": "Furnished · 24/7 security",
+            "cardDesc": "{types} room types from {price} a month, Wi-Fi on every floor, and a team that answers.",
+            "cardDescNoPrice": "Furnished rooms, Wi-Fi on every floor, and a team that answers. Ask us about availability.",
+            "specLocation": "Location",
+            "specRooms": "Rooms open",
+            "specRent": "Monthly rent",
+            "specFor": "Perfect for",
+            "forValue": "Students & professionals",
+            "ask": "Ask us",
+            "roomsValue": "{available} of {total}",
+            "switchTo": "Show {name}",
+            "promiseLabel": "Our promise",
+            "promise": "We reply to you personally, show you the room before anything is paid, and put every term in writing.",
+            "promiseBy": "The Cherry Sky Living team",
+            "promiseLink": "See how it works"
         }
     },
     "roomTypes": {
@@ -271,6 +518,8 @@
         "title": "Find a room in Medan",
         "eyebrow": "SKYKOST · CHERRY KOST",
         "subtitle": "Filter by property, price, and availability — then book a viewing with the team.",
+        "heroRoomsOpen": "{count} rooms open",
+        "heroFromPrice": "From {price}/month",
         "resultsEyebrow": "Room types",
         "resultsTitle": "Available rooms",
         "placeholder": "Search location, kost name...",
@@ -318,11 +567,30 @@
         "durationAny": "Any duration",
         "duration7": "7 days",
         "duration12": "12 days",
-        "duration30": "30 days",
+        "duration30": "per month",
         "durationDaysCount": "{days} days",
         "unitTypes": "Unit Types",
         "unitsAvailable": "{count} rooms available",
-        "noPricing": "Pricing not available"
+        "noPricing": "Pricing not available",
+        "moveInFrom": "Move in {date}",
+        "viewGrid": "Grid",
+        "viewTable": "Table",
+        "viewLabel": "Display",
+        "colRoom": "Room",
+        "colResidence": "Residence",
+        "colSize": "Size",
+        "colPrice": "Monthly",
+        "colStatus": "Status",
+        "colAction": "",
+        "pageEyebrow": "Rooms",
+        "titleLead": "Find a room in Medan,",
+        "titleAccent": "filtered your way.",
+        "statRooms": "Rooms open now",
+        "statFrom": "Monthly rent from",
+        "emptyTitle": "No rooms match these filters",
+        "emptyDescription": "Try a wider budget or another residence, or join the waitlist and we'll message you when something fits.",
+        "emptyWaitlist": "Join the waitlist",
+        "resultsHint": "Prices are per month. Every room shows what's included."
     },
     "property": {
         "flagship": "Flagship Property",
@@ -373,7 +641,21 @@
         "inquiryTitle": "Request a viewing",
         "inquiryDescription": "Tell us your name and we will open WhatsApp with a prepared message for our team.",
         "inquiryNamePlaceholder": "Your name",
-        "inquiryButton": "Message us"
+        "inquiryButton": "Message us",
+        "visitUs": "Visit us",
+        "viewingHours": "Viewing hours",
+        "call": "Call",
+        "follow": "Follow us",
+        "signoff": "Let's find your room. Message us today.",
+        "letsTalk": "Let's talk",
+        "menu": "Menu",
+        "messageUs": "Message us on WhatsApp",
+        "tenantPortal": "Tenant portal",
+        "explore": "Explore",
+        "support": "Support",
+        "company": "Company",
+        "sendInquiry": "Send an inquiry",
+        "about": "Two well-kept residences in Medan for students and professionals: furnished rooms, 24/7 security, and a team that stays with you from viewing to keys."
     },
     "whatsapp": {
         "inquiry": "Dear Cherry Sky Living,\n\nI would like to request further information regarding {propertyName}. Thank you.",
@@ -396,7 +678,9 @@
             "required": "This field is required",
             "invalidPhone": "Please enter a valid phone number",
             "bookingMessage": "Dear Cherry Sky Living,\n\nI would like to inquire about the availability of {roomType} at {propertyName}.\n\nInquiry details:\nFull name: {name}\nContact number: {phone}\nPreferred rental duration: {duration}\nPreferred move-in date: {checkInDate}\nDeposit noted: {deposit}\n\nKindly provide further information regarding this unit. Thank you."
-        }
+        },
+        "roomViewing": "Dear Cherry Sky Living,\n\nI would like to schedule a viewing of {roomType} at {propertyName}. Please let me know the available times. Thank you.",
+        "waitlist": "Dear Cherry Sky Living,\n\nI would like to join the waitlist for {roomType} at {propertyName}. Please let me know when a room becomes available. Thank you."
     },
     "roomDetail": {
         "title": "Room Details",
@@ -435,31 +719,40 @@
         "error": "An error occurred",
         "tryAgain": "Try Again",
         "showMore": "Show More",
-        "showLess": "Show Less"
+        "showLess": "Show Less",
+        "loginShell": {
+            "backToWebsite": "Back to website",
+            "adminHeadline": "Every room, lease and payment in one place.",
+            "tenantHeadline": "Your lease, renewals and payments, all in one place."
+        }
     },
     "about": {
         "hero": {
             "title": "Homes built around how you live",
             "subtitle": "Your trusted partner in Medan",
-            "description": "Cherry Sky Living runs two well-kept residences in Medan — furnished rooms, 24/7 security, and a team that stays with you from first viewing to move-in.",
+            "description": "Two well-kept residences in Medan — furnished rooms, 24/7 security, and a team that stays with you from first viewing to move-in.",
             "eyebrow": "Since 2019 · Medan",
-            "ctaRooms": "View rooms",
+            "ctaRooms": "See available rooms",
             "ctaViewing": "Book a viewing"
         },
         "mission": {
-            "title": "Our Mission",
+            "title": "Comfort you can count on",
             "subtitle": "Why We Do What We Do",
-            "description": "To create a comfortable and supportive living environment that enables residents to focus on their studies and careers without worrying about accommodation quality.",
-            "vision": "Our Vision",
-            "visionDescription": "To become the most trusted and preferred boarding house provider in Medan, known for quality, service, and resident satisfaction.",
+            "missionLabel": "Mission",
+            "visionLabel": "Vision",
+            "description": "Create a calm, well-run home so students and professionals can focus on work and study — not housing stress.",
+            "vision": "Trusted living in Medan",
+            "visionDescription": "Be the boarding provider people recommend — known for quality rooms, clear terms, and residents who feel looked after.",
             "eyebrow": "Our story",
             "storyTitle": "A calmer way to live in Medan",
-            "storyDescription": "We started Cherry Sky so students and young professionals could rent with confidence — clear pricing, looked-after rooms, and people who answer when you need them."
+            "storyDescription": "We started Cherry Sky so students and young professionals could rent with confidence — clear pricing, looked-after rooms, and people who answer when you need them.",
+            "storyPhotoAlt": "CHERRY KOST residence"
         },
         "journey": {
             "eyebrow": "How it works",
             "title": "From first message to move-in",
-            "description": "No guesswork. We keep the path to a room short, clear, and human.",
+            "description": "No guesswork. Three clear steps — and a human on the other side of WhatsApp.",
+            "step": "Step {n}",
             "visit": {
                 "title": "Book a viewing",
                 "description": "Message us on WhatsApp. We’ll confirm a time so someone is there to walk you through the room and the building."
@@ -474,29 +767,29 @@
             }
         },
         "values": {
-            "title": "Our Core Values",
-            "subtitle": "What We Stand For",
-            "description": "The same standards in every building — so a room at Cherry Sky feels looked after, not improvised.",
+            "title": "What we stand for",
+            "subtitle": "Our standards",
+            "description": "The same expectations in every building — so a room at Cherry Sky feels looked after, not improvised.",
             "quality": {
-                "title": "Quality First",
-                "description": "We never compromise on the quality of our facilities and services."
+                "title": "Quality first",
+                "description": "Furnished rooms and facilities kept to a standard you can feel on day one."
             },
             "trust": {
-                "title": "Trustworthy",
-                "description": "Building trust through transparency and consistent service excellence."
+                "title": "Clear and honest",
+                "description": "Transparent pricing, written terms, and answers when you ask."
             },
             "community": {
-                "title": "Community",
-                "description": "Creating a warm and supportive community for all residents."
+                "title": "Quiet community",
+                "description": "A calm house where residents can rest, study, and get on with life."
             },
             "innovation": {
-                "title": "Innovation",
-                "description": "Continuously improving our facilities and services with modern solutions."
+                "title": "Always improving",
+                "description": "We keep refining the houses and how we support residents."
             }
         },
         "stats": {
-            "title": "Our Achievements",
-            "subtitle": "Trusted by Many",
+            "title": "Trusted by residents",
+            "subtitle": "By the numbers",
             "happyResidents": "Happy Residents",
             "properties": "Properties",
             "yearsExperience": "Years of Experience",
@@ -505,26 +798,40 @@
         "cta": {
             "title": "Ready to see a room?",
             "subtitle": "Browse available rooms, or message us to schedule a viewing at SKYKOST or CHERRY KOST.",
-            "button": "View rooms",
+            "button": "See available rooms",
             "viewing": "Book a viewing"
+        },
+        "page": {
+            "heroLead": "Homes built around",
+            "heroAccent": "how you actually live.",
+            "valuesLead": "What we stand for,",
+            "valuesAccent": "in every house.",
+            "storyEyebrow": "Our story",
+            "numbersLead": "By the numbers,",
+            "numbersAccent": "live from our rooms.",
+            "roomTypes": "Room types",
+            "residences": "Residences",
+            "roomsOpen": "Rooms open now",
+            "fromRent": "Monthly rent from"
         }
     },
     "contact": {
         "hero": {
             "title": "Let’s find you a room",
             "subtitle": "We'd love to hear from you",
-            "description": "Questions about a listing, a viewing, or moving in? WhatsApp is the fastest way — or send a note and we’ll reply during business hours.",
+            "description": "Questions about a listing, a viewing, or moving in? WhatsApp is fastest — or write us and we’ll reply during business hours.",
             "eyebrow": "Cherry Sky Living",
             "reachTitle": "Reach us directly",
             "whatsapp": "WhatsApp",
             "call": "Call",
             "email": "Email",
             "hours": "Hours",
+            "writeUs": "Write a message",
             "responseTime": "Usually replies within a few hours, Monday–Saturday."
         },
         "info": {
-            "title": "Contact Information",
-            "subtitle": "Reach out to us",
+            "title": "How to reach us",
+            "subtitle": "Direct contacts",
             "address": "Address",
             "phone": "Phone",
             "email": "Email",
@@ -542,8 +849,8 @@
             "contactCta": "Contact"
         },
         "form": {
-            "title": "Send us a Message",
-            "subtitle": "We'll get back to you as soon as possible",
+            "title": "Send a message",
+            "subtitle": "We’ll get back to you soon",
             "name": "Your Name",
             "namePlaceholder": "Enter your full name",
             "email": "Email Address",
@@ -564,13 +871,25 @@
             "invalidEmail": "Please enter a valid email address"
         },
         "map": {
-            "title": "Our Locations",
-            "subtitle": "Visit our boarding houses",
-            "directionsButton": "Get Directions",
+            "title": "Our locations",
+            "subtitle": "Visit the residences",
+            "directionsButton": "Get directions",
             "coordinates": "Coordinates",
             "visitTitle": "Planning a visit?",
             "visitDescription": "Come during business hours — message us first so someone is ready to show you around.",
             "visitCta": "Book a viewing"
+        },
+        "page": {
+            "titleLead": "Let's find you",
+            "titleAccent": "a room.",
+            "whatsappSub": "Fastest way to reach us",
+            "callSub": "During viewing hours",
+            "emailSub": "For documents and longer questions",
+            "hoursSub": "Viewings by appointment",
+            "formTitle": "Write a message",
+            "formSub": "Leave your number and we'll reply on WhatsApp. Your message is saved, so nothing gets lost.",
+            "visitTitle": "Visit the residences",
+            "openWhatsapp": "Open WhatsApp"
         }
     },
     "terms": {
@@ -664,6 +983,17 @@
                     "Cookies and similar tracking technologies"
                 ]
             },
+            "leadForms": {
+                "title": "Enquiry, viewing and waitlist forms",
+                "content": "When you send an enquiry, book a viewing or join a waitlist on this website, we save what you submit so we can reply and keep track of your request:",
+                "items": [
+                    "Your name and WhatsApp number (required)",
+                    "Optional details you choose to add: residence, move-in date, budget, message",
+                    "The room or residence you asked about",
+                    "How you found us (campaign tags and the referring website), to understand which channels help people find a room",
+                    "We use this only to respond to you, arrange viewings, and notify you when a room you are waiting for becomes available. Ask us on WhatsApp or by email at any time to see or delete your data."
+                ]
+            },
             "useOfInformation": {
                 "title": "3. How We Use Your Information",
                 "content": "We use collected information for various purposes:",
@@ -749,7 +1079,13 @@
             "stepAdjust": "Adjust the range",
             "today": "Today",
             "clear": "Clear",
-            "done": "Done"
+            "done": "Done",
+            "presets": {
+                "thisMonth": "This month",
+                "lastMonth": "Last month",
+                "last30": "Last 30 days",
+                "next30": "Next 30 days"
+            }
         },
         "datePicker": {
             "selected": "Selected date",
@@ -780,7 +1116,8 @@
                 "inventory": "Inventory",
                 "operations": "Operations",
                 "finance": "Finance"
-            }
+            },
+            "shortcuts": "Shortcuts"
         },
         "header": {
             "notifications": "Notifications",
@@ -882,6 +1219,7 @@
             "allProperties": "All properties",
             "allUnitTypes": "All unit types",
             "selectProperty": "Select property",
+            "selectPropertyFirst": "Select a property first",
             "selectUnitType": "Select unit type",
             "selectUnit": "Select unit",
             "selectPricing": "Select pricing package",
@@ -949,6 +1287,8 @@
                     "propertiesHint": "Buildings in your portfolio",
                     "vacantUnits": "Vacant units",
                     "vacantUnitsHint": "{occupied} of {total} occupied",
+                    "occupancyPulse": "Occupancy",
+                    "occupancyPulseHint": "{vacant} vacant units",
                     "activeLeases": "Active leases",
                     "activeLeasesHint": "{expiring} expiring in the renewal window",
                     "accountsReceivable": "Accounts receivable",
@@ -1000,12 +1340,126 @@
                         "expiring": "Lease expiring soon"
                     }
                 },
+                "charts": {
+                    "cashFlow": {
+                        "title": "Cash flow",
+                        "subtitle": "Income, expense, and net over the last 6 months",
+                        "income": "Income",
+                        "expense": "Expense",
+                        "net": "Net",
+                        "empty": "No ledger activity in the last 6 months yet."
+                    },
+                    "revenueMix": {
+                        "title": "Revenue mix",
+                        "subtitle": "Income by category · last 6 months",
+                        "empty": "No income posted in the last 6 months yet."
+                    },
+                    "vacancyByType": {
+                        "title": "Occupancy by type",
+                        "subtitle": "Occupied vs vacant units per room type",
+                        "occupied": "Occupied",
+                        "vacant": "Vacant",
+                        "empty": "No units to show for this filter."
+                    },
+                    "categories": {
+                        "rent": "Rent",
+                        "deposit": "Deposit",
+                        "late_fee": "Late fee",
+                        "other_income": "Other income",
+                        "utilities": "Utilities",
+                        "maintenance": "Maintenance",
+                        "cleaning": "Cleaning",
+                        "staff": "Staff",
+                        "supplies": "Supplies",
+                        "tax": "Tax",
+                        "other_expense": "Other expense",
+                        "other": "Other"
+                    }
+                },
                 "recent": {
                     "title": "Recent leases",
                     "subtitle": "Latest rental activity",
                     "viewAll": "View all",
                     "empty": "No leases yet. Create your first lease to get started.",
                     "expiringSoon": "Expiring soon"
+                },
+                "board": {
+                    "occupiedUnits": "Occupied units",
+                    "vacantUnits": "Vacant units",
+                    "units": "units",
+                    "netThisMonth": "Net this month",
+                    "thisMonth": "This month",
+                    "activeLeases": "Active leases",
+                    "expiringSoon": "{count} expiring soon",
+                    "receivables": "Receivables",
+                    "overdue": "{count} overdue",
+                    "properties": "Properties",
+                    "propertyOpen": "{available} of {total} open",
+                    "roomTypes": "{count} room types",
+                    "openProperty": "Open {name}",
+                    "all": "All",
+                    "search": "Search tenant",
+                    "colTenant": "Tenant",
+                    "colType": "Type",
+                    "colProperty": "Property",
+                    "colAmount": "Amount due",
+                    "colPeriod": "Lease period",
+                    "colStatus": "Status",
+                    "colAction": "Action",
+                    "openLease": "Open lease",
+                    "newItem": "New",
+                    "occupancyOf": "{percent}% occupied",
+                    "noMatches": "No items match these filters.",
+                    "heroAccent": "Here's your portfolio today."
+                },
+                "dash": {
+                    "occupancy": "Occupancy",
+                    "netMonth": "Net this month",
+                    "receivables": "Receivables",
+                    "activeLeases": "Active leases",
+                    "vsLastMonth": "vs last month",
+                    "vacantUnits": "{count} vacant",
+                    "overdueCount": "{count} overdue",
+                    "expiringCount": "{count} expiring soon",
+                    "noHistory": "No previous month yet",
+                    "cashflow": "Cashflow",
+                    "income": "Income",
+                    "expenses": "Expenses",
+                    "latest": "This month",
+                    "collections": "Collections",
+                    "collectedOf": "Collected this month",
+                    "contracted": "of {amount} contracted",
+                    "last6": "Last 6 months",
+                    "occupancyTarget": "Occupancy",
+                    "allResidences": "All",
+                    "occupied": "Occupied",
+                    "vacant": "Vacant",
+                    "occupiedLabel": "Occupied",
+                    "attention": "Needs attention",
+                    "tabAll": "All",
+                    "tabPayments": "Payments",
+                    "tabRenewals": "Renewals",
+                    "viewAllLeases": "View all leases",
+                    "dueAmount": "{amount} due",
+                    "daysLate": "{days} days late",
+                    "deadline": "Confirm by {date}",
+                    "endsOn": "Ends {date}",
+                    "nothing": "All clear. Nothing needs your attention.",
+                    "leases": "Leases",
+                    "statusAll": "All",
+                    "statusPaid": "Paid",
+                    "statusUnpaid": "Unpaid",
+                    "statusReview": "Awaiting review",
+                    "colLease": "Lease",
+                    "colUnit": "Unit",
+                    "colTenant": "Tenant",
+                    "colTerm": "Term",
+                    "colAmount": "Amount",
+                    "colStart": "Start",
+                    "colStatus": "Status",
+                    "noLeases": "No leases in this view.",
+                    "quickActions": "Quick actions",
+                    "greeting": "{greeting}, {name}"
                 }
             },
             "properties": {
@@ -1042,11 +1496,14 @@
             },
             "unitTypes": {
                 "title": "Unit types",
-                "description": "Room categories per property (e.g. Studio, 1BR).",
-                "formDescription": "Define the room category first. After you save, you can choose photos on the same page.",
+                "description": "Manage room categories for one property at a time. Use All properties only to audit across kosts.",
+                "allPropertiesInventory": "All properties (inventory)",
+                "emptyScoped": "No unit types for this property yet. Add one to define room categories.",
+                "emptyInventory": "No unit types found across properties.",
+                "formDescription": "Define the room category for a property first. After you save, you can choose photos on the same page.",
                 "editDescription": "Update the room category, or choose photos and click Upload. Photo upload is separate from Save details.",
                 "identityTitle": "Unit type details",
-                "identityHint": "Name, property, and description shown on the public listing.",
+                "identityHint": "Name, property, and description shown on the public listing. Each type belongs to one property.",
                 "photosTitle": "Room photos",
                 "photosHint": "These photos appear on the public listing. Choose or drop files, then click Upload — this does not use Save details.",
                 "photosHintCreate": "Photos can be added after the unit type exists. Save details and you'll stay here to upload them.",
@@ -1068,7 +1525,7 @@
             },
             "units": {
                 "title": "Units",
-                "description": "View all rooms on the map or table, and check which are vacant for a date range.",
+                "description": "See every building in 3D, peek into each floor, and check which rooms are vacant for a date range.",
                 "searchPlaceholder": "Search by unit, type, or property…",
                 "empty": "No units found.",
                 "formDescription": "Add or update a rentable unit.",
@@ -1080,7 +1537,7 @@
                 "saveDetails": "Save details",
                 "sizeRequired": "Enter a valid size in square meters.",
                 "viewMode": "View mode",
-                "mapView": "Map",
+                "mapView": "Building",
                 "tableView": "Table",
                 "legend": "Status",
                 "occupancy": "Occupancy",
@@ -1115,6 +1572,37 @@
                     "resultsCount": "{count, plural, one {# vacant room} other {# vacant rooms}}",
                     "datesRequired": "Start and end dates are required.",
                     "invalidDateRange": "Start date must be before end date."
+                },
+                "building": {
+                    "dragHint": "Swipe to rotate · tap a floor",
+                    "tapRoomHint": "Tap a room for details",
+                    "rotateLeft": "Rotate left",
+                    "rotateRight": "Rotate right",
+                    "zoomIn": "Zoom in",
+                    "zoomOut": "Zoom out",
+                    "resetView": "Reset view",
+                    "explode": "Separate floors",
+                    "stack": "Stack floors",
+                    "show": "Show",
+                    "showAll": "All rooms",
+                    "showVacant": "Vacant only",
+                    "wholeBuilding": "Whole building",
+                    "floors": "Floors",
+                    "floorShort": "Fl. {floor}",
+                    "floorVacant": "{count} vacant",
+                    "floorSummary": "{total} rooms · {vacant} vacant",
+                    "vacantRooms": "Vacant rooms",
+                    "noVacant": "Every room in this building is occupied.",
+                    "pickFloorHint": "Tap a floor on the building or in the list to look inside.",
+                    "floorBelow": "Floor below",
+                    "floorAbove": "Floor above",
+                    "backToBuilding": "Back to whole building",
+                    "aria": "3D view of {name}: {vacant} of {total} rooms vacant",
+                    "notMatching": "Not in current filter",
+                    "clickToPeek": "Click to look inside this floor",
+                    "clickForDetails": "Click for room details",
+                    "available": "Green rooms are free for your dates",
+                    "core": "Lift & stairs"
                 }
             },
             "users": {
@@ -1123,12 +1611,17 @@
                 "createTitle": "Add tenant",
                 "formDescription": "Create a tenant account for lease assignment and portal sign-in.",
                 "identityTitle": "Tenant details",
-                "identityHint": "Name and email used for leases and portal sign-in.",
+                "identityHint": "Phone is required for portal sign-in. Email is optional.",
                 "credentialsTitle": "Sign-in password",
                 "accountSection": "Account details",
                 "forbiddenAction": "You do not have permission to perform this action.",
-                "searchPlaceholder": "Search by name or email…",
+                "searchPlaceholder": "Search by name, phone, or email…",
                 "empty": "No tenants found.",
+                "phone": "Phone",
+                "phoneHint": "Indonesian mobile number (e.g. 08… or +62…). Used for tenant portal sign-in.",
+                "phonePlaceholder": "08…",
+                "emailOptional": "Email (optional)",
+                "emailOptionalHint": "Leave blank if the tenant only signs in with phone.",
                 "status": "Status",
                 "statusActive": "Active",
                 "statusInactive": "Inactive",
@@ -1148,9 +1641,12 @@
                 "validation": {
                     "nameRequired": "Name is required",
                     "emailInvalid": "Invalid email address",
+                    "phoneRequired": "Phone number is required",
+                    "phoneInvalid": "Enter a valid Indonesian mobile number",
                     "passwordMin": "Password must be at least 8 characters"
                 },
-                "emailExists": "This email is already registered.",
+                "emailExists": "This email or phone number is already registered.",
+                "phoneExists": "This phone number is already registered.",
                 "resetPassword": "Reset password",
                 "resetTitle": "Reset tenant password?",
                 "resetDescription": "This will generate a new temporary password for \"{name}\" and sign them out of all active sessions. Share the new password with the tenant securely.",
@@ -1530,12 +2026,141 @@
                     "tax": "Tax & fees",
                     "other_expense": "Other expense"
                 }
+            },
+            "inventory": {
+                "portfolio": "Portfolio",
+                "occupancyOf": "{percent}% occupied",
+                "properties": "Properties",
+                "roomsTotal": "{count} rooms in total",
+                "rentRoll": "Monthly rent roll",
+                "rentRollHint": "Occupied rooms at list price",
+                "potential": "At full occupancy",
+                "potentialHint": "{gap} still on the table",
+                "occupancy": "Occupancy",
+                "roomsVacant": "{vacant} of {total} rooms vacant",
+                "roomTypes": "Room types",
+                "rooms": "Rooms",
+                "vacant": "Vacant",
+                "from": "From {price}",
+                "perMonth": "/mo",
+                "perDay": "/day",
+                "photos": "{count, plural, =0 {No photos} one {# photo} other {# photos}}",
+                "noPhoto": "No photo yet",
+                "openBuilding": "Open building",
+                "addProperty": "Add a property",
+                "addPropertyHint": "Set up another building to manage its rooms, room types and prices.",
+                "view": "View",
+                "catalog": "Catalog",
+                "compare": "Compare",
+                "typesCount": "{count, plural, one {# room type} other {# room types}}",
+                "roomType": "Room type",
+                "size": "Size",
+                "availability": "Availability",
+                "monthly": "Monthly",
+                "daily": "Daily",
+                "perSqmLabel": "Per m² / month",
+                "perSqm": "{price}/m²",
+                "full": "Full",
+                "vacantCount": "{count} vacant",
+                "noPrice": "No price yet",
+                "noDaily": "No daily rate",
+                "missingHint": "Tenants can't book this type until it has a price.",
+                "setPrice": "Set price",
+                "editPrice": "Edit price",
+                "viewRooms": "View rooms",
+                "avgMonthly": "Average monthly rate",
+                "priceRange": "Monthly price range",
+                "missingPrices": "Room types without a price",
+                "allPriced": "Every room type has a price.",
+                "rateCard": "Rate card",
+                "monthlySaves": "Monthly saves {pct}%"
+            },
+            "operations": {
+                "today": "Today",
+                "inDays": "{count, plural, one {in # day} other {in # days}}",
+                "daysAgo": "{count, plural, one {# day ago} other {# days ago}}",
+                "view": "View",
+                "board": "Board",
+                "list": "List",
+                "outstanding": "Outstanding",
+                "overdue": "Overdue payments",
+                "awaitingReview": "Awaiting review",
+                "endingSoon": "Ending in 30 days",
+                "colUnpaid": "Unpaid",
+                "colReview": "Awaiting review",
+                "colPaid": "Paid",
+                "emptyColumn": "Nothing here right now.",
+                "showAll": "Show all {count}",
+                "showLess": "Show less",
+                "daysLate": "{count, plural, one {# day late} other {# days late}}",
+                "proofAttached": "Payment proof attached",
+                "noProof": "No payment proof yet",
+                "renewalAsked": "Renewal requested",
+                "reject": "Reject",
+                "openLease": "Open lease",
+                "bucket": {
+                    "overdue": "Deadline passed",
+                    "week": "Due this week",
+                    "later": "Later"
+                },
+                "deadlineShort": "deadline",
+                "leaseEnds": "Lease ends {date}",
+                "tenantFilter": {
+                    "all": "All tenants",
+                    "housed": "Living here",
+                    "unhoused": "No room",
+                    "inactive": "Inactive"
+                },
+                "until": "Until {date}",
+                "noRoom": "No active lease right now",
+                "whatsapp": "WhatsApp",
+                "waGreeting": "Hi {name}, this is Cherry Sky Living.",
+                "profile": "Profile",
+                "joined": "Joined {date}",
+                "rolesGuide": "Who can do what",
+                "roleCan": {
+                    "superadmin": "Everything, including adding, editing and removing staff accounts.",
+                    "admin": "Day-to-day work: properties, rooms, leases, renewals, tenants and bookkeeping."
+                },
+                "superadminOnly": "Only a superadmin can change staff accounts."
+            },
+            "ledger": {
+                "addIncome": "Income",
+                "addExpense": "Expense",
+                "netResult": "Net result",
+                "allTime": "All time",
+                "byMonth": "Cash flow by month",
+                "whereFrom": "Where money comes from",
+                "whereTo": "Where money goes",
+                "journal": "Journal",
+                "entriesCount": "{count, plural, one {# entry} other {# entries}}"
+            }
+        },
+        "mobile": {
+            "home": "Home",
+            "leases": "Leases",
+            "units": "Units",
+            "more": "More",
+            "create": "Create",
+            "createTitle": "Create new",
+            "createHint": "What would you like to add?",
+            "menuTitle": "Menu",
+            "actions": {
+                "newLease": "New lease",
+                "recordIncome": "Record income",
+                "recordExpense": "Record expense",
+                "addTenant": "Add tenant",
+                "addUnit": "Add unit",
+                "setPricing": "Set pricing",
+                "addUnitType": "Add room type",
+                "addProperty": "Add property"
             }
         }
     },
     "tenant": {
         "portalName": "Tenant Portal",
         "nav": {
+            "home": "Home",
             "group": "My account",
             "leases": "My leases",
             "leaseRenewals": "Lease renewals",
@@ -1556,6 +2181,8 @@
         "login": {
             "title": "Sign in",
             "subtitle": "View your leases, renewals, and profile",
+            "identifierLabel": "Email or phone number",
+            "identifierPlaceholder": "you@example.com or 08…",
             "emailLabel": "Email Address",
             "emailPlaceholder": "you@example.com",
             "passwordLabel": "Password",
@@ -1568,7 +2195,7 @@
             "errors": {
                 "invalid": {
                     "title": "Sign-in failed",
-                    "description": "Invalid email or password."
+                    "description": "Invalid email, phone number, or password."
                 },
                 "forbidden": {
                     "title": "Wrong portal",
@@ -1716,8 +2343,10 @@
             },
             "profile": {
                 "title": "Profile",
-                "description": "Update your name and password.",
+                "description": "Update your name, phone number, and password.",
                 "emailReadOnly": "Email cannot be changed here. Contact your administrator if you need to update it.",
+                "phone": "Phone",
+                "phoneHint": "Used to sign in to the tenant portal.",
                 "memberSince": "Member since",
                 "accountSection": "Account details",
                 "passwordSection": "Change password",
@@ -1734,14 +2363,204 @@
                 "saveFailed": "Failed to update profile.",
                 "passwordFailed": "Failed to update password.",
                 "incorrectCurrentPassword": "Current password is incorrect.",
+                "phoneExists": "This phone number is already registered.",
                 "validation": {
                     "nameRequired": "Name is required",
+                    "phoneRequired": "Phone number is required",
+                    "phoneInvalid": "Enter a valid Indonesian mobile number",
                     "currentPasswordRequired": "Current password is required",
                     "newPasswordMin": "New password must be at least 8 characters",
                     "confirmPasswordRequired": "Please confirm your new password",
                     "passwordsMismatch": "Passwords do not match"
                 }
             }
+        },
+        "home": {
+            "greeting": "{greeting}, {name}",
+            "greet": {
+                "morning": "Good morning",
+                "afternoon": "Good afternoon",
+                "evening": "Good evening"
+            },
+            "roomLine": "Room {unit}",
+            "directions": "Directions",
+            "payment": "Payment",
+            "paid": "All paid",
+            "paidHint": "Thank you — your rent for this period is settled.",
+            "dueLabel": "Amount to pay",
+            "reviewLabel": "Payment under review",
+            "reviewHint": "We've received your payment proof and are checking it.",
+            "dueBy": "Due {date}",
+            "lateBy": "{count, plural, one {# day late} other {# days late}}",
+            "lateFee": "Late fee {amount}",
+            "sendProof": "Send payment proof on WhatsApp",
+            "waProof": "Hi, I'm {name} from room {unit} at {property}. Here is my payment proof for {amount}.",
+            "waHello": "Hi, I'm {name} from room {unit} at {property}.",
+            "monthlyRent": "Monthly rent",
+            "leaseTime": "Your stay",
+            "daysLeft": "days left on your lease",
+            "daysUntilStart": "days until your stay starts",
+            "ended": "Your lease has ended",
+            "viewLease": "Lease details",
+            "contactManagement": "Chat with management",
+            "quick": {
+                "myLeases": "My leases",
+                "renewals": "Renewals",
+                "documents": "Documents",
+                "profile": "My profile"
+            },
+            "history": "Lease history",
+            "phase": {
+                "current": "Current",
+                "upcoming": "Upcoming",
+                "past": "Past"
+            },
+            "noLease": "You don't have a lease yet",
+            "noLeaseHint": "Once management sets up your lease, your room, payments and documents will show up here."
+        },
+        "mobile": {
+            "home": "Home",
+            "leases": "Leases",
+            "renewals": "Renewals",
+            "profile": "Profile"
         }
+    },
+    "leads": {
+        "name": "Your name",
+        "namePlaceholder": "Full name",
+        "phone": "WhatsApp number",
+        "phonePlaceholder": "e.g. 0812 3456 7890",
+        "moreDetails": "Add details (optional)",
+        "property": "Preferred residence",
+        "anyProperty": "Any residence",
+        "moveIn": "Preferred move-in date",
+        "moveInPlaceholder": "Pick a date",
+        "budget": "Monthly budget (Rp)",
+        "budgetPlaceholder": "e.g. 2000000",
+        "message": "Message",
+        "messagePlaceholder": "Anything we should know?",
+        "consent": "By sending, you agree we may contact you on WhatsApp about rooms.",
+        "privacy": "Privacy policy",
+        "submit": {
+            "inquiry": "Send inquiry",
+            "waitlist": "Join waitlist"
+        },
+        "sending": "Sending…",
+        "errors": {
+            "name": "Please enter your name.",
+            "phone": "Enter a valid Indonesian mobile number (e.g. 0812…).",
+            "generic": "Something went wrong. You can still reach us on WhatsApp.",
+            "rateLimited": "Too many attempts. Please try again in a few minutes, or message us on WhatsApp."
+        },
+        "success": {
+            "title": "Thanks, {name}! We've got your request.",
+            "body": "We'll reply on WhatsApp during viewing hours ({hours}).",
+            "bodyWithTime": "We'll reply on WhatsApp within {time}.",
+            "openWhatsApp": "Open WhatsApp now",
+            "another": "Send another"
+        },
+        "waitlist": {
+            "title": "Join the waitlist",
+            "description": "Leave your number and we'll message you as soon as {room} opens up.",
+            "descriptionGeneric": "Leave your number and we'll message you as soon as a room opens up."
+        },
+        "inquiry": {
+            "title": "Ask us anything",
+            "description": "Leave your number and we'll get back to you on WhatsApp."
+        },
+        "orWhatsApp": "Prefer to chat right now?"
+    },
+    "location": {
+        "eyebrow": "Location",
+        "titleLead": "Close to daily life,",
+        "titleAccent": "easy to reach.",
+        "description": "SKYKOST and CHERRY KOST sit in practical neighbourhoods of Medan. Get directions, or ask us to show you around.",
+        "viewingHours": "Viewing hours",
+        "directions": "Get directions",
+        "requestVisit": "Request a visit",
+        "mapTitle": "Cherry Sky Living locations in Medan"
+    },
+    "explore": {
+        "eyebrow": "Explore more",
+        "facilities": {
+            "title": "Facilities",
+            "description": "What's included in your rent, and what isn't."
+        },
+        "location": {
+            "title": "Location",
+            "description": "Addresses, directions and the map."
+        },
+        "faq": {
+            "title": "FAQ",
+            "description": "Deposits, electricity, visits and more."
+        }
+    },
+    "pages": {
+        "residences": {
+            "title": "Residences",
+            "description": "Cherry Kost and Sky Kost in Medan: live availability, monthly prices and room types."
+        },
+        "facilities": {
+            "title": "Facilities",
+            "description": "Furnished rooms with Wi-Fi, AC, 24/7 security and parking. See exactly what your rent includes."
+        },
+        "location": {
+            "title": "Location",
+            "description": "Where Cherry Kost and Sky Kost are in Medan, with directions and viewing hours."
+        },
+        "faq": {
+            "title": "FAQ",
+            "description": "Answers about viewings, deposits, electricity, Wi-Fi and availability."
+        }
+    },
+    "trust": {
+        "owner": "Managed directly by the owner",
+        "ownerSub": "No agents, no middlemen",
+        "facts": [
+            "Wi-Fi on every floor",
+            "Air-conditioned rooms",
+            "24/7 security & CCTV",
+            "Resident parking",
+            "Fully furnished",
+            "Prepaid electricity, pay what you use",
+            "Viewings Mon–Sat"
+        ]
+    },
+    "detail": {
+        "overview": "Overview",
+        "rooms": "Rooms",
+        "facilities": "Facilities",
+        "location": "Location",
+        "rules": "House rules",
+        "share": "Share",
+        "linkCopied": "Link copied",
+        "mapTitle": "Map of {name}",
+        "directions": "Get directions",
+        "call": "Call",
+        "depositFor": "Refundable deposit: {amount}",
+        "replyHint": "We reply on WhatsApp during viewing hours ({hours}).",
+        "similarTitle": "Other rooms",
+        "similarAccent": "you may like.",
+        "priceBreakdown": "Price packages",
+        "perPeriod": "per {period}",
+        "bookingCardTitle": "Book a viewing",
+        "noCharge": "Free to ask. Nothing is charged until you agree the terms.",
+        "roomsOpenAt": "{available} of {total} rooms open",
+        "joinWaitlist": "Join the waitlist",
+        "backToResidence": "Back to {name}",
+        "photosCount": "{count} photos",
+        "sizeLabel": "Room size",
+        "capacityLabel": "Capacity",
+        "statusLabel": "Status",
+        "minStay": "Minimum stay",
+        "propertyLabel": "Residence",
+        "readMore": "Read more",
+        "readLess": "Show less"
+    },
+    "legal": {
+        "onThisPage": "On this page",
+        "backToTop": "Back to top",
+        "questions": "Questions about this document?",
+        "questionsSub": "Message us and we'll explain anything that's unclear."
     }
 }

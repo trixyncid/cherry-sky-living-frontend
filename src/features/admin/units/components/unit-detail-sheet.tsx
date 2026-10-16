@@ -80,7 +80,7 @@ export function UnitDetailSheet({
             <SheetHeader className="shrink-0 border-b border-white/50 p-5">
               <div className="flex items-center gap-3 pr-8">
                 <div className="rounded-xl border border-[#e3e2e0] bg-white p-2.5 shadow-sm">
-                  <Icon name="door_front" size={24} className="text-[#6f4627]" />
+                  <Icon name="door_front" size={24} className="text-[#71130d]" />
                 </div>
                 <div className="min-w-0">
                   <SheetTitle className="truncate text-xl text-[#1a1c1a]">
@@ -133,14 +133,14 @@ export function UnitDetailSheet({
 
             <SheetFooter className="mt-auto shrink-0 flex-col gap-2 border-t border-white/50 bg-white/25 p-5 sm:flex-col">
               {lease ? (
-                <Button className="w-full bg-[#6f4627] hover:bg-[#805533]" asChild>
+                <Button className="w-full bg-[#71130d] hover:bg-[#8a1a12]" asChild>
                   <Link href={buildViewLeaseHref(lease.id)}>
                     <Icon name="description" size={18} />
                     {t("viewLease")}
                   </Link>
                 </Button>
               ) : (
-                <Button className="w-full bg-[#6f4627] hover:bg-[#805533]" asChild>
+                <Button className="w-full bg-[#71130d] hover:bg-[#8a1a12]" asChild>
                   <Link
                     href={buildCreateLeaseHref(
                       unit.id,

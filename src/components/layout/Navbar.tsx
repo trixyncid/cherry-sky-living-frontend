@@ -1,15 +1,22 @@
 /**
  * Navbar Component
- * Responsive navigation with mobile and desktop variants
+ * Sticky header: brand, page links, persistent "Check availability" CTA
+ * (landing-page-instructions §5.1). Compact header + menu on smaller screens.
  */
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { useTranslations } from 'next-intl';
-import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
+import {
+    CHECK_AVAILABILITY_HREF,
+    PUBLIC_NAV_LINKS,
+    type PublicNavLink,
+} from '@/components/layout/nav-links';
+import { ArrowPill } from '@/components/shared/ArrowPill';
+import { BrandMark } from '@/components/shared/BrandMark';
 import { Icon } from '@/components/shared/Icon';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 import { Link } from '@/i18n/routing';
@@ -19,215 +26,154 @@ interface NavbarProps {
     onMenuClick?: () => void;
 }
 
-interface NavLink {
-    href: string;
-    label: string;
-}
-
-/** Pages with a full-width dark hero behind the navbar. */
-function hasHeroOverlay(pathname: string) {
-    return (
-        /^\/(en|id)\/?$/.test(pathname) ||
-        /^\/(en|id)\/(about|contact|search-kosts|terms|privacy)\/?$/.test(pathname) ||
-        /^\/(en|id)\/kosts(\/|$)/.test(pathname)
-    );
-}
+/** Routes that open on a dark photo hero (homepage hero or PageHero). */
+const DARK_HERO_PATHS = new Set([
+    '/',
+    '/search-kosts',
+    '/residences',
+    '/facilities',
+    '/location',
+    '/faq',
+    '/about',
+    '/contact',
+    '/terms',
+    '/privacy',
+]);
 
 function normalizePath(pathname: string) {
     return pathname.replace(/^\/(en|id)(?=\/|$)/, '') || '/';
 }
 
-function isNavActive(pathname: string, href: string) {
-    const current = normalizePath(pathname);
-    if (href === '/') return current === '/' || current === '';
-    return current === href || current.startsWith(`${href}/`);
-}
-
 interface NavbarLinkProps {
-    href: string;
+    link: PublicNavLink;
     label: string;
-    pathname: string;
+    isActive: boolean;
     isSolid: boolean;
 }
 
-function NavbarLink({ href, label, pathname, isSolid }: NavbarLinkProps) {
-    const isActive = isNavActive(pathname, href);
-
+function NavbarLink({ link, label, isActive, isSolid }: NavbarLinkProps) {
     return (
         <Link
-            href={href}
+            href={link.href}
+            aria-current={isActive ? 'page' : undefined}
             className={cn(
-                'group relative px-5 py-2 text-sm transition-colors duration-200 lg:px-6',
+                'px-3 py-2 text-[15px] font-medium transition-colors duration-200 xl:px-3.5',
                 isActive
-                    ? cn(
-                          'font-semibold',
-                          isSolid ? 'text-[#6f4627]' : 'text-white',
-                      )
-                    : cn(
-                          'font-medium',
-                          isSolid
-                              ? 'text-[#83746b] hover:text-[#1a1c1a]'
-                              : 'text-[#faf9f6]/75 hover:text-white',
-                      ),
+                    ? isSolid
+                        ? 'text-[#71130d]'
+                        : 'text-white underline decoration-[#f3dedb] decoration-2 underline-offset-8'
+                    : isSolid
+                      ? 'text-[#141414] hover:text-[#71130d]'
+                      : 'text-[#faf9f6]/80 hover:text-white',
             )}
         >
             {label}
-            {isActive ? (
-                <motion.span
-                    layoutId="navbar-active-line"
-                    className="absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-ferrugem"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                />
-            ) : (
-                <span
-                    aria-hidden
-                    className="absolute bottom-0 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-ferrugem opacity-0 transition-all duration-300 ease-out group-hover:w-4 group-hover:opacity-50"
-                />
-            )}
         </Link>
-    );
-}
-
-interface NavbarLinksProps {
-    links: NavLink[];
-    pathname: string;
-    isSolid: boolean;
-}
-
-function NavbarLinks({ links, pathname, isSolid }: NavbarLinksProps) {
-    return (
-        <div className="hidden items-center gap-1 md:flex lg:gap-2">
-            {links.map((link) => (
-                <NavbarLink
-                    key={link.href}
-                    href={link.href}
-                    label={link.label}
-                    pathname={pathname}
-                    isSolid={isSolid}
-                />
-            ))}
-        </div>
     );
 }
 
 export function Navbar({ onMenuClick }: NavbarProps) {
     const t = useTranslations();
     const pathname = usePathname() ?? '';
-    const [isScrolled, setIsScrolled] = useState(false);
-    const isSolid = isScrolled || !hasHeroOverlay(pathname);
-
-    const navLinks: NavLink[] = [
-        { href: '/', label: t('nav.home') },
-        { href: '/about', label: t('nav.about') },
-        { href: '/search-kosts', label: t('nav.search') },
-        { href: '/contact', label: t('nav.contact') },
-    ];
-
+    const current = normalizePath(pathname);
+    // Pages that open on a dark photo hero: stay transparent over it until
+    // the visitor scrolls. Detail pages keep a light header.
+    const [scrolled, setScrolled] = useState(false);
     useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 20);
-        };
-        handleScroll();
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        const onScroll = () => setScrolled(window.scrollY > 24);
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
     }, []);
+    const isSolid = !DARK_HERO_PATHS.has(current) || scrolled;
+
+
+    const isLinkActive = (link: PublicNavLink) =>
+        current === link.href ||
+        current.startsWith(`${link.href}/`) ||
+        // Room detail pages belong to "Rooms".
+        (link.key === 'rooms' && current.startsWith('/kosts'));
 
     return (
         <motion.nav
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
+            initial={false}
             className={cn(
                 'fixed left-0 right-0 top-0 z-50 transition-all duration-300',
-                isSolid ? 'glass-nav' : 'glass-nav-hero',
+                isSolid
+                    ? 'border-b border-[#e7e4df] bg-[#f7f3f2]/90 backdrop-blur-md'
+                    : 'border-b border-white/10 bg-transparent',
             )}
         >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between gap-3">
-                    {/* Left: logo */}
-                    <div className="flex min-w-0 items-center gap-2">
-                        <Link href="/" className="group flex min-w-0 items-center gap-2.5">
-                            <motion.div
-                                whileHover={{ scale: 1.04 }}
-                                whileTap={{ scale: 0.97 }}
-                                transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-                                className="shrink-0"
-                            >
-                                <Image
-                                    src="/logo.svg"
-                                    alt={t('common.brand.name')}
-                                    width={36}
-                                    height={36}
-                                    className={cn(
-                                        'h-9 w-9 object-contain transition-[filter] duration-300',
-                                        !isSolid &&
-                                            'drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]',
-                                    )}
-                                    priority
-                                />
-                            </motion.div>
-                            <span
-                                className={cn(
-                                    'truncate text-lg font-bold tracking-tight transition-colors duration-300',
-                                    isSolid
-                                        ? 'text-[#1a1c1a] group-hover:text-[#6f4627]'
-                                        : 'text-[#faf9f6] [text-shadow:0_1px_2px_rgba(0,0,0,0.45),0_4px_16px_rgba(0,0,0,0.25)] group-hover:text-white',
-                                )}
-                            >
-                                {t('common.brand.name')}
-                            </span>
-                        </Link>
+                    <Link
+                        href="/"
+                        className="flex min-w-0 shrink-0 items-center"
+                        aria-label={t('common.brand.fullName')}
+                    >
+                        <BrandMark
+                            variant="nav"
+                            tone={isSolid ? 'onLight' : 'onDark'}
+                            className={cn(
+                                'h-8 w-[9.5rem] transition-opacity duration-300 sm:h-9 sm:w-[11rem]',
+                                !isSolid && 'drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]',
+                            )}
+                        />
+                    </Link>
+
+                    <div className="hidden items-center lg:flex">
+                        {PUBLIC_NAV_LINKS.map((link) => (
+                            <NavbarLink
+                                key={link.key}
+                                link={link}
+                                label={t(`nav.${link.key}`)}
+                                isActive={isLinkActive(link)}
+                                isSolid={isSolid}
+                            />
+                        ))}
                     </div>
 
-                    {/* Center: desktop nav */}
-                    <NavbarLinks links={navLinks} pathname={pathname} isSolid={isSolid} />
-
-                    {/* Right: actions */}
                     <div className="flex shrink-0 items-center gap-2 sm:gap-3">
                         <LanguageSwitcher variant="navbar" isSolid={isSolid} />
 
-                        <motion.button
+                        <Link
+                            href="/tenant/login"
+                            aria-label={t('tenant.portalName')}
+                            title={t('tenant.portalName')}
+                            className={cn(
+                                'hidden size-9 items-center justify-center rounded-full border transition-colors duration-300 xl:inline-flex',
+                                isSolid
+                                    ? 'border-[#e3e2e0] text-[#71130d] hover:border-[#d5c3b8] hover:bg-[#f5e4d4]/60'
+                                    : 'border-white/30 text-white hover:bg-white/15',
+                            )}
+                        >
+                            <Icon name="person" size={18} />
+                        </Link>
+
+                        <ArrowPill
+                            href={CHECK_AVAILABILITY_HREF}
+                            tone={isSolid ? 'dark' : 'light'}
+                            className="hidden h-11 text-sm sm:inline-flex"
+                        >
+                            {t('nav.checkAvailability')}
+                        </ArrowPill>
+
+                        <button
                             type="button"
                             onClick={onMenuClick}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
                             className={cn(
-                                'rounded-xl p-2 transition-colors duration-300 md:hidden',
+                                'rounded-xl p-2 transition-colors duration-300 lg:hidden',
                                 isSolid
-                                    ? 'text-[#1a1c1a] hover:bg-[#f5e4d4]/70 hover:text-[#6f4627]'
+                                    ? 'text-[#1a1c1a] hover:bg-[#f5e4d4]/70 hover:text-[#71130d]'
                                     : 'text-[#faf9f6] hover:bg-white/15 hover:text-white',
                             )}
                             aria-label={t('common.openMenu')}
                         >
                             <Icon name="menu" size={22} />
-                        </motion.button>
-
-                        <motion.div whileHover={{ y: -1 }} whileTap={{ scale: 0.98 }}>
-                            <Link
-                                href="/tenant/login"
-                                className={cn(
-                                    'group/portal hidden h-9 items-center gap-2 border px-4 text-sm font-semibold transition-all duration-300 sm:inline-flex',
-                                    isSolid
-                                        ? 'glass-chip-light rounded-xl text-[#6f4627] hover:border-[#8b5e3c]/55 hover:bg-[#f5e4d4]/75'
-                                        : 'rounded-full border-white/35 bg-transparent text-white hover:border-white/60 hover:bg-white/10',
-                                )}
-                            >
-                                <span
-                                    className={cn(
-                                        'flex h-6 w-6 items-center justify-center rounded-md transition-colors duration-300',
-                                        isSolid
-                                            ? 'bg-[#f5e4d4]/80 text-[#6f4627] group-hover/portal:bg-[#6f4627] group-hover/portal:text-white'
-                                            : 'bg-white/10 text-white group-hover/portal:bg-white/20',
-                                    )}
-                                >
-                                    <Icon name="login" size={15} />
-                                </span>
-                                {t('tenant.portalName')}
-                            </Link>
-                        </motion.div>
+                        </button>
                     </div>
                 </div>
             </div>
-
         </motion.nav>
     );
 }

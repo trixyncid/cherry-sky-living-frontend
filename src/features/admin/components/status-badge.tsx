@@ -1,6 +1,7 @@
-import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 import type { LeaseStatus, UnitStatus } from "@/lib/types/admin";
+import { cn } from "@/lib/utils";
 
 export type LeaseRenewalStatus =
   | "not_requested"
@@ -33,50 +34,55 @@ const renewalConfig: Record<
     className:
       "bg-[linear-gradient(135deg,#F3EDE7_0%,#E8DDD3_100%)] text-[#5A3820] ring-1 ring-[#D5C3B8]/70 shadow-[0_1px_0_rgb(255_255_255_/_0.7)_inset]",
     icon: "task_alt",
-    iconWrap: "bg-[#E8D5C4]/80 text-[#6f4627]",
+    iconWrap: "bg-[#E8D5C4]/80 text-[#71130d]",
   },
 };
 
 const unitStyles: Record<UnitStatus, string> = {
-  vacant: "bg-emerald-500/15 text-emerald-800 ring-1 ring-emerald-400/25",
-  occupied: "bg-red-500/12 font-bold text-[#ba1a1a] ring-1 ring-red-400/25",
+  vacant: "bg-[#dff3d6] text-[#2f6d22]",
+  occupied: "bg-[#efe8e7] text-[#141414]",
 };
 
 const leaseStyles: Record<LeaseStatus, string> = {
-  paid: "bg-emerald-500/15 text-[#137333] ring-1 ring-emerald-400/25",
-  unpaid: "bg-red-500/12 text-[#ba1a1a] ring-1 ring-red-400/25",
-  waiting_for_review: "bg-amber-400/15 text-[#B06000] ring-1 ring-amber-300/30",
+  paid: "bg-[#dff3d6] text-[#2f6d22]",
+  unpaid: "bg-[#fde2df] text-[#a1271b]",
+  waiting_for_review: "bg-[#f9e3c8] text-[#8a5a2b]",
 };
 
-const leaseLabels: Record<LeaseStatus, string> = {
-  paid: "Paid",
-  unpaid: "Unpaid",
-  waiting_for_review: "Waiting for Review",
+const leaseLabelKeys: Record<
+  LeaseStatus,
+  "statusPaid" | "statusUnpaid" | "statusReview"
+> = {
+  paid: "statusPaid",
+  unpaid: "statusUnpaid",
+  waiting_for_review: "statusReview",
 };
 
 export function UnitStatusBadge({ status }: { status: UnitStatus | string }) {
+  const t = useTranslations("admin.pages.units.status");
   const key = status.toLowerCase() as UnitStatus;
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold capitalize backdrop-blur-sm",
+        "inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold capitalize",
         unitStyles[key] ?? "bg-white/45 text-[#51443c] ring-1 ring-white/50",
       )}
     >
-      {key}
+      {key === "vacant" || key === "occupied" ? t(key) : key}
     </span>
   );
 }
 
 export function LeaseStatusBadge({ status }: { status: LeaseStatus }) {
+  const t = useTranslations("admin.pages.overview.dash");
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold backdrop-blur-sm",
+        "inline-flex items-center whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold",
         leaseStyles[status],
       )}
     >
-      {leaseLabels[status]}
+      {t(leaseLabelKeys[status])}
     </span>
   );
 }

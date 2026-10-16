@@ -114,11 +114,11 @@ export function SelectMenu({
   }
 
   const triggerClassName = cn(
-    "relative flex h-[3.25rem] w-full items-center rounded-xl border border-[#e3e2e0] bg-white px-4 pr-10 text-left text-[#1a1c1a] transition-colors",
-    "hover:border-[#c4b0a4] focus:border-[#8b5e3c]/60 focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/15",
+    "relative flex h-[3.25rem] w-full items-center rounded-xl border border-[#cfc5c1] bg-white px-4 pr-10 text-left text-base text-[#141414] transition-colors",
+    "hover:border-[#b9a8a3] focus:border-[#71130d] focus:outline-none focus:ring-[3px] focus:ring-[#71130d]/15",
     "disabled:cursor-not-allowed disabled:bg-[#f5f3f0] disabled:text-[#83746b] disabled:hover:border-[#e3e2e0]",
-    open && "border-[#8b5e3c]/60 ring-2 ring-[#8b5e3c]/15",
-    isPlaceholder && "text-[#b0a29a]",
+    open && "border-[#71130d] ring-[3px] ring-[#71130d]/15",
+    isPlaceholder && "text-[#6b6b6b]",
     className,
   );
 
@@ -208,7 +208,7 @@ export function SelectMenu({
                         "flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
                         isActive && "bg-[#f5ebe3]",
                         isSelected
-                          ? "font-semibold text-[#6f4627]"
+                          ? "font-semibold text-[#71130d]"
                           : "text-[#1a1c1a]",
                         option.disabled && "cursor-not-allowed opacity-50",
                       )}
@@ -220,7 +220,7 @@ export function SelectMenu({
                         <Icon
                           name="check"
                           size={18}
-                          className="shrink-0 text-[#6f4627]"
+                          className="shrink-0 text-[#71130d]"
                         />
                       ) : null}
                     </button>

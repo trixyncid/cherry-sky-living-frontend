@@ -21,7 +21,7 @@ export function TenantLeaseDetail({ id }: { id: string }) {
 
   if (isLoading) {
     return (
-      <p className="text-sm text-[#83746b]">{t("loading")}</p>
+      <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>
     );
   }
 
@@ -30,7 +30,7 @@ export function TenantLeaseDetail({ id }: { id: string }) {
       <div className="space-y-4">
         <Link
           href="/tenant/leases"
-          className="glass-control inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-white/80"
+          className="glass-control inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-sm font-medium text-[#71130d] transition-colors hover:bg-white"
         >
           <Icon name="arrow_back" size={18} />
           {t("backToList")}
@@ -53,7 +53,7 @@ export function TenantLeaseDetail({ id }: { id: string }) {
     <div className="space-y-6">
       <Link
         href="/tenant/leases"
-        className="glass-control inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-white/80"
+        className="glass-control inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-sm font-medium text-[#71130d] transition-colors hover:bg-white"
       >
         <Icon name="arrow_back" size={18} />
         {t("backToList")}
@@ -65,10 +65,10 @@ export function TenantLeaseDetail({ id }: { id: string }) {
 
       <div className="flex flex-wrap items-start justify-between gap-4 px-1">
         <div>
-          <h2 className="text-xl font-semibold text-[#1a1c1a]">
+          <h2 className="text-xl font-semibold text-[#141414]">
             {lease.unit?.name ?? "—"}
           </h2>
-          <p className="mt-1 text-sm text-[#51443c]">
+          <p className="mt-1 text-sm text-[#3d3a36]">
             {lease.unit?.property?.name ?? "—"}
             {lease.unit?.unitType?.name
               ? ` · ${lease.unit.unitType.name}`
@@ -82,10 +82,10 @@ export function TenantLeaseDetail({ id }: { id: string }) {
 
       <div className="glass-panel rounded-[1.75rem] p-6">
         <div className="mb-4">
-          <h3 className="text-base font-semibold text-[#1a1c1a]">
+          <h3 className="text-lg font-medium tracking-tight text-[#141414]">
             {tp("detailsTitle")}
           </h3>
-          <p className="mt-1 text-sm text-[#83746b]">
+          <p className="mt-1 text-sm text-[#6b6b6b]">
             {tp("detailsDescription")}
           </p>
         </div>
@@ -110,10 +110,10 @@ export function TenantLeaseDetail({ id }: { id: string }) {
 
       <div className="glass-panel rounded-[1.75rem] p-6">
         <div className="mb-4">
-          <h3 className="text-base font-semibold text-[#1a1c1a]">
+          <h3 className="text-lg font-medium tracking-tight text-[#141414]">
             {tp("documentsTitle")}
           </h3>
-          <p className="mt-1 text-sm text-[#83746b]">
+          <p className="mt-1 text-sm text-[#6b6b6b]">
             {tp("documentsDescription")}
           </p>
         </div>
@@ -139,10 +139,10 @@ function DetailItem({
 }) {
   return (
     <div className={className}>
-      <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#83746b]">
+      <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6b6b6b]">
         {label}
       </dt>
-      <dd className="mt-1 text-sm font-medium text-[#1a1c1a]">{value}</dd>
+      <dd className="mt-1 text-sm font-medium text-[#141414]">{value}</dd>
     </div>
   );
 }

@@ -64,7 +64,7 @@ export function AdminAttachmentsList({
                 {attachmentDisplayName(item.url)}
               </p>
               {item.kindLabel ? (
-                <p className="mt-0.5 text-xs font-medium text-[#6f4627]">
+                <p className="mt-0.5 text-xs font-medium text-[#71130d]">
                   {item.kindLabel}
                 </p>
               ) : null}
@@ -78,7 +78,7 @@ export function AdminAttachmentsList({
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#6f4627] hover:text-[#805533]"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#71130d] hover:text-[#8a1a12]"
                 >
                   <Icon name="open_in_new" size={14} />
                   {t("view")}

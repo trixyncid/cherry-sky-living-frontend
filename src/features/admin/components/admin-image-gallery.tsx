@@ -282,8 +282,8 @@ export function AdminImageGallery({
       ) : null}
 
       {dragActive && !disabled && !uploading ? (
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl border-2 border-dashed border-[#6f4627] bg-[#faf9f6]/88 backdrop-blur-sm">
-          <div className="flex flex-col items-center gap-1 text-[#6f4627]">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl border-2 border-dashed border-[#71130d] bg-[#faf9f6]/88 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-1 text-[#71130d]">
             <Icon name="download" size={28} />
             <p className="text-sm font-semibold">{t("dropActive")}</p>
           </div>
@@ -480,7 +480,7 @@ function QueuedPhoto({
         /* eslint-disable-next-line @next/next/no-img-element */
         <img src={src} alt={name} className="size-full object-cover" />
       )}
-      <span className="absolute left-2 top-2 rounded-full bg-[#6f4627] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+      <span className="absolute left-2 top-2 rounded-full bg-[#71130d] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
         {t("queuedBadge")}
       </span>
       {uploading ? (

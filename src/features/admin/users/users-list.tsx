@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { useCallback, useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
-import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,27 +13,44 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import { adminSearchInputClassName } from "@/features/admin/components/admin-field";
+import { AdminSearchInput } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminPagination } from "@/features/admin/components/admin-pagination";
-import { AdminTableShell } from "@/features/admin/components/admin-table-shell";
-import {
-  AdminCrudTable,
-  AdminCrudTableCell,
-  AdminCrudTableRow,
-} from "@/features/admin/crud/admin-crud-table";
+import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
 import { getTenantUserSortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
-import { TenantResetPasswordDialog } from "@/features/admin/users/tenant-reset-password-dialog";
+import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import {
+  useLeases,
   useTenantUserMutations,
   useTenantUsers,
 } from "@/features/admin/hooks/use-admin-queries";
-import { formatDate } from "@/features/admin/lib/format";
+import {
+  EmptyPanel,
+  IconAction,
+  panel,
+  SkeletonCards,
+} from "@/features/admin/inventory/inventory-kit";
+import {
+  getLeaseEndDateValue,
+  resolveLeasePropertyName,
+} from "@/features/admin/lib/entity-display";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import { formatDate } from "@/features/admin/lib/format";
+import {
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
+import {
+  Avatar,
+  StatusDot,
+  WhatsAppButton,
+} from "@/features/admin/operations/ops-kit";
+import { TenantResetPasswordDialog } from "@/features/admin/users/tenant-reset-password-dialog";
+import { Link } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
-import type { TenantUser } from "@/lib/types/admin";
+import { displayEmailOrEmpty } from "@/lib/phone";
+import type { Lease, TenantUser } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
 
 const BASE = "/admin/users";
@@ -47,23 +63,64 @@ export function UsersList() {
   const [toggleUser, setToggleUser] = useState<TenantUser | null>(null);
   const { data = [], isLoading, error } = useTenantUsers(search || undefined);
   const mutations = useTenantUserMutations();
+  const to = useTranslations("admin.pages.operations");
+  const locale = useLocale();
+  const lookups = useAdminLookups();
+  const { data: leases = [] } = useLeases();
+  const [filter, setFilter] = useState<
+    "all" | "housed" | "unhoused" | "inactive"
+  >("all");
+
+  // Current lease per tenant: the one covering today, else the latest.
+  const currentLease = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const map = new Map<string, Lease>();
+    for (const l of leases) {
+      const end = getLeaseEndDateValue(l) ?? "";
+      const covers =
+        l.startDate.slice(0, 10) <= today && end.slice(0, 10) >= today;
+      const prev = map.get(l.userId);
+      if (covers && (!prev || prev.startDate < l.startDate))
+        map.set(l.userId, l);
+    }
+    return map;
+  }, [leases]);
+
+  const counts = useMemo(
+    () => ({
+      all: data.length,
+      housed: data.filter((u) => currentLease.has(u.id)).length,
+      unhoused: data.filter((u) => u.isActive && !currentLease.has(u.id))
+        .length,
+      inactive: data.filter((u) => !u.isActive).length,
+    }),
+    [data, currentLease],
+  );
+
+  const visible = useMemo(
+    () =>
+      data.filter((u) =>
+        filter === "all"
+          ? true
+          : filter === "housed"
+            ? currentLease.has(u.id)
+            : filter === "unhoused"
+              ? u.isActive && !currentLease.has(u.id)
+              : !u.isActive,
+      ),
+    [data, filter, currentLease],
+  );
 
   const getSortValue = useCallback(
     (item: TenantUser, key: string) => getTenantUserSortValue(item, key),
     [],
   );
 
-  const {
-    page,
-    setPage,
-    pageData,
-    total,
-    pageSize,
-    setPageSize,
-    sortKey,
-    sortDir,
-    onSort,
-  } = useClientTable(data, getSortValue, { defaultSortKey: "name" });
+  const { page, setPage, pageData, total, pageSize, setPageSize } =
+    useClientTable(visible, getSortValue, {
+      defaultSortKey: "name",
+      pageSize: 24,
+    });
 
   async function confirmToggleActive() {
     if (!toggleUser) return;
@@ -73,7 +130,9 @@ export function UsersList() {
         id: toggleUser.id,
         isActive: nextActive,
       });
-      showApiSuccess(nextActive ? tp("activateSuccess") : tp("deactivateSuccess"));
+      showApiSuccess(
+        nextActive ? tp("activateSuccess") : tp("deactivateSuccess"),
+      );
       setToggleUser(null);
     } catch (err) {
       const msg =
@@ -98,22 +157,42 @@ export function UsersList() {
         }}
       />
 
-      <div className="relative mb-4 max-w-md">
-        <Icon
-          name="search"
-          size={20}
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#83746b]"
-        />
-        <input
-          type="search"
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <AdminSearchInput
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
+          onChange={(v) => {
+            setSearch(v);
             setPage(1);
           }}
           placeholder={tp("searchPlaceholder")}
-          className={adminSearchInputClassName}
+          className="w-full sm:max-w-md"
         />
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+          {(["all", "housed", "unhoused", "inactive"] as const).map((f) => (
+            <button
+              key={f}
+              type="button"
+              aria-pressed={filter === f}
+              onClick={() => setFilter(f)}
+              className={cn(
+                "flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                filter === f
+                  ? "bg-[#1c0b0a] text-white"
+                  : "bg-white text-[#3d3a36] hover:text-[#71130d]",
+              )}
+            >
+              {to(`tenantFilter.${f}`)}
+              <span
+                className={cn(
+                  "rounded-full px-1.5 text-xs tabular-nums",
+                  filter === f ? "bg-white/15" : "bg-[#f6f0ef]",
+                )}
+              >
+                {counts[f]}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && (
@@ -122,101 +201,131 @@ export function UsersList() {
         </div>
       )}
 
-      <AdminTableShell
-        footer={
-          !isLoading && total > 0 ? (
-            <AdminPagination
-              page={page}
-              pageSize={pageSize}
-              total={total}
-              onPageChange={setPage}
-              onPageSizeChange={setPageSize}
-            />
-          ) : undefined
-        }
-      >
-        {isLoading ? (
-          <p className="p-8 text-center text-sm text-[#83746b]">{t("loading")}</p>
-        ) : data.length === 0 ? (
-          <p className="p-8 text-center text-sm text-[#83746b]">{tp("empty")}</p>
-        ) : (
-          <AdminCrudTable
-            columns={[
-              { key: "name", label: t("name") },
-              { key: "email", label: t("email") },
-              { key: "status", label: tp("status") },
-              { key: "joined", label: tp("joined") },
-              { key: "actions", label: t("actions"), align: "right" },
-            ]}
-            sortKey={sortKey}
-            sortDirection={sortDir}
-            onSort={onSort}
-          >
-            {pageData.map((user) => (
-              <AdminCrudTableRow key={user.id} className="group">
-                <AdminCrudTableCell className="font-semibold">
-                  <Link
-                    href={`${BASE}/${user.id}`}
-                    className="text-[#6f4627] transition-colors hover:underline"
-                  >
-                    {user.name}
-                  </Link>
-                </AdminCrudTableCell>
-                <AdminCrudTableCell className="text-[#51443c]">
-                  {user.email}
-                </AdminCrudTableCell>
-                <AdminCrudTableCell>
-                  <span
-                    className={cn(
-                      "inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold",
-                      user.isActive
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-[#e3e2e0] bg-[#efeeeb] text-[#83746b]",
-                    )}
-                  >
-                    {user.isActive ? tp("statusActive") : tp("statusInactive")}
-                  </span>
-                </AdminCrudTableCell>
-                <AdminCrudTableCell className="text-[#51443c]">
-                  {formatDate(user.createdAt)}
-                </AdminCrudTableCell>
-                <AdminCrudTableCell align="right">
-                  <div className="flex items-center justify-end gap-1">
+      {isLoading ? (
+        <SkeletonCards count={3} className="sm:grid-cols-2 xl:grid-cols-3" />
+      ) : visible.length === 0 ? (
+        <EmptyPanel icon="group" title={tp("empty")} />
+      ) : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {pageData.map((user) => {
+              const lease = currentLease.get(user.id);
+              const end = lease ? getLeaseEndDateValue(lease) : null;
+              const email = displayEmailOrEmpty(user.email);
+              return (
+                <article
+                  key={user.id}
+                  className={cn(panel, "flex flex-col gap-4 p-5")}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="relative">
+                      <Avatar
+                        name={user.name}
+                        seed={user.id}
+                        muted={!user.isActive}
+                        className="size-14 text-lg"
+                      />
+                      <span className="absolute bottom-0.5 right-0.5">
+                        <StatusDot active={user.isActive} />
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={`${BASE}/${user.id}`}
+                        className="block truncate text-lg font-medium tracking-tight text-[#141414] hover:text-[#71130d]"
+                      >
+                        {user.name}
+                      </Link>
+                      <p className="truncate text-sm text-[#6b6b6b]">
+                        {user.phoneNumber ?? email ?? "—"}
+                      </p>
+                      {user.phoneNumber && email ? (
+                        <p className="truncate text-xs text-[#857f77]">
+                          {email}
+                        </p>
+                      ) : null}
+                    </div>
+                    {!user.isActive ? (
+                      <span className="shrink-0 rounded-full bg-[#efeeeb] px-2.5 py-1 text-xs font-medium text-[#6b6b6b]">
+                        {tp("statusInactive")}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {lease ? (
+                    <Link
+                      href={`/admin/leases/${lease.id}/edit`}
+                      className="flex items-center gap-3 rounded-2xl bg-[#faf7f6] p-3 transition-colors hover:bg-[#f6f0ef]"
+                    >
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#71130d]">
+                        <Icon name="bed" size={20} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[15px] font-medium text-[#141414]">
+                          {lease.unit?.name ?? "—"} ·{" "}
+                          {resolveLeasePropertyName(lease, lookups)}
+                        </span>
+                        <span className="block truncate text-xs text-[#6b6b6b]">
+                          {to("until", {
+                            date: end ? formatDate(end, locale) : "—",
+                          })}
+                        </span>
+                      </span>
+                      <LeaseStatusBadge status={lease.status} />
+                    </Link>
+                  ) : (
+                    <p className="flex items-center gap-2 rounded-2xl border border-dashed border-[#e3d6d3] p-3 text-sm text-[#6b6b6b]">
+                      <Icon name="door_open" size={18} />
+                      {to("noRoom")}
+                    </p>
+                  )}
+
+                  <div className="mt-auto flex items-center gap-2">
+                    <WhatsAppButton
+                      phone={user.phoneNumber}
+                      label={to("whatsapp")}
+                      message={to("waGreeting", {
+                        name: user.name.split(" ")[0] ?? user.name,
+                      })}
+                    />
                     <Link
                       href={`${BASE}/${user.id}`}
-                      className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#efeeeb] hover:text-[#6f4627] sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
-                      aria-label={tp("viewDetails")}
+                      className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#ece4e2] bg-white px-4 text-sm font-medium text-[#141414] hover:border-[#e8bfb9] hover:text-[#71130d]"
                     >
-                      <Icon name="visibility" size={18} />
+                      {to("profile")}
                     </Link>
-                    <button
-                      type="button"
+                    <IconAction
+                      icon="lock_reset"
+                      label={tp("resetPassword")}
                       onClick={() => setResetUser(user)}
-                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-[#efeeeb] sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
-                      aria-label={tp("resetPassword")}
-                    >
-                      <Icon name="lock_reset" size={18} />
-                    </button>
-                    <button
-                      type="button"
+                    />
+                    <IconAction
+                      icon={user.isActive ? "person_off" : "person_check"}
+                      label={user.isActive ? tp("deactivate") : tp("activate")}
+                      tone={user.isActive ? "danger" : "light"}
                       onClick={() => setToggleUser(user)}
-                      className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#efeeeb] hover:text-[#6f4627] sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
-                      aria-label={
-                        user.isActive ? tp("deactivate") : tp("activate")
-                      }
-                    >
-                      <Icon
-                        name={user.isActive ? "person_off" : "person"}
-                        size={18}
-                      />
-                    </button>
+                    />
                   </div>
-                </AdminCrudTableCell>
-              </AdminCrudTableRow>
-            ))}
-          </AdminCrudTable>
-        )}
-      </AdminTableShell>
+                  <p className="-mt-1 text-xs text-[#857f77]">
+                    {to("joined", { date: formatDate(user.createdAt, locale) })}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+          {total > pageSize ? (
+            <div className={cn(panel, "mt-4 overflow-hidden")}>
+              <AdminPagination
+                page={page}
+                pageSize={pageSize}
+                total={total}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+              />
+            </div>
+          ) : null}
+        </>
+      )}
 
       <TenantResetPasswordDialog
         user={resetUser}
@@ -224,11 +333,16 @@ export function UsersList() {
         onOpenChange={(open) => !open && setResetUser(null)}
       />
 
-      <Dialog open={toggleUser !== null} onOpenChange={(open) => !open && setToggleUser(null)}>
+      <Dialog
+        open={toggleUser !== null}
+        onOpenChange={(open) => !open && setToggleUser(null)}
+      >
         <DialogContent showCloseButton={!pending}>
           <DialogHeader>
             <DialogTitle>
-              {toggleUser?.isActive ? tp("deactivateTitle") : tp("activateTitle")}
+              {toggleUser?.isActive
+                ? tp("deactivateTitle")
+                : tp("activateTitle")}
             </DialogTitle>
             <DialogDescription>
               {toggleUser?.isActive

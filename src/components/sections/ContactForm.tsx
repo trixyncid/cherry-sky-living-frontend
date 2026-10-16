@@ -11,9 +11,8 @@ import { useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { RequiredMark } from "@/components/shared/required-mark";
 import { Button } from "@/components/ui/button";
-import { generateWhatsAppURL } from "@/lib/utils/format";
 import { getContactWhatsAppNumber } from "@/lib/contact";
-
+import { generateWhatsAppURL } from "@/lib/utils/format";
 
 interface FormData {
   name: string;
@@ -148,7 +147,7 @@ export function ContactForm() {
   };
 
   return (
-    <div>
+    <div id="contact-form" className="scroll-mt-28">
       <div className="mb-6">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#83746b]">
           {t("subtitle")}
@@ -163,7 +162,7 @@ export function ContactForm() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-50px" }}
-        className="glass-card rounded-[1.75rem] p-8"
+        className="rounded-[1.5rem] border border-[#e3e2e0] bg-white p-6 sm:p-8"
       >
         {/* Form Fields */}
         <div className="space-y-6">
@@ -185,11 +184,11 @@ export function ContactForm() {
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder={t("namePlaceholder")}
-                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8b5e3c]/60 focus:ring-2 focus:ring-[#8b5e3c]/15 ${
+                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8a1a12]/60 focus:ring-2 focus:ring-[#8a1a12]/15 ${
                   errors.name
                     ? "border-red-500 bg-red-50"
-                    : "border-[#e3e2e0] bg-white"
-                } text-[#1a1c1a] placeholder:text-[#b0a29a]`}
+                    : "border-[#cfc5c1] bg-white"
+                } text-[#1a1c1a] placeholder:text-[#6b6b6b]`}
               />
               {errors.name && (
                 <p className="text-xs text-red-500 mt-1">{errors.name}</p>
@@ -212,11 +211,11 @@ export function ContactForm() {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder={t("emailPlaceholder")}
-                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8b5e3c]/60 focus:ring-2 focus:ring-[#8b5e3c]/15 ${
+                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8a1a12]/60 focus:ring-2 focus:ring-[#8a1a12]/15 ${
                   errors.email
                     ? "border-red-500 bg-red-50"
-                    : "border-[#e3e2e0] bg-white"
-                } text-[#1a1c1a] placeholder:text-[#b0a29a]`}
+                    : "border-[#cfc5c1] bg-white"
+                } text-[#1a1c1a] placeholder:text-[#6b6b6b]`}
               />
               {errors.email && (
                 <p className="text-xs text-red-500 mt-1">{errors.email}</p>
@@ -242,11 +241,11 @@ export function ContactForm() {
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder={t("phonePlaceholder")}
-                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8b5e3c]/60 focus:ring-2 focus:ring-[#8b5e3c]/15 ${
+                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8a1a12]/60 focus:ring-2 focus:ring-[#8a1a12]/15 ${
                   errors.phone
                     ? "border-red-500 bg-red-50"
-                    : "border-[#e3e2e0] bg-white"
-                } text-[#1a1c1a] placeholder:text-[#b0a29a]`}
+                    : "border-[#cfc5c1] bg-white"
+                } text-[#1a1c1a] placeholder:text-[#6b6b6b]`}
               />
               {errors.phone && (
                 <p className="text-xs text-red-500 mt-1">{errors.phone}</p>
@@ -269,11 +268,11 @@ export function ContactForm() {
                 value={formData.subject}
                 onChange={handleInputChange}
                 placeholder={t("subjectPlaceholder")}
-                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8b5e3c]/60 focus:ring-2 focus:ring-[#8b5e3c]/15 ${
+                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8a1a12]/60 focus:ring-2 focus:ring-[#8a1a12]/15 ${
                   errors.subject
                     ? "border-red-500 bg-red-50"
-                    : "border-[#e3e2e0] bg-white"
-                } text-[#1a1c1a] placeholder:text-[#b0a29a]`}
+                    : "border-[#cfc5c1] bg-white"
+                } text-[#1a1c1a] placeholder:text-[#6b6b6b]`}
               />
               {errors.subject && (
                 <p className="text-xs text-red-500 mt-1">{errors.subject}</p>
@@ -297,11 +296,11 @@ export function ContactForm() {
               onChange={handleInputChange}
               placeholder={t("messagePlaceholder")}
               rows={5}
-              className={`w-full resize-none rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8b5e3c]/60 focus:ring-2 focus:ring-[#8b5e3c]/15 ${
+              className={`w-full resize-none rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8a1a12]/60 focus:ring-2 focus:ring-[#8a1a12]/15 ${
                 errors.message
                   ? "border-red-500 bg-red-50"
-                  : "border-[#e3e2e0] bg-white"
-              } text-[#1a1c1a] placeholder:text-[#b0a29a]`}
+                  : "border-[#cfc5c1] bg-white"
+              } text-[#1a1c1a] placeholder:text-[#6b6b6b]`}
             />
             {errors.message && (
               <p className="text-xs text-red-500 mt-1">{errors.message}</p>
@@ -313,14 +312,14 @@ export function ContactForm() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg flex items-center gap-3"
+              className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4"
             >
               <Icon
                 name="check_circle"
                 size={20}
-                className="text-emerald-600 dark:text-emerald-400"
+                className="text-emerald-600"
               />
-              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+              <p className="text-sm font-medium text-emerald-700">
                 {t("sent")}
               </p>
             </motion.div>
@@ -330,16 +329,10 @@ export function ContactForm() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3"
+              className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4"
             >
-              <Icon
-                name="error"
-                size={20}
-                className="text-red-600 dark:text-red-400"
-              />
-              <p className="text-sm font-medium text-red-700 dark:text-red-300">
-                {t("error")}
-              </p>
+              <Icon name="error" size={20} className="text-red-600" />
+              <p className="text-sm font-medium text-red-700">{t("error")}</p>
             </motion.div>
           )}
 
@@ -359,7 +352,7 @@ export function ContactForm() {
             <Button
               onClick={handleSendViaEmail}
               disabled={isSubmitting}
-              className="flex items-center justify-center gap-2 rounded-xl bg-[#6f4627] font-semibold text-white hover:bg-[#805533]"
+              className="flex items-center justify-center gap-2 rounded-xl bg-[#71130d] font-semibold text-white hover:bg-[#8a1a12]"
             >
               <Icon name="mail" size={18} />
               {t("sendViaEmail")}

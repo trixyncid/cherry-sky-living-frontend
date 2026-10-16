@@ -15,10 +15,10 @@ colors:
   inverse-on-surface: '#f2f1ee'
   outline: '#83746b'
   outline-variant: '#d5c3b8'
-  surface-tint: '#805533'
-  primary: '#6f4627'
+  surface-tint: '#8a1a12'
+  primary: '#71130d'
   on-primary: '#ffffff'
-  primary-container: '#8b5e3c'
+  primary-container: '#8a1a12'
   on-primary-container: '#ffe3d1'
   inverse-primary: '#f4bb92'
   secondary: '#5f5e5e'
@@ -110,6 +110,9 @@ The design system is anchored in a **Corporate Modern** aesthetic with a distinc
 The visual language communicates reliability and warmth. By blending the organic tone of the logo's warm browns with a rigorous, professional slate and off-white infrastructure, the UI avoids the sterile "SaaS" look in favor of something more sophisticated and tactile. The interface should feel spacious, calm, and highly organized, evoking the feeling of a well-managed physical property.
 
 ## Colors
+
+> **Updated 2026-10-16 — palette follows the logo.** The brand colour is the logo's cherry red **`#71130d`** (hover `#8a1a12`, pressed `#5c0f0a`). It is used for primary buttons, active navigation, arrow badges and label dots. Dark sections (hero, page heroes, how it works, footer) use deep wine **`#1c0b0a`** with a cherry-tinted photo grade. Tints: blush `#e8bfb9` / `#f3dedb`; light canvas `#f7f3f2`. Body text stays near-black `#141414`; status colours (green available, red full, amber awaiting) are unchanged. The older brown/rust references below are historical.
+
 
 The palette is driven by the logo’s core DNA. The **Primary Brown** is used for high-impact touchpoints—active states, primary buttons, and key brand elements—providing a sense of stability and earthiness. **Secondary Black** provides strong contrast for headers and primary navigation, ensuring the UI feels grounded.
 

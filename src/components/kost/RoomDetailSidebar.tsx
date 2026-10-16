@@ -78,7 +78,7 @@ export function RoomDetailSidebar({
                     className="glass-card rounded-[1.5rem] p-6"
                 >
                     <div className="mb-5 flex items-center gap-2.5">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f5e4d4] text-[#6f4627]">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f5e4d4] text-[#71130d]">
                             <Icon name="sell" size={18} filled />
                         </span>
                         <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#83746b]">
@@ -92,7 +92,7 @@ export function RoomDetailSidebar({
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.18, duration: 0.45 }}
-                                className="relative overflow-hidden rounded-2xl bg-[linear-gradient(145deg,#6f4627_0%,#8b5e3c_48%,#a44a32_100%)] px-5 py-5 text-white shadow-[0_14px_32px_rgb(90_36_48_/_0.22)]"
+                                className="relative overflow-hidden rounded-2xl bg-[linear-gradient(145deg,#71130d_0%,#8a1a12_48%,#71130d_100%)] px-5 py-5 text-white shadow-[0_14px_32px_rgb(90_36_48_/_0.22)]"
                             >
                                 <div
                                     aria-hidden
@@ -146,7 +146,7 @@ export function RoomDetailSidebar({
                                             className="group flex items-center justify-between gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-[#f7efe7]"
                                         >
                                             <div className="flex items-center gap-3">
-                                                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f5e4d4] text-[#6f4627] transition-colors group-hover:bg-[#edd6c3]">
+                                                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f5e4d4] text-[#71130d] transition-colors group-hover:bg-[#edd6c3]">
                                                     <Icon
                                                         name={durationIcon(pricing.durationDays)}
                                                         size={18}
@@ -170,7 +170,7 @@ export function RoomDetailSidebar({
 
                     {totalCount > 0 && (
                         <p className="mb-4 flex items-center gap-2 text-sm text-[#83746b]">
-                            <Icon name="key" size={18} className="text-[#6f4627]" />
+                            <Icon name="key" size={18} className="text-[#71130d]" />
                             {t('roomDetail.availableRooms', {
                                 available: availableCount,
                                 total: totalCount,
@@ -199,7 +199,7 @@ export function RoomDetailSidebar({
                     className="glass-card flex items-center gap-4 rounded-[1.5rem] p-4"
                 >
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5e4d4]">
-                        <Icon name="support_agent" size={24} className="text-[#6f4627]" />
+                        <Icon name="support_agent" size={24} className="text-[#71130d]" />
                     </div>
                     <div className="flex-1">
                         <p className="font-semibold text-[#1a1c1a]">Customer Service</p>
@@ -209,7 +209,7 @@ export function RoomDetailSidebar({
                         href={customerServiceWhatsAppURL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#83746b] transition-colors hover:text-[#6f4627]"
+                        className="text-[#83746b] transition-colors hover:text-[#71130d]"
                         aria-label={t('cta.whatsapp')}
                     >
                         <Icon name="whatsapp" size={20} />

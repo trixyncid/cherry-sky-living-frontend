@@ -6,7 +6,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 import { listPublicProperties } from "@/lib/api/public/properties";
 import {
@@ -72,6 +72,7 @@ export function SearchResultsToolbar({
   onReset,
 }: SearchResultsToolbarProps) {
   const t = useTranslations("search");
+  const locale = useLocale();
   const propertiesQuery = useQuery({
     queryKey: publicKeys.properties.all(),
     queryFn: listPublicProperties,
@@ -115,10 +116,24 @@ export function SearchResultsToolbar({
     });
   }
 
+  if (filters.startDate) {
+    chips.push({
+      id: "moveIn",
+      label: t("moveInFrom", {
+        date: new Intl.DateTimeFormat(locale, {
+          day: "numeric",
+          month: "short",
+        }).format(new Date(`${filters.startDate}T00:00:00`)),
+      }),
+      clear: { startDate: undefined, endDate: undefined },
+    });
+  }
+
   const hasChips = chips.length > 0;
   const isDefault =
     !filters.location?.trim() &&
     !filters.propertyId &&
+    !filters.startDate &&
     filters.priceMin === undefined &&
     filters.priceMax === undefined &&
     !availabilityOn &&
@@ -126,7 +141,7 @@ export function SearchResultsToolbar({
     (filters.sortBy ?? "property-asc") === "property-asc";
 
   return (
-    <div className="mb-8 space-y-3 rounded-[1.25rem] border border-[#e3e2e0] bg-white/80 p-3 sm:p-4">
+    <div className="space-y-3 rounded-[1.25rem] bg-white p-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
           <button
@@ -136,10 +151,10 @@ export function SearchResultsToolbar({
               patch({ availability: availabilityOn ? "all" : "available" })
             }
             className={cn(
-              "rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors",
+              "inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-colors",
               availabilityOn
-                ? "bg-[#1a1c1a] text-white"
-                : "border border-[#d5c3b8] bg-white text-[#51443c] hover:border-[#1a1c1a]/40",
+                ? "bg-[#71130d] text-white"
+                : "border border-[#dedad4] bg-white text-[#3d3a36] hover:border-[#141414]",
             )}
           >
             {t("filterAvailable")}
@@ -149,10 +164,10 @@ export function SearchResultsToolbar({
             aria-pressed={monthlyOn}
             onClick={() => patch({ durationDays: monthlyOn ? undefined : 30 })}
             className={cn(
-              "rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors",
+              "inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-colors",
               monthlyOn
-                ? "bg-[#1a1c1a] text-white"
-                : "border border-[#d5c3b8] bg-white text-[#51443c] hover:border-[#1a1c1a]/40",
+                ? "bg-[#71130d] text-white"
+                : "border border-[#dedad4] bg-white text-[#3d3a36] hover:border-[#141414]",
             )}
           >
             {t("filterMonthly")}
@@ -164,12 +179,12 @@ export function SearchResultsToolbar({
             <button
               type="button"
               onClick={onReset}
-              className="text-xs font-semibold text-[#1a1c1a] hover:underline"
+              className="text-sm font-semibold text-[#141414] underline-offset-4 hover:underline"
             >
               {t("clearAll")}
             </button>
           ) : null}
-          <label className="flex items-center gap-2 text-xs font-semibold text-[#83746b]">
+          <label className="flex items-center gap-2 text-sm font-semibold text-[#6b6b6b]">
             <Icon name="sort" size={16} />
             <span className="hidden sm:inline">{t("sortLabel")}</span>
             <select
@@ -179,7 +194,7 @@ export function SearchResultsToolbar({
                   sortBy: e.target.value as NonNullable<SearchFilters["sortBy"]>,
                 });
               }}
-              className="rounded-lg border border-[#e3e2e0] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#1a1c1a] focus:border-[#1a1c1a] focus:outline-none focus:ring-2 focus:ring-[#1a1c1a]/20"
+              className="h-10 rounded-full border border-[#cfc5c1] bg-white px-3 text-base sm:text-sm font-semibold text-[#141414] focus:border-[#141414] focus:outline-none"
             >
               {SORT_OPTIONS.map((option) => (
                 <option key={option.id} value={option.id}>
@@ -192,17 +207,17 @@ export function SearchResultsToolbar({
       </div>
 
       {hasChips ? (
-        <div className="flex flex-wrap items-center gap-2 border-t border-[#e3e2e0] pt-3">
+        <div className="flex flex-wrap items-center gap-2 border-t border-[#efeeeb] pt-3">
           {chips.map((chip) => (
             <button
               key={chip.id}
               type="button"
               onClick={() => patch(chip.clear)}
-              className="inline-flex items-center gap-1 rounded-full border border-[#d5c3b8] bg-white py-1 pl-3 pr-1.5 text-xs font-medium text-[#51443c] transition-colors hover:border-[#1a1c1a]/40 hover:text-[#1a1c1a]"
+              className="inline-flex h-9 items-center gap-1 rounded-full bg-[#f7f3f2] pl-3.5 pr-2 text-sm font-medium text-[#141414] transition-colors hover:bg-[#e7e4df]"
               aria-label={t("removeFilter", { label: chip.label })}
             >
               {chip.label}
-              <Icon name="close" size={14} className="text-[#83746b]" />
+              <Icon name="close" size={16} className="text-[#6b6b6b]" />
             </button>
           ))}
         </div>

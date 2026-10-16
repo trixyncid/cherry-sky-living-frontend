@@ -26,7 +26,7 @@ export async function getTenantUser(id: string): Promise<TenantUserDetail> {
 
 export async function updateTenantUser(
   id: string,
-  input: { name: string; email: string },
+  input: { name: string; phoneNumber: string; email?: string | null },
 ): Promise<TenantUser> {
   const res = await apiFetch<ApiDataResponse<TenantUser>>(`/admin/users/${id}`, {
     method: "PATCH",
@@ -37,7 +37,8 @@ export async function updateTenantUser(
 
 export async function createTenantUser(input: {
   name: string;
-  email: string;
+  phoneNumber: string;
+  email?: string;
   password: string;
 }): Promise<TenantUser> {
   const res = await apiFetch<ApiDataResponse<TenantUser>>("/admin/users", {

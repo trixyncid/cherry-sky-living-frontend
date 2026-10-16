@@ -112,6 +112,8 @@ export interface UnitUserRef {
 
 export interface TenantUser extends UnitUserRef {
   role: "tenant";
+  phoneNumber: string | null;
+  phoneNumberVerified?: boolean;
   isActive: boolean;
   emailVerified: boolean;
   image: string | null;
@@ -306,6 +308,23 @@ export interface AdminDashboard {
     overdueRenewals: AdminDashboardLeaseSummary[];
     expiringSoon: AdminDashboardLeaseSummary[];
   };
+  cashFlow: {
+    months: {
+      month: string;
+      income: number;
+      expense: number;
+      net: number;
+    }[];
+  };
+  revenueMix: { category: string; amount: number }[];
+  expenseMix: { category: string; amount: number }[];
+  vacancyByUnitType: {
+    unitTypeId: string;
+    unitTypeName: string;
+    vacant: number;
+    occupied: number;
+    total: number;
+  }[];
 }
 
 export function isUnitOccupied(status: UnitStatus | string): boolean {

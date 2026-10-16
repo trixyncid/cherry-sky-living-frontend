@@ -6,6 +6,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { track } from '@/lib/analytics';
 import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
@@ -54,10 +55,10 @@ interface FormErrors {
 }
 
 const inputClassName =
-    'w-full rounded-xl border border-[#e3e2e0] bg-white px-4 py-3 text-[#1a1c1a] transition-colors placeholder:text-[#b0a29a] focus:border-[#8b5e3c]/60 focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/15';
+    'w-full rounded-xl border border-[#cfc5c1] bg-white px-4 py-3 text-[#1a1c1a] transition-colors placeholder:text-[#6b6b6b] focus:border-[#8a1a12]/60 focus:outline-none focus:ring-2 focus:ring-[#8a1a12]/15';
 
 const selectClassName =
-    'w-full appearance-none rounded-xl border border-[#e3e2e0] bg-white py-3 pl-4 pr-10 text-[#1a1c1a] transition-colors focus:border-[#8b5e3c]/60 focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/15';
+    'w-full appearance-none rounded-xl border border-[#cfc5c1] bg-white py-3 pl-4 pr-10 text-[#1a1c1a] transition-colors focus:border-[#8a1a12]/60 focus:outline-none focus:ring-2 focus:ring-[#8a1a12]/15';
 
 const inputErrorClassName = 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/15';
 
@@ -175,6 +176,7 @@ export function WhatsAppInquiryDialog({
             deposit,
         });
 
+        track('click_whatsapp', { location: 'room_inquiry_dialog', property: propertyName });
         window.open(generateWhatsAppURL(phoneNumber, message), '_blank', 'noopener,noreferrer');
         setOpen(false);
         resetForm();
@@ -200,7 +202,7 @@ export function WhatsAppInquiryDialog({
                 type="button"
                 disabled={disabled}
                 className={cn(
-                    'inline-flex items-center gap-2 bg-[#6f4627] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#5a3820] disabled:cursor-not-allowed disabled:opacity-60',
+                    'inline-flex items-center gap-2 bg-[#71130d] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#5c0f0a] disabled:cursor-not-allowed disabled:opacity-60',
                     className,
                 )}
             >
@@ -212,7 +214,7 @@ export function WhatsAppInquiryDialog({
                 type="button"
                 disabled={disabled}
                 className={cn(
-                    'bg-[#6f4627] font-semibold text-white hover:bg-[#5a3820]',
+                    'bg-[#71130d] font-semibold text-white hover:bg-[#5c0f0a]',
                     className,
                 )}
             >
@@ -315,8 +317,8 @@ export function WhatsAppInquiryDialog({
                             placeholder={t('whatsapp.inquiryDialog.checkInDatePlaceholder')}
                             popoverClassName="z-[60]"
                             className={cn(
-                                'h-auto rounded-xl border-[#e3e2e0] bg-white px-4 py-3 text-sm hover:border-[#c4b0a4] focus:border-[#8b5e3c]/60 focus:bg-white focus:ring-[#8b5e3c]/15',
-                                !form.checkInDate && 'text-[#b0a29a]',
+                                'h-auto rounded-xl border-[#e3e2e0] bg-white px-4 py-3 text-sm hover:border-[#c4b0a4] focus:border-[#8a1a12]/60 focus:bg-white focus:ring-[#8a1a12]/15',
+                                !form.checkInDate && 'text-[#6b6b6b]',
                                 errors.checkInDate && inputErrorClassName,
                             )}
                         />

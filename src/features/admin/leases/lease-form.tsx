@@ -605,7 +605,7 @@ export function LeaseForm({ id }: { id?: string }) {
                     className={cn(
                       "rounded-full px-3 py-1 text-xs font-semibold transition-all",
                       active
-                        ? "bg-[#6f4627] text-white shadow-sm"
+                        ? "bg-[#71130d] text-white shadow-sm"
                         : "border border-[#e3ddd6] bg-white text-[#51443c] hover:border-[#c9a48a] hover:bg-[#faf6f1]",
                       "disabled:cursor-not-allowed disabled:opacity-40",
                     )}
@@ -652,7 +652,7 @@ export function LeaseForm({ id }: { id?: string }) {
                     className={cn(
                       "relative flex cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3.5 transition-all",
                       selected
-                        ? "border-[#6f4627]/45 bg-gradient-to-br from-[#fffaf6] to-[#f3ebe3] shadow-[0_8px_20px_-16px_rgba(111,70,39,0.5)]"
+                        ? "border-[#71130d]/45 bg-gradient-to-br from-[#fffaf6] to-[#f3ebe3] shadow-[0_8px_20px_-16px_rgba(111,70,39,0.5)]"
                         : "border-[#e8ddd4] bg-white hover:border-[#d4c0b0] hover:bg-[#faf8f5]",
                       pricingLocked && "cursor-not-allowed opacity-60",
                     )}
@@ -674,7 +674,7 @@ export function LeaseForm({ id }: { id?: string }) {
                       className={cn(
                         "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors",
                         selected
-                          ? "border-[#6f4627] bg-[#6f4627]"
+                          ? "border-[#71130d] bg-[#71130d]"
                           : "border-[#c9b8a8] bg-white",
                       )}
                     >
@@ -687,7 +687,7 @@ export function LeaseForm({ id }: { id?: string }) {
                         <span className="text-sm font-semibold text-[#1a1c1a]">
                           {resolvePricingUnitTypeName(p, lookups)}
                         </span>
-                        <span className="text-sm font-semibold tabular-nums text-[#6f4627]">
+                        <span className="text-sm font-semibold tabular-nums text-[#71130d]">
                           {formatIdrTable(p.price)}
                           <span className="ml-1 text-xs font-medium text-[#83746b]">
                             / {tp("monthlyPackage")}
@@ -770,7 +770,7 @@ export function LeaseForm({ id }: { id?: string }) {
         <div className="rounded-xl border border-[#d5c3b8]/55 bg-gradient-to-br from-white/80 via-[#faf9f6]/90 to-ferrugem-soft/30 p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex min-w-0 items-start gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#8b5e3c] via-[#6f4627] to-maroon text-white shadow-[0_8px_20px_rgb(90_36_48/0.18)] ring-1 ring-white/40">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#8a1a12] via-[#71130d] to-maroon text-white shadow-[0_8px_20px_rgb(90_36_48/0.18)] ring-1 ring-white/40">
                 <Icon name="picture_as_pdf" size={20} />
               </div>
               <div className="min-w-0">

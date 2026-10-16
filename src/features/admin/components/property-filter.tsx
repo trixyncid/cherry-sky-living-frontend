@@ -9,10 +9,16 @@ export function PropertyFilter({
   value,
   onChange,
   className,
+  /** When true, omit the "All properties" option (property required). */
+  requireProperty = false,
+  /** Override label for the empty/"All" option (e.g. inventory mode). */
+  allLabel,
 }: {
   value: string;
   onChange: (propertyId: string) => void;
   className?: string;
+  requireProperty?: boolean;
+  allLabel?: string;
 }) {
   const t = useTranslations("admin.crud");
   const { properties } = useAdminShell();
@@ -23,7 +29,12 @@ export function PropertyFilter({
       value={value}
       onChange={(e) => onChange(e.target.value)}
     >
-      <option value="">{t("allProperties")}</option>
+      {!requireProperty && (
+        <option value="">{allLabel ?? t("allProperties")}</option>
+      )}
+      {requireProperty && !value && (
+        <option value="">{t("selectProperty")}</option>
+      )}
       {properties.map((p) => (
         <option key={p.id} value={p.id}>
           {p.name}

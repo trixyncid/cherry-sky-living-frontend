@@ -5,9 +5,9 @@
 
 'use client';
 
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { CHECK_AVAILABILITY_HREF, PUBLIC_NAV_LINKS } from '@/components/layout/nav-links';
 import {
     Sheet,
     SheetContent,
@@ -15,6 +15,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import { BrandMark } from '@/components/shared/BrandMark';
 import { Icon } from '@/components/shared/Icon';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 
@@ -40,9 +41,9 @@ function MenuItem({ href, icon, label, onClick }: MenuItemProps) {
             <Icon
                 name={icon}
                 size={24}
-                className="text-[#83746b] group-hover:text-[#6f4627]"
+                className="text-[#83746b] group-hover:text-[#71130d]"
             />
-            <span className="text-sm font-medium text-[#1a1c1a] group-hover:text-[#6f4627]">
+            <span className="text-sm font-medium text-[#1a1c1a] group-hover:text-[#71130d]">
                 {label}
             </span>
         </Link>
@@ -58,20 +59,26 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent side="left" className="glass-card w-[280px] p-0 text-[#1a1c1a] sm:w-[320px]">
                 <SheetHeader className="p-6 pb-4">
-                    <SheetTitle className="flex items-center gap-2 text-left">
-                        <Image
-                            src="/logo.svg"
-                            alt={t('common.brand.name')}
-                            width={32}
-                            height={32}
-                            className="size-8 shrink-0 object-contain"
-                        />
-                        <span className="text-xl font-bold">{t('common.brand.name')}</span>
+                    <SheetTitle className="flex items-center text-left">
+                        <BrandMark variant="nav" tone="onLight" className="h-8 w-[10.5rem]" />
+                        <span className="sr-only">{t('common.brand.fullName')}</span>
                     </SheetTitle>
                 </SheetHeader>
 
                 <div className="px-3 pb-6 overflow-y-auto h-[calc(100vh-80px)]">
+                    <Link
+                        href={CHECK_AVAILABILITY_HREF}
+                        onClick={handleClose}
+                        className="mb-5 flex h-12 items-center justify-center gap-2 rounded-full bg-[#71130d] text-sm font-semibold text-white transition-colors hover:bg-[#8a1a12]"
+                    >
+                        {t('nav.checkAvailability')}
+                        <Icon name="arrow_forward" size={16} />
+                    </Link>
+
                     {/* Main Navigation */}
+                    <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-[#83746b]">
+                        {t('nav.explore')}
+                    </p>
                     <div className="space-y-1 mb-6">
                         <MenuItem
                             href="/"
@@ -79,16 +86,19 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
                             label={t('nav.home')}
                             onClick={handleClose}
                         />
+                        {PUBLIC_NAV_LINKS.map((link) => (
+                            <MenuItem
+                                key={link.key}
+                                href={link.href}
+                                icon={link.icon}
+                                label={t(`nav.${link.key}`)}
+                                onClick={handleClose}
+                            />
+                        ))}
                         <MenuItem
                             href="/about"
                             icon="info"
                             label={t('nav.about')}
-                            onClick={handleClose}
-                        />
-                        <MenuItem
-                            href="/search-kosts"
-                            icon="search"
-                            label={t('nav.search')}
                             onClick={handleClose}
                         />
                     </div>
@@ -116,17 +126,6 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
 
                     <Separator className="my-4" />
 
-                    {/* Help & Info */}
-                    <div className="space-y-1">
-                        <MenuItem
-                            href="/contact"
-                            icon="call"
-                            label={t('nav.contact')}
-                            onClick={handleClose}
-                        />
-                    </div>
-
-                    <Separator className="my-4" />
 
                     {/* Language Switcher */}
                     <div className="pt-4">

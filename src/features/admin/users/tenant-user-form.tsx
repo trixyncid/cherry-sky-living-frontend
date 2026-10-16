@@ -17,7 +17,6 @@ import {
 import { useTenantUserMutations } from "@/features/admin/hooks/use-admin-queries";
 import {
   createTenantUserSchema,
-  type CreateTenantUserValues,
 } from "@/features/admin/users/schemas";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
@@ -25,18 +24,17 @@ import { ApiError } from "@/lib/api/errors";
 
 const BASE = "/admin/users";
 
-const emptyForm: CreateTenantUserValues = {
-  name: "",
-  email: "",
-  password: "",
-};
-
 export function TenantUserForm() {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.users");
   const router = useRouter();
   const mutations = useTenantUserMutations();
-  const [form, setForm] = useState<CreateTenantUserValues>(emptyForm);
+  const [form, setForm] = useState({
+    name: "",
+    phoneNumber: "",
+    email: "",
+    password: "",
+  });
   const [formError, setFormError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -46,6 +44,8 @@ export function TenantUserForm() {
     const parsed = createTenantUserSchema({
       nameRequired: tp("validation.nameRequired"),
       emailInvalid: tp("validation.emailInvalid"),
+      phoneRequired: tp("validation.phoneRequired"),
+      phoneInvalid: tp("validation.phoneInvalid"),
       passwordMin: tp("validation.passwordMin"),
     }).safeParse(form);
     if (!parsed.success) {
@@ -99,11 +99,26 @@ export function TenantUserForm() {
                 }
               />
             </AdminField>
-            <AdminField label={t("email")} htmlFor="tenant-email" required>
+            <AdminField label={tp("phone")} htmlFor="tenant-phone" required>
+              <input
+                id="tenant-phone"
+                type="tel"
+                required
+                autoComplete="tel"
+                inputMode="tel"
+                placeholder={tp("phonePlaceholder")}
+                className={adminInputClassName}
+                value={form.phoneNumber}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, phoneNumber: e.target.value }))
+                }
+              />
+              <p className="mt-1 text-xs text-[#83746b]">{tp("phoneHint")}</p>
+            </AdminField>
+            <AdminField label={tp("emailOptional")} htmlFor="tenant-email">
               <input
                 id="tenant-email"
                 type="email"
-                required
                 autoComplete="email"
                 className={adminInputClassName}
                 value={form.email}
@@ -111,6 +126,9 @@ export function TenantUserForm() {
                   setForm((f) => ({ ...f, email: e.target.value }))
                 }
               />
+              <p className="mt-1 text-xs text-[#83746b]">
+                {tp("emailOptionalHint")}
+              </p>
             </AdminField>
           </div>
         </AdminFormSection>

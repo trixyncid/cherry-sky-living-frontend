@@ -74,7 +74,7 @@ function ReceiptLine({
 }: LineItem & { index: number }) {
   return (
     <div className="grid gap-2 py-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-start sm:gap-4">
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[#6f4627]/10 text-xs font-bold text-[#6f4627]">
+      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[#71130d]/10 text-xs font-bold text-[#71130d]">
         {index}
       </span>
       <div className="min-w-0">
@@ -185,7 +185,7 @@ export function LeaseAmountReceipt({
       <div className="relative border-b border-[#d5c3b8]/45 px-5 py-4 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#8b5e3c] via-[#6f4627] to-maroon shadow-[0_8px_20px_rgb(90_36_48/0.22)] ring-1 ring-white/40">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#8a1a12] via-[#71130d] to-maroon shadow-[0_8px_20px_rgb(90_36_48/0.22)] ring-1 ring-white/40">
               <Icon name="receipt_long" size={20} className="text-white" />
             </div>
             <div>
@@ -202,7 +202,7 @@ export function LeaseAmountReceipt({
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {headerAction}
-            <div className="rounded-full border border-[#d5c3b8]/70 bg-white/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6f4627]">
+            <div className="rounded-full border border-[#d5c3b8]/70 bg-white/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#71130d]">
               {tp("receiptDraft")}
             </div>
           </div>

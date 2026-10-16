@@ -101,7 +101,7 @@ export function LeaseRenewalPrompt({
               type="button"
               disabled={pending}
               onClick={() => void handleCancelRequest()}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-xl glass-control px-4 py-2 text-sm font-semibold text-[#51443c] transition-colors hover:bg-white/80 disabled:opacity-50"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-xl glass-control px-4 py-2 text-sm font-semibold text-[#3d3a36] transition-colors hover:bg-white/80 disabled:opacity-50"
             >
               {pending ? t("submitting") : t("cancelRequest")}
             </button>
@@ -137,8 +137,8 @@ export function LeaseRenewalPrompt({
           <Icon name="autorenew" size={24} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-[#1a1c1a]">{t("promptTitle")}</p>
-          <p className="mt-1 text-sm text-[#51443c]">
+          <p className="font-semibold text-[#141414]">{t("promptTitle")}</p>
+          <p className="mt-1 text-sm text-[#3d3a36]">
             {t("promptDescription", {
               unit: lease.unit?.name ?? "—",
               endDate: lease.endDate ? formatDate(lease.endDate) : "—",
@@ -160,7 +160,7 @@ export function LeaseRenewalPrompt({
                 type="button"
                 disabled={pending}
                 onClick={() => void handleDismiss()}
-                className="glass-control inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-[#51443c] transition-colors hover:bg-white/80 disabled:opacity-50"
+                className="glass-control inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-[#3d3a36] transition-colors hover:bg-white/80 disabled:opacity-50"
               >
                 {pending ? t("submitting") : t("noRenew")}
               </button>
@@ -169,7 +169,7 @@ export function LeaseRenewalPrompt({
           {compact && (
             <Link
               href="/tenant/lease-renewals"
-              className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-[#6f4627] hover:underline"
+              className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-[#71130d] hover:underline"
             >
               {t("respondNow")}
               <Icon name="arrow_forward" size={16} />
@@ -215,8 +215,8 @@ function RenewalBanner({
       <div className="flex gap-3">
         <Icon name={icon} size={compact ? 20 : 22} className="shrink-0" />
         <div>
-          <p className="text-sm font-semibold text-[#1a1c1a]">{title}</p>
-          <p className="mt-0.5 text-sm text-[#51443c]">{description}</p>
+          <p className="text-sm font-semibold text-[#141414]">{title}</p>
+          <p className="mt-0.5 text-sm text-[#3d3a36]">{description}</p>
           {action}
         </div>
       </div>

@@ -28,9 +28,10 @@ import {
 } from "@/features/tenant/hooks/use-tenant-queries";
 import { Icon } from "@/components/shared/Icon";
 import { ApiError } from "@/lib/api/errors";
+import { displayEmailOrEmpty } from "@/lib/phone";
 import { cn } from "@/lib/utils";
 
-const emptyProfile: TenantProfileValues = { name: "" };
+const emptyProfile: TenantProfileValues = { name: "", phoneNumber: "" };
 
 const emptyPassword: TenantPasswordValues = {
   currentPassword: "",
@@ -59,7 +60,10 @@ export function TenantProfileView() {
 
   useEffect(() => {
     if (profile) {
-      setProfileForm({ name: profile.name });
+      setProfileForm({
+        name: profile.name,
+        phoneNumber: profile.phoneNumber ?? "",
+      });
     }
   }, [profile]);
 
@@ -69,6 +73,8 @@ export function TenantProfileView() {
 
     const parsed = createProfileSchema({
       nameRequired: tp("validation.nameRequired"),
+      phoneRequired: tp("validation.phoneRequired"),
+      phoneInvalid: tp("validation.phoneInvalid"),
     }).safeParse(profileForm);
     if (!parsed.success) {
       setProfileError(parsed.error.issues[0]?.message ?? tp("saveFailed"));
@@ -76,11 +82,17 @@ export function TenantProfileView() {
     }
 
     try {
-      await mutations.updateProfile.mutateAsync({ name: parsed.data.name });
+      await mutations.updateProfile.mutateAsync({
+        name: parsed.data.name,
+        phoneNumber: parsed.data.phoneNumber,
+      });
       showApiSuccess(tp("profileUpdated"));
       router.refresh();
     } catch (err) {
-      const msg = getErrorMessage(err, tp("saveFailed"));
+      const msg =
+        err instanceof ApiError && err.code === "CONFLICT"
+          ? tp("phoneExists")
+          : getErrorMessage(err, tp("saveFailed"));
       setProfileError(msg);
       showApiError(err, tp("saveFailed"));
     }
@@ -91,7 +103,6 @@ export function TenantProfileView() {
     setPasswordError(null);
 
     const parsed = createPasswordSchema({
-      nameRequired: tp("validation.nameRequired"),
       currentPasswordRequired: tp("validation.currentPasswordRequired"),
       newPasswordMin: tp("validation.newPasswordMin"),
       confirmPasswordRequired: tp("validation.confirmPasswordRequired"),
@@ -134,7 +145,7 @@ export function TenantProfileView() {
       )}
 
       {isLoading ? (
-        <p className="text-sm text-[#83746b]">{t("loading")}</p>
+        <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>
       ) : profile ? (
         <div className="space-y-6">
           <section className="glass-panel rounded-[1.75rem] p-6">
@@ -148,13 +159,13 @@ export function TenantProfileView() {
                 <span className="inline-flex rounded-full bg-ferrugem-soft/80 px-2.5 py-1 text-xs font-semibold text-ferrugem ring-1 ring-white/60 backdrop-blur-sm">
                   {th("roleTenant")}
                 </span>
-                <p className="mt-2 text-xs text-[#83746b]">
+                <p className="mt-2 text-xs text-[#6b6b6b]">
                   {tp("memberSince")}: {formatDate(profile.createdAt, locale)}
                 </p>
               </div>
             </div>
 
-            <h3 className="mb-4 text-sm font-semibold text-[#1a1c1a]">
+            <h3 className="mb-4 text-sm font-semibold text-[#141414]">
               {tp("accountSection")}
             </h3>
 
@@ -168,26 +179,44 @@ export function TenantProfileView() {
                     type="text"
                     value={profileForm.name}
                     onChange={(e) =>
-                      setProfileForm({ name: e.target.value })
+                      setProfileForm((f) => ({ ...f, name: e.target.value }))
                     }
                     className={adminInputClassName}
                     autoComplete="name"
                     required
                   />
                 </AdminField>
+                <AdminField label={tp("phone")} htmlFor="profile-phone" required>
+                  <input
+                    id="profile-phone"
+                    type="tel"
+                    value={profileForm.phoneNumber}
+                    onChange={(e) =>
+                      setProfileForm((f) => ({
+                        ...f,
+                        phoneNumber: e.target.value,
+                      }))
+                    }
+                    className={adminInputClassName}
+                    autoComplete="tel"
+                    inputMode="tel"
+                    required
+                  />
+                  <p className="mt-1 text-xs text-[#6b6b6b]">{tp("phoneHint")}</p>
+                </AdminField>
                 <AdminField label={t("email")} htmlFor="profile-email">
                   <input
                     id="profile-email"
                     type="email"
-                    value={profile.email}
+                    value={displayEmailOrEmpty(profile.email) || "—"}
                     readOnly
                     disabled
                     className={cn(
                       adminInputClassName,
-                      "cursor-not-allowed bg-[#efeeeb] text-[#51443c]",
+                      "cursor-not-allowed bg-[#efeeeb] text-[#3d3a36]",
                     )}
                   />
-                  <p className="mt-1 text-xs text-[#83746b]">{tp("emailReadOnly")}</p>
+                  <p className="mt-1 text-xs text-[#6b6b6b]">{tp("emailReadOnly")}</p>
                 </AdminField>
               </div>
 
@@ -204,10 +233,10 @@ export function TenantProfileView() {
           </section>
 
           <section className="glass-panel rounded-[1.75rem] p-6">
-            <h3 className="mb-1 text-sm font-semibold text-[#1a1c1a]">
+            <h3 className="mb-1 text-sm font-semibold text-[#141414]">
               {tp("passwordSection")}
             </h3>
-            <p className="mb-4 text-sm text-[#51443c]">{tp("passwordDescription")}</p>
+            <p className="mb-4 text-sm text-[#3d3a36]">{tp("passwordDescription")}</p>
 
             <form onSubmit={(e) => void handlePasswordSubmit(e)} className="space-y-4">
               {passwordError && <AdminAlert message={passwordError} />}
@@ -262,7 +291,7 @@ export function TenantProfileView() {
                 <button
                   type="submit"
                   disabled={passwordPending}
-                  className="glass-control rounded-xl px-5 py-2.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-white/80 disabled:opacity-50"
+                  className="glass-control rounded-xl px-5 py-2.5 text-sm font-semibold text-[#71130d] transition-colors hover:bg-white/80 disabled:opacity-50"
                 >
                   {passwordPending ? tp("updatingPassword") : tp("updatePassword")}
                 </button>
@@ -308,7 +337,7 @@ function PasswordInput({
       <button
         type="button"
         onClick={onToggle}
-        className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#6f4627]"
+        className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#71130d]"
         aria-label={show ? hideLabel : showLabel}
       >
         <Icon

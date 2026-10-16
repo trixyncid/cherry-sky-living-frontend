@@ -8,7 +8,7 @@ export function getHomePathForRole(role: UserRole | string): string {
     return "/admin";
   }
   if (isTenantRole(normalized)) {
-    return "/tenant/leases";
+    return "/tenant";
   }
   return "/";
 }

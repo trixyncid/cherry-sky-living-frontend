@@ -48,7 +48,7 @@ export function AdminPageHeader({
       : undefined);
 
   const primaryClassName =
-    "admin-btn-primary flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all hover:brightness-105 disabled:opacity-50 sm:flex-none";
+    "admin-btn-primary flex h-11 flex-1 items-center justify-center gap-2 rounded-full px-5 text-[15px] font-medium transition-colors disabled:opacity-50 sm:flex-none";
 
   return (
     <div
@@ -58,11 +58,11 @@ export function AdminPageHeader({
       )}
     >
       <div>
-        <h2 className="mb-1 text-2xl font-semibold tracking-tight text-[#1a1c1a]">
+        <h2 className="mb-1.5 text-[clamp(1.6rem,2.2vw,2rem)] font-medium tracking-[-0.03em] text-[#141414]">
           {title}
         </h2>
         {description && (
-          <p className="text-base text-[#5f5e5e]">{description}</p>
+          <p className="text-base text-[#6b6b6b]">{description}</p>
         )}
       </div>
 
@@ -73,7 +73,7 @@ export function AdminPageHeader({
               type="button"
               onClick={secondaryAction.onClick}
               disabled={secondaryAction.disabled}
-              className="glass-control flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-[#1a1c1a] transition-colors hover:bg-white/80 disabled:opacity-50 sm:flex-none"
+              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[#dedad4] bg-white px-5 text-[15px] font-medium text-[#141414] transition-colors hover:border-[#71130d] disabled:opacity-50 sm:flex-none"
             >
               {secondaryAction.icon && (
                 <Icon name={secondaryAction.icon} size={18} />

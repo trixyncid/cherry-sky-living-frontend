@@ -6,6 +6,7 @@
 'use client';
 
 import { useState } from 'react';
+import { track } from '@/lib/analytics';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
@@ -31,6 +32,10 @@ export function ImageGallery({
 }: ImageGalleryProps) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [showAllPhotos, setShowAllPhotos] = useState(false);
+    const openGallery = () => {
+        track('gallery_open', { photos: images.length });
+        setShowAllPhotos(true);
+    };
     const t = useTranslations();
 
     const visibleThumbnails = images.slice(1, variant === 'compact' ? 3 : 4);
@@ -48,7 +53,7 @@ export function ImageGallery({
                 {!header && backHref && backLabel && (
                     <Link
                         href={backHref}
-                        className="inline-flex items-center gap-2 text-sm font-medium text-[#51443c] transition-colors hover:text-[#6f4627]"
+                        className="inline-flex items-center gap-2 text-sm font-medium text-[#51443c] transition-colors hover:text-[#71130d]"
                     >
                         <Icon name="arrow_back" size={18} />
                         {backLabel}
@@ -58,13 +63,13 @@ export function ImageGallery({
                 {isMosaic ? (
                     <div
                         id="photos"
-                        className="grid h-[min(16rem,52vw)] grid-cols-4 grid-rows-2 gap-2 sm:gap-3 md:h-[min(18rem,30vw)]"
+                        className="grid h-[min(20rem,64vw)] grid-cols-4 grid-rows-2 gap-2 md:h-[min(30rem,36vw)]"
                     >
                         <button
                             type="button"
-                            onClick={() => setShowAllPhotos(true)}
+                            onClick={openGallery}
                             className={cn(
-                                'relative overflow-hidden rounded-[1.5rem] bg-[#efe8e0]',
+                                'relative overflow-hidden rounded-[1.25rem] bg-[#e7e4df]',
                                 mosaicSideImages.length > 0
                                     ? 'col-span-4 md:col-span-2 md:row-span-2'
                                     : 'col-span-4 row-span-2',
@@ -82,9 +87,9 @@ export function ImageGallery({
                                 <button
                                     key={image}
                                     type="button"
-                                    onClick={() => setShowAllPhotos(true)}
+                                    onClick={openGallery}
                                     className={cn(
-                                        'relative col-span-2 overflow-hidden rounded-[1.5rem] bg-[#efe8e0] md:col-span-1',
+                                        'relative col-span-2 overflow-hidden rounded-[1.25rem] bg-[#e7e4df] md:col-span-1',
                                         mosaicSideImages.length === 1 && 'md:row-span-2',
                                     )}
                                 >
@@ -94,7 +99,7 @@ export function ImageGallery({
                                         className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                                     />
                                     {isLast && mosaicRemaining > 0 ? (
-                                        <span className="absolute inset-0 flex items-center justify-center bg-[#1a130f]/55 text-sm font-semibold text-white">
+                                        <span className="absolute inset-0 flex items-center justify-center bg-black/45 text-[15px] font-semibold text-white">
                                             {t('roomDetail.viewAllPhotos', {
                                                 count: images.length,
                                             })}
@@ -117,7 +122,7 @@ export function ImageGallery({
                             ? 'aspect-[16/9] max-h-48 sm:max-h-56 md:max-h-64'
                             : 'aspect-video',
                     )}
-                    onClick={() => setShowAllPhotos(true)}
+                    onClick={openGallery}
                     whileHover={isCompact ? undefined : { scale: 1.02 }}
                 >
                     <img
@@ -170,7 +175,7 @@ export function ImageGallery({
                                 'flex cursor-pointer items-center justify-center rounded-xl bg-[#f5e4d4] transition-colors hover:bg-[#eed9c6]',
                                 isCompact ? 'aspect-[4/3] max-h-16 sm:max-h-20' : 'aspect-[4/3]',
                             )}
-                            onClick={() => setShowAllPhotos(true)}
+                            onClick={openGallery}
                         >
                             <span className={cn(
                                 'font-semibold text-[#51443c]',

@@ -81,7 +81,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   className={cn(
                     "group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition-all duration-200",
                     active
-                      ? "bg-gradient-to-r from-[#6f4627]/95 to-ferrugem/90 text-white shadow-[0_8px_18px_rgb(90_36_48/0.26)] ring-1 ring-white/20"
+                      ? "bg-gradient-to-r from-[#71130d]/95 to-ferrugem/90 text-white shadow-[0_8px_18px_rgb(90_36_48/0.26)] ring-1 ring-white/20"
                       : "text-[#51443c] hover:bg-white/45 hover:text-[#1a1c1a]",
                   )}
                 >

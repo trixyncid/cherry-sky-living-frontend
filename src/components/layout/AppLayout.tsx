@@ -17,7 +17,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
-        <div className="relative flex min-h-screen w-full flex-col bg-[#faf9f6]">
+        <div className="relative flex min-h-screen w-full flex-col bg-[#f7f3f2]">
             {/* Navbar */}
             <Navbar onMenuClick={() => setSidebarOpen(true)} />
 

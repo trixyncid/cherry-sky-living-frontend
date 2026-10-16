@@ -98,7 +98,7 @@ export function RoomTypeCard({
                     <div className="flex flex-1 flex-col gap-1.5 px-4 py-3">
                         {detailHref ? (
                             <Link href={detailHref}>
-                                <h3 className="line-clamp-1 text-base font-bold text-[#1a1c1a] transition-colors group-hover:text-[#6f4627]">
+                                <h3 className="line-clamp-1 text-base font-bold text-[#1a1c1a] transition-colors group-hover:text-[#71130d]">
                                     {roomType.name}
                                 </h3>
                             </Link>
@@ -150,13 +150,13 @@ export function RoomTypeCard({
                         {detailHref ? (
                             <Link
                                 href={detailHref}
-                                className="flex items-center justify-center gap-1.5 rounded-full bg-[#6f4627] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#5a3820]"
+                                className="flex items-center justify-center gap-1.5 rounded-full bg-[#71130d] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#5c0f0a]"
                             >
                                 <Icon name="visibility" size={14} />
                                 {t('cta.viewDetails')}
                             </Link>
                         ) : (
-                            <span className="flex items-center justify-center gap-1.5 rounded-full bg-[#6f4627] px-3 py-2 text-xs font-semibold text-white">
+                            <span className="flex items-center justify-center gap-1.5 rounded-full bg-[#71130d] px-3 py-2 text-xs font-semibold text-white">
                                 <Icon name="visibility" size={14} />
                                 {t('cta.viewDetails')}
                             </span>

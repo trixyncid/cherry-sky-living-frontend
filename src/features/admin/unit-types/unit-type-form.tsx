@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
@@ -26,6 +27,10 @@ import {
   deleteUnitTypeAttachment,
   uploadUnitTypeImage,
 } from "@/lib/api/admin/attachments";
+import {
+  readStoredPropertyId,
+  writeStoredPropertyId,
+} from "@/features/admin/lib/admin-property-scope";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
 import { unitTypeSizeSchema } from "@/features/admin/properties/schemas";
@@ -48,11 +53,26 @@ const emptyForm: FormState = {
   size: "",
 };
 
+function resolveCreatePropertyId(
+  properties: { id: string }[],
+  fromQuery: string | null,
+): string {
+  if (fromQuery && properties.some((p) => p.id === fromQuery)) {
+    return fromQuery;
+  }
+  const stored = readStoredPropertyId();
+  if (stored && properties.some((p) => p.id === stored)) {
+    return stored;
+  }
+  return properties[0]?.id ?? "";
+}
+
 export function UnitTypeForm({ id }: { id?: string }) {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.unitTypes");
   const ta = useTranslations("admin.attachments");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const qc = useQueryClient();
   const isEdit = !!id;
   const { properties } = useAdminShell();
@@ -61,6 +81,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
+  const createPrefillDone = useRef(false);
 
   const attachments = unitType?.unitTypeAttachments ?? [];
 
@@ -79,8 +100,21 @@ export function UnitTypeForm({ id }: { id?: string }) {
         propertyId: unitType.propertyId,
         size: unitType.size != null ? String(unitType.size) : "",
       });
+      writeStoredPropertyId(unitType.propertyId);
     }
   }, [unitType]);
+
+  useEffect(() => {
+    if (isEdit || createPrefillDone.current || properties.length === 0) return;
+    const propertyId = resolveCreatePropertyId(
+      properties,
+      searchParams.get("propertyId"),
+    );
+    createPrefillDone.current = true;
+    if (!propertyId) return;
+    setForm((f) => (f.propertyId ? f : { ...f, propertyId }));
+    writeStoredPropertyId(propertyId);
+  }, [isEdit, properties, searchParams]);
 
   const isDirty =
     !unitType ||
@@ -125,6 +159,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
           description: form.description.trim(),
           size,
         });
+        writeStoredPropertyId(form.propertyId);
         showApiSuccess(tp("createdStayToUpload"));
         router.replace(`${BASE}/${created.id}/edit`);
         router.refresh();
@@ -225,9 +260,11 @@ export function UnitTypeForm({ id }: { id?: string }) {
                   required
                   disabled={isEdit}
                   value={form.propertyId}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, propertyId: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    const propertyId = e.target.value;
+                    setForm((f) => ({ ...f, propertyId }));
+                    if (propertyId) writeStoredPropertyId(propertyId);
+                  }}
                 >
                   <option value="">{t("selectProperty")}</option>
                   {properties.map((p) => (

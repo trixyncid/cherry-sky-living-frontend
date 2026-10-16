@@ -11,7 +11,7 @@ export function adminMenuItemClassName({
   return cn(
     "flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors",
     active || selected
-      ? "bg-[#efe0d2] text-[#1a1c1a]"
-      : "text-[#51443c] hover:bg-[#f6f1ec]",
+      ? "bg-[#f1efec] text-[#141414]"
+      : "text-[#3d3a36] hover:bg-[#f6f5f3]",
   );
 }

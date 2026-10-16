@@ -1,457 +1,663 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { AdminAlert } from "@/features/admin/components/admin-alert";
+import { useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
-import { Link } from "@/i18n/routing";
-import { AdminStatCard } from "@/features/admin/components/admin-stat-card";
-import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
-import { PropertyFilter } from "@/features/admin/components/property-filter";
-import { useAdminShell } from "@/features/admin/components/admin-shell-context";
-import { useAdminDashboard } from "@/features/admin/hooks/use-admin-queries";
 import {
-  formatDate,
-  formatIdrCompact,
-  getInitials,
-} from "@/features/admin/lib/format";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { AdminAlert } from "@/features/admin/components/admin-alert";
+import { useAdminShell } from "@/features/admin/components/admin-shell-context";
+import { PropertyFilter } from "@/features/admin/components/property-filter";
+import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
+import {
+  useAdminDashboard,
+  useLeases,
+} from "@/features/admin/hooks/use-admin-queries";
+import { formatDate, formatIdrCompact } from "@/features/admin/lib/format";
 import { buildViewLeaseHref } from "@/features/admin/units/lib/lease-links";
-import type { AdminDashboardLeaseSummary } from "@/lib/types/admin";
+import { Link } from "@/i18n/routing";
+import { useKosts } from "@/lib/hooks/use-kost-data";
+import type {
+  AdminDashboardLeaseSummary,
+  LeaseStatus,
+} from "@/lib/types/admin";
+import { cn } from "@/lib/utils";
+import { getDurationLabel } from "@/lib/utils/kost-display";
+import {
+  CashflowChart,
+  CollectionBars,
+  card,
+  KpiCard,
+  OccupancyGauge,
+  Segmented,
+  Thumb,
+} from "./dashboard-widgets";
+import { useIsClient } from "./use-is-client";
 
 const quickActions = [
-  { href: "/admin/properties/new", icon: "add_home", labelKey: "quickActions.addProperty" as const },
-  { href: "/admin/unit-types/new", icon: "category", labelKey: "quickActions.addUnitType" as const },
-  { href: "/admin/units/new", icon: "bed", labelKey: "quickActions.addUnit" as const },
-  { href: "/admin/leases/new", icon: "post_add", labelKey: "quickActions.newLease" as const },
-  { href: "/admin/pricing/new", icon: "sell", labelKey: "quickActions.setPricing" as const },
+  {
+    href: "/admin/properties/new",
+    icon: "add_home",
+    labelKey: "quickActions.addProperty" as const,
+  },
+  {
+    href: "/admin/unit-types/new",
+    icon: "category",
+    labelKey: "quickActions.addUnitType" as const,
+  },
+  {
+    href: "/admin/units/new",
+    icon: "bed",
+    labelKey: "quickActions.addUnit" as const,
+  },
+  {
+    href: "/admin/leases/new",
+    icon: "post_add",
+    labelKey: "quickActions.newLease" as const,
+  },
+  {
+    href: "/admin/pricing/new",
+    icon: "sell",
+    labelKey: "quickActions.setPricing" as const,
+  },
 ];
+
+const LEASE_COLUMNS = [
+  "colLease",
+  "colUnit",
+  "colTenant",
+  "colTerm",
+  "colAmount",
+  "colStart",
+  "colStatus",
+] as const;
+
+type QueueKind = "review" | "unpaidOverdue" | "renewal" | "expiring";
+type QueueTab = "all" | "payments" | "renewals";
+type StatusTab = "all" | LeaseStatus;
+
+/** Compact IDR that keeps a minus sign for negative nets. */
+function compact(amount: number) {
+  return amount < 0
+    ? `−${formatIdrCompact(-amount)}`
+    : formatIdrCompact(amount);
+}
+
+function monthLabelFor(locale: string) {
+  return (month: string) => {
+    const [y, m] = month.split("-").map(Number);
+    if (!y || !m) return month;
+    return new Intl.DateTimeFormat(locale, { month: "short", timeZone: "UTC" })
+      .format(new Date(Date.UTC(y, m - 1, 1)))
+      .toUpperCase();
+  };
+}
 
 export function OverviewView() {
   const t = useTranslations("admin.pages.overview");
+  const td = useTranslations("admin.pages.overview.dash");
   const tc = useTranslations("admin.crud");
+  const tRoot = useTranslations();
   const locale = useLocale();
   const { user } = useAdminShell();
+  const isClient = useIsClient();
+
   const [propertyFilter, setPropertyFilter] = useState("");
+  const [series, setSeries] = useState<"income" | "expense">("income");
+  const [gaugeFor, setGaugeFor] = useState("all");
+  const [queueTab, setQueueTab] = useState<QueueTab>("all");
+  const [statusTab, setStatusTab] = useState<StatusTab>("all");
 
   const dashboard = useAdminDashboard(propertyFilter || undefined);
+  const leasesQuery = useLeases(
+    propertyFilter ? { propertyId: propertyFilter } : undefined,
+  );
+  const { data: kosts = [] } = useKosts();
   const data = dashboard.data;
   const loading = dashboard.isLoading;
-  const loadError = dashboard.error;
-
-  const greetingKey = getGreeting();
-  const todayLabel = new Intl.DateTimeFormat(locale, {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  }).format(new Date());
 
   const portfolio = data?.portfolio;
   const collections = data?.collections;
   const leaseStats = data?.leases;
-  const queues = data?.queues;
+  const months = (data?.cashFlow?.months ?? []).slice(-12);
+  const monthLabel = monthLabelFor(locale);
+  const thumbFor = (propertyId?: string | null) =>
+    kosts.find((k) => k.id === propertyId)?.thumbnail;
 
-  const actionQueue = useMemo(() => {
-    if (!queues) return [];
-    type QueueItem = {
-      kind: "review" | "unpaidOverdue" | "renewal" | "expiring";
-      lease: AdminDashboardLeaseSummary;
-    };
-    const items: QueueItem[] = [
-      ...queues.awaitingReview.map((lease) => ({
-        kind: "review" as const,
-        lease,
-      })),
-      ...(queues.unpaidOverdue ?? []).map((lease) => ({
+  // Net vs previous month — only shown when there is a previous month.
+  const lastNet = months.at(-1)?.net ?? 0;
+  const prevNet = months.at(-2)?.net;
+  const netChange =
+    prevNet !== undefined && prevNet !== 0
+      ? ((lastNet - prevNet) / Math.abs(prevNet)) * 100
+      : null;
+
+  const occupiedPct =
+    portfolio && portfolio.totalUnits > 0
+      ? (portfolio.occupiedUnits / portfolio.totalUnits) * 100
+      : 0;
+
+  const gaugeOptions = [
+    { id: "all", label: td("allResidences") },
+    ...kosts
+      .filter((k) => k.totalRooms > 0)
+      .map((k) => ({ id: k.id, label: k.name })),
+  ];
+  const gaugeKost = kosts.find((k) => k.id === gaugeFor);
+  const gaugePct =
+    gaugeKost && gaugeKost.totalRooms > 0
+      ? ((gaugeKost.totalRooms - gaugeKost.availableRooms) /
+          gaugeKost.totalRooms) *
+        100
+      : occupiedPct;
+
+  const queue = useMemo(() => {
+    const q = data?.queues;
+    if (!q)
+      return [] as { kind: QueueKind; lease: AdminDashboardLeaseSummary }[];
+    return [
+      ...(q.unpaidOverdue ?? []).map((lease) => ({
         kind: "unpaidOverdue" as const,
         lease,
       })),
-      ...queues.overdueRenewals.map((lease) => ({
+      ...q.awaitingReview.map((lease) => ({ kind: "review" as const, lease })),
+      ...q.overdueRenewals.map((lease) => ({
         kind: "renewal" as const,
         lease,
       })),
-      ...queues.expiringSoon.map((lease) => ({
-        kind: "expiring" as const,
-        lease,
-      })),
+      ...q.expiringSoon.map((lease) => ({ kind: "expiring" as const, lease })),
     ];
-    return items.slice(0, 8);
-  }, [queues]);
+  }, [data?.queues]);
+  const visibleQueue = queue
+    .filter(({ kind }) =>
+      queueTab === "all"
+        ? true
+        : queueTab === "payments"
+          ? kind === "review" || kind === "unpaidOverdue"
+          : kind === "renewal" || kind === "expiring",
+    )
+    .slice(0, 4);
+
+  const leases = [...(leasesQuery.data ?? [])]
+    .filter((l) => statusTab === "all" || l.status === statusTab)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, 6);
+
+  const greetingKey = isClient ? getGreeting() : "morning";
+  const todayLabel = isClient
+    ? new Intl.DateTimeFormat(locale, {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        timeZone: "Asia/Jakarta",
+      }).format(new Date())
+    : " ";
+
+  const queueDetail = (kind: QueueKind, lease: AdminDashboardLeaseSummary) => {
+    if (kind === "review")
+      return td("dueAmount", { amount: formatIdrCompact(lease.amountDue) });
+    if (kind === "unpaidOverdue")
+      return td("daysLate", { days: lease.daysLate ?? 0 });
+    if (kind === "renewal" && lease.leaseRenewal?.confirmationDeadline)
+      return td("deadline", {
+        date: formatDate(lease.leaseRenewal.confirmationDeadline, locale),
+      });
+    return td("endsOn", { date: formatDate(lease.endDate, locale) });
+  };
 
   return (
-    <div className="space-y-8">
-      {loadError && <AdminAlert message={tc("loadFailed")} />}
+    <div className="space-y-4">
+      {dashboard.error ? <AdminAlert message={tc("loadFailed")} /> : null}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <PropertyFilter value={propertyFilter} onChange={setPropertyFilter} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <section className="glass-panel relative overflow-hidden rounded-[1.75rem] p-6 sm:p-8 lg:col-span-2">
-          <div
-            className="pointer-events-none absolute -right-16 -top-20 size-72 rounded-full bg-ferrugem/20 blur-3xl"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute -bottom-24 left-10 size-56 rounded-full bg-maroon/14 blur-3xl"
-            aria-hidden
-          />
-          <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ferrugem">
-                {t("today")} · {todayLabel}
-              </p>
-              <p className="mt-3 text-sm font-medium text-[#51443c]">
-                {t(`greeting.${greetingKey}`)}
-              </p>
-              <h2 className="mt-1 text-3xl font-bold tracking-tight text-[#1a1c1a] sm:text-4xl">
-                {user.name.split(" ")[0] ?? user.name}
-              </h2>
-              <p className="mt-2 max-w-lg text-sm leading-relaxed text-[#5f5e5e]">
-                {t("description")}
-              </p>
-            </div>
-            <Link
-              href="/admin/leases"
-              className="admin-btn-primary inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <Icon name="description" size={18} />
-              {t("viewLeases")}
-            </Link>
-          </div>
-        </section>
-
-        <section className="glass-panel relative flex flex-col items-center justify-center overflow-hidden rounded-[1.75rem] p-6">
-          <div
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgb(164_74_50/0.14),transparent_60%)]"
-            aria-hidden
-          />
-          <OccupancyRing
-            percent={loading ? 0 : (portfolio?.occupancyPercent ?? 0)}
-            label={t("occupancy")}
-            hint={t("occupancyHint", {
-              occupied: portfolio?.occupiedUnits ?? 0,
-              total: portfolio?.totalUnits ?? 0,
+      {/* Greeting + controls */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm text-[#6b6b6b]" suppressHydrationWarning>
+            {todayLabel}
+          </p>
+          <h1
+            className="text-[clamp(1.5rem,2vw,1.85rem)] font-medium tracking-[-0.03em] text-[#141414]"
+            suppressHydrationWarning
+          >
+            {td("greeting", {
+              greeting: t(`greeting.${greetingKey}`),
+              name: user.name.split(" ")[0] || user.name,
             })}
-          />
-        </section>
+          </h1>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <PropertyFilter value={propertyFilter} onChange={setPropertyFilter} />
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="hidden h-11 items-center gap-2 rounded-full bg-[#71130d] px-5 text-[15px] font-medium text-white transition-colors hover:bg-[#8a1a12] lg:inline-flex"
+              >
+                <Icon name="add" size={18} />
+                {t("board.newItem")}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              className="glass-overlay w-64 rounded-2xl p-2"
+            >
+              {quickActions.map((a) => (
+                <Link
+                  key={a.href}
+                  href={a.href}
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] text-[#141414] hover:bg-[#f6f0ef]"
+                >
+                  <Icon name={a.icon} size={18} />
+                  {t(a.labelKey)}
+                </Link>
+              ))}
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <AdminStatCard
-          icon="domain"
-          iconClassName="bg-[#d3e4fe]/80 text-[#0b1c30]"
-          label={t("stats.properties")}
-          value={loading ? "…" : (portfolio?.propertyCount ?? 0)}
-          hint={t("stats.propertiesHint")}
-          href="/admin/properties"
-        />
-        <AdminStatCard
-          icon="bed"
-          iconClassName="bg-[#e2dfde]/80 text-[#636262]"
-          label={t("stats.vacantUnits")}
-          value={loading ? "…" : (portfolio?.vacantUnits ?? 0)}
-          hint={t("stats.vacantUnitsHint", {
-            occupied: portfolio?.occupiedUnits ?? 0,
-            total: portfolio?.totalUnits ?? 0,
-          })}
-          href="/admin/units"
-          trend={
-            portfolio && portfolio.totalUnits > 0
-              ? {
-                  value: `${portfolio.occupancyPercent}%`,
-                  positive: portfolio.occupancyPercent >= 50,
-                }
-              : undefined
-          }
-        />
-        <AdminStatCard
-          icon="description"
-          iconClassName="bg-[#ffdcc5]/80 text-[#653d1e]"
-          label={t("stats.activeLeases")}
-          value={loading ? "…" : (leaseStats?.activePaid ?? 0)}
-          hint={t("stats.activeLeasesHint", {
-            expiring: leaseStats?.expiringSoonCount ?? 0,
-          })}
-          href="/admin/leases"
-        />
-      </section>
-
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <AdminStatCard
-          icon="account_balance_wallet"
-          iconClassName="bg-[#fff0e8]/80 text-[#8b4513]"
-          label={t("stats.accountsReceivable")}
-          value={loading ? "…" : formatIdrCompact(collections?.accountsReceivable ?? 0)}
-          hint={t("stats.accountsReceivableHint", {
-            overdue: collections?.unpaidOverdueCount ?? 0,
-            overdueAmount: formatIdrCompact(
-              collections?.unpaidOverdueAmount ?? 0,
-            ),
-          })}
-          href="/admin/leases"
-        />
-        <AdminStatCard
-          icon="rate_review"
-          iconClassName="bg-[#fff8e1]/80 text-[#7a5c00]"
-          label={t("stats.awaitingReview")}
-          value={loading ? "…" : (collections?.awaitingReviewCount ?? 0)}
-          hint={t("stats.awaitingReviewHint", {
-            amount: formatIdrCompact(collections?.awaitingReviewAmount ?? 0),
-          })}
-          href="/admin/leases"
-        />
-        <AdminStatCard
-          icon="payments"
-          iconClassName="bg-[#E6F4EA]/80 text-[#137333]"
-          label={t("stats.monthIncome")}
-          value={loading ? "…" : formatIdrCompact(collections?.monthIncome ?? 0)}
-          hint={t("stats.monthIncomeHint", {
-            contracted: formatIdrCompact(
-              collections?.contractedActiveValue ?? 0,
-            ),
-          })}
-          href="/admin/bookkeeping"
-        />
-        <AdminStatCard
-          icon="monitoring"
-          iconClassName="bg-[#e8f0fe]/80 text-[#174ea6]"
-          label={t("stats.monthNet")}
-          value={loading ? "…" : formatIdrCompact(collections?.monthNet ?? 0)}
-          hint={t("stats.monthNetHint", {
-            expense: formatIdrCompact(collections?.monthExpense ?? 0),
-          })}
-          href="/admin/bookkeeping"
-          trend={
-            collections
-              ? {
-                  value: formatIdrCompact(Math.abs(collections.monthNet)),
-                  positive: collections.monthNet >= 0,
-                }
-              : undefined
-          }
-        />
-      </section>
-
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <AdminStatCard
-          icon="event_upcoming"
-          iconClassName="bg-[#fce8e6]/80 text-[#c5221f]"
-          label={t("stats.expiringSoon")}
-          value={loading ? "…" : (leaseStats?.expiringSoonCount ?? 0)}
-          hint={t("stats.expiringSoonHint")}
-          href="/admin/leases"
-        />
-        <AdminStatCard
-          icon="pending"
-          iconClassName="bg-[#e8f0fe]/80 text-[#1967d2]"
-          label={t("stats.renewalPending")}
-          value={loading ? "…" : (leaseStats?.renewalPendingCount ?? 0)}
-          hint={t("stats.renewalPendingHint")}
-          href="/admin/lease-renewals"
-        />
-        <AdminStatCard
-          icon="warning"
-          iconClassName="bg-[#fce8e6]/80 text-[#a50e0e]"
-          label={t("stats.renewalOverdue")}
-          value={loading ? "…" : (leaseStats?.renewalOverdueCount ?? 0)}
-          hint={t("stats.renewalOverdueHint")}
-          href="/admin/lease-renewals"
-        />
-        <AdminStatCard
-          icon="autorenew"
-          iconClassName="bg-[#E6F4EA]/80 text-[#137333]"
-          label={t("stats.renewalIntent")}
-          value={
-            loading
-              ? "…"
-              : t("stats.renewalIntentValue", {
-                  renew: leaseStats?.renewalIntentRenew ?? 0,
-                  decline: leaseStats?.renewalIntentDecline ?? 0,
-                })
-          }
-          hint={t("stats.renewalIntentHint")}
-          href="/admin/lease-renewals"
-        />
-      </section>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <section className="glass-panel rounded-[1.75rem] p-5 lg:col-span-1">
-          <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#83746b]">
-            {t("quickActions.title")}
-          </h3>
-          <ul className="mt-4 space-y-1.5">
-            {quickActions.map((action) => (
-              <li key={action.href}>
-                <Link
-                  href={action.href}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[#51443c] transition-colors hover:bg-white/50 hover:text-[#1a1c1a]"
-                >
-                  <span className="flex size-9 items-center justify-center rounded-lg bg-white/55 text-ferrugem shadow-[inset_0_1px_0_rgb(255_255_255/0.7)]">
-                    <Icon name={action.icon} size={20} />
-                  </span>
-                  {t(action.labelKey)}
-                  <Icon
-                    name="chevron_right"
-                    size={18}
-                    className="ml-auto text-[#83746b]"
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="glass-panel overflow-hidden rounded-[1.75rem] lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-white/40 px-5 py-4">
-            <div>
-              <h3 className="font-semibold text-[#1a1c1a]">{t("queues.title")}</h3>
-              <p className="text-xs text-[#83746b]">{t("queues.subtitle")}</p>
-            </div>
-            <Link
-              href="/admin/leases"
-              className="text-sm font-semibold text-ferrugem hover:text-maroon"
-            >
-              {t("queues.viewAll")}
-            </Link>
+      <div className="flex flex-col gap-4 xl:grid xl:grid-cols-[minmax(0,1fr)_24rem]">
+        {/* ——— Left column ——— */}
+        <div className="contents xl:flex xl:min-w-0 xl:flex-col xl:gap-4">
+          <div className="order-1 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 xl:order-none">
+            <KpiCard
+              icon="pie_chart"
+              label={td("occupancy")}
+              value={`${Math.round(occupiedPct)}%`}
+              loading={loading}
+              badge={{
+                tone: "neutral",
+                text: td("vacantUnits", { count: portfolio?.vacantUnits ?? 0 }),
+              }}
+              note={t("occupancyHint", {
+                occupied: portfolio?.occupiedUnits ?? 0,
+                total: portfolio?.totalUnits ?? 0,
+              })}
+            />
+            <KpiCard
+              icon="monitoring"
+              label={td("netMonth")}
+              value={compact(collections?.monthNet ?? 0)}
+              loading={loading}
+              badge={
+                netChange === null
+                  ? undefined
+                  : {
+                      tone: netChange >= 0 ? "up" : "down",
+                      text: `${Math.abs(netChange).toFixed(Math.abs(netChange) < 10 ? 1 : 0)}%`,
+                    }
+              }
+              note={netChange === null ? td("noHistory") : td("vsLastMonth")}
+            />
+            <KpiCard
+              icon="account_balance_wallet"
+              label={td("receivables")}
+              value={formatIdrCompact(collections?.accountsReceivable ?? 0)}
+              loading={loading}
+              badge={{
+                tone:
+                  (collections?.unpaidOverdueCount ?? 0) > 0
+                    ? "down"
+                    : "neutral",
+                text: td("overdueCount", {
+                  count: collections?.unpaidOverdueCount ?? 0,
+                }),
+              }}
+            />
+            <KpiCard
+              icon="description"
+              label={td("activeLeases")}
+              value={String(leaseStats?.activePaid ?? 0)}
+              loading={loading}
+              badge={{
+                tone: "neutral",
+                text: td("expiringCount", {
+                  count: leaseStats?.expiringSoonCount ?? 0,
+                }),
+              }}
+            />
           </div>
 
-          {loading ? (
-            <p className="p-6 text-sm text-[#83746b]">{t("loading")}</p>
-          ) : actionQueue.length === 0 ? (
-            <p className="p-6 text-sm text-[#83746b]">{t("queues.empty")}</p>
-          ) : (
-            <ul className="divide-y divide-white/30">
-              {actionQueue.map(({ kind, lease }) => (
-                <QueueRow
-                  key={`${kind}-${lease.id}`}
-                  kind={kind}
-                  lease={lease}
-                  locale={locale}
+          <div className="order-4 grid gap-4 lg:grid-cols-2 xl:order-none">
+            <section className={cn(card, "flex flex-col gap-5")}>
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="text-xl font-medium tracking-tight text-[#141414]">
+                  {td("collections")}
+                </h2>
+                <span className="rounded-full bg-[#f6f0ef] px-3 py-1.5 text-xs text-[#6b6b6b]">
+                  {td("last6")}
+                </span>
+              </div>
+              <div>
+                <p className="text-sm text-[#6b6b6b]">{td("collectedOf")}</p>
+                <p className="mt-1 text-[clamp(1.6rem,2.2vw,2rem)] font-medium tracking-[-0.03em] text-[#141414] tabular-nums">
+                  {loading
+                    ? "…"
+                    : formatIdrCompact(collections?.monthIncome ?? 0)}
+                  <span className="ml-1.5 text-base font-normal tracking-normal text-[#6b6b6b]">
+                    {td("contracted", {
+                      amount: formatIdrCompact(
+                        collections?.contractedActiveValue ?? 0,
+                      ),
+                    })}
+                  </span>
+                </p>
+              </div>
+              <CollectionBars
+                months={months.slice(-6)}
+                monthLabel={monthLabel}
+                formatValue={formatIdrCompact}
+              />
+            </section>
+
+            <section className={cn(card, "flex flex-col gap-5")}>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <h2 className="text-xl font-medium tracking-tight text-[#141414]">
+                  {td("occupancyTarget")}
+                </h2>
+                {gaugeOptions.length > 2 ? (
+                  <Segmented
+                    label={td("occupancyTarget")}
+                    value={gaugeFor}
+                    options={gaugeOptions}
+                    onChange={setGaugeFor}
+                  />
+                ) : null}
+              </div>
+              <div className="flex gap-5 text-sm text-[#3d3a36]">
+                <span className="flex items-center gap-2">
+                  <span className="size-2.5 rounded-full bg-[#71130d]" />
+                  {td("occupied")}
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="size-2.5 rounded-full bg-[#f1ebea] ring-1 ring-[#e6dedc]" />
+                  {td("vacant")}
+                </span>
+              </div>
+              <div className="flex flex-1 items-end rounded-2xl bg-[#faf7f6] px-4 pt-6 pb-4">
+                <OccupancyGauge
+                  percent={loading ? 0 : gaugePct}
+                  caption={td("occupiedLabel")}
                 />
-              ))}
+              </div>
+            </section>
+          </div>
+
+          {/* Leases table (cards on phones) */}
+          <section
+            className={cn(card, "order-5 flex flex-col gap-4 xl:order-none")}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-xl font-medium tracking-tight text-[#141414]">
+                {td("leases")}
+              </h2>
+              <Segmented
+                label={td("leases")}
+                value={statusTab}
+                onChange={setStatusTab}
+                options={[
+                  { id: "all", label: td("statusAll") },
+                  { id: "paid", label: td("statusPaid") },
+                  { id: "unpaid", label: td("statusUnpaid") },
+                  { id: "waiting_for_review", label: td("statusReview") },
+                ]}
+              />
+            </div>
+            <ul className="flex flex-col divide-y divide-[#f1ebea] md:hidden">
+              {leasesQuery.isLoading ? (
+                <li className="py-6 text-sm text-[#6b6b6b]">{t("loading")}</li>
+              ) : leases.length === 0 ? (
+                <li className="py-6 text-sm text-[#6b6b6b]">
+                  {td("noLeases")}
+                </li>
+              ) : (
+                leases.map((lease) => (
+                  <li key={lease.id}>
+                    <Link
+                      href={buildViewLeaseHref(lease.id)}
+                      className="flex items-center gap-3 py-3 active:bg-[#faf7f6]"
+                    >
+                      <Thumb
+                        src={thumbFor(lease.propertyId)}
+                        alt=""
+                        className="size-12"
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[15px] font-medium text-[#141414]">
+                          {lease.user?.name ?? lease.user?.email ?? "—"}
+                        </span>
+                        <span className="block truncate text-xs text-[#6b6b6b]">
+                          {lease.unit?.name ?? "—"} ·{" "}
+                          {lease.property?.name ??
+                            lease.unit?.property?.name ??
+                            ""}{" "}
+                          · {formatDate(lease.startDate, locale)}
+                        </span>
+                      </span>
+                      <span className="flex shrink-0 flex-col items-end gap-1">
+                        <span className="text-[15px] font-medium tabular-nums text-[#141414]">
+                          {formatIdrCompact(lease.amountDue)}
+                        </span>
+                        <LeaseStatusBadge status={lease.status} />
+                      </span>
+                    </Link>
+                  </li>
+                ))
+              )}
             </ul>
-          )}
-        </section>
-      </div>
-    </div>
-  );
-}
+            <div className="hidden overflow-x-auto rounded-2xl border border-[#f1ebea] md:block">
+              <table className="w-full min-w-[48rem] text-left">
+                <thead className="bg-[#faf7f6] text-[13px] text-[#6b6b6b]">
+                  <tr>
+                    {LEASE_COLUMNS.map((k) => (
+                      <th key={k} scope="col" className="px-4 py-3 font-medium">
+                        {td(k)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {leasesQuery.isLoading ? (
+                    <tr>
+                      <td
+                        colSpan={LEASE_COLUMNS.length}
+                        className="px-4 py-8 text-sm text-[#6b6b6b]"
+                      >
+                        {t("loading")}
+                      </td>
+                    </tr>
+                  ) : leases.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={LEASE_COLUMNS.length}
+                        className="px-4 py-8 text-sm text-[#6b6b6b]"
+                      >
+                        {td("noLeases")}
+                      </td>
+                    </tr>
+                  ) : (
+                    leases.map((lease) => (
+                      <tr
+                        key={lease.id}
+                        className="border-t border-[#f1ebea] text-[15px] text-[#141414] hover:bg-[#fcf9f8]"
+                      >
+                        <td className="px-4 py-3 font-mono text-sm text-[#6b6b6b]">
+                          #{lease.id.slice(-6).toUpperCase()}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Link
+                            href={buildViewLeaseHref(lease.id)}
+                            className="flex items-center gap-3 hover:text-[#71130d]"
+                          >
+                            <Thumb
+                              src={thumbFor(lease.propertyId)}
+                              alt=""
+                              className="size-10"
+                            />
+                            <span className="min-w-0">
+                              <span className="block truncate font-medium">
+                                {lease.unit?.name ?? "—"}
+                              </span>
+                              <span className="block truncate text-xs text-[#6b6b6b]">
+                                {lease.property?.name ??
+                                  lease.unit?.property?.name ??
+                                  ""}
+                              </span>
+                            </span>
+                          </Link>
+                        </td>
+                        <td className="px-4 py-3">
+                          {lease.user?.name ?? lease.user?.email ?? "—"}
+                        </td>
+                        <td className="px-4 py-3 text-[#3d3a36]">
+                          {lease.unitPricing?.durationDays
+                            ? getDurationLabel(
+                                lease.unitPricing.durationDays,
+                                tRoot,
+                              )
+                            : "—"}
+                        </td>
+                        <td className="px-4 py-3 tabular-nums">
+                          {formatIdrCompact(lease.amountDue)}
+                        </td>
+                        <td className="px-4 py-3 text-[#3d3a36]">
+                          {formatDate(lease.startDate, locale)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <LeaseStatusBadge status={lease.status} />
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
 
-function OccupancyRing({
-  percent,
-  label,
-  hint,
-}: {
-  percent: number;
-  label: string;
-  hint: string;
-}) {
-  const size = 132;
-  const stroke = 10;
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset =
-    circumference - (Math.min(100, Math.max(0, percent)) / 100) * circumference;
+        {/* ——— Right column ——— */}
+        <div className="contents xl:flex xl:min-w-0 xl:flex-col xl:gap-4">
+          <section className="order-3 rounded-[1.75rem] bg-[#1c0b0a] p-5 text-white sm:p-6 xl:order-none">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-xl font-medium tracking-tight">
+                {td("cashflow")}
+              </h2>
+              <Segmented
+                tone="dark"
+                label={td("cashflow")}
+                value={series}
+                onChange={setSeries}
+                options={[
+                  { id: "income", label: td("income") },
+                  { id: "expense", label: td("expenses") },
+                ]}
+              />
+            </div>
+            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+              {months.length > 0 ? (
+                <CashflowChart
+                  months={months}
+                  series={series}
+                  monthLabel={monthLabel}
+                  formatValue={formatIdrCompact}
+                  latestLabel={td("latest")}
+                />
+              ) : (
+                <p className="p-6 text-sm text-white/70">
+                  {t("charts.cashFlow.empty")}
+                </p>
+              )}
+            </div>
+          </section>
 
-  return (
-    <div className="relative z-10 flex flex-col items-center text-center">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="-rotate-90">
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="rgb(255 255 255 / 0.45)"
-            strokeWidth={stroke}
-          />
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="url(#occupancyGrad)"
-            strokeWidth={stroke}
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-          />
-          <defs>
-            <linearGradient id="occupancyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#6f4627" />
-              <stop offset="55%" stopColor="#a44a32" />
-              <stop offset="100%" stopColor="#5a2430" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-bold tracking-tight text-[#1a1c1a]">
-            {percent}%
-          </span>
+          <section
+            className={cn(
+              card,
+              "order-2 flex flex-1 flex-col gap-4 xl:order-none",
+            )}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-xl font-medium tracking-tight text-[#141414]">
+                {td("attention")}
+              </h2>
+              <Segmented
+                label={td("attention")}
+                value={queueTab}
+                onChange={setQueueTab}
+                options={[
+                  { id: "all", label: td("tabAll") },
+                  { id: "payments", label: td("tabPayments") },
+                  { id: "renewals", label: td("tabRenewals") },
+                ]}
+              />
+            </div>
+            {loading ? (
+              <p className="py-6 text-sm text-[#6b6b6b]">{t("loading")}</p>
+            ) : visibleQueue.length === 0 ? (
+              <p className="flex items-center gap-2 rounded-2xl bg-[#faf7f6] p-5 text-[15px] text-[#3d3a36]">
+                <Icon name="task_alt" size={20} className="text-[#2f6d22]" />
+                {td("nothing")}
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {visibleQueue.map(({ kind, lease }) => (
+                  <li
+                    key={`${kind}-${lease.id}`}
+                    className="rounded-2xl border border-[#f1ebea] p-3"
+                  >
+                    <div className="flex items-start gap-3">
+                      <Thumb
+                        src={thumbFor(lease.propertyId)}
+                        alt=""
+                        className="size-14"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[15px] font-medium text-[#141414]">
+                          {lease.user?.name ?? lease.user?.email ?? "—"}
+                        </p>
+                        <p className="truncate text-xs text-[#6b6b6b]">
+                          {lease.unit?.name ?? "—"}
+                          {lease.property?.name
+                            ? ` · ${lease.property.name}`
+                            : ""}
+                        </p>
+                        <span
+                          className={cn(
+                            "mt-1.5 inline-block rounded-md border px-2 py-0.5 text-[11px] font-semibold",
+                            kind === "unpaidOverdue"
+                              ? "border-[#f5c2bd] bg-[#fde2df] text-[#a1271b]"
+                              : "border-[#e8bfb9] bg-[#fbf3f2] text-[#71130d]",
+                          )}
+                        >
+                          {t(`queues.kinds.${kind}`)}
+                        </span>
+                      </div>
+                    </div>
+                    <Link
+                      href={buildViewLeaseHref(lease.id)}
+                      className="mt-3 flex items-center justify-between rounded-xl bg-[#faf7f6] px-3 py-2.5 text-sm text-[#3d3a36] transition-colors hover:bg-[#f6f0ef] hover:text-[#71130d]"
+                    >
+                      {queueDetail(kind, lease)}
+                      <Icon name="north_east" size={16} />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link
+              href="/admin/leases"
+              className="mx-auto mt-auto inline-flex h-11 items-center gap-2 rounded-full bg-[#71130d] px-6 text-[15px] font-medium text-white shadow-[0_14px_30px_-14px_rgb(113_19_13/0.7)] transition-colors hover:bg-[#8a1a12]"
+            >
+              {td("viewAllLeases")}
+              <Icon name="north_east" size={16} />
+            </Link>
+          </section>
         </div>
       </div>
-      <p className="mt-3 text-sm font-semibold text-[#1a1c1a]">{label}</p>
-      <p className="mt-0.5 text-xs text-[#83746b]">{hint}</p>
     </div>
-  );
-}
-
-function QueueRow({
-  kind,
-  lease,
-  locale,
-}: {
-  kind: "review" | "unpaidOverdue" | "renewal" | "expiring";
-  lease: AdminDashboardLeaseSummary;
-  locale: string;
-}) {
-  const t = useTranslations("admin.pages.overview.queues");
-  const tenant = lease.user?.name ?? lease.user?.email ?? "—";
-  const propertyName = lease.property?.name;
-  const endDate = lease.endDate;
-
-  return (
-    <li>
-      <Link
-        href={buildViewLeaseHref(lease.id)}
-        className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-white/35"
-      >
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#d3e4fe]/80 text-xs font-bold text-[#0b1c30] ring-1 ring-white/60">
-          {getInitials(tenant)}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-medium text-[#1a1c1a]">{tenant}</p>
-          <p className="truncate text-xs text-[#83746b]">
-            {lease.unit?.name ?? "—"}
-            {propertyName ? ` · ${propertyName}` : ""}
-          </p>
-          <p className="mt-0.5 text-xs font-medium text-ferrugem">
-            {t(`kinds.${kind}`)}
-          </p>
-        </div>
-        <div className="hidden text-right sm:block">
-          <p className="text-xs text-[#83746b]">
-            {formatDate(lease.startDate, locale)} – {formatDate(endDate, locale)}
-          </p>
-          {kind === "unpaidOverdue" && (
-            <p className="text-xs font-medium text-[#ba1a1a]">
-              {t("daysLate", { days: lease.daysLate ?? 0 })}
-            </p>
-          )}
-          {kind === "renewal" && lease.leaseRenewal?.confirmationDeadline && (
-            <p className="text-xs font-medium text-[#ba1a1a]">
-              {t("deadline", {
-                date: formatDate(lease.leaseRenewal.confirmationDeadline, locale),
-              })}
-            </p>
-          )}
-          {kind === "expiring" && (
-            <p className="text-xs font-medium text-[#ba1a1a]">{t("expiringSoon")}</p>
-          )}
-        </div>
-        <LeaseStatusBadge status={lease.status} />
-      </Link>
-    </li>
   );
 }
 

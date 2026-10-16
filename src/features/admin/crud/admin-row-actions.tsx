@@ -30,7 +30,7 @@ export function AdminRowActions({
       <Link
         href={editHref}
         className={cn(
-          "inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#efeeeb] hover:text-[#6f4627]",
+          "inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#efeeeb] hover:text-[#71130d]",
           disabled && "pointer-events-none opacity-50",
         )}
         aria-label={t("editTitle")}

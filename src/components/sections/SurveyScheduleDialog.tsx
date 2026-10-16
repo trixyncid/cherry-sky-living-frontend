@@ -5,9 +5,13 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
+import { useLocale, useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
+import { DatePicker } from "@/components/date-picker";
+import { Icon } from "@/components/shared/Icon";
+import { RequiredMark } from "@/components/shared/required-mark";
+import { SelectMenu } from "@/components/shared/select-menu";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,17 +22,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DatePicker } from "@/components/date-picker";
-import { Icon } from "@/components/shared/Icon";
-import { RequiredMark } from "@/components/shared/required-mark";
-import { SelectMenu } from "@/components/shared/select-menu";
 import { formatDate } from "@/features/admin/lib/format";
 import { listPublicProperties } from "@/lib/api/public/properties";
 import { getContactWhatsAppNumber } from "@/lib/contact";
 import { parseDateOnly } from "@/lib/date-input";
 import { publicKeys } from "@/lib/query/keys";
-import { generateWhatsAppURL } from "@/lib/utils/format";
+import { getLeadSource, track } from "@/lib/analytics";
+import { createLead } from "@/lib/api/public/leads";
 import { cn } from "@/lib/utils";
+import { generateWhatsAppURL } from "@/lib/utils/format";
 
 const SURVEY_TIMES = [
   "08:00",
@@ -63,7 +65,7 @@ interface FormErrors {
 }
 
 const inputClassName =
-  "h-[3.25rem] w-full rounded-xl border border-[#e3e2e0] bg-white px-4 text-[#1a1c1a] transition-colors placeholder:text-[#b0a29a] focus:border-[#8b5e3c]/60 focus:outline-none focus:ring-2 focus:ring-[#8b5e3c]/15";
+  "h-[3.25rem] w-full rounded-xl border border-[#cfc5c1] bg-white px-4 text-[#1a1c1a] transition-colors placeholder:text-[#6b6b6b] focus:border-[#8a1a12]/60 focus:outline-none focus:ring-2 focus:ring-[#8a1a12]/15";
 
 const inputErrorClassName =
   "border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/15";
@@ -249,11 +251,31 @@ export function SurveyScheduleDialog({
       property: propertyLabel,
     });
 
+    // Open WhatsApp synchronously (popup blockers), then record the lead
+    // in the background so the owner sees it in the leads inbox too.
     window.open(
       generateWhatsAppURL(phoneNumber, message),
       "_blank",
       "noopener,noreferrer",
     );
+    const timeMatch = /^(\d{1,2}):(\d{2})/.exec(form.surveyTime);
+    createLead({
+      type: "viewing",
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      propertyId: form.propertyId || undefined,
+      unitTypeId: form.unitTypeId || undefined,
+      preferredDate: timeMatch
+        ? `${form.surveyDate}T${timeMatch[1].padStart(2, "0")}:${timeMatch[2]}:00+07:00`
+        : form.surveyDate || undefined,
+      viewingMode: "in_person",
+      pagePath: window.location.pathname,
+      source: getLeadSource(),
+    })
+      .then(() => track("submit_viewing", { property: propertyLabel, room: unitTypeLabel }))
+      .catch(() => {
+        // WhatsApp already carries the request; saving is best-effort.
+      });
     setOpen(false);
     resetForm();
   };
@@ -325,7 +347,10 @@ export function SurveyScheduleDialog({
               value={form.phone}
               onChange={handleChange}
               placeholder={t("phonePlaceholder")}
-              className={cn(inputClassName, errors.phone && inputErrorClassName)}
+              className={cn(
+                inputClassName,
+                errors.phone && inputErrorClassName,
+              )}
             />
             {errors.phone && (
               <p className="mt-1 text-xs text-red-500">{errors.phone}</p>
@@ -400,9 +425,9 @@ export function SurveyScheduleDialog({
                 placeholder={t("surveyDatePlaceholder")}
                 popoverClassName="z-[90]"
                 className={cn(
-                  "h-[3.25rem] min-h-[3.25rem] gap-2.5 rounded-xl border-[#e3e2e0] bg-white px-3 py-0 shadow-none hover:border-[#c4b0a4] hover:shadow-none focus:border-[#8b5e3c]/60 focus:bg-white focus:ring-[#8b5e3c]/15",
-                  "[&>span:first-child]:size-6 [&>span:first-child]:rounded-lg [&>span:first-child]:bg-[#6f4627]/10",
-                  !form.surveyDate && "text-[#b0a29a]",
+                  "h-[3.25rem] min-h-[3.25rem] gap-2.5 rounded-xl border-[#e3e2e0] bg-white px-3 py-0 shadow-none hover:border-[#c4b0a4] hover:shadow-none focus:border-[#8a1a12]/60 focus:bg-white focus:ring-[#8a1a12]/15",
+                  "[&>span:first-child]:size-6 [&>span:first-child]:rounded-lg [&>span:first-child]:bg-[#71130d]/10",
+                  !form.surveyDate && "text-[#6b6b6b]",
                   errors.surveyDate && inputErrorClassName,
                 )}
               />

@@ -19,7 +19,6 @@ import {
 import { useTenantUserMutations } from "@/features/admin/hooks/use-admin-queries";
 import {
   createTenantUserSchema,
-  type CreateTenantUserValues,
 } from "@/features/admin/users/schemas";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
@@ -27,8 +26,9 @@ import { ApiError } from "@/lib/api/errors";
 import type { TenantUser } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
 
-const emptyForm: CreateTenantUserValues = {
+const emptyForm = {
   name: "",
+  phoneNumber: "",
   email: "",
   password: "",
 };
@@ -39,6 +39,7 @@ type TenantQuickCreateDialogProps = {
   onCreated: (tenant: TenantUser) => void;
   initialName?: string;
   initialEmail?: string;
+  initialPhone?: string;
 };
 
 export function TenantQuickCreateDialog({
@@ -47,11 +48,12 @@ export function TenantQuickCreateDialog({
   onCreated,
   initialName = "",
   initialEmail = "",
+  initialPhone = "",
 }: TenantQuickCreateDialogProps) {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.users");
   const mutations = useTenantUserMutations();
-  const [form, setForm] = useState<CreateTenantUserValues>(emptyForm);
+  const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -59,13 +61,14 @@ export function TenantQuickCreateDialog({
     if (open) {
       setForm({
         name: initialName,
+        phoneNumber: initialPhone,
         email: initialEmail,
         password: "",
       });
       setFormError(null);
       setShowPassword(false);
     }
-  }, [open, initialName, initialEmail]);
+  }, [open, initialName, initialEmail, initialPhone]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -74,6 +77,8 @@ export function TenantQuickCreateDialog({
     const parsed = createTenantUserSchema({
       nameRequired: tp("validation.nameRequired"),
       emailInvalid: tp("validation.emailInvalid"),
+      phoneRequired: tp("validation.phoneRequired"),
+      phoneInvalid: tp("validation.phoneInvalid"),
       passwordMin: tp("validation.passwordMin"),
     }).safeParse(form);
     if (!parsed.success) {
@@ -126,11 +131,26 @@ export function TenantQuickCreateDialog({
             />
           </AdminField>
 
-          <AdminField label={t("email")} htmlFor="quick-tenant-email" required>
+          <AdminField label={tp("phone")} htmlFor="quick-tenant-phone" required>
+            <input
+              id="quick-tenant-phone"
+              type="tel"
+              required
+              autoComplete="tel"
+              inputMode="tel"
+              placeholder={tp("phonePlaceholder")}
+              className={adminInputClassName}
+              value={form.phoneNumber}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, phoneNumber: e.target.value }))
+              }
+            />
+          </AdminField>
+
+          <AdminField label={tp("emailOptional")} htmlFor="quick-tenant-email">
             <input
               id="quick-tenant-email"
               type="email"
-              required
               autoComplete="email"
               className={adminInputClassName}
               value={form.email}
@@ -156,7 +176,7 @@ export function TenantQuickCreateDialog({
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#6f4627]"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#71130d]"
                 aria-label={
                   showPassword ? tp("hidePassword") : tp("showPassword")
                 }

@@ -36,9 +36,9 @@ const fieldMotion = {
 };
 
 const inputClassName = cn(
-  "glass-control block w-full rounded-xl py-2.5 pl-10 pr-3 text-base text-[#1a1c1a]",
-  "transition-all placeholder:text-[#51443c]/50",
-  "focus:outline-none focus:ring-2 focus:ring-ferrugem/25",
+  "glass-control block h-12 w-full rounded-xl pl-10 pr-3 text-base text-[#141414]",
+  "transition-all placeholder:text-[#6b6b6b]",
+  "focus:outline-none",
 );
 
 function showLoginError(
@@ -131,7 +131,7 @@ export function AdminLoginForm() {
   return (
     <AdminLoginShell portal="admin">
       <motion.h1
-        className="text-lg font-semibold tracking-tight text-[#1a1c1a]"
+        className="text-lg font-semibold tracking-tight text-[#141414]"
         variants={fieldMotion}
         custom={0}
         initial="hidden"
@@ -158,7 +158,7 @@ export function AdminLoginForm() {
             >
               <label
                 htmlFor="admin-email"
-                className="mb-2 block text-sm font-semibold tracking-wide text-[#1a1c1a]"
+                className="mb-2 block text-sm font-semibold tracking-wide text-[#141414]"
                 aria-required
               >
                 {t("emailLabel")}
@@ -166,7 +166,7 @@ export function AdminLoginForm() {
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Icon name="mail" size={20} className="text-[#83746b]" />
+                  <Icon name="mail" size={20} className="text-[#6b6b6b]" />
                 </div>
                 <input
                   id="admin-email"
@@ -194,7 +194,7 @@ export function AdminLoginForm() {
             >
               <label
                 htmlFor="admin-password"
-                className="mb-2 block text-sm font-semibold tracking-wide text-[#1a1c1a]"
+                className="mb-2 block text-sm font-semibold tracking-wide text-[#141414]"
                 aria-required
               >
                 {t("passwordLabel")}
@@ -202,7 +202,7 @@ export function AdminLoginForm() {
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Icon name="lock" size={20} className="text-[#83746b]" />
+                  <Icon name="lock" size={20} className="text-[#6b6b6b]" />
                 </div>
                 <input
                   id="admin-password"
@@ -218,7 +218,7 @@ export function AdminLoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#83746b] transition-colors hover:text-[#6f4627]"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#6b6b6b] transition-colors hover:text-[#141414]"
                   aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                 >
                   <Icon
@@ -243,10 +243,10 @@ export function AdminLoginForm() {
                 type="submit"
                 disabled={!canSubmit || isSubmitting}
                 className={cn(
-                  "admin-btn-primary mt-1 flex w-full items-center justify-center rounded-xl border border-transparent",
-                  "px-4 py-3 text-sm font-semibold",
+                  "admin-btn-primary mt-1 flex h-12 w-full items-center justify-center rounded-full border border-transparent",
+                  "px-4 text-[15px] font-semibold",
                   "transition-all duration-200",
-                  "focus:outline-none focus:ring-2 focus:ring-ferrugem focus:ring-offset-2 focus:ring-offset-[#faf9f6]",
+                  "focus:outline-none focus:ring-2 focus:ring-[#141414] focus:ring-offset-2 focus:ring-offset-white",
                   "disabled:cursor-not-allowed disabled:opacity-60",
                 )}
                 whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
@@ -260,13 +260,13 @@ export function AdminLoginForm() {
       </form>
 
       <motion.div
-        className="mt-8 border-t border-[#d5c3b8]/55 pt-5 text-center"
+        className="mt-8 border-t border-[#f0efed] pt-5 text-center"
         variants={fieldMotion}
         custom={4}
         initial="hidden"
         animate="visible"
       >
-        <p className="text-xs font-medium text-[#83746b]">{t("securityNote")}</p>
+        <p className="text-xs font-medium text-[#6b6b6b]">{t("securityNote")}</p>
       </motion.div>
     </AdminLoginShell>
   );

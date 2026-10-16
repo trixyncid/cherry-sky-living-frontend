@@ -26,6 +26,11 @@ export const metadata: Metadata = {
     "kost dekat kampus",
     "sewa kamar medan",
   ],
+  icons: {
+    icon: [{ url: "/cherry-sky-living-logo.svg", type: "image/svg+xml" }],
+    shortcut: ["/cherry-sky-living-logo.svg"],
+    apple: [{ url: "/cherry-sky-living-logo.svg" }],
+  },
 };
 
 export default async function LocaleLayout({

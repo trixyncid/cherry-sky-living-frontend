@@ -148,8 +148,8 @@ export function UnitCombobox({
             aria-controls={listboxId}
             className={cn(
               adminInputClassName,
-              "relative flex h-10 cursor-pointer items-center pr-10 text-left",
-              !displayUnit && "text-[#83746b]/60",
+              "relative flex h-11 cursor-pointer items-center pr-10 text-left",
+              !displayUnit && "text-[#6b6b6b]",
             )}
           >
             <span className="truncate">
@@ -260,7 +260,7 @@ export function UnitCombobox({
                         <Icon
                           name="check"
                           size={18}
-                          className="shrink-0 text-[#6f4627]"
+                          className="shrink-0 text-[#71130d]"
                         />
                       )}
                     </button>

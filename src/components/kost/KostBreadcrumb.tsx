@@ -39,7 +39,7 @@ export function KostBreadcrumb({
                                 size={16}
                                 className={cn(
                                     'shrink-0',
-                                    onDark ? 'text-white/40' : 'text-[#b0a29a]',
+                                    onDark ? 'text-white/40' : 'text-[#857f77]',
                                 )}
                             />
                         )}
@@ -50,7 +50,7 @@ export function KostBreadcrumb({
                                     'font-medium transition-colors',
                                     onDark
                                         ? 'text-white/70 hover:text-white'
-                                        : 'text-[#83746b] hover:text-[#6f4627]',
+                                        : 'text-[#6b6b6b] hover:text-[#141414]',
                                 )}
                             >
                                 {item.label}
@@ -62,10 +62,10 @@ export function KostBreadcrumb({
                                     isLast
                                         ? onDark
                                             ? 'text-white'
-                                            : 'text-[#1a1c1a]'
+                                            : 'text-[#141414]'
                                         : onDark
                                           ? 'text-white/70'
-                                          : 'text-[#83746b]',
+                                          : 'text-[#6b6b6b]',
                                 )}
                                 aria-current={isLast ? 'page' : undefined}
                             >

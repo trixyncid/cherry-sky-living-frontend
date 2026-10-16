@@ -1,326 +1,543 @@
 /**
- * Property detail — cinematic hero, photo mosaic, glass inquiry card
+ * Property detail — title block with live availability, photo bento,
+ * sticky in-page tabs, room tiles, facilities + transparent pricing,
+ * pinned map, and a sticky booking card (mobile: floating CTA bar, §5.6).
  */
 
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import Image from 'next/image';
-import { useTranslations } from 'next-intl';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { Footer } from '@/components/layout/Footer';
-import { ImageGallery } from '@/components/kost/ImageGallery';
-import { RoomTypeCard } from '@/components/kost/RoomTypeCard';
-import { KostBreadcrumb, useKostBreadcrumbs } from '@/components/kost/KostBreadcrumb';
-import { WhatsAppInquiryDialog } from '@/components/kost/WhatsAppInquiryDialog';
-import { Icon } from '@/components/shared/Icon';
-import type { Kost } from '@/lib/types';
-import { formatCurrency, generateWhatsAppURL } from '@/lib/utils/format';
-import { sortRoomTypesForDisplay } from '@/lib/utils/kost-display';
+import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
+import { type ReactNode, useState } from "react";
+import { ImageGallery } from "@/components/kost/ImageGallery";
+import { IncludedPanel } from "@/components/kost/IncludedPanel";
+import {
+  KostBreadcrumb,
+  useKostBreadcrumbs,
+} from "@/components/kost/KostBreadcrumb";
+import { directionsUrl, PlaceMap } from "@/components/kost/PlaceMap";
+import { RoomTile } from "@/components/kost/RoomTile";
+import { WhatsAppInquiryDialog } from "@/components/kost/WhatsAppInquiryDialog";
+import { PublicPageShell } from "@/components/layout/PublicPageShell";
+import { LeadDialog } from "@/components/leads/LeadDialog";
+import { ArrowPill, Eyebrow } from "@/components/shared/ArrowPill";
+import { Icon } from "@/components/shared/Icon";
+import { ShareButton } from "@/components/shared/ShareButton";
+import { depositFor, localized, siteConfig } from "@/config/site";
+import { track } from "@/lib/analytics";
+import type { Kost, RoomType } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import {
+  formatCapacity,
+  formatCurrency,
+  generateWhatsAppURL,
+} from "@/lib/utils/format";
+import { sortRoomTypesForDisplay } from "@/lib/utils/kost-display";
 
 interface PropertyDetailViewProps {
-    kost: Kost;
+  kost: Kost;
+}
+
+function monthlyPrice(roomType: RoomType): number {
+  return (
+    roomType.pricings?.find((p) => p.durationDays === 30)?.price ??
+    roomType.price
+  );
+}
+
+function ExpandableText({ text }: { text: string }) {
+  const t = useTranslations("detail");
+  const [open, setOpen] = useState(false);
+  const long = text.length > 320;
+  return (
+    <div className="max-w-3xl">
+      <p
+        className={cn(
+          "text-[17px] leading-[1.75] text-[#3d3a36]",
+          long && !open && "line-clamp-4",
+        )}
+      >
+        {text}
+      </p>
+      {long ? (
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="mt-2 text-[15px] font-semibold text-[#141414] underline underline-offset-4"
+        >
+          {open ? t("readLess") : t("readMore")}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+function Section({
+  id,
+  title,
+  children,
+}: {
+  id: string;
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section
+      id={id}
+      aria-labelledby={`${id}-title`}
+      className="scroll-mt-36 border-t border-[#e7e4df] pt-10"
+    >
+      <h2
+        id={`${id}-title`}
+        className="mb-6 text-2xl font-medium tracking-tight text-[#141414]"
+      >
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
 }
 
 export function PropertyDetailView({ kost }: PropertyDetailViewProps) {
-    const t = useTranslations();
-    const crumbs = useKostBreadcrumbs();
-    const isAlmostFull = kost.availableRooms > 0 && kost.availableRooms <= 3;
-    const sortedRoomTypes = sortRoomTypesForDisplay(kost.roomTypes);
-    const heroImage = kost.images[0] || kost.thumbnail;
-    const inquiryRoom = sortedRoomTypes[0];
-    const viewingUrl = generateWhatsAppURL(
-        kost.whatsappNumber,
-        t('whatsapp.visitSchedule', { propertyName: kost.name }),
-    );
+  const t = useTranslations();
+  const locale = useLocale();
+  const crumbs = useKostBreadcrumbs();
 
-    const breadcrumbItems = [
-        crumbs.home,
-        crumbs.search,
-        crumbs.property(kost.name, kost.id),
-    ];
+  const rooms = sortRoomTypesForDisplay(kost.roomTypes).filter(
+    (rt) => rt.totalCount > 0,
+  );
+  const openRoom = rooms.find((rt) => rt.availableCount > 0);
+  const address = [kost.location.address, kost.location.city]
+    .filter(Boolean)
+    .join(", ");
+  const isOpen = kost.availableRooms > 0;
+  const hasInventory = kost.totalRooms > 0;
+  const isAlmostFull = isOpen && kost.availableRooms <= 3;
+  const openShare = hasInventory
+    ? (kost.availableRooms / kost.totalRooms) * 100
+    : 0;
+  const deposit = depositFor(kost.name);
+  const visitMessage = t("whatsapp.visitSchedule", { propertyName: kost.name });
+  const viewingUrl = generateWhatsAppURL(kost.whatsappNumber, visitMessage);
+  const hours = `${localized(siteConfig.viewingHours.days, locale)} ${siteConfig.viewingHours.time}`;
+  const { min, max } = kost.priceRange;
 
-    return (
-        <AppLayout>
-            <section className="relative flex min-h-[min(48svh,24rem)] w-full flex-col justify-end overflow-hidden hero-atmosphere pt-[max(5rem,calc(4rem+env(safe-area-inset-top)))] lg:min-h-[min(52svh,28rem)]">
-                <div className="absolute inset-0">
-                    {heroImage ? (
-                        <motion.div
-                            initial={{ scale: 1.08 }}
-                            animate={{ scale: 1 }}
-                            transition={{ duration: 1.5, ease: 'easeOut' }}
-                            className="absolute inset-0"
-                        >
-                            <Image
-                                src={heroImage}
-                                alt={kost.name}
-                                fill
-                                priority
-                                sizes="100vw"
-                                className="object-cover object-center"
-                            />
-                        </motion.div>
-                    ) : null}
-                    <div className="absolute inset-0 hero-overlay-x" />
-                    <div className="absolute inset-0 hero-overlay-y" />
-                </div>
+  const tabs = [
+    { id: "overview", label: t("detail.overview") },
+    { id: "rooms", label: t("detail.rooms") },
+    { id: "facilities", label: t("detail.facilities") },
+    { id: "location", label: t("detail.location") },
+    ...(kost.rules?.length ? [{ id: "rules", label: t("detail.rules") }] : []),
+  ];
 
-                <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-20 pt-6 lg:px-10 lg:pb-24">
-                    <KostBreadcrumb
-                        items={breadcrumbItems}
-                        tone="onDark"
-                        className="mb-6"
-                    />
+  const facts = [
+    {
+      label: t("detail.rooms"),
+      value: hasInventory
+        ? t("detail.roomsOpenAt", {
+            available: kost.availableRooms,
+            total: kost.totalRooms,
+          })
+        : "—",
+    },
+    {
+      label: t("pricing.startingFrom"),
+      value: min > 0 ? `${formatCurrency(min)}${t("pricing.perMonth")}` : "—",
+    },
+    {
+      label: t("propertyDetail.unitTypes"),
+      value: String(rooms.length),
+    },
+    ...(deposit
+      ? [{ label: t("roomDetail.deposit"), value: formatCurrency(deposit) }]
+      : []),
+  ];
 
-                    <div className="mb-4 flex flex-wrap gap-2">
-                        {kost.isFeatured ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-ferrugem/45 bg-maroon-deep/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/90 backdrop-blur-md">
-                                <span className="h-1.5 w-1.5 rounded-full bg-[#d4af37]" />
-                                {t('property.flagship')}
-                            </span>
-                        ) : null}
-                        {kost.availableRooms > 0 ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1a130f]/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
-                                <span className="h-1.5 w-1.5 rounded-full bg-status-vacant" />
-                                {t('propertyDetail.availableRooms', {
-                                    available: kost.availableRooms,
-                                    total: kost.totalRooms,
-                                })}
-                            </span>
-                        ) : (
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1a130f]/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
-                                <span className="h-1.5 w-1.5 rounded-full bg-status-occupied" />
-                                {t('status.full')}
-                            </span>
-                        )}
-                        {isAlmostFull ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-md">
-                                {t('status.almostFull')}
-                            </span>
-                        ) : null}
-                    </div>
+  return (
+    <PublicPageShell
+      hideCta
+      floating={{
+        whatsappMessage: visitMessage,
+        alwaysVisible: true,
+      }}
+    >
+      {/* Title block + gallery */}
+      <section className="w-full px-5 pt-24 sm:px-8 lg:pt-28">
+        <div className="mx-auto w-full max-w-[90rem]">
+          <KostBreadcrumb
+            items={[
+              crumbs.home,
+              crumbs.search,
+              crumbs.property(kost.name, kost.id),
+            ]}
+            className="mb-6"
+          />
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <Eyebrow>
+                {kost.location.city || t("detail.propertyLabel")}
+              </Eyebrow>
+              <h1 className="mt-3 text-[clamp(2.2rem,4.6vw,3.75rem)] font-medium leading-[1.02] tracking-[-0.04em] text-[#141414]">
+                {kost.name}
+              </h1>
+              <p className="mt-3 flex items-start gap-2 text-base text-[#3d3a36]">
+                <Icon
+                  name="location_on"
+                  size={18}
+                  className="mt-0.5 shrink-0 text-[#71130d]"
+                />
+                {address}
+              </p>
+              <ul className="mt-4 flex flex-wrap gap-2">
+                <li className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-sm font-semibold text-[#141414]">
+                  <span
+                    className={cn(
+                      "size-2 rounded-full",
+                      isOpen
+                        ? "bg-[#059669]"
+                        : hasInventory
+                          ? "bg-[#ba1a1a]"
+                          : "bg-[#d97706]",
+                    )}
+                  />
+                  {isOpen
+                    ? t("propertyDetail.availableRooms", {
+                        available: kost.availableRooms,
+                        total: kost.totalRooms,
+                      })
+                    : hasInventory
+                      ? t("status.full")
+                      : t("home.houses.askAvailability")}
+                </li>
+                {isAlmostFull ? (
+                  <li className="rounded-full bg-[#fef3c7] px-3.5 py-1.5 text-sm font-semibold text-[#92400e]">
+                    {t("status.almostFull")}
+                  </li>
+                ) : null}
+                {min > 0 ? (
+                  <li className="rounded-full bg-white px-3.5 py-1.5 text-sm font-semibold text-[#141414]">
+                    {max > min
+                      ? `${formatCurrency(min, { compact: true })} – ${formatCurrency(max, { compact: true })}`
+                      : formatCurrency(min, { compact: true })}
+                    <span className="font-normal text-[#6b6b6b]">
+                      {t("pricing.perMonth")}
+                    </span>
+                  </li>
+                ) : null}
+              </ul>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <ShareButton title={kost.name} />
+              <ArrowPill
+                href={viewingUrl}
+                external
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  track("click_whatsapp", {
+                    location: "property_header",
+                    property: kost.name,
+                  })
+                }
+              >
+                {t("cta.bookViewing")}
+              </ArrowPill>
+            </div>
+          </div>
 
-                    <motion.h1
-                        initial={{ y: 18, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        className="max-w-3xl text-[2.15rem] font-bold leading-[1.1] tracking-tight text-[#faf9f6] sm:text-5xl"
-                    >
-                        {kost.name}
-                    </motion.h1>
+          <div className="mt-8">
+            {kost.images.length > 0 ? (
+              <ImageGallery
+                images={kost.images}
+                alt={kost.name}
+                variant="mosaic"
+              />
+            ) : kost.thumbnail ? (
+              <div className="relative h-[min(20rem,64vw)] overflow-hidden rounded-[1.25rem] md:h-[min(30rem,36vw)]">
+                <Image
+                  src={kost.thumbnail}
+                  alt={kost.name}
+                  fill
+                  priority
+                  sizes="100vw"
+                  className="object-cover"
+                />
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </section>
 
-                    <p className="mt-3 flex max-w-xl items-start gap-2 text-sm text-white/80 md:text-base">
-                        <Icon name="location_on" size={18} className="mt-0.5 shrink-0 text-[#d4af37]" />
-                        <span>
-                            {kost.location.address}
-                            {kost.location.city ? `, ${kost.location.city}` : ''}
-                        </span>
-                    </p>
+      {/* Sticky in-page tabs */}
+      <nav
+        aria-label={kost.name}
+        className="sticky top-16 z-20 mt-8 w-full border-y border-[#e7e4df] bg-[#f7f3f2]/95 px-5 backdrop-blur-md sm:px-8"
+      >
+        <ul className="mx-auto flex w-full max-w-[90rem] gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {tabs.map((tab) => (
+            <li key={tab.id}>
+              <a
+                href={`#${tab.id}`}
+                className="inline-flex h-10 items-center whitespace-nowrap rounded-full px-4 text-[15px] font-medium text-[#3d3a36] transition-colors hover:bg-white hover:text-[#141414]"
+              >
+                {tab.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-                    {kost.priceRange.min > 0 ? (
-                        <p className="mt-4 text-sm text-white/75">
-                            <span className="uppercase tracking-[0.16em] text-white/55">
-                                {t('pricing.startingFrom')}{' '}
-                            </span>
-                            <span className="text-xl font-semibold text-white">
-                                {formatCurrency(kost.priceRange.min, { compact: true })}
-                            </span>
-                            <span className="ml-1 text-sm text-white/60">
-                                {t('pricing.perMonth')}
-                            </span>
-                        </p>
-                    ) : null}
-
-                    <div className="mt-7 flex flex-wrap gap-3">
-                        <a
-                            href={viewingUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 rounded-full bg-[#6f4627] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#805533]"
-                        >
-                            <Icon name="whatsapp" size={16} />
-                            {t('cta.bookViewing')}
-                        </a>
-                        {kost.images.length > 0 ? (
-                            <a
-                                href="#photos"
-                                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md hover:bg-white/15"
-                            >
-                                <Icon name="photo_library" size={16} />
-                                {t('roomDetail.viewAllPhotos', { count: kost.images.length })}
-                            </a>
-                        ) : null}
-                    </div>
-                </div>
+      <div className="w-full px-5 pb-16 pt-10 sm:px-8">
+        <div className="mx-auto grid w-full max-w-[90rem] gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_24rem]">
+          <div className="flex min-w-0 flex-col gap-12">
+            <section
+              id="overview"
+              aria-label={t("detail.overview")}
+              className="scroll-mt-36"
+            >
+              {kost.description ? (
+                <ExpandableText text={kost.description} />
+              ) : null}
+              <dl className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {facts.map((fact) => (
+                  <div
+                    key={fact.label}
+                    className="rounded-[1.25rem] bg-white p-5"
+                  >
+                    <dt className="text-sm text-[#6b6b6b]">{fact.label}</dt>
+                    <dd className="mt-1 text-lg font-semibold tracking-tight text-[#141414]">
+                      {fact.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             </section>
 
-            <div className="relative z-10 -mt-8 rounded-t-[2rem] bg-[#faf9f6] pb-10 pt-12 lg:-mt-10 lg:pt-14">
-                <div className="mx-auto max-w-7xl px-6 lg:px-10">
-                    {kost.images.length > 0 ? (
-                        <div className="mb-6">
-                            <ImageGallery
-                                images={kost.images}
-                                alt={kost.name}
-                                variant="mosaic"
-                            />
-                        </div>
-                    ) : null}
-
-                    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem]">
-                        <div className="space-y-8">
-                            {kost.description ? (
-                                <section>
-                                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#83746b]">
-                                        {t('property.details')}
-                                    </p>
-                                    <h2 className="mb-4 text-2xl font-semibold tracking-tight text-[#1a1c1a]">
-                                        {t('propertyDetail.aboutProperty')}
-                                    </h2>
-                                    <p className="max-w-2xl text-base leading-relaxed text-[#51443c]">
-                                        {kost.description}
-                                    </p>
-                                </section>
-                            ) : null}
-
-                            <section className="space-y-4">
-                                <div>
-                                    <h2 className="text-2xl font-semibold tracking-tight text-[#1a1c1a]">
-                                        {t('propertyDetail.unitTypes')}
-                                    </h2>
-                                    <p className="mt-1 text-sm text-[#83746b]">
-                                        {t('propertyDetail.unitTypesDescription')}
-                                    </p>
-                                </div>
-
-                                {sortedRoomTypes.length > 0 ? (
-                                    <div className="grid grid-cols-1 gap-3">
-                                        {sortedRoomTypes.map((roomType, index) => (
-                                            <RoomTypeCard
-                                                key={roomType.id}
-                                                roomType={roomType}
-                                                kostName={kost.name}
-                                                kostId={kost.id}
-                                                whatsappNumber={kost.whatsappNumber}
-                                                index={index}
-                                            />
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="glass-card rounded-2xl px-6 py-8 text-center">
-                                        <Icon
-                                            name="meeting_room"
-                                            size={36}
-                                            className="mx-auto mb-3 text-[#d4c4b4]"
-                                        />
-                                        <p className="text-sm text-[#83746b]">
-                                            {t('propertyDetail.noUnitTypes')}
-                                        </p>
-                                    </div>
-                                )}
-                            </section>
-
-                            {kost.facilities.length > 0 ? (
-                                <section>
-                                    <h2 className="mb-4 text-2xl font-semibold tracking-tight text-[#1a1c1a]">
-                                        {t('property.amenities')}
-                                    </h2>
-                                    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                                        {kost.facilities.map((facility) => (
-                                            <li
-                                                key={facility.id}
-                                                className="glass-card flex items-center gap-3 rounded-2xl px-4 py-3"
-                                            >
-                                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f5e4d4] text-[#6f4627]">
-                                                    <Icon name={facility.icon} size={18} />
-                                                </span>
-                                                <span className="text-sm font-medium text-[#1a1c1a]">
-                                                    {facility.name}
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </section>
-                            ) : null}
-
-                            {kost.rules && kost.rules.length > 0 ? (
-                                <section>
-                                    <h2 className="mb-4 text-2xl font-semibold tracking-tight text-[#1a1c1a]">
-                                        {t('property.rules')}
-                                    </h2>
-                                    <ul className="space-y-2">
-                                        {kost.rules.map((rule) => (
-                                            <li
-                                                key={rule}
-                                                className="flex items-start gap-2 text-sm text-[#51443c]"
-                                            >
-                                                <Icon
-                                                    name="check"
-                                                    size={16}
-                                                    className="mt-0.5 shrink-0 text-[#6f4627]"
-                                                />
-                                                {rule}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </section>
-                            ) : null}
-                        </div>
-
-                        <aside className="lg:sticky lg:top-24 lg:self-start">
-                            <div className="glass-card rounded-[1.75rem] p-6">
-                                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#83746b]">
-                                    {t('propertyDetail.inquiryTitle')}
-                                </p>
-                                {kost.priceRange.min > 0 ? (
-                                    <p className="mt-3">
-                                        <span className="block text-xs font-semibold uppercase tracking-wide text-[#83746b]">
-                                            {t('pricing.startingFrom')}
-                                        </span>
-                                        <span className="text-2xl font-bold text-[#1a1c1a]">
-                                            {formatCurrency(kost.priceRange.min)}
-                                        </span>
-                                        <span className="ml-1 text-sm font-medium text-[#83746b]">
-                                            {t('pricing.perMonth')}
-                                        </span>
-                                    </p>
-                                ) : null}
-                                <p className="mt-3 flex items-center gap-2 text-sm text-[#83746b]">
-                                    <Icon name="key" size={16} className="text-[#6f4627]" />
-                                    {t('propertyDetail.availableRooms', {
-                                        available: kost.availableRooms,
-                                        total: kost.totalRooms,
-                                    })}
-                                </p>
-                                <p className="mt-4 text-sm leading-relaxed text-[#51443c]">
-                                    {t('propertyDetail.inquiryHint')}
-                                </p>
-                                <a
-                                    href={viewingUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#6f4627] px-4 py-3 text-sm font-semibold text-white hover:bg-[#805533]"
-                                >
-                                    <Icon name="whatsapp" size={16} />
-                                    {t('cta.bookViewing')}
-                                </a>
-                                {inquiryRoom ? (
-                                    <div className="mt-3">
-                                        <WhatsAppInquiryDialog
-                                            phoneNumber={kost.whatsappNumber}
-                                            propertyName={kost.name}
-                                            roomName={inquiryRoom.name}
-                                            pricings={inquiryRoom.pricings ?? []}
-                                            fallbackPrice={inquiryRoom.price}
-                                            className="w-full rounded-full"
-                                            label={t('cta.sendInquiry')}
-                                        />
-                                    </div>
-                                ) : null}
-                            </div>
-                        </aside>
-                    </div>
+            <Section id="rooms" title={t("propertyDetail.unitTypes")}>
+              {rooms.length > 0 ? (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {rooms.map((rt) => (
+                    <RoomTile
+                      key={rt.id}
+                      roomTypeId={rt.id}
+                      propertyId={kost.id}
+                      name={rt.name}
+                      propertyName={kost.name}
+                      image={rt.images[0] || kost.thumbnail}
+                      availableCount={rt.availableCount}
+                      totalCount={rt.totalCount}
+                      monthlyPrice={monthlyPrice(rt)}
+                      pricings={rt.pricings ?? []}
+                      whatsappNumber={kost.whatsappNumber}
+                      tags={[
+                        rt.size ? `${rt.size} m²` : null,
+                        rt.capacity && rt.capacity !== "—"
+                          ? formatCapacity(
+                              rt.capacity,
+                              locale === "en" ? "en" : "id",
+                            )
+                          : null,
+                      ].filter((v): v is string => Boolean(v))}
+                    />
+                  ))}
                 </div>
+              ) : (
+                <div className="flex flex-col items-start gap-4 rounded-[1.25rem] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-base text-[#3d3a36]">
+                    {t("propertyDetail.noUnitTypes")}
+                  </p>
+                  <LeadDialog
+                    type="waitlist"
+                    propertyId={kost.id}
+                    propertyName={kost.name}
+                    trigger={
+                      <button
+                        type="button"
+                        className="inline-flex h-11 items-center gap-2 rounded-full bg-[#71130d] px-5 text-[15px] font-semibold text-white"
+                      >
+                        <Icon name="notifications" size={16} />
+                        {t("detail.joinWaitlist")}
+                      </button>
+                    }
+                  />
+                </div>
+              )}
+            </Section>
+
+            <Section id="facilities" title={t("detail.facilities")}>
+              {kost.facilities.length > 0 ? (
+                <ul className="mb-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                  {kost.facilities.map((facility) => (
+                    <li
+                      key={facility.id}
+                      className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 text-[15px] text-[#141414]"
+                    >
+                      <Icon
+                        name={facility.icon}
+                        size={20}
+                        className="text-[#71130d]"
+                      />
+                      {facility.name}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <IncludedPanel deposit={deposit} />
+            </Section>
+
+            <Section id="location" title={t("detail.location")}>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="flex items-start gap-2 text-base text-[#3d3a36]">
+                    <Icon
+                      name="location_on"
+                      size={18}
+                      className="mt-0.5 shrink-0 text-[#71130d]"
+                    />
+                    {address}
+                  </p>
+                  <a
+                    href={directionsUrl(kost.name, address)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-10 items-center gap-1.5 rounded-full border border-[#dedad4] bg-white px-4 text-sm font-semibold text-[#141414] hover:border-[#141414]"
+                  >
+                    <Icon name="near_me" size={16} />
+                    {t("detail.directions")}
+                  </a>
+                </div>
+                <PlaceMap
+                  name={kost.name}
+                  address={address}
+                  className="h-[20rem] lg:h-[24rem]"
+                />
+              </div>
+            </Section>
+
+            {kost.rules && kost.rules.length > 0 ? (
+              <Section id="rules" title={t("detail.rules")}>
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {kost.rules.map((rule) => (
+                    <li
+                      key={rule}
+                      className="flex items-start gap-2 rounded-xl bg-white px-4 py-3 text-[15px] text-[#3d3a36]"
+                    >
+                      <Icon
+                        name="check"
+                        size={18}
+                        className="mt-0.5 shrink-0 text-[#71130d]"
+                      />
+                      {rule}
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+            ) : null}
+          </div>
+
+          {/* Sticky booking card */}
+          <aside className="lg:sticky lg:top-36 lg:self-start">
+            <div className="rounded-[1.25rem] bg-white p-6">
+              <p className="text-lg font-semibold tracking-tight text-[#141414]">
+                {t("detail.bookingCardTitle")}
+              </p>
+              {min > 0 ? (
+                <p className="mt-4">
+                  <span className="block text-sm text-[#6b6b6b]">
+                    {t("pricing.startingFrom")}
+                  </span>
+                  <span className="text-[1.75rem] font-medium tracking-tight text-[#141414] tabular-nums">
+                    {formatCurrency(min)}
+                  </span>
+                  <span className="ml-1 text-sm text-[#6b6b6b]">
+                    {t("pricing.perMonth")}
+                  </span>
+                </p>
+              ) : null}
+              {hasInventory ? (
+                <div className="mt-4">
+                  <p className="mb-2 text-sm text-[#3d3a36]">
+                    {t("detail.roomsOpenAt", {
+                      available: kost.availableRooms,
+                      total: kost.totalRooms,
+                    })}
+                  </p>
+                  <div
+                    aria-hidden
+                    className="h-1.5 overflow-hidden rounded-full bg-[#efeeeb]"
+                  >
+                    <div
+                      className="h-full rounded-full bg-[#059669]"
+                      style={{
+                        width: `${Math.max(openShare, isOpen ? 4 : 0)}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="mt-6 flex flex-col gap-2">
+                <ArrowPill
+                  href={viewingUrl}
+                  external
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() =>
+                    track("click_whatsapp", {
+                      location: "property_booking_card",
+                      property: kost.name,
+                    })
+                  }
+                  className="w-full"
+                >
+                  {t("cta.bookViewing")}
+                </ArrowPill>
+                {openRoom ? (
+                  <WhatsAppInquiryDialog
+                    phoneNumber={kost.whatsappNumber}
+                    propertyName={kost.name}
+                    roomName={openRoom.name}
+                    pricings={openRoom.pricings ?? []}
+                    fallbackPrice={openRoom.price}
+                    variant="compact"
+                    label={t("cta.sendInquiry")}
+                    className="h-12 w-full justify-center rounded-full border border-[#dedad4] bg-white text-[15px] font-semibold text-[#141414] hover:bg-[#f7f3f2]"
+                  />
+                ) : (
+                  <LeadDialog
+                    type="waitlist"
+                    propertyId={kost.id}
+                    propertyName={kost.name}
+                    trigger={
+                      <button
+                        type="button"
+                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-[#dedad4] text-[15px] font-semibold text-[#141414] hover:bg-[#f7f3f2]"
+                      >
+                        <Icon name="notifications" size={16} />
+                        {t("detail.joinWaitlist")}
+                      </button>
+                    }
+                  />
+                )}
+                <a
+                  href={`tel:${siteConfig.phone.replace(/[^\d+]/g, "")}`}
+                  onClick={() =>
+                    track("click_call", { location: "property_booking_card" })
+                  }
+                  className="inline-flex h-11 items-center justify-center gap-2 text-[15px] font-semibold text-[#3d3a36] hover:text-[#141414]"
+                >
+                  <Icon name="call" size={16} />
+                  {t("detail.call")} {siteConfig.phone}
+                </a>
+              </div>
+              <p className="mt-4 border-t border-[#efeeeb] pt-4 text-sm leading-relaxed text-[#6b6b6b]">
+                {t("detail.noCharge")} {t("detail.replyHint", { hours })}
+              </p>
             </div>
-            <Footer />
-        </AppLayout>
-    );
+          </aside>
+        </div>
+      </div>
+    </PublicPageShell>
+  );
 }

@@ -1,110 +1,184 @@
 /**
- * Amenities Section Component
- * Displays key amenities in a dark, navy background section
- * Matches the 'LuxeLiving' design style
+ * Facilities (§5.7–5.8) — photo feature cards, icon cards, and a full-bleed
+ * photo carrying the transparent "included vs. paid separately" panel.
  */
 
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
-import { Icon } from '@/components/shared/Icon';
+import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { CHECK_AVAILABILITY_HREF } from "@/components/layout/nav-links";
+import { HomeSectionHeading } from "@/components/sections/HomeSectionHeading";
+import { ArrowPill } from "@/components/shared/ArrowPill";
+import { Icon } from "@/components/shared/Icon";
+import { Reveal } from "@/components/shared/Reveal";
+import type { Kost } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
-const amenityIds = ['wifi', 'ac', 'security', 'parking'] as const;
+const FALLBACK_PHOTOS = ["/assets/cherry-kost.jpeg", "/assets/skykost.jpeg"];
 
-const amenityIcons: Record<(typeof amenityIds)[number], string> = {
-    wifi: 'wifi',
-    ac: 'ac_unit',
-    security: 'security',
-    parking: 'local_parking',
-};
+const AMENITIES = [
+  { id: "wifi", icon: "wifi" },
+  { id: "ac", icon: "ac_unit" },
+  { id: "security", icon: "shield_lock" },
+  { id: "parking", icon: "local_parking" },
+] as const;
 
-export function Amenities() {
-    const t = useTranslations('home.amenities');
+const EXTRAS = [
+  { id: "furnished", icon: "bed" },
+  { id: "support", icon: "forum" },
+] as const;
 
-    const container = {
-        hidden: { opacity: 0 },
-        show: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1
+interface AmenitiesProps {
+  kosts?: Kost[];
+  /** Main content of /facilities: the page hero carries the headline. */
+  asPage?: boolean;
+}
+
+export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
+  const t = useTranslations("home.amenities");
+
+  // Real room photos first ("life inside"), then exteriors.
+  const roomPhotos = Array.from(
+    new Set(kosts.flatMap((k) => k.roomTypes.flatMap((rt) => rt.images))),
+  ).filter(Boolean);
+  const photos = [...roomPhotos, ...FALLBACK_PHOTOS];
+
+  const included = [
+    ...EXTRAS.map((e) => ({ icon: e.icon, label: t(`extra.${e.id}.title`) })),
+    ...AMENITIES.map((a) => ({
+      icon: a.icon,
+      label: t(`items.${a.id}.title`),
+    })),
+  ];
+
+  return (
+    <section
+      id="amenities"
+      aria-labelledby="amenities-heading"
+      className={cn("w-full pt-14 lg:pt-20", asPage && "pt-12 lg:pt-16")}
+    >
+      <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-5 sm:px-8 lg:gap-12">
+        {asPage ? null : (
+          <HomeSectionHeading
+            id="amenities-heading"
+            eyebrow={t("badge")}
+            titleLead={t("titleLead")}
+            titleAccent={t("titleAccent")}
+            aside={
+              <p className="text-base leading-relaxed text-[#6b6b6b]">
+                {t("description")}
+              </p>
             }
-        }
-    };
+          />
+        )}
 
-    const item = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0 }
-    };
+        <div className="grid gap-3 lg:grid-cols-[1.9fr_1fr]">
+          {EXTRAS.map((extra, index) => (
+            <Reveal
+              key={extra.id}
+              delay={index * 0.08}
+              className="relative min-h-[18rem] overflow-hidden rounded-[1.25rem] bg-[#2a2420] lg:min-h-[22rem]"
+            >
+              <Image
+                src={photos[index] ?? FALLBACK_PHOTOS[index]}
+                alt={t(`extra.${extra.id}.title`)}
+                fill
+                sizes="(max-width: 1024px) 100vw, 60vw"
+                className="object-cover"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              <div className="absolute inset-x-6 bottom-6 max-w-sm text-white">
+                <h3 className="text-2xl font-medium tracking-tight">
+                  {t(`extra.${extra.id}.title`)}
+                </h3>
+                <p className="mt-1.5 text-base text-white/80">
+                  {t(`extra.${extra.id}.description`)}
+                </p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
 
-    return (
-        <section
-            id="amenities"
-            className="relative w-full overflow-hidden bg-[#faf9f6] py-20 px-6 text-[#1a1c1a] lg:px-10"
-        >
-            {/* Background Gradients */}
-            <div className="pointer-events-none absolute right-0 top-0 h-[420px] w-[420px] -translate-y-1/2 translate-x-1/3 rounded-full bg-[#f5e4d4]/35 blur-[120px]" />
-            <div className="pointer-events-none absolute bottom-0 left-0 h-[380px] w-[380px] translate-y-1/3 -translate-x-1/3 rounded-full bg-[#e3e2e0]/40 blur-[100px]" />
+        <div className="-mt-5 grid gap-3 sm:grid-cols-2 lg:-mt-9 lg:grid-cols-4">
+          {AMENITIES.map((item, index) => (
+            <Reveal
+              key={item.id}
+              delay={0.05 * index}
+              className="flex flex-col rounded-[1.25rem] bg-white p-6"
+            >
+              <Icon
+                name={item.icon}
+                size={44}
+                className="text-[#141414] [font-variation-settings:'wght'_200]"
+              />
+              <h3 className="mt-6 text-xl font-medium tracking-tight text-[#141414]">
+                {t(`items.${item.id}.title`)}
+              </h3>
+              <p className="mt-1.5 text-base leading-relaxed text-[#6b6b6b]">
+                {t(`items.${item.id}.description`)}
+              </p>
+            </Reveal>
+          ))}
+        </div>
+      </div>
 
-            <div className="relative z-10 mx-auto max-w-[1080px]">
-                <div className="mb-16 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="mb-4 inline-flex items-center gap-2 rounded-full glass-chip-light px-3 py-1 text-xs font-semibold uppercase tracking-widest text-[#6f4627]"
-                    >
-                        <Icon name="star" size={14} filled />
-                        <span>{t('badge')}</span>
-                    </motion.div>
-
-                    <motion.h2
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        className="mb-4 text-3xl font-semibold tracking-tight text-[#1a1c1a] lg:text-4xl"
-                    >
-                        {t('title')}
-                    </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
-                        className="mx-auto max-w-2xl text-base font-normal leading-relaxed text-[#51443c]"
-                    >
-                        {t('description')}
-                    </motion.p>
-                </div>
-
-                <motion.div
-                    variants={container}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, margin: "-50px" }}
-                    className="grid gap-5 sm:grid-cols-2 md:grid-cols-4"
-                >
-                    {amenityIds.map((id) => (
-                        <motion.div
-                            key={id}
-                            variants={item}
-                            whileHover={{ y: -5 }}
-                            className="glass-card group flex flex-col items-center gap-5 rounded-[1.5rem] p-6 text-center transition-all duration-300 hover:-translate-y-1"
-                        >
-                            <div className="rounded-2xl bg-[#f5e4d4] p-3 text-[#6f4627] transition-colors duration-300 group-hover:bg-[#eed9c6]">
-                                <Icon name={amenityIcons[id]} size={32} className="!text-3xl" />
-                            </div>
-                            <div className="text-center space-y-2">
-                                <h3 className="text-base font-semibold text-[#1a1c1a]">
-                                    {t(`items.${id}.title`)}
-                                </h3>
-                                <p className="text-sm font-normal leading-relaxed text-[#83746b]">
-                                    {t(`items.${id}.description`)}
-                                </p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </motion.div>
+      {/* Full-bleed photo with the transparency panel (§5.8, §7.4) */}
+      {/* Ends on the footer's deep wine so the photo flows into it with no
+          light strip, whatever the floating card's height. */}
+      <div className="relative mt-14 bg-[#1c0b0a] pb-14 lg:mt-20 lg:pb-20">
+        <div className="relative h-[26rem] w-full overflow-hidden lg:h-[34rem]">
+          <Image
+            src={photos[2] ?? FALLBACK_PHOTOS[1]}
+            alt={t("photoCaption")}
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
+        </div>
+        <div className="mx-auto w-full max-w-[90rem] px-5 sm:px-8">
+          <Reveal className="relative -mt-24 ml-auto w-full max-w-md overflow-hidden rounded-[1.25rem] bg-white shadow-[0_30px_60px_-30px_rgb(0_0_0/0.4)] lg:-mt-72">
+            <div className="p-6">
+              <p className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#047857]">
+                <Icon name="check_circle" size={18} />
+                {t("included")}
+              </p>
+              <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+                {included.map((item) => (
+                  <li
+                    key={item.label}
+                    className="flex items-center gap-2 text-[15px] text-[#141414]"
+                  >
+                    <Icon
+                      name={item.icon}
+                      size={16}
+                      className="text-[#047857]"
+                    />
+                    {item.label}
+                  </li>
+                ))}
+              </ul>
+              <p className="mb-3 mt-6 flex items-center gap-2 text-sm font-semibold text-[#71130d]">
+                <Icon name="receipt_long" size={18} />
+                {t("paidSeparately")}
+              </p>
+              <ul className="flex flex-col gap-2 text-[15px] leading-relaxed text-[#3d3a36]">
+                <li>{t("electricity")}</li>
+                <li>{t("deposit")}</li>
+              </ul>
+              <p className="mt-4 border-t border-[#efeeeb] pt-4 text-[15px] font-semibold text-[#141414]">
+                {t("noAgent")}
+              </p>
             </div>
-        </section>
-    );
+            <ArrowPill
+              href={CHECK_AVAILABILITY_HREF}
+              className="h-14 w-full rounded-none pl-6"
+            >
+              {t("seeRooms")}
+            </ArrowPill>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
 }

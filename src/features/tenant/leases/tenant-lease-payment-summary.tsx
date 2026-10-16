@@ -66,7 +66,7 @@ export function TenantLeasePaymentSummary({ lease }: { lease: Lease }) {
                 tone === "review" &&
                   "bg-gradient-to-br from-amber-500 via-[#c47a1a] to-[#8A4B00]",
                 tone === "due" &&
-                  "bg-gradient-to-br from-[#8b5e3c] via-[#6f4627] to-maroon",
+                  "bg-gradient-to-br from-[#8a1a12] via-[#71130d] to-maroon",
               )}
             >
               <Icon
@@ -92,14 +92,14 @@ export function TenantLeasePaymentSummary({ lease }: { lease: Lease }) {
               >
                 {tp("badge")}
               </p>
-              <h3 className="mt-1 text-lg font-bold tracking-tight text-[#1a1c1a]">
+              <h3 className="mt-1 text-lg font-bold tracking-tight text-[#141414]">
                 {tone === "paid"
                   ? tp("titlePaid")
                   : tone === "review"
                     ? tp("titleReview")
                     : tp("titleDue")}
               </h3>
-              <p className="mt-1 max-w-md text-sm leading-relaxed text-[#51443c]">
+              <p className="mt-1 max-w-md text-sm leading-relaxed text-[#3d3a36]">
                 {tone === "paid"
                   ? tp("hintPaid")
                   : tone === "review"
@@ -120,13 +120,13 @@ export function TenantLeasePaymentSummary({ lease }: { lease: Lease }) {
                   : "border-[#d5c3b8]/70 bg-white/55",
               )}
             >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#83746b]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6b6b6b]">
                 {tp("dueBy")}
               </p>
               <p
                 className={cn(
                   "mt-0.5 text-sm font-bold tabular-nums",
-                  isOverdue ? "text-[#ba1a1a]" : "text-[#1a1c1a]",
+                  isOverdue ? "text-[#ba1a1a]" : "text-[#141414]",
                 )}
               >
                 {formatDate(lease.paymentDueDate)}
@@ -161,11 +161,11 @@ export function TenantLeasePaymentSummary({ lease }: { lease: Lease }) {
           >
             {heroLabel}
           </p>
-          <p className="mt-1 text-3xl font-bold tracking-tight text-[#1a1c1a] tabular-nums sm:text-4xl">
+          <p className="mt-1 text-3xl font-bold tracking-tight text-[#141414] tabular-nums sm:text-4xl">
             {formatIdrTable(heroAmount)}
           </p>
           {tone !== "paid" && lateFee > 0 && (
-            <p className="mt-2 text-xs leading-relaxed text-[#51443c]">
+            <p className="mt-2 text-xs leading-relaxed text-[#3d3a36]">
               {tp("totalIncludesLateFee", {
                 rent: formatIdrTable(rentDue),
                 lateFee: formatIdrTable(lateFee),
@@ -176,7 +176,7 @@ export function TenantLeasePaymentSummary({ lease }: { lease: Lease }) {
       </div>
 
       <div className="relative px-5 py-4 sm:px-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#83746b]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6b6b6b]">
           {tp("breakdownTitle")}
         </p>
 
@@ -209,7 +209,7 @@ export function TenantLeasePaymentSummary({ lease }: { lease: Lease }) {
         </dl>
 
         {showRateNote && (
-          <p className="mt-4 rounded-xl border border-[#d5c3b8]/45 bg-white/45 px-3.5 py-2.5 text-xs leading-relaxed text-[#51443c]">
+          <p className="mt-4 rounded-xl border border-[#d5c3b8]/45 bg-white/45 px-3.5 py-2.5 text-xs leading-relaxed text-[#3d3a36]">
             {tp("monthlyRateNote", {
               rate: formatIdrTable(monthlyRate),
             })}
@@ -236,19 +236,19 @@ function BreakdownRow({
       <div className="min-w-0">
         <dt
           className={cn(
-            "text-sm font-medium text-[#51443c]",
-            emphasis === "total" && "font-bold text-[#1a1c1a]",
+            "text-sm font-medium text-[#3d3a36]",
+            emphasis === "total" && "font-bold text-[#141414]",
           )}
         >
           {label}
         </dt>
         {hint ? (
-          <p className="mt-0.5 text-xs leading-relaxed text-[#83746b]">{hint}</p>
+          <p className="mt-0.5 text-xs leading-relaxed text-[#6b6b6b]">{hint}</p>
         ) : null}
       </div>
       <dd
         className={cn(
-          "shrink-0 text-sm font-semibold tabular-nums text-[#1a1c1a]",
+          "shrink-0 text-sm font-semibold tabular-nums text-[#141414]",
           emphasis === "total" && "text-base font-bold",
           emphasis === "warn" && "text-[#ba1a1a]",
         )}

@@ -64,7 +64,7 @@ export function AdminLeaseStatusActions({ lease }: { lease: Lease }) {
             type="button"
             disabled={pending}
             onClick={() => void run("review", "statusSubmittedForReview")}
-            className="inline-flex items-center gap-1 rounded-lg border border-[#6f4627]/30 bg-white px-3 py-1.5 text-xs font-semibold text-[#6f4627] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded-lg border border-[#71130d]/30 bg-white px-3 py-1.5 text-xs font-semibold text-[#71130d] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
           >
             <Icon name="rate_review" size={16} />
             {tp("markWaitingForReview")}
@@ -75,7 +75,7 @@ export function AdminLeaseStatusActions({ lease }: { lease: Lease }) {
             type="button"
             disabled={pending}
             onClick={() => void run("confirm", "statusConfirmed")}
-            className="inline-flex items-center gap-1 rounded-lg bg-[#6f4627] px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded-lg bg-[#71130d] px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <Icon name="check" size={16} />
             {tp("confirmPaid")}

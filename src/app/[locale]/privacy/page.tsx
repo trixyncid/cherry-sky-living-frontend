@@ -1,26 +1,24 @@
 /**
- * Privacy Policy Page - Cherry Sky Living
- * Comprehensive privacy policy with full i18n support
+ * Privacy page — readable document with sticky table of contents.
  */
 
-'use client';
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { LegalView } from "./legal-view";
 
-import { AppLayout } from '@/components/layout/AppLayout';
-import { Footer } from '@/components/layout/Footer';
-import { PrivacyHero } from '@/components/sections/PrivacyHero';
-import { PrivacyContent } from '@/components/sections/PrivacyContent';
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "privacy.hero" });
+  return {
+    title: `${t("title")} · Cherry Sky Living`,
+    description: t("description"),
+  };
+}
 
-export default function PrivacyPage() {
-    return (
-        <AppLayout>
-            {/* Hero Section */}
-            <PrivacyHero />
-
-            {/* Privacy Content Section */}
-            <PrivacyContent />
-
-            {/* Footer */}
-            <Footer />
-        </AppLayout>
-    );
+export default function Page() {
+  return <LegalView />;
 }

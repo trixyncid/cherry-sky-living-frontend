@@ -1,8 +1,8 @@
 ﻿"use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { BrandMark } from "@/components/shared/BrandMark";
 import { Icon } from "@/components/shared/Icon";
 import { ProfileAvatarPlaceholder } from "@/components/shared/profile-avatar-placeholder";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
@@ -59,7 +59,7 @@ function NavCountBadge({
         "ml-auto inline-flex min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none tabular-nums",
         active
           ? "bg-white/20 text-white ring-1 ring-white/35"
-          : "bg-[linear-gradient(135deg,#a44a32_0%,#6f4627_100%)] text-white shadow-[0_4px_10px_rgb(90_36_48/0.28)]",
+          : "bg-[linear-gradient(135deg,#71130d_0%,#71130d_100%)] text-white shadow-[0_4px_10px_rgb(90_36_48/0.28)]",
       )}
       aria-label={label}
     >
@@ -116,14 +116,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         onClick={onNavigate}
         className="mb-6 flex items-center gap-3 rounded-2xl px-1.5 py-1 transition-opacity hover:opacity-90"
       >
-        <Image
-          src="/logo.svg"
-          alt={t("brand.name")}
-          width={44}
-          height={44}
-          className="size-11 shrink-0 object-contain"
-          priority
-        />
+        <BrandMark tone="onLight" className="size-11" />
         <div>
           <p className="truncate text-base font-bold tracking-tight text-[#1a1c1a]">
             {t("brand.name")}
@@ -152,7 +145,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       className={cn(
                         "group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition-all duration-200",
                         active
-                          ? "bg-gradient-to-r from-[#6f4627]/95 to-ferrugem/90 text-white shadow-[0_8px_18px_rgb(90_36_48/0.26)] ring-1 ring-white/20"
+                          ? "bg-gradient-to-r from-[#71130d]/95 to-ferrugem/90 text-white shadow-[0_8px_18px_rgb(90_36_48/0.26)] ring-1 ring-white/20"
                           : "text-[#51443c] hover:bg-white/45 hover:text-[#1a1c1a]",
                       )}
                     >
@@ -245,9 +238,6 @@ export function AdminSidebar() {
 
   return (
     <>
-      <aside className="glass-panel-strong fixed top-3 bottom-3 left-3 z-50 hidden w-[272px] flex-col rounded-[1.75rem] p-5 lg:flex">
-        <SidebarContent />
-      </aside>
 
       {mobileOpen && (
         <button

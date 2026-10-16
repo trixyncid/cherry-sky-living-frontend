@@ -97,7 +97,6 @@ export function AdminProfileView() {
     setPasswordError(null);
 
     const parsed = createAdminPasswordSchema({
-      nameRequired: tp("validation.nameRequired"),
       currentPasswordRequired: tp("validation.currentPasswordRequired"),
       newPasswordMin: tp("validation.newPasswordMin"),
       confirmPasswordRequired: tp("validation.confirmPasswordRequired"),
@@ -146,7 +145,7 @@ export function AdminProfileView() {
           <section className="glass-panel rounded-[1.75rem] p-6">
             <div className="mb-6 flex items-center gap-5">
               <ProfileAvatarPlaceholder
-                className="size-20 ring-4 ring-[#f4f3f1]"
+                className="size-20 ring-4 ring-[#f6f0ef]"
                 iconSize={36}
                 label={profile.name}
               />
@@ -273,7 +272,7 @@ export function AdminProfileView() {
                 <button
                   type="submit"
                   disabled={passwordPending}
-                  className="glass-control rounded-xl px-5 py-2.5 text-sm font-semibold text-[#6f4627] transition-colors hover:bg-white/80 disabled:opacity-50"
+                  className="glass-control rounded-xl px-5 py-2.5 text-sm font-semibold text-[#71130d] transition-colors hover:bg-white/80 disabled:opacity-50"
                 >
                   {passwordPending ? tp("updatingPassword") : tp("updatePassword")}
                 </button>
@@ -319,7 +318,7 @@ function PasswordInput({
       <button
         type="button"
         onClick={onToggle}
-        className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#6f4627]"
+        className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#71130d]"
         aria-label={show ? hideLabel : showLabel}
       >
         <Icon

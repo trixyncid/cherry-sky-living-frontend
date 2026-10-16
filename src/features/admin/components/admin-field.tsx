@@ -41,33 +41,40 @@ export function AdminField({
   );
 }
 
+// 16px on phones so iOS Safari doesn't zoom on focus; 15px from sm up.
 const adminControlBase =
-  "glass-control w-full rounded-xl text-sm text-[#1a1c1a] transition-all focus:outline-none focus:ring-2 focus:ring-ferrugem/20";
+  "glass-control w-full rounded-xl text-base text-[#141414] transition-[border-color,box-shadow] focus:outline-none sm:text-[15px]";
+
+/** Readable placeholder (≈5.3:1 on white). */
+const placeholderTone = "placeholder:text-[#6b6b6b]";
 
 export const adminInputClassName = cn(
   adminControlBase,
-  "h-10 px-3.5 placeholder:text-[#83746b]/60",
+  "h-11 px-3.5",
+  placeholderTone,
 );
 
 export const adminSelectClassName = cn(
   adminControlBase,
-  "h-10 cursor-pointer appearance-none pl-3.5 pr-10",
+  "h-11 cursor-pointer appearance-none pl-3.5 pr-10",
 );
 
 export const adminSearchInputClassName = cn(
   adminControlBase,
-  "h-10 pl-10 pr-4 placeholder:text-[#83746b]/60",
+  "h-11 pl-10 pr-4",
+  placeholderTone,
 );
 
 export const adminMenuSearchClassName = cn(
-  "h-10 w-full rounded-lg border border-[#e8ddd4] bg-white pl-10 pr-4 text-sm text-[#1a1c1a]",
-  "placeholder:text-[#83746b]/60 outline-none",
-  "focus:border-ferrugem/45 focus:ring-2 focus:ring-ferrugem/15",
+  "h-11 w-full rounded-lg border border-[#d9cfcb] bg-white pl-10 pr-4 text-base text-[#141414] sm:text-[15px]",
+  "placeholder:text-[#6b6b6b] outline-none",
+  "focus:border-[#71130d] focus:ring-[3px] focus:ring-[#71130d]/15",
 );
 
 export const adminTextareaClassName = cn(
   adminControlBase,
-  "min-h-[8.5rem] resize-y px-3.5 py-3 leading-relaxed placeholder:text-[#83746b]/60",
+  "min-h-[8.5rem] resize-y px-3.5 py-3 leading-relaxed",
+  placeholderTone,
 );
 
 export const AdminTextarea = React.forwardRef<
@@ -221,7 +228,7 @@ export function AdminSelect({
   const selectedValue = String(value ?? defaultValue ?? "");
   const selected = options.find((option) => option.value === selectedValue);
   const selectedLabel = selected?.label ?? "";
-  const isPlaceholder = !selected || selected.value === "";
+  const isPlaceholder = !selected;
 
   React.useEffect(() => {
     if (!open) return;
@@ -312,7 +319,7 @@ export function AdminSelect({
             adminSelectClassName,
             "flex items-center opacity-60",
             isSm ? "h-8 rounded-lg pl-2.5 pr-7 text-xs" : "pr-10",
-            isPlaceholder && "text-[#83746b]/60",
+            isPlaceholder && "text-[#6b6b6b]",
             selectClassName,
           )}
         >
@@ -320,7 +327,7 @@ export function AdminSelect({
         </div>
         <span
           className={cn(
-            "pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center text-[#83746b]",
+            "pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center text-[#5c5653]",
             isSm ? "w-7" : "w-9",
           )}
           aria-hidden
@@ -348,8 +355,7 @@ export function AdminSelect({
               adminSelectClassName,
               "relative flex items-center text-left",
               isSm && "h-8 rounded-lg pl-2.5 pr-7 text-xs font-semibold",
-              isPlaceholder && "text-[#83746b]/60",
-              open && "bg-white/90",
+              isPlaceholder && "text-[#6b6b6b]",
               selectClassName,
             )}
           >
@@ -358,7 +364,7 @@ export function AdminSelect({
             </span>
             <span
               className={cn(
-                "pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center text-[#83746b]",
+                "pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center text-[#5c5653]",
                 isSm ? "w-7" : "w-9",
               )}
               aria-hidden
@@ -407,7 +413,7 @@ export function AdminSelect({
                       }),
                       isSm && "px-2.5 py-1.5 text-xs font-semibold",
                       option.disabled && "cursor-not-allowed opacity-50",
-                      option.value === "" && !isSelected && "text-[#83746b]",
+                      option.value === "" && !isSelected && "text-[#3d3a36]",
                     )}
                   >
                     <span className="min-w-0 flex-1 truncate">{option.label}</span>
@@ -415,7 +421,7 @@ export function AdminSelect({
                       <Icon
                         name="check"
                         size={checkSize}
-                        className="shrink-0 text-[#6f4627]"
+                        className="shrink-0 text-[#71130d]"
                       />
                     )}
                   </button>
@@ -499,7 +505,7 @@ export const AdminSearchInput = React.forwardRef<
       <Icon
         name="search"
         size={20}
-        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#83746b]"
+        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5c5653]"
       />
       <input
         ref={ref}
@@ -581,7 +587,7 @@ export function AdminPasswordInput({
       <button
         type="button"
         onClick={() => setVisible((current) => !current)}
-        className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#6f4627]"
+        className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5c5653] transition-colors hover:text-[#71130d]"
         aria-label={visible ? hideLabel : showLabel}
       >
         <Icon name={visible ? "visibility_off" : "visibility"} size={20} />

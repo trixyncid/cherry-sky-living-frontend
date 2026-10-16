@@ -1,243 +1,246 @@
 /**
- * Hero — cinematic photo, story, featured stay, and primary CTAs
+ * Hero — full-bleed night-toned photo with the navbar floating over it.
+ * Centre: live availability badge, headline, keyword search and suggested
+ * searches built from live data (budget / residence / move-in, §5.2).
+ * Sides: glass cards ("why residents stay" facts, live availability).
+ * Corners: owner-managed trust note and live starting rent. All numbers
+ * are computed from property data — no invented counts or logos.
  */
 
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { HeroRoomFinder } from "@/components/sections/HeroRoomFinder";
 import { Icon } from "@/components/shared/Icon";
-import { Link } from "@/i18n/routing";
-import { useKosts } from "@/lib/hooks/use-kost-data";
+import { localized, siteConfig } from "@/config/site";
 import type { Kost } from "@/lib/types";
-import { formatCurrency, generateWhatsAppURL } from "@/lib/utils/format";
-import { getContactWhatsAppNumber } from "@/lib/contact";
+import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils/format";
 
+/** Local, preloaded photo: paints immediately so it can be the LCP element. */
 const HERO_PHOTO = "/assets/cherry-kost.jpeg";
 
-export function Hero() {
-  const t = useTranslations();
-  const { data: kosts } = useKosts();
-  const featured = kosts?.find((kost) => kost.isFeatured) ?? kosts?.[0];
-  const availableRooms = (kosts ?? []).reduce(
-    (sum, kost) => sum + kost.availableRooms,
-    0,
-  );
-  const fromPrice = Math.min(
-    ...(kosts ?? [])
-      .map((kost) => kost.priceRange.min)
-      .filter((price) => price > 0),
-  );
-  const hasFromPrice = Number.isFinite(fromPrice);
+const WHY_ICONS = ["wifi", "ac_unit", "shield_lock", "local_parking"] as const;
 
-  const viewingUrl = generateWhatsAppURL(
-    getContactWhatsAppNumber(),
-    t("whatsapp.generalInquiry"),
-  );
-
-  return (
-    <section className="relative flex min-h-[100svh] w-full flex-col hero-atmosphere pt-[max(5rem,calc(4rem+env(safe-area-inset-top)))] lg:h-[min(90svh,58rem)] lg:min-h-[44rem]">
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          initial={{ scale: 1.08 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1.6, ease: "easeOut" }}
-          className="absolute inset-0"
-        >
-          <Image
-            src={HERO_PHOTO}
-            alt={t("hero.title")}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-center"
-          />
-        </motion.div>
-        <div className="absolute inset-0 hero-overlay-x" />
-        <div className="absolute inset-0 hero-overlay-y" />
-      </div>
-
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-center px-6 py-8 lg:px-10">
-        <div className="grid w-full items-center gap-10 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-14">
-          <div className="max-w-2xl">
-            <motion.p
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur-md"
-            >
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#d4af37]" />
-              {t("hero.eyebrow")}
-            </motion.p>
-
-            <motion.h1
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{
-                delay: 0.1,
-                duration: 0.55,
-                type: "spring",
-                stiffness: 70,
-              }}
-              className="text-[2.15rem] font-bold leading-[1.1] tracking-tight text-[#faf9f6] sm:text-5xl lg:text-[3.4rem]"
-            >
-              {t("hero.title")}
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.26, duration: 0.45 }}
-              className="mt-4 max-w-lg text-sm font-light leading-relaxed text-[#f5f2ee]/90 md:text-base"
-            >
-              {t("hero.subtitle")}
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.36, duration: 0.45 }}
-              className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-white/85 sm:text-sm"
-            >
-              <span className="inline-flex items-center gap-1.5">
-                <Icon name="groups" size={16} className="text-[#d4af37]" />
-                {t("hero.trustResidents")}
-              </span>
-              <span className="h-3 w-px bg-white/25" aria-hidden />
-              <span className="inline-flex items-center gap-1.5">
-                <Icon
-                  name="verified_user"
-                  size={16}
-                  className="text-[#d4af37]"
-                />
-                {t("hero.trustSecurity")}
-              </span>
-              {hasFromPrice ? (
-                <>
-                  <span className="h-3 w-px bg-white/25" aria-hidden />
-                  <span className="inline-flex items-center gap-1.5">
-                    <Icon
-                      name="payments"
-                      size={16}
-                      className="text-[#d4af37]"
-                    />
-                    {t("hero.fromPrice", {
-                      price: formatCurrency(fromPrice, { compact: true }),
-                    })}
-                  </span>
-                </>
-              ) : null}
-              {availableRooms > 0 ? (
-                <>
-                  <span className="h-3 w-px bg-white/25" aria-hidden />
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#25D366]" />
-                    {t("hero.roomsOpen", { count: availableRooms })}
-                  </span>
-                </>
-              ) : null}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.46, duration: 0.45 }}
-              className="mt-7 flex flex-wrap items-center gap-3"
-            >
-              <a
-                href={viewingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-[#6f4627] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_rgb(111_70_39_/_0.35)] hover:bg-[#805533]"
-              >
-                <Icon name="whatsapp" size={16} />
-                {t("hero.trustViewing")}
-              </a>
-              <a
-                href="#properties"
-                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md hover:bg-white/15"
-              >
-                {t("hero.cta")}
-                <Icon name="arrow_forward" size={16} />
-              </a>
-            </motion.div>
-          </div>
-
-          {featured ? <FeaturedStayCard kost={featured} /> : null}
-        </div>
-      </div>
-    </section>
-  );
+interface HeroProps {
+  kosts?: Kost[];
+  featured?: Kost;
+  isLoading?: boolean;
 }
 
-function FeaturedStayCard({ kost }: { kost: Kost }) {
+const glass =
+  "rounded-2xl border border-white/12 bg-white/[0.08] p-4 backdrop-blur-md";
+
+export function Hero({ kosts = [], isLoading = false }: HeroProps) {
   const t = useTranslations();
+  const tn = useTranslations("hero.night");
+  const tTrust = useTranslations("trust");
+  const locale = useLocale();
+
+  const ready = !isLoading;
+  const availableRooms = kosts.reduce((sum, k) => sum + k.availableRooms, 0);
+  const prices = kosts.map((k) => k.priceRange.min).filter((p) => p > 0);
+  const lowest = prices.length > 0 ? Math.min(...prices) : 0;
+  const facts = (tTrust.raw("facts") as string[]).slice(0, 4);
+
+  const whyCard = (
+    <div className={glass}>
+      <p className="mb-3 flex items-center gap-2 text-[15px] font-medium">
+        <Icon name="verified" size={18} />
+        {tn("whyTitle")}
+      </p>
+      <ul className="flex flex-col gap-2 text-sm text-white/80">
+        {facts.map((fact, i) => (
+          <li key={fact} className="flex items-center gap-2">
+            <Icon
+              name={WHY_ICONS[i] ?? "check"}
+              size={16}
+              className="text-white/60"
+            />
+            {fact}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  const liveCard = (
+    <div className={glass}>
+      <p className="mb-3 flex items-center gap-2 text-[15px] font-medium">
+        <span className="relative flex size-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34d399]/70 motion-reduce:animate-none" />
+          <span className="relative inline-flex size-2 rounded-full bg-[#34d399]" />
+        </span>
+        {tn("liveTitle")}
+      </p>
+      <ul className="flex flex-col gap-2 text-sm text-white/80">
+        {ready
+          ? kosts.map((k) => (
+              <li key={k.id} className="flex items-center gap-2">
+                <Icon name="apartment" size={16} className="text-white/60" />
+                {k.totalRooms > 0
+                  ? tn("liveResidence", {
+                      name: k.name,
+                      available: k.availableRooms,
+                      total: k.totalRooms,
+                    })
+                  : tn("liveAsk", { name: k.name })}
+              </li>
+            ))
+          : [0, 1].map((i) => (
+              <li
+                key={i}
+                className="h-4 w-40 animate-pulse rounded bg-white/15"
+              />
+            ))}
+        <li className="flex items-center gap-2">
+          <Icon name="schedule" size={16} className="text-white/60" />
+          {tn("liveViewings", {
+            days: localized(siteConfig.viewingHours.days, locale),
+            time: siteConfig.viewingHours.time,
+          })}
+        </li>
+        <li className="flex items-center gap-2">
+          <Icon name="forum" size={16} className="text-white/60" />
+          {tn("liveReply")}
+        </li>
+      </ul>
+    </div>
+  );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 18, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: 0.35, duration: 0.5 }}
-      className="hidden lg:block"
+    <section
+      aria-labelledby="hero-heading"
+      className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#1c0b0a] text-white lg:min-h-[min(100svh,56rem)]"
     >
-      <Link
-        href={`/kosts/${kost.id}`}
-        className="glass-card group block overflow-hidden rounded-[1.75rem] shadow-[0_24px_60px_rgb(61_24_32_/_0.35)] ring-1 ring-ferrugem/30"
-      >
-        <div className="relative h-52 overflow-hidden bg-[#f5e4d4]">
-          {kost.thumbnail ? (
-            <Image
-              src={kost.thumbnail}
-              alt={kost.name}
-              fill
-              sizes="360px"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          ) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-maroon-deep/55 to-transparent" />
-          <span className="absolute left-4 top-4 rounded-full bg-maroon-deep px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white ring-1 ring-ferrugem/50">
-            {t("hero.featuredLabel")}
-          </span>
-          {kost.availableRooms > 0 ? (
-            <span className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full bg-maroon-deep/75 px-3 py-1 text-xs font-medium text-white backdrop-blur-md">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#25D366]" />
-              {t("hero.roomsOpen", { count: kost.availableRooms })}
-            </span>
-          ) : null}
-        </div>
-        <div className="p-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#83746b]">
-            {kost.location.district || kost.location.city}
-          </p>
-          <h2 className="mt-1 text-xl font-semibold tracking-tight text-[#1a1c1a] group-hover:text-[#6f4627]">
-            {kost.name}
-          </h2>
-          <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[#83746b]">
-            {kost.location.address}
-          </p>
-          <div className="mt-4 flex items-end justify-between gap-3 border-t border-[#eee4db] pt-4">
-            <div>
-              {kost.priceRange.min > 0 ? (
-                <>
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[#83746b]">
-                    {t("pricing.startingFrom")}
-                  </p>
-                  <p className="text-lg font-bold text-[#1a1c1a]">
-                    {formatCurrency(kost.priceRange.min, { compact: true })}
-                    <span className="text-xs font-normal text-[#83746b]">
-                      {t("pricing.perMonth")}
-                    </span>
-                  </p>
-                </>
-              ) : null}
+      <Image
+        src={HERO_PHOTO}
+        alt={t("common.brand.fullName")}
+        fill
+        priority
+        loading="eager"
+        sizes="100vw"
+        className="object-cover object-[center_62%]"
+      />
+      {/* Night grade: navy tint + top/bottom shade for legible text */}
+      <div className="pointer-events-none absolute inset-0 bg-[#4a100c]/45 mix-blend-multiply" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgb(28_11_10/0.92)_0%,rgb(28_11_10/0.7)_30%,rgb(28_11_10/0.25)_58%,rgb(28_11_10/0.6)_80%,rgb(28_11_10/1)_100%)]" />
+
+      {/* Guide lines */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 left-[22%] hidden w-px bg-white/10 lg:block"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 right-[22%] hidden w-px bg-white/10 lg:block"
+      />
+
+      <div className="relative z-10 mx-auto grid w-full max-w-[90rem] flex-1 gap-8 px-5 pb-6 pt-24 sm:px-8 lg:grid-cols-[1fr_minmax(0,51rem)_1fr] lg:gap-6 lg:pt-28">
+        {/* Left column */}
+        <div className="order-3 flex flex-col justify-between gap-6 lg:order-1 lg:pt-[15.5rem]">
+          <div className="w-full lg:max-w-[16rem]">{whyCard}</div>
+          <div className="hidden lg:block">
+            <div className="flex -space-x-3">
+              {kosts.slice(0, 3).map((k) =>
+                k.thumbnail ? (
+                  <span
+                    key={k.id}
+                    className="relative size-11 overflow-hidden rounded-full ring-2 ring-[#1c0b0a]"
+                  >
+                    <Image
+                      src={k.thumbnail}
+                      alt={k.name}
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                    />
+                  </span>
+                ) : null,
+              )}
             </div>
-            <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#6f4627]">
-              {t("hero.viewProperty")}
-              <Icon name="arrow_forward" size={16} />
-            </span>
+            <p className="mt-3 max-w-[15rem] text-base leading-snug">
+              {tn("cornerLeft")}
+            </p>
+            <span aria-hidden className="mt-4 block h-px w-14 bg-white/40" />
           </div>
         </div>
-      </Link>
-    </motion.div>
+
+        {/* Centre */}
+        <div className="order-1 flex flex-col items-center text-center lg:order-2">
+          <p
+            aria-live="polite"
+            className="inline-flex items-center gap-2.5 rounded-full border border-white/12 bg-white/[0.08] px-4 py-2 text-[15px] backdrop-blur-md"
+          >
+            <span className="relative flex size-2">
+              {availableRooms > 0 ? (
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34d399]/70 motion-reduce:animate-none" />
+              ) : null}
+              <span
+                className={cn(
+                  "relative inline-flex size-2 rounded-full",
+                  availableRooms > 0 ? "bg-[#34d399]" : "bg-[#fbbf24]",
+                )}
+              />
+            </span>
+            {ready ? (
+              <span>
+                <span className="font-semibold">
+                  {t("hero.availableNow", { count: availableRooms })}
+                </span>
+              </span>
+            ) : (
+              <span className="inline-block h-4 w-40 animate-pulse rounded bg-white/20" />
+            )}
+          </p>
+
+          <h1
+            id="hero-heading"
+            className="mt-5 text-balance text-[clamp(2rem,3.2vw,2.9rem)] font-medium leading-[1.06] tracking-[-0.035em]"
+          >
+            <span className="block">{t("hero.titleLead")}</span>
+            <span className="block">{t("hero.titleAccent")}</span>
+          </h1>
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-white/75">
+            {t("hero.subtitle")}
+          </p>
+
+          <div className="mt-6 flex w-full justify-center">
+            <HeroRoomFinder kosts={kosts} />
+          </div>
+        </div>
+
+        {/* Right column */}
+        <div className="order-2 flex flex-col justify-between gap-6 lg:order-3 lg:items-end lg:pt-[15.5rem]">
+          <div className="w-full lg:max-w-[17rem]">{liveCard}</div>
+          <div className="hidden text-right lg:block">
+            <p className="text-[clamp(1.9rem,2.8vw,2.5rem)] font-medium leading-none tracking-[-0.04em] tabular-nums">
+              {ready && lowest > 0
+                ? formatCurrency(lowest, { compact: true })
+                : "—"}
+            </p>
+            <p className="mt-2 text-base">
+              {tn("cornerRight")}
+              <span className="text-white/60">{t("hero.perMonth")}</span>
+            </p>
+            <span
+              aria-hidden
+              className="ml-auto mt-4 block h-px w-14 bg-white/40"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-10 flex justify-center pb-6">
+        <a
+          href="#properties"
+          className="inline-flex h-11 items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-5 text-[15px] backdrop-blur-md transition-colors hover:bg-white/15"
+        >
+          {tn("seeRooms")}
+          <Icon name="arrow_downward" size={16} />
+        </a>
+      </div>
+    </section>
   );
 }

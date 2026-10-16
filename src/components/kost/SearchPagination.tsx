@@ -37,8 +37,8 @@ export function SearchPagination({ pagination, onPageChange }: SearchPaginationP
     const pages = buildPageNumbers(page, totalPages);
 
     return (
-        <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-2xl border border-[#e3e2e0] bg-white/80 px-4 py-4 sm:flex-row sm:px-6">
-            <p className="text-xs font-medium text-[#83746b]">
+        <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-[1.25rem] bg-white px-4 py-3 sm:flex-row sm:px-5">
+            <p className="text-sm font-medium text-[#6b6b6b]">
                 {t('paginationShowing', { start, end, total })}
             </p>
             <div className="flex gap-1">
@@ -46,7 +46,7 @@ export function SearchPagination({ pagination, onPageChange }: SearchPaginationP
                     type="button"
                     disabled={page <= 1}
                     onClick={() => onPageChange(page - 1)}
-                    className="rounded-lg p-1.5 text-[#51443c] transition-colors hover:bg-[#1a1c1a]/8 disabled:opacity-40"
+                    className="flex size-10 items-center justify-center rounded-full text-[#141414] transition-colors hover:bg-[#f7f3f2] disabled:opacity-40"
                     aria-label={t('paginationPrevious')}
                 >
                     <Icon name="chevron_left" size={20} />
@@ -55,7 +55,7 @@ export function SearchPagination({ pagination, onPageChange }: SearchPaginationP
                     p === 'ellipsis' ? (
                         <span
                             key={`ellipsis-${i}`}
-                            className="flex size-8 items-center justify-center text-[#83746b]"
+                            className="flex size-10 items-center justify-center text-[#6b6b6b]"
                         >
                             …
                         </span>
@@ -65,10 +65,10 @@ export function SearchPagination({ pagination, onPageChange }: SearchPaginationP
                             type="button"
                             onClick={() => onPageChange(p)}
                             className={cn(
-                                'flex size-8 items-center justify-center rounded-lg text-sm font-semibold transition-colors',
+                                'flex size-10 items-center justify-center rounded-full text-sm font-semibold transition-colors',
                                 p === page
-                                    ? 'bg-[#1a1c1a] text-white'
-                                    : 'text-[#1a1c1a] hover:bg-[#1a1c1a]/8',
+                                    ? 'bg-[#71130d] text-white'
+                                    : 'text-[#141414] hover:bg-[#f7f3f2]',
                             )}
                         >
                             {p}
@@ -79,7 +79,7 @@ export function SearchPagination({ pagination, onPageChange }: SearchPaginationP
                     type="button"
                     disabled={page >= totalPages}
                     onClick={() => onPageChange(page + 1)}
-                    className="rounded-lg p-1.5 text-[#51443c] transition-colors hover:bg-[#1a1c1a]/8 disabled:opacity-40"
+                    className="flex size-10 items-center justify-center rounded-full text-[#141414] transition-colors hover:bg-[#f7f3f2] disabled:opacity-40"
                     aria-label={t('paginationNext')}
                 >
                     <Icon name="chevron_right" size={20} />

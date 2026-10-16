@@ -7,12 +7,22 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme="light"
       className="toaster group"
-      richColors
       closeButton
       position="top-center"
       duration={4000}
       swipeDirections={["top"]}
-      toastOptions={{}}
+      toastOptions={{
+        classNames: {
+          toast: "cherry-toast",
+          title: "cherry-toast-title",
+          description: "cherry-toast-description",
+          closeButton: "cherry-toast-close",
+          success: "cherry-toast--success",
+          error: "cherry-toast--error",
+          warning: "cherry-toast--warning",
+          info: "cherry-toast--info",
+        },
+      }}
       icons={{
         success: null,
         info: null,
@@ -22,22 +32,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
-          "--success-bg": "#047857",
-          "--success-border": "#047857",
-          "--success-text": "#ffffff",
-          "--error-bg": "#ba1a1a",
-          "--error-border": "#ba1a1a",
-          "--error-text": "#ffffff",
-          "--warning-bg": "#b45309",
-          "--warning-border": "#b45309",
-          "--warning-text": "#ffffff",
-          "--info-bg": "#415167",
-          "--info-border": "#415167",
-          "--info-text": "#ffffff",
+          "--normal-bg": "rgb(255 255 255 / 0.62)",
+          "--normal-text": "#1a1c1a",
+          "--normal-border": "rgb(255 255 255 / 0.68)",
+          "--border-radius": "1.75rem",
         } as React.CSSProperties
       }
       {...props}

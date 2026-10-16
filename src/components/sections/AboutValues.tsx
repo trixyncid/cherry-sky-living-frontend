@@ -1,5 +1,5 @@
 /**
- * About Values Section Component
+ * About values — standards for every residence
  */
 
 "use client";
@@ -8,36 +8,36 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 
+const VALUES = [
+  {
+    icon: "verified",
+    titleKey: "quality.title",
+    descKey: "quality.description",
+  },
+  {
+    icon: "verified_user",
+    titleKey: "trust.title",
+    descKey: "trust.description",
+  },
+  {
+    icon: "groups",
+    titleKey: "community.title",
+    descKey: "community.description",
+  },
+  {
+    icon: "lightbulb",
+    titleKey: "innovation.title",
+    descKey: "innovation.description",
+  },
+] as const;
+
 export function AboutValues() {
   const t = useTranslations("about.values");
 
-  const values = [
-    {
-      icon: "verified",
-      titleKey: "quality.title",
-      descKey: "quality.description",
-    },
-    {
-      icon: "verified_user",
-      titleKey: "trust.title",
-      descKey: "trust.description",
-    },
-    {
-      icon: "groups",
-      titleKey: "community.title",
-      descKey: "community.description",
-    },
-    {
-      icon: "lightbulb",
-      titleKey: "innovation.title",
-      descKey: "innovation.description",
-    },
-  ];
-
   return (
-    <section className="w-full bg-[#faf9f6] px-6 py-24 lg:px-10">
+    <section className="w-full bg-[#faf9f6] px-6 py-20 lg:px-10">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-16 text-center">
+        <div className="mb-12 max-w-2xl">
           <motion.p
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -50,7 +50,7 @@ export function AboutValues() {
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl font-semibold tracking-tight text-[#1a1c1a] lg:text-4xl"
+            className="text-3xl font-semibold tracking-tight text-[#1a1c1a] md:text-4xl"
           >
             {t("title")}
           </motion.h2>
@@ -58,26 +58,26 @@ export function AboutValues() {
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#83746b]"
+            className="mt-3 text-sm leading-relaxed text-[#83746b] md:text-base"
           >
             {t("description")}
           </motion.p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {values.map((value, index) => (
+        <div className="grid gap-px overflow-hidden rounded-[1.5rem] border border-[#e3e2e0] bg-[#e3e2e0] sm:grid-cols-2 lg:grid-cols-4">
+          {VALUES.map((value, index) => (
             <motion.div
               key={value.titleKey}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.08 }}
-              className="glass-card rounded-[1.5rem] p-6"
+              transition={{ delay: index * 0.06 }}
+              className="bg-[#faf9f6] px-6 py-8 transition-colors hover:bg-white"
             >
-              <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#6f4627] text-white">
-                <Icon name={value.icon} size={24} />
+              <div className="mb-5 flex size-11 items-center justify-center rounded-xl bg-[#f5e4d4] text-[#71130d]">
+                <Icon name={value.icon} size={22} />
               </div>
-              <h3 className="mb-3 text-lg font-semibold text-[#1a1c1a]">
+              <h3 className="mb-2 text-base font-semibold text-[#1a1c1a]">
                 {t(value.titleKey)}
               </h3>
               <p className="text-sm leading-relaxed text-[#83746b]">

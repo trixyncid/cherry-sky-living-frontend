@@ -26,9 +26,9 @@ const statusStyles: Record<TenantRenewalDisplayStatus, string> = {
   requested: "bg-[#E8F0FE] text-[#1967D2]",
   confirmed: "bg-[#E6F4EA] text-[#137333]",
   completed: "bg-blue-50 text-blue-700",
-  declined: "bg-[#e3e2e0] text-[#51443c]",
+  declined: "bg-[#e3e2e0] text-[#3d3a36]",
   window_closed: "bg-[#ffdad6] text-[#ba1a1a]",
-  not_eligible: "bg-[#e3e2e0] text-[#51443c]",
+  not_eligible: "bg-[#e3e2e0] text-[#3d3a36]",
 };
 
 export function TenantLeaseRenewalsList() {
@@ -113,7 +113,7 @@ export function TenantLeaseRenewalsList() {
               "rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors",
               statusFilter === item.key
                 ? "admin-btn-primary shadow-sm"
-                : "text-[#51443c] hover:bg-white/70",
+                : "text-[#3d3a36] hover:bg-white/70",
             )}
           >
             {item.label}
@@ -128,18 +128,18 @@ export function TenantLeaseRenewalsList() {
       )}
 
       {isLoading ? (
-        <p className="text-sm text-[#83746b]">{t("loading")}</p>
+        <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>
       ) : filtered.length === 0 ? (
         <div className="glass-panel rounded-2xl border-dashed p-10 text-center">
           <Icon
             name="autorenew"
             size={40}
-            className="mx-auto text-[#83746b]/60"
+            className="mx-auto text-[#6b6b6b]/60"
           />
-          <p className="mt-4 text-sm text-[#83746b]">{tp("empty")}</p>
+          <p className="mt-4 text-sm text-[#6b6b6b]">{tp("empty")}</p>
           <Link
             href="/tenant/leases"
-            className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#6f4627] hover:underline"
+            className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#71130d] hover:underline"
           >
             {tp("viewLeases")}
             <Icon name="arrow_forward" size={16} />
@@ -172,10 +172,10 @@ function RenewalCard({ lease }: { lease: Lease }) {
       <div className="p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h3 className="font-semibold text-[#1a1c1a]">
+            <h3 className="font-semibold text-[#141414]">
               {lease.unit?.name ?? "—"}
             </h3>
-            <p className="mt-0.5 text-sm text-[#83746b]">
+            <p className="mt-0.5 text-sm text-[#6b6b6b]">
               {lease.unit?.property?.name ?? "—"}
             </p>
           </div>
@@ -197,14 +197,14 @@ function RenewalCard({ lease }: { lease: Lease }) {
           />
         </dl>
 
-        <p className="mt-3 text-sm text-[#51443c]">
+        <p className="mt-3 text-sm text-[#3d3a36]">
           {tp(`statusHint.${status}`)}
         </p>
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
             href={`/tenant/leases/${lease.id}`}
-            className="glass-control inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold text-[#51443c] transition-colors hover:bg-white/80"
+            className="glass-control inline-flex h-9 items-center gap-1 rounded-full px-3.5 text-sm font-medium text-[#3d3a36] transition-colors hover:text-[#71130d]"
           >
             <Icon name="description" size={16} />
             {tp("viewLease")}
@@ -243,10 +243,10 @@ function TenantRenewalStatusBadge({
 function DetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs font-semibold uppercase tracking-wide text-[#83746b]">
+      <dt className="text-xs font-semibold uppercase tracking-wide text-[#6b6b6b]">
         {label}
       </dt>
-      <dd className="mt-0.5 text-sm font-medium text-[#1a1c1a]">{value}</dd>
+      <dd className="mt-0.5 text-sm font-medium text-[#141414]">{value}</dd>
     </div>
   );
 }

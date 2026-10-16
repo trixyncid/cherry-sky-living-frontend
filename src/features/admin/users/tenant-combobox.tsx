@@ -20,15 +20,20 @@ import {
   useTenantUsers,
 } from "@/features/admin/hooks/use-admin-queries";
 import { useDebouncedValue } from "@/lib/hooks/use-debounced-value";
+import {
+  displayEmailOrEmpty,
+  isValidIndonesianPhone,
+  looksLikeEmail,
+} from "@/lib/phone";
 import type { TenantUser } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
 
-function formatTenantLabel(tenant: Pick<TenantUser, "name" | "email">) {
-  return `${tenant.name} (${tenant.email})`;
-}
-
-function looksLikeEmail(value: string) {
-  return value.includes("@");
+function formatTenantLabel(
+  tenant: Pick<TenantUser, "name" | "email" | "phoneNumber">,
+) {
+  const email = displayEmailOrEmpty(tenant.email);
+  const secondary = tenant.phoneNumber || email || "—";
+  return `${tenant.name} (${secondary})`;
 }
 
 type TenantComboboxProps = {
@@ -106,11 +111,14 @@ export function TenantCombobox({
 
   const createDefaults = useMemo(() => {
     const trimmed = search.trim();
-    if (!trimmed) return { name: "", email: "" };
+    if (!trimmed) return { name: "", email: "", phone: "" };
     if (looksLikeEmail(trimmed)) {
-      return { name: "", email: trimmed };
+      return { name: "", email: trimmed, phone: "" };
     }
-    return { name: trimmed, email: "" };
+    if (isValidIndonesianPhone(trimmed)) {
+      return { name: "", email: "", phone: trimmed };
+    }
+    return { name: trimmed, email: "", phone: "" };
   }, [search]);
 
   if (disabled) {
@@ -142,8 +150,8 @@ export function TenantCombobox({
             aria-controls={listboxId}
             className={cn(
               adminInputClassName,
-              "relative flex h-10 cursor-pointer items-center pr-10 text-left",
-              !displayTenant && "text-[#83746b]/60",
+              "relative flex h-11 cursor-pointer items-center pr-10 text-left",
+              !displayTenant && "text-[#6b6b6b]",
             )}
           >
             <span className="truncate">
@@ -249,7 +257,7 @@ export function TenantCombobox({
                         <Icon
                           name="check"
                           size={18}
-                          className="shrink-0 text-[#6f4627]"
+                          className="shrink-0 text-[#71130d]"
                         />
                       )}
                     </button>
@@ -263,7 +271,7 @@ export function TenantCombobox({
             <Button
               type="button"
               variant="ghost"
-              className="h-9 w-full justify-start gap-2 text-[#6f4627] hover:bg-[#efe0d2] hover:text-[#6f4627]"
+              className="h-9 w-full justify-start gap-2 text-[#71130d] hover:bg-[#efe0d2] hover:text-[#71130d]"
               onClick={openCreateDialog}
             >
               <Icon name="person_add" size={18} />
@@ -289,6 +297,7 @@ export function TenantCombobox({
         onCreated={handleCreated}
         initialName={createDefaults.name}
         initialEmail={createDefaults.email}
+        initialPhone={createDefaults.phone}
       />
     </>
   );

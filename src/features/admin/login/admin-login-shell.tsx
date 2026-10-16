@@ -1,10 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { BrandMark } from "@/components/shared/BrandMark";
 import { Icon } from "@/components/shared/Icon";
 import { LOGIN_BACKGROUND_IMAGE } from "@/features/admin/login/constants";
+import { Link } from "@/i18n/routing";
 
 export type LoginPortal = "admin" | "tenant";
 
@@ -13,93 +14,88 @@ type AdminLoginShellProps = {
   portal: LoginPortal;
 };
 
+/**
+ * Shared admin/tenant login: large rounded photo panel with brand and
+ * headline (desktop), white form card on a light grey canvas.
+ */
 export function AdminLoginShell({ children, portal }: AdminLoginShellProps) {
   const tCommon = useTranslations("common.brand");
+  const tShell = useTranslations("common.loginShell");
   const tAdminBrand = useTranslations("admin.brand");
   const tTenant = useTranslations("tenant");
   const tLogin = useTranslations(
     portal === "admin" ? "admin.login" : "tenant.login",
   );
 
-  const brandName =
-    portal === "admin" ? tAdminBrand("name") : tCommon("name");
+  const brandName = portal === "admin" ? tAdminBrand("name") : tCommon("name");
   const eyebrow =
     portal === "admin" ? tAdminBrand("suite") : tTenant("portalName");
+  const headline =
+    portal === "admin" ? tShell("adminHeadline") : tShell("tenantHeadline");
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12 sm:px-6">
-      <div className="absolute inset-0 z-0 hero-atmosphere" aria-hidden>
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 0, scale: 1.08 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <Image
-            src={LOGIN_BACKGROUND_IMAGE}
-            alt=""
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="100vw"
-          />
-        </motion.div>
-        <div className="absolute inset-0 hero-overlay-x" />
-        <div className="absolute inset-0 hero-overlay-y" />
-        <div
-          className="pointer-events-none absolute -left-24 top-1/4 size-72 rounded-full bg-ferrugem/25 blur-3xl"
-          aria-hidden
+    <div className="grid min-h-dvh bg-[#efe8e7] p-3 text-[#141414] sm:p-4 lg:grid-cols-[1.1fr_1fr] lg:gap-4">
+      {/* Photo panel */}
+      <section className="relative hidden overflow-hidden rounded-[2rem] bg-[#2a2420] lg:block">
+        <Image
+          src={LOGIN_BACKGROUND_IMAGE}
+          alt=""
+          fill
+          priority
+          sizes="55vw"
+          className="object-cover"
         />
-        <div
-          className="pointer-events-none absolute -right-16 bottom-1/5 size-80 rounded-full bg-maroon/30 blur-3xl"
-          aria-hidden
-        />
-      </div>
-
-      <motion.div
-        className="relative z-10 w-full max-w-md"
-        initial={{ opacity: 0, y: 28 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.55, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div className="glass-panel-strong relative overflow-hidden rounded-[1.75rem] p-8 sm:p-10">
-          <div
-            className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-ferrugem/15 blur-3xl"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute -bottom-28 -left-16 size-52 rounded-full bg-maroon/10 blur-3xl"
-            aria-hidden
-          />
-
-          <motion.div
-            className="relative mb-8 flex flex-col items-center text-center"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.22 }}
-          >
-            <motion.div
-              className="mb-5 flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#8b5e3c] via-[#6f4627] to-maroon shadow-[0_10px_28px_rgb(90_36_48/0.28)] ring-1 ring-white/40"
-              whileHover={{ scale: 1.04, rotate: -2 }}
-              transition={{ type: "spring", stiffness: 400, damping: 22 }}
-            >
-              <Icon name="apartment" size={28} className="text-white" />
-            </motion.div>
-
-            <p className="text-[1.65rem] font-bold tracking-tight text-[#1a1c1a] sm:text-3xl">
-              {brandName}
-            </p>
-            <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-ferrugem">
-              {eyebrow}
-            </p>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#51443c]">
-              {tLogin("subtitle")}
-            </p>
-          </motion.div>
-
-          <div className="relative">{children}</div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/20" />
+        <div className="absolute left-6 top-6 flex items-center gap-3">
+          <span className="flex size-12 items-center justify-center rounded-full bg-white">
+            <BrandMark tone="onLight" className="size-8" />
+          </span>
+          <span className="text-xl font-medium tracking-tight text-white">
+            {brandName}
+          </span>
         </div>
-      </motion.div>
+        <div className="absolute inset-x-8 bottom-8 max-w-xl text-white">
+          <span className="inline-flex rounded-full bg-white/15 px-3.5 py-1.5 text-sm font-medium backdrop-blur-md">
+            {eyebrow}
+          </span>
+          <p className="mt-4 text-[clamp(2rem,3.2vw,3rem)] font-medium leading-[1.05] tracking-[-0.035em]">
+            {headline}
+          </p>
+        </div>
+      </section>
+
+      {/* Form */}
+      <section className="flex flex-col">
+        <div className="flex items-center justify-between px-2 py-2 sm:px-4">
+          <Link
+            href="/"
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-white/70 px-4 text-sm font-medium text-[#141414] transition-colors hover:bg-white"
+          >
+            <Icon name="arrow_back" size={18} />
+            {tShell("backToWebsite")}
+          </Link>
+          <span className="flex size-11 items-center justify-center rounded-full bg-white lg:hidden">
+            <BrandMark tone="onLight" className="size-7" />
+          </span>
+        </div>
+
+        <div className="flex flex-1 items-center justify-center px-2 py-10 sm:px-6">
+          <div className="w-full max-w-md rounded-[2rem] bg-white p-7 sm:p-10">
+            <div className="mb-8">
+              <span className="inline-flex rounded-full bg-[#f6f0ef] px-3.5 py-1.5 text-[13px] font-medium text-[#3d3a36]">
+                {eyebrow}
+              </span>
+              <h1 className="mt-4 text-[clamp(1.75rem,3vw,2.25rem)] font-medium tracking-[-0.03em]">
+                {brandName}
+              </h1>
+              <p className="mt-2 text-base leading-relaxed text-[#6b6b6b]">
+                {tLogin("subtitle")}
+              </p>
+            </div>
+            {children}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

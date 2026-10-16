@@ -56,10 +56,13 @@ export function UnitForm({ id }: { id?: string }) {
   const [status, setStatus] = useState<UnitStatus>("vacant");
   const [formError, setFormError] = useState<string | null>(null);
 
-  const { data: unitTypes = [] } = useUnitTypes(form.propertyId || undefined);
+  const { data: unitTypes = [] } = useUnitTypes(
+    form.propertyId || undefined,
+    !!form.propertyId || isEdit,
+  );
 
   const availableUnitTypes = useMemo(() => {
-    if (!form.propertyId) return unitTypes;
+    if (!form.propertyId) return [];
     return unitTypes.filter((ut) => ut.propertyId === form.propertyId);
   }, [unitTypes, form.propertyId]);
 
@@ -111,13 +114,13 @@ export function UnitForm({ id }: { id?: string }) {
           setFormError(t("selectUnitType"));
           return;
         }
-        const created = await mutations.create.mutateAsync({
+        await mutations.create.mutateAsync({
           name: form.name,
           unitTypeId: form.unitTypeId,
           maxOccupancy: maxOccupancy ?? undefined,
         });
         showApiSuccess(t("created"));
-        router.replace(`${BASE}/${created.id}/edit`);
+        router.replace(BASE);
         router.refresh();
         return;
       }
@@ -183,13 +186,17 @@ export function UnitForm({ id }: { id?: string }) {
               <AdminSelect
                 id="unit-type"
                 required
-                disabled={isEdit}
+                disabled={isEdit || !form.propertyId}
                 value={form.unitTypeId}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, unitTypeId: e.target.value }))
                 }
               >
-                <option value="">{t("selectUnitType")}</option>
+                <option value="">
+                  {!form.propertyId && !isEdit
+                    ? t("selectPropertyFirst")
+                    : t("selectUnitType")}
+                </option>
                 {(isEdit ? unitTypes : availableUnitTypes).map((ut) => (
                   <option key={ut.id} value={ut.id}>
                     {ut.name}
