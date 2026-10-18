@@ -4,8 +4,8 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import { AdminSearchInput } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
+import { AdminToolbar } from "@/features/admin/components/admin-toolbar";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import {
@@ -173,14 +173,14 @@ export function PropertiesList() {
         </div>
       </section>
 
-      <div className="mb-5 flex">
-        <AdminSearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder={t("searchPlaceholder")}
-          className="w-full sm:max-w-md"
-        />
-      </div>
+      <AdminToolbar
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t("searchPlaceholder"),
+        }}
+        resultCount={isLoading ? undefined : filtered.length}
+      />
 
       {error ? (
         <div className="mb-4">

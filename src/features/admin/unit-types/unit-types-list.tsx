@@ -4,10 +4,12 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import { AdminSearchInput } from "@/features/admin/components/admin-field";
-import { AdminFilterRow } from "@/features/admin/components/admin-filter-row";
+import { AdminSelect } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
-import { PropertyFilter } from "@/features/admin/components/property-filter";
+import {
+  AdminToolbar,
+  usePropertyToolbarFilter,
+} from "@/features/admin/components/admin-toolbar";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
@@ -67,6 +69,8 @@ export function UnitTypesList() {
     useAdminPropertyScope();
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"catalog" | "compare">("catalog");
+  const [vacancy, setVacancy] = useState<"" | "vacant" | "full">("");
+  const tt = useTranslations("admin.toolbar");
   const {
     data = [],
     isLoading,
@@ -113,8 +117,15 @@ export function UnitTypesList() {
           (a.monthly ?? Number.MAX_SAFE_INTEGER) -
             (b.monthly ?? Number.MAX_SAFE_INTEGER) ||
           a.type.name.localeCompare(b.type.name),
+      )
+      .filter((r) =>
+        vacancy === "vacant"
+          ? r.vacant > 0
+          : vacancy === "full"
+            ? r.total > 0 && r.vacant === 0
+            : true,
       );
-  }, [data, search, lookups]);
+  }, [data, search, lookups, vacancy]);
 
   const groups = useMemo(() => {
     const map = new Map<string, Row[]>();
@@ -138,6 +149,9 @@ export function UnitTypesList() {
   }
 
   const pending = mutations.remove.isPending;
+  const propertyToolbar = usePropertyToolbarFilter(propertyId, setPropertyId, {
+    allLabel: tp("allPropertiesInventory"),
+  });
   const showLoading = !ready || isLoading || (isFetching && data.length === 0);
   const createHref = isScoped
     ? `${BASE}/new?propertyId=${encodeURIComponent(propertyId)}`
@@ -152,7 +166,33 @@ export function UnitTypesList() {
         primaryAction={{ label: t("add"), href: createHref, icon: "add" }}
       />
 
-      <AdminFilterRow
+      <AdminToolbar
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t("searchPlaceholder"),
+        }}
+        filters={[
+          propertyToolbar,
+          {
+            key: "vacancy",
+            label: tt("availability"),
+            active: vacancy !== "",
+            chip: vacancy === "vacant" ? tt("hasVacancy") : tt("full"),
+            onClear: () => setVacancy(""),
+            width: "w-44",
+            control: (
+              <AdminSelect
+                value={vacancy}
+                onChange={(e) => setVacancy(e.target.value as typeof vacancy)}
+              >
+                <option value="">{tt("any")}</option>
+                <option value="vacant">{tt("hasVacancy")}</option>
+                <option value="full">{tt("full")}</option>
+              </AdminSelect>
+            ),
+          },
+        ]}
         trailing={
           <Segmented
             label={ti("view")}
@@ -164,19 +204,8 @@ export function UnitTypesList() {
             ]}
           />
         }
-      >
-        <PropertyFilter
-          value={propertyId}
-          onChange={setPropertyId}
-          allLabel={tp("allPropertiesInventory")}
-        />
-        <AdminSearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder={t("searchPlaceholder")}
-          className="sm:max-w-md sm:flex-1"
-        />
-      </AdminFilterRow>
+        resultCount={showLoading ? undefined : rows.length}
+      />
 
       {error ? (
         <div className="mb-4">

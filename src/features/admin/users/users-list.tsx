@@ -13,9 +13,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import { AdminSearchInput } from "@/features/admin/components/admin-field";
+import { AdminSelect } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminPagination } from "@/features/admin/components/admin-pagination";
+import {
+  AdminToolbar,
+  usePropertyToolbarFilter,
+} from "@/features/admin/components/admin-toolbar";
 import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
 import { getTenantUserSortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
@@ -97,18 +101,31 @@ export function UsersList() {
     [data, currentLease],
   );
 
+  const [propertyFilter, setPropertyFilter] = useState("");
+  const tt = useTranslations("admin.toolbar");
+  const propertyToolbar = usePropertyToolbarFilter(propertyFilter, (id) => {
+    setPropertyFilter(id);
+    setPage(1);
+  });
+
   const visible = useMemo(
     () =>
-      data.filter((u) =>
-        filter === "all"
-          ? true
-          : filter === "housed"
-            ? currentLease.has(u.id)
-            : filter === "unhoused"
-              ? u.isActive && !currentLease.has(u.id)
-              : !u.isActive,
-      ),
-    [data, filter, currentLease],
+      data
+        .filter((u) =>
+          filter === "all"
+            ? true
+            : filter === "housed"
+              ? currentLease.has(u.id)
+              : filter === "unhoused"
+                ? u.isActive && !currentLease.has(u.id)
+                : !u.isActive,
+        )
+        .filter(
+          (u) =>
+            !propertyFilter ||
+            currentLease.get(u.id)?.propertyId === propertyFilter,
+        ),
+    [data, filter, currentLease, propertyFilter],
   );
 
   const getSortValue = useCallback(
@@ -157,43 +174,45 @@ export function UsersList() {
         }}
       />
 
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <AdminSearchInput
-          value={search}
-          onChange={(v) => {
+      <AdminToolbar
+        search={{
+          value: search,
+          onChange: (v) => {
             setSearch(v);
             setPage(1);
-          }}
-          placeholder={tp("searchPlaceholder")}
-          className="w-full sm:max-w-md"
-        />
-        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-          {(["all", "housed", "unhoused", "inactive"] as const).map((f) => (
-            <button
-              key={f}
-              type="button"
-              aria-pressed={filter === f}
-              onClick={() => setFilter(f)}
-              className={cn(
-                "flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                filter === f
-                  ? "bg-[#1c0b0a] text-white"
-                  : "bg-white text-[#3d3a36] hover:text-[#71130d]",
-              )}
-            >
-              {to(`tenantFilter.${f}`)}
-              <span
-                className={cn(
-                  "rounded-full px-1.5 text-xs tabular-nums",
-                  filter === f ? "bg-white/15" : "bg-[#f6f0ef]",
-                )}
+          },
+          placeholder: tp("searchPlaceholder"),
+        }}
+        filters={[
+          {
+            key: "status",
+            label: tt("status"),
+            active: filter !== "all",
+            chip: to(`tenantFilter.${filter}`),
+            onClear: () => setFilter("all"),
+            width: "w-52",
+            control: (
+              <AdminSelect
+                value={filter}
+                onChange={(e) => {
+                  setFilter(e.target.value as typeof filter);
+                  setPage(1);
+                }}
               >
-                {counts[f]}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
+                {(["all", "housed", "unhoused", "inactive"] as const).map(
+                  (f) => (
+                    <option key={f} value={f}>
+                      {`${to(`tenantFilter.${f}`)} (${counts[f]})`}
+                    </option>
+                  ),
+                )}
+              </AdminSelect>
+            ),
+          },
+          propertyToolbar,
+        ]}
+        resultCount={isLoading ? undefined : visible.length}
+      />
 
       {error && (
         <div className="mb-4">

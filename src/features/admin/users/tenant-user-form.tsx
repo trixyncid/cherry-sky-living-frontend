@@ -1,25 +1,27 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
+import { useState } from "react";
+import {
+  AdminField,
+  AdminPasswordInput,
+  adminInputClassName,
+} from "@/features/admin/components/admin-field";
 import {
   AdminDetailPage,
   AdminFormActions,
   AdminFormError,
   AdminFormSection,
 } from "@/features/admin/components/admin-form-layout";
-import {
-  AdminField,
-  AdminPasswordInput,
-  adminInputClassName,
-} from "@/features/admin/components/admin-field";
+import { PersonPreview } from "@/features/admin/components/form-previews";
 import { useTenantUserMutations } from "@/features/admin/hooks/use-admin-queries";
-import {
-  createTenantUserSchema,
-} from "@/features/admin/users/schemas";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import {
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
+import { createTenantUserSchema } from "@/features/admin/users/schemas";
+import { useRouter } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
 
 const BASE = "/admin/users";
@@ -72,6 +74,15 @@ export function TenantUserForm() {
 
   return (
     <AdminDetailPage
+      section={tp("title")}
+      mode={"create"}
+      aside={
+        <PersonPreview
+          name={form.name}
+          email={form.email}
+          phone={form.phoneNumber}
+        />
+      }
       backHref={BASE}
       backLabel={t("backToList")}
       title={tp("createTitle")}
@@ -113,7 +124,7 @@ export function TenantUserForm() {
                   setForm((f) => ({ ...f, phoneNumber: e.target.value }))
                 }
               />
-              <p className="mt-1 text-xs text-[#83746b]">{tp("phoneHint")}</p>
+              <p className="mt-1 text-xs text-[#6b6b6b]">{tp("phoneHint")}</p>
             </AdminField>
             <AdminField label={tp("emailOptional")} htmlFor="tenant-email">
               <input
@@ -126,7 +137,7 @@ export function TenantUserForm() {
                   setForm((f) => ({ ...f, email: e.target.value }))
                 }
               />
-              <p className="mt-1 text-xs text-[#83746b]">
+              <p className="mt-1 text-xs text-[#6b6b6b]">
                 {tp("emailOptionalHint")}
               </p>
             </AdminField>

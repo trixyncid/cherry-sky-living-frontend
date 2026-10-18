@@ -76,12 +76,12 @@ export function AdminLeaseRenewalActions({
       className={
         compact
           ? "flex flex-wrap items-center justify-end gap-2"
-          : "rounded-xl border border-[#e3e2e0] bg-[#faf9f7] p-4"
+          : "rounded-2xl border border-[#efe7e5] bg-[#faf7f6] p-4"
       }
     >
       {!compact && (
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-semibold text-[#1a1c1a]">{tp("renewalSection")}</p>
+          <p className="text-sm font-semibold text-[#141414]">{tp("renewalSection")}</p>
           <LeaseRenewalStatusBadge
             status={status}
             label={tp(`status.${status}`)}
@@ -92,18 +92,18 @@ export function AdminLeaseRenewalActions({
       {!compact && (
         <dl className="mb-4 grid gap-2 text-sm sm:grid-cols-2">
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-[#83746b]">
+            <dt className="text-xs font-semibold uppercase tracking-wide text-[#6b6b6b]">
               {tp("confirmationDeadline")}
             </dt>
-            <dd className="font-medium text-[#1a1c1a]">
+            <dd className="font-medium text-[#141414]">
               {formatDate(renewal.confirmationDeadline)}
             </dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-[#83746b]">
+            <dt className="text-xs font-semibold uppercase tracking-wide text-[#6b6b6b]">
               {tp("leaseEnd")}
             </dt>
-            <dd className="font-medium text-[#1a1c1a]">
+            <dd className="font-medium text-[#141414]">
               {lease.endDate ? formatDate(lease.endDate) : "—"}
             </dd>
           </div>
@@ -116,7 +116,7 @@ export function AdminLeaseRenewalActions({
             type="button"
             disabled={confirming || mutations.confirmRenewal.isPending}
             onClick={() => void handleConfirm()}
-            className="inline-flex items-center gap-1 rounded-lg bg-[#71130d] px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[#71130d] px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <Icon name="check" size={16} />
             {confirming ? tp("confirming") : tp("confirm")}
@@ -125,7 +125,7 @@ export function AdminLeaseRenewalActions({
         {canCreateLease && (
           <Link
             href={buildRenewalLeaseHref(lease)}
-            className="inline-flex items-center gap-1 rounded-lg border border-[#71130d]/30 bg-white px-3 py-1.5 text-xs font-semibold text-[#71130d] transition-colors hover:bg-[#efeeeb]"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#e8bfb9] bg-white px-4 text-sm font-medium text-[#71130d] transition-colors hover:bg-[#efeeeb]"
           >
             <Icon name="post_add" size={16} />
             {tp("createRenewalLease")}
@@ -134,7 +134,7 @@ export function AdminLeaseRenewalActions({
         {!compact && (
           <Link
             href="/admin/lease-renewals"
-            className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-[#51443c] transition-colors hover:bg-[#efeeeb]"
+            className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-[#3d3a36] transition-colors hover:bg-[#efeeeb]"
           >
             {tp("viewAllRenewals")}
           </Link>

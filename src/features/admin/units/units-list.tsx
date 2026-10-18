@@ -3,10 +3,12 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import { AdminSearchInput } from "@/features/admin/components/admin-field";
-import { AdminFilterRow } from "@/features/admin/components/admin-filter-row";
+import { AdminDateRangePicker } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
-import { PropertyFilter } from "@/features/admin/components/property-filter";
+import {
+  AdminToolbar,
+  usePropertyToolbarFilter,
+} from "@/features/admin/components/admin-toolbar";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
@@ -20,15 +22,12 @@ import {
   resolveUnitTypeNameForUnit,
 } from "@/features/admin/lib/entity-display";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { toDateInputValue } from "@/features/admin/lib/format";
+import { formatDate } from "@/features/admin/lib/format";
 import {
   showApiError,
   showApiSuccess,
 } from "@/features/admin/lib/show-api-error";
-import {
-  type AvailabilityRange,
-  UnitsAvailabilityFilter,
-} from "@/features/admin/units/components/units-availability-filter";
+import type { AvailabilityRange } from "@/features/admin/units/components/units-availability-filter";
 import { UnitsBuildingView } from "@/features/admin/units/components/units-building-view";
 import { UnitsTableView } from "@/features/admin/units/components/units-table-view";
 import {
@@ -38,12 +37,6 @@ import {
 import type { Unit } from "@/lib/types/admin";
 
 const BASE = "/admin/units";
-
-function defaultEndDate(): string {
-  const date = new Date();
-  date.setDate(date.getDate() + 30);
-  return toDateInputValue(date);
-}
 
 export function UnitsList() {
   const t = useTranslations("admin.crud");
@@ -61,11 +54,8 @@ export function UnitsList() {
   }, []);
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<UnitsViewMode>("map");
-  const [availabilityExpanded, setAvailabilityExpanded] = useState(false);
-  const [draftStartDate, setDraftStartDate] = useState(() =>
-    toDateInputValue(new Date()),
-  );
-  const [draftEndDate, setDraftEndDate] = useState(defaultEndDate);
+  const [draftStartDate, setDraftStartDate] = useState("");
+  const [draftEndDate, setDraftEndDate] = useState("");
   const [activeRange, setActiveRange] = useState<AvailabilityRange | null>(
     null,
   );
@@ -107,24 +97,29 @@ export function UnitsList() {
     });
   }, [data, search, lookups]);
 
-  function handleApplyAvailability() {
-    if (!draftStartDate || !draftEndDate) {
-      setDateError(tAvail("datesRequired"));
+  /** Applies as soon as both dates are picked — no separate "Search" step. */
+  function handleRangeChange({ from, to }: { from: string; to: string }) {
+    setDraftStartDate(from);
+    setDraftEndDate(to);
+    if (!from && !to) {
+      setActiveRange(null);
+      setDateError(null);
       return;
     }
-    if (draftStartDate >= draftEndDate) {
+    if (!from || !to) return;
+    if (from >= to) {
       setDateError(tAvail("invalidDateRange"));
       return;
     }
     setDateError(null);
-    setActiveRange({ startDate: draftStartDate, endDate: draftEndDate });
-    setAvailabilityExpanded(false);
+    setActiveRange({ startDate: from, endDate: to });
   }
 
   function handleClearAvailability() {
+    setDraftStartDate("");
+    setDraftEndDate("");
     setActiveRange(null);
     setDateError(null);
-    setAvailabilityExpanded(false);
   }
 
   async function confirmDelete() {
@@ -148,6 +143,11 @@ export function UnitsList() {
   );
 
   const pending = mutations.remove.isPending;
+  const tt = useTranslations("admin.toolbar");
+  const propertyToolbar = usePropertyToolbarFilter(
+    propertyFilter,
+    setPropertyFilter,
+  );
   const emptyMessage = isAvailabilityMode ? tAvail("empty") : t("empty");
 
   return (
@@ -162,38 +162,40 @@ export function UnitsList() {
         }}
       />
 
-      <UnitsAvailabilityFilter
-        expanded={availabilityExpanded}
-        onToggleExpanded={() => setAvailabilityExpanded((v) => !v)}
-        startDate={draftStartDate}
-        endDate={draftEndDate}
-        onStartDateChange={setDraftStartDate}
-        onEndDateChange={setDraftEndDate}
-        activeRange={activeRange}
-        dateError={dateError}
-        onApply={handleApplyAvailability}
-        onClear={handleClearAvailability}
-        isFetching={isFetching}
-        locale={locale}
+      <AdminToolbar
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t("searchPlaceholder"),
+        }}
+        filters={[
+          propertyToolbar,
+          {
+            key: "availability",
+            label: tt("vacantBetween"),
+            active: Boolean(activeRange),
+            chip: activeRange
+              ? `${formatDate(activeRange.startDate, locale)} – ${formatDate(activeRange.endDate, locale)}`
+              : undefined,
+            onClear: handleClearAvailability,
+            width: "w-64",
+            control: (
+              <AdminDateRangePicker
+                from={draftStartDate}
+                to={draftEndDate}
+                onChange={handleRangeChange}
+                placeholder={tAvail("dateRangePlaceholder")}
+              />
+            ),
+          },
+        ]}
+        trailing={<UnitsViewToggle value={viewMode} onChange={setViewMode} />}
+        resultCount={isLoading || isFetching ? undefined : filtered.length}
       />
 
-      <AdminFilterRow
-        trailing={<UnitsViewToggle value={viewMode} onChange={setViewMode} />}
-      >
-        <PropertyFilter value={propertyFilter} onChange={setPropertyFilter} />
-        <AdminSearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder={t("searchPlaceholder")}
-          className="sm:max-w-md sm:flex-1"
-        />
-      </AdminFilterRow>
-
-      {isAvailabilityMode && !isLoading && (
-        <p className="mb-4 text-sm text-[#51443c]">
-          {tAvail("resultsCount", { count: filtered.length })}
-        </p>
-      )}
+      {dateError ? (
+        <p className="-mt-2 mb-4 text-sm text-[#a1271b]">{dateError}</p>
+      ) : null}
 
       {error && (
         <div className="mb-4">

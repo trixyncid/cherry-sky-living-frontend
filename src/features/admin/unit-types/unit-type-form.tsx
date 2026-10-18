@@ -1,39 +1,48 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
-import {
-  AdminDetailPage,
-  AdminFormActions,
-  AdminFormError,
-  AdminFormSection,
-} from "@/features/admin/components/admin-form-layout";
+import { useEffect, useRef, useState } from "react";
 import {
   AdminField,
   AdminSelect,
   AdminTextarea,
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
+import {
+  AdminDetailPage,
+  AdminFormActions,
+  AdminFormError,
+  AdminFormSection,
+} from "@/features/admin/components/admin-form-layout";
 import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
+import { UnitTypePreview } from "@/features/admin/components/form-previews";
 import {
   useUnitType,
   useUnitTypeMutations,
 } from "@/features/admin/hooks/use-admin-queries";
 import {
-  deleteUnitTypeAttachment,
-  uploadUnitTypeImage,
-} from "@/lib/api/admin/attachments";
+  firstPhoto,
+  monthlyOf,
+  type UnitTypeWithInventory,
+} from "@/features/admin/inventory/inventory-kit";
 import {
   readStoredPropertyId,
   writeStoredPropertyId,
 } from "@/features/admin/lib/admin-property-scope";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import {
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
 import { unitTypeSizeSchema } from "@/features/admin/properties/schemas";
+import { useRouter } from "@/i18n/routing";
+import {
+  deleteUnitTypeAttachment,
+  uploadUnitTypeImage,
+} from "@/lib/api/admin/attachments";
 import { adminKeys } from "@/lib/query/keys";
 import { cn } from "@/lib/utils";
 
@@ -69,6 +78,7 @@ function resolveCreatePropertyId(
 
 export function UnitTypeForm({ id }: { id?: string }) {
   const t = useTranslations("admin.crud");
+  const tq = useTranslations("admin.mobile.actions");
   const tp = useTranslations("admin.pages.unitTypes");
   const ta = useTranslations("admin.attachments");
   const router = useRouter();
@@ -229,23 +239,22 @@ export function UnitTypeForm({ id }: { id?: string }) {
     (isEdit && isLoading);
 
   if (isEdit && isLoading && !unitType) {
-    return <p className="text-sm text-[#83746b]">{t("loading")}</p>;
+    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
   }
 
   const photoCount = attachments.length;
 
   return (
     <AdminDetailPage
+      section={tp("title")}
+      mode={isEdit ? "edit" : "create"}
       backHref={BASE}
       backLabel={t("backToList")}
-      title={isEdit ? unitType?.name || t("editTitle") : t("createTitle")}
+      title={isEdit ? unitType?.name || t("editTitle") : tq("addUnitType")}
       description={isEdit ? tp("editDescription") : tp("formDescription")}
     >
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21.5rem]">
-        <form
-          onSubmit={(e) => void handleSubmit(e)}
-          className="space-y-6"
-        >
+        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
           <AdminFormError message={formError} />
 
           <AdminFormSection
@@ -300,7 +309,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
                     setForm((f) => ({ ...f, description: e.target.value }))
                   }
                 />
-                <p className="mt-1 text-xs text-[#83746b]">
+                <p className="mt-1 text-xs text-[#6b6b6b]">
                   {tp("descriptionHint")}
                 </p>
               </AdminField>
@@ -324,19 +333,37 @@ export function UnitTypeForm({ id }: { id?: string }) {
             cancelLabel={t("cancel")}
             pending={pending}
             submitDisabled={isEdit && !isDirty}
+            dirty={isEdit ? isDirty : undefined}
             submitLabel={isEdit ? tp("saveDetails") : tp("saveAndAddPhotos")}
             pendingLabel={t("saving")}
           />
         </form>
 
-        <aside className={cn("lg:sticky lg:top-6", isEdit && "max-lg:order-first")}>
+        <aside
+          className={cn(
+            "space-y-4 lg:sticky lg:top-4",
+            isEdit && "max-lg:order-first",
+          )}
+        >
+          <UnitTypePreview
+            name={form.name}
+            description={form.description}
+            size={form.size}
+            propertyName={
+              properties.find((p) => p.id === form.propertyId)?.name
+            }
+            photo={firstPhoto(attachments)}
+            monthly={monthlyOf(
+              (unitType as UnitTypeWithInventory | undefined)?.pricings,
+            )}
+          />
           <AdminFormSection
             icon="photo_library"
             title={tp("photosTitle")}
             hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
             headerExtra={
               isEdit && photoCount > 0 ? (
-                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#51443c]">
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#3d3a36]">
                   {ta("photoCount", { count: photoCount })}
                 </span>
               ) : null
@@ -357,4 +384,3 @@ export function UnitTypeForm({ id }: { id?: string }) {
     </AdminDetailPage>
   );
 }
-

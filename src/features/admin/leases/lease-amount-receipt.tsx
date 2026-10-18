@@ -38,10 +38,10 @@ type LineItem = {
 function MetaChip({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-[#d5c3b8]/45 bg-white/50 px-3 py-2">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#83746b]">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6b6b6b]">
         {label}
       </p>
-      <p className="mt-0.5 text-sm font-semibold tabular-nums text-[#1a1c1a]">
+      <p className="mt-0.5 text-sm font-semibold tabular-nums text-[#141414]">
         {value}
       </p>
     </div>
@@ -57,8 +57,8 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-1.5 text-sm">
-      <dt className="text-[#51443c]">{label}</dt>
-      <dd className="shrink-0 font-semibold tabular-nums text-[#1a1c1a]">
+      <dt className="text-[#3d3a36]">{label}</dt>
+      <dd className="shrink-0 font-semibold tabular-nums text-[#141414]">
         {value}
       </dd>
     </div>
@@ -78,13 +78,13 @@ function ReceiptLine({
         {index}
       </span>
       <div className="min-w-0">
-        <p className="font-semibold text-[#1a1c1a]">{label}</p>
-        <p className="mt-0.5 text-xs leading-relaxed text-[#83746b]">{hint}</p>
-        <p className="mt-1.5 inline-flex max-w-full flex-wrap items-center gap-x-1 rounded-lg border border-[#d5c3b8]/50 bg-white/55 px-2 py-1 font-mono text-[11px] tabular-nums text-[#51443c]">
+        <p className="font-semibold text-[#141414]">{label}</p>
+        <p className="mt-0.5 text-xs leading-relaxed text-[#6b6b6b]">{hint}</p>
+        <p className="mt-1.5 inline-flex max-w-full flex-wrap items-center gap-x-1 rounded-lg border border-[#d5c3b8]/50 bg-white/55 px-2 py-1 font-mono text-[11px] tabular-nums text-[#3d3a36]">
           {equation}
         </p>
       </div>
-      <p className="text-right text-base font-bold tabular-nums text-[#1a1c1a] sm:pt-0.5">
+      <p className="text-right text-base font-bold tabular-nums text-[#141414] sm:pt-0.5">
         {formatIdrTable(amount)}
       </p>
     </div>
@@ -192,11 +192,11 @@ export function LeaseAmountReceipt({
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ferrugem">
                 {tp("receiptBadge")}
               </p>
-              <h3 className="mt-1 text-lg font-bold tracking-tight text-[#1a1c1a]">
+              <h3 className="mt-1 text-lg font-bold tracking-tight text-[#141414]">
                 {tp("amountPreview")}
               </h3>
               {location ? (
-                <p className="mt-1 text-sm text-[#51443c]">{location}</p>
+                <p className="mt-1 text-sm text-[#3d3a36]">{location}</p>
               ) : null}
             </div>
           </div>
@@ -210,18 +210,18 @@ export function LeaseAmountReceipt({
 
         <div className="mt-4 grid gap-3 rounded-xl border border-[#d5c3b8]/40 bg-white/45 px-3.5 py-3 sm:grid-cols-2">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#83746b]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6b6b6b]">
               {tp("periodStart")}
             </p>
-            <p className="mt-0.5 text-sm font-semibold text-[#1a1c1a]">
+            <p className="mt-0.5 text-sm font-semibold text-[#141414]">
               {formatDate(startDate)}
             </p>
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#83746b]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6b6b6b]">
               {tp("periodEnd")}
             </p>
-            <p className="mt-0.5 text-sm font-semibold text-[#1a1c1a]">
+            <p className="mt-0.5 text-sm font-semibold text-[#141414]">
               {formatDate(endDate)}
             </p>
           </div>
@@ -229,7 +229,7 @@ export function LeaseAmountReceipt({
       </div>
 
       <div className="relative border-b border-[#d5c3b8]/40 px-5 py-4 sm:px-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#83746b]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6b6b6b]">
           {tp("receiptRatesTitle")}
         </p>
         <dl className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
@@ -264,7 +264,7 @@ export function LeaseAmountReceipt({
       </div>
 
       <div className="relative px-5 py-2 sm:px-6">
-        <p className="pt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#83746b]">
+        <p className="pt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6b6b6b]">
           {tp("receiptBreakdownTitle")}
         </p>
         <div className="divide-y divide-dashed divide-[#d5c3b8]/55">
@@ -287,12 +287,12 @@ export function LeaseAmountReceipt({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ferrugem">
               {tp("amountDue")}
             </p>
-            <p className="mt-1 text-2xl font-bold tracking-tight text-[#1a1c1a] tabular-nums sm:text-3xl">
+            <p className="mt-1 text-2xl font-bold tracking-tight text-[#141414] tabular-nums sm:text-3xl">
               {formatIdrTable(breakdown.amountDue)}
             </p>
           </div>
         </div>
-        <p className="mt-3 border-t border-[#d5c3b8]/45 pt-3 text-xs leading-relaxed text-[#83746b]">
+        <p className="mt-3 border-t border-[#d5c3b8]/45 pt-3 text-xs leading-relaxed text-[#6b6b6b]">
           {tp("receiptFooter")}
         </p>
       </div>

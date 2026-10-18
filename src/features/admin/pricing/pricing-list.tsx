@@ -4,10 +4,12 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import { AdminSearchInput } from "@/features/admin/components/admin-field";
-import { AdminFilterRow } from "@/features/admin/components/admin-filter-row";
+import { AdminSelect } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
-import { PropertyFilter } from "@/features/admin/components/property-filter";
+import {
+  AdminToolbar,
+  usePropertyToolbarFilter,
+} from "@/features/admin/components/admin-toolbar";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
@@ -62,6 +64,8 @@ export function PricingList() {
   const ti = useTranslations("admin.pages.inventory");
   const [propertyFilter, setPropertyFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [priceState, setPriceState] = useState<"" | "missing" | "priced">("");
+  const tt = useTranslations("admin.toolbar");
   const {
     data = [],
     isLoading,
@@ -133,9 +137,21 @@ export function PricingList() {
     );
   }, [data, unitTypes, lookups, search]);
 
+  const visibleRows = useMemo(
+    () =>
+      rows.filter((r) =>
+        priceState === "missing"
+          ? !r.monthly
+          : priceState === "priced"
+            ? Boolean(r.monthly)
+            : true,
+      ),
+    [rows, priceState],
+  );
+
   const byProperty = useMemo(() => {
     const map = new Map<string, RateRow[]>();
-    for (const r of rows) {
+    for (const r of visibleRows) {
       const list = map.get(r.propertyId);
       if (list) list.push(r);
       else map.set(r.propertyId, [r]);
@@ -151,7 +167,7 @@ export function PricingList() {
         ),
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [rows, lookups]);
+  }, [visibleRows, lookups]);
 
   const insight = useMemo(() => {
     const monthlies = rows
@@ -182,6 +198,10 @@ export function PricingList() {
 
   const pending = mutations.remove.isPending;
   const loading = isLoading || typesLoading;
+  const propertyToolbar = usePropertyToolbarFilter(
+    propertyFilter,
+    setPropertyFilter,
+  );
 
   return (
     <>
@@ -216,15 +236,37 @@ export function PricingList() {
         />
       </div>
 
-      <AdminFilterRow>
-        <PropertyFilter value={propertyFilter} onChange={setPropertyFilter} />
-        <AdminSearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder={t("searchPlaceholder")}
-          className="sm:max-w-md sm:flex-1"
-        />
-      </AdminFilterRow>
+      <AdminToolbar
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t("searchPlaceholder"),
+        }}
+        filters={[
+          propertyToolbar,
+          {
+            key: "prices",
+            label: tt("prices"),
+            active: priceState !== "",
+            chip: priceState === "missing" ? tt("missingPrice") : tt("priced"),
+            onClear: () => setPriceState(""),
+            width: "w-48",
+            control: (
+              <AdminSelect
+                value={priceState}
+                onChange={(e) =>
+                  setPriceState(e.target.value as typeof priceState)
+                }
+              >
+                <option value="">{tt("all")}</option>
+                <option value="missing">{tt("missingPrice")}</option>
+                <option value="priced">{tt("priced")}</option>
+              </AdminSelect>
+            ),
+          },
+        ]}
+        resultCount={loading ? undefined : visibleRows.length}
+      />
 
       {error ? (
         <div className="mb-4">

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,26 +17,30 @@ import {
   AdminField,
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
-import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
-import { AdminTableShell } from "@/features/admin/components/admin-table-shell";
-import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
 import {
-  AdminCrudTable,
-  AdminCrudTableCell,
-  AdminCrudTableRow,
-} from "@/features/admin/crud/admin-crud-table";
+  AdminDetailPage,
+  AdminFormActions,
+  AdminFormSection,
+} from "@/features/admin/components/admin-form-layout";
+import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
+import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import {
   useTenantUser,
   useTenantUserMutations,
 } from "@/features/admin/hooks/use-admin-queries";
-import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import { resolveLeasePropertyName } from "@/features/admin/lib/entity-display";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { formatDate } from "@/features/admin/lib/format";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
 import {
-  updateTenantUserSchema,
-} from "@/features/admin/users/schemas";
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
+import {
+  Avatar,
+  StatusDot,
+  WhatsAppButton,
+} from "@/features/admin/operations/ops-kit";
+import { updateTenantUserSchema } from "@/features/admin/users/schemas";
 import { TenantResetPasswordDialog } from "@/features/admin/users/tenant-reset-password-dialog";
 import { Link } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
@@ -55,6 +59,7 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.users");
   const tl = useTranslations("admin.pages.leases");
+  const to = useTranslations("admin.pages.operations");
   const locale = useLocale();
   const { data: tenant, isLoading, error } = useTenantUser(id);
   const mutations = useTenantUserMutations();
@@ -113,16 +118,6 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
     }
   }
 
-  function handleCancel() {
-    if (!tenant) return;
-    setForm({
-      name: tenant.name,
-      phoneNumber: tenant.phoneNumber ?? "",
-      email: displayEmailOrEmpty(tenant.email),
-    });
-    setFormError(null);
-  }
-
   async function confirmToggleActive() {
     if (!tenant) return;
     const nextActive = !tenant.isActive;
@@ -131,7 +126,9 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
         id: tenant.id,
         isActive: nextActive,
       });
-      showApiSuccess(nextActive ? tp("activateSuccess") : tp("deactivateSuccess"));
+      showApiSuccess(
+        nextActive ? tp("activateSuccess") : tp("deactivateSuccess"),
+      );
       setToggleOpen(false);
     } catch (err) {
       const msg =
@@ -143,7 +140,7 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
   }
 
   if (isLoading) {
-    return <p className="text-sm text-[#83746b]">{t("loading")}</p>;
+    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
   }
 
   if (error || !tenant) {
@@ -157,176 +154,209 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
     form.phoneNumber !== (tenant.phoneNumber ?? "") ||
     form.email !== displayEmailOrEmpty(tenant.email);
 
+  const phone = tenant.phoneNumber;
+
   return (
     <>
-      <Link
-        href={BASE}
-        className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#71130d] transition-colors hover:text-[#8a1a12]"
-      >
-        <Icon name="arrow_back" size={18} />
-        {t("backToList")}
-      </Link>
-
-      <AdminPageHeader
+      <AdminDetailPage
+        backHref={BASE}
+        backLabel={t("backToList")}
+        section={tp("title")}
+        mode="view"
         title={form.name || tenant.name}
         description={tp("detailDescription")}
-        primaryAction={{
-          label: tenant.isActive ? tp("deactivate") : tp("activate"),
-          onClick: () => setToggleOpen(true),
-          icon: tenant.isActive ? "person_off" : "person",
-        }}
-      />
-
-      <form
-        onSubmit={(e) => void handleSave(e)}
-        className="glass-panel mb-8 rounded-[1.75rem] p-5 sm:p-6"
+        aside={
+          <section className="overflow-hidden rounded-[1.75rem] border border-[#efe7e5] bg-white">
+            <div className="flex flex-col items-center gap-3 bg-[#faf7f6] px-5 py-6 text-center">
+              <div className="relative">
+                <Avatar
+                  name={tenant.name}
+                  seed={tenant.id}
+                  muted={!tenant.isActive}
+                  className="size-20 text-2xl"
+                />
+                <span className="absolute bottom-1 right-1">
+                  <StatusDot active={tenant.isActive} />
+                </span>
+              </div>
+              <div>
+                <p className="text-xl font-medium tracking-tight">
+                  {tenant.name}
+                </p>
+                <p className="text-sm text-[#6b6b6b]">
+                  {phone ?? displayEmailOrEmpty(tenant.email) ?? "—"}
+                </p>
+              </div>
+              <span
+                className={cn(
+                  "rounded-full px-3 py-1 text-xs font-medium",
+                  tenant.isActive
+                    ? "bg-[#dff3d6] text-[#2f6d22]"
+                    : "bg-[#efeeeb] text-[#6b6b6b]",
+                )}
+              >
+                {tenant.isActive ? tp("statusActive") : tp("statusInactive")}
+              </span>
+            </div>
+            <dl className="grid grid-cols-2 gap-2 p-4 text-sm">
+              <div className="rounded-2xl bg-[#faf7f6] p-3">
+                <dt className="text-xs text-[#6b6b6b]">{tp("joined")}</dt>
+                <dd className="font-medium">
+                  {formatDate(tenant.createdAt, locale)}
+                </dd>
+              </div>
+              <div className="rounded-2xl bg-[#faf7f6] p-3">
+                <dt className="text-xs text-[#6b6b6b]">{tp("leaseCount")}</dt>
+                <dd className="font-medium">{leases.length}</dd>
+              </div>
+            </dl>
+            <div className="flex flex-col gap-2 px-4 pb-4">
+              <WhatsAppButton
+                phone={phone}
+                label={to("whatsapp")}
+                message={to("waGreeting", {
+                  name: tenant.name.split(" ")[0] ?? tenant.name,
+                })}
+              />
+              <button
+                type="button"
+                onClick={() => setResetOpen(true)}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[#ece4e2] bg-white px-4 text-sm font-medium text-[#141414] hover:border-[#e8bfb9] hover:text-[#71130d]"
+              >
+                <Icon name="lock_reset" size={18} />
+                {tp("resetPassword")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setToggleOpen(true)}
+                className={cn(
+                  "inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium",
+                  tenant.isActive
+                    ? "text-[#a1271b] hover:bg-[#fdecea]"
+                    : "bg-[#71130d] text-white hover:bg-[#8a1a12]",
+                )}
+              >
+                <Icon
+                  name={tenant.isActive ? "person_off" : "person_check"}
+                  size={18}
+                />
+                {tenant.isActive ? tp("deactivate") : tp("activate")}
+              </button>
+            </div>
+          </section>
+        }
       >
-        <h2 className="mb-4 text-base font-semibold text-[#1a1c1a]">
-          {tp("accountSection")}
-        </h2>
-
-        {formError && (
-          <div className="mb-4">
-            <AdminAlert message={formError} />
-          </div>
-        )}
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <AdminField label={t("name")} htmlFor="tenant-name" required>
-            <input
-              id="tenant-name"
-              required
-              autoComplete="name"
-              className={adminInputClassName}
-              value={form.name}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, name: e.target.value }))
-              }
+        <div className="space-y-6">
+          <form onSubmit={(e) => void handleSave(e)} className="space-y-6">
+            {formError ? <AdminAlert message={formError} /> : null}
+            <AdminFormSection
+              icon="badge"
+              title={tp("accountSection")}
+              hint={tp("identityHint")}
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                <AdminField
+                  label={t("name")}
+                  htmlFor="tenant-name"
+                  required
+                  className="sm:col-span-2"
+                >
+                  <input
+                    id="tenant-name"
+                    required
+                    autoComplete="name"
+                    className={adminInputClassName}
+                    value={form.name}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, name: e.target.value }))
+                    }
+                  />
+                </AdminField>
+                <AdminField label={tp("phone")} htmlFor="tenant-phone" required>
+                  <input
+                    id="tenant-phone"
+                    type="tel"
+                    required
+                    autoComplete="tel"
+                    inputMode="tel"
+                    placeholder={tp("phonePlaceholder")}
+                    className={adminInputClassName}
+                    value={form.phoneNumber}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, phoneNumber: e.target.value }))
+                    }
+                  />
+                </AdminField>
+                <AdminField label={tp("emailOptional")} htmlFor="tenant-email">
+                  <input
+                    id="tenant-email"
+                    type="email"
+                    autoComplete="email"
+                    className={adminInputClassName}
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, email: e.target.value }))
+                    }
+                  />
+                  <p className="mt-1 text-xs text-[#6b6b6b]">
+                    {tp("emailOptionalHint")}
+                  </p>
+                </AdminField>
+              </div>
+            </AdminFormSection>
+            <AdminFormActions
+              cancelHref={BASE}
+              cancelLabel={t("cancel")}
+              pending={pendingSave}
+              submitDisabled={!isDirty}
+              dirty={isDirty}
+              submitLabel={t("save")}
+              pendingLabel={t("saving")}
             />
-          </AdminField>
-          <AdminField label={tp("phone")} htmlFor="tenant-phone" required>
-            <input
-              id="tenant-phone"
-              type="tel"
-              required
-              autoComplete="tel"
-              inputMode="tel"
-              placeholder={tp("phonePlaceholder")}
-              className={adminInputClassName}
-              value={form.phoneNumber}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, phoneNumber: e.target.value }))
-              }
-            />
-          </AdminField>
-          <AdminField label={tp("emailOptional")} htmlFor="tenant-email">
-            <input
-              id="tenant-email"
-              type="email"
-              autoComplete="email"
-              className={adminInputClassName}
-              value={form.email}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, email: e.target.value }))
-              }
-            />
-            <p className="mt-1 text-xs text-[#83746b]">
-              {tp("emailOptionalHint")}
-            </p>
-          </AdminField>
-        </div>
+          </form>
 
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <Button type="submit" disabled={pendingSave || !isDirty}>
-            {pendingSave ? t("saving") : t("save")}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={pendingSave || !isDirty}
-            onClick={handleCancel}
-          >
-            {t("cancel")}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setResetOpen(true)}
-          >
-            <Icon name="lock_reset" size={18} className="mr-1.5" />
-            {tp("resetPassword")}
-          </Button>
-        </div>
-      </form>
-
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <DetailCard label={tp("status")}>
-          <span
-            className={cn(
-              "inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold",
-              tenant.isActive
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                : "border-[#e3e2e0] bg-[#efeeeb] text-[#83746b]",
+          <AdminFormSection icon="description" title={tp("leasesSection")}>
+            {leases.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-[#e3d6d3] p-6 text-center text-sm text-[#6b6b6b]">
+                {tp("leasesEmpty")}
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {[...leases]
+                  .sort((a, b) => b.startDate.localeCompare(a.startDate))
+                  .map((lease) => (
+                    <li key={lease.id}>
+                      <Link
+                        href={`/admin/leases/${lease.id}/edit`}
+                        className="flex flex-wrap items-center gap-3 rounded-2xl bg-[#faf7f6] p-3 transition-colors hover:bg-[#f6f0ef]"
+                      >
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#71130d]">
+                          <Icon name="bed" size={20} />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[15px] font-medium">
+                            {lease.unit?.name ?? lease.unitId} ·{" "}
+                            {resolveLeasePropertyName(lease, lookups)}
+                          </span>
+                          <span className="block text-sm text-[#6b6b6b]">
+                            {formatDate(lease.startDate, locale)} {tl("to")}{" "}
+                            {formatDate(lease.endDate, locale)}
+                          </span>
+                        </span>
+                        <LeaseStatusBadge status={lease.status} />
+                        <Icon
+                          name="chevron_right"
+                          size={20}
+                          className="text-[#6b6b6b]"
+                        />
+                      </Link>
+                    </li>
+                  ))}
+              </ul>
             )}
-          >
-            {tenant.isActive ? tp("statusActive") : tp("statusInactive")}
-          </span>
-        </DetailCard>
-        <DetailCard
-          label={tp("joined")}
-          value={formatDate(tenant.createdAt, locale)}
-        />
-        <DetailCard label={tp("leaseCount")} value={String(leases.length)} />
-      </div>
-
-      <h2 className="mb-3 text-base font-semibold text-[#1a1c1a]">
-        {tp("leasesSection")}
-      </h2>
-
-      <AdminTableShell>
-        {leases.length === 0 ? (
-          <p className="p-8 text-center text-sm text-[#83746b]">
-            {tp("leasesEmpty")}
-          </p>
-        ) : (
-          <AdminCrudTable
-            columns={[
-              { key: "unit", label: t("unit") },
-              { key: "property", label: t("property") },
-              { key: "period", label: t("period") },
-              { key: "status", label: t("status") },
-              { key: "actions", label: t("actions"), align: "right" },
-            ]}
-          >
-            {leases.map((lease) => (
-              <AdminCrudTableRow key={lease.id}>
-                <AdminCrudTableCell className="font-semibold">
-                  {lease.unit?.name ?? lease.unitId}
-                </AdminCrudTableCell>
-                <AdminCrudTableCell className="text-[#51443c]">
-                  {resolveLeasePropertyName(lease, lookups)}
-                </AdminCrudTableCell>
-                <AdminCrudTableCell className="text-[#51443c]">
-                  {formatDate(lease.startDate, locale)} {tl("to")}{" "}
-                  {formatDate(lease.endDate, locale)}
-                </AdminCrudTableCell>
-                <AdminCrudTableCell>
-                  <LeaseStatusBadge status={lease.status} />
-                </AdminCrudTableCell>
-                <AdminCrudTableCell align="right">
-                  <Link
-                    href={`/admin/leases/${lease.id}/edit`}
-                    className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#efeeeb] hover:text-[#71130d]"
-                    aria-label={t("editTitle")}
-                  >
-                    <Icon name="edit" size={18} />
-                  </Link>
-                </AdminCrudTableCell>
-              </AdminCrudTableRow>
-            ))}
-          </AdminCrudTable>
-        )}
-      </AdminTableShell>
+          </AdminFormSection>
+        </div>
+      </AdminDetailPage>
 
       <TenantResetPasswordDialog
         user={resetOpen ? tenant : null}
@@ -371,24 +401,5 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
         </DialogContent>
       </Dialog>
     </>
-  );
-}
-
-function DetailCard({
-  label,
-  value,
-  children,
-}: {
-  label: string;
-  value?: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="glass-panel-soft rounded-xl p-4">
-      <p className="text-xs font-medium text-[#83746b]">{label}</p>
-      {children ?? (
-        <p className="mt-1 text-sm font-semibold text-[#1a1c1a]">{value}</p>
-      )}
-    </div>
   );
 }

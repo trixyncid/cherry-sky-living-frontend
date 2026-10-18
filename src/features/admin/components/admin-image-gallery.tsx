@@ -255,7 +255,7 @@ export function AdminImageGallery({
 
       {queued.length > 0 && !disabled ? (
         <div className="mt-3 space-y-2">
-          <p className="text-xs leading-relaxed text-[#83746b]">
+          <p className="text-xs leading-relaxed text-[#6b6b6b]">
             {t("queueHint", { count: queued.length })}
           </p>
           <div className="flex items-center gap-2">
@@ -263,7 +263,7 @@ export function AdminImageGallery({
               type="button"
               disabled={uploading}
               onClick={clearQueue}
-              className="glass-control inline-flex h-9 flex-1 items-center justify-center rounded-xl px-3 text-xs font-semibold text-[#51443c] transition-colors hover:bg-white/80 disabled:opacity-50"
+              className="glass-control inline-flex h-9 flex-1 items-center justify-center rounded-xl px-3 text-xs font-semibold text-[#3d3a36] transition-colors hover:bg-white/80 disabled:opacity-50"
             >
               {t("clearQueue")}
             </button>
@@ -295,7 +295,7 @@ export function AdminImageGallery({
       ) : null}
 
       <Dialog open={preview !== null} onOpenChange={(open) => !open && setPreview(null)}>
-        <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-2xl [&>button]:bg-white/90 [&>button]:text-[#51443c] [&>button]:hover:bg-white">
+        <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-2xl [&>button]:bg-white/90 [&>button]:text-[#3d3a36] [&>button]:hover:bg-white">
           {preview ? (
             <>
               <div className="relative aspect-[4/3] bg-[#1a1c1a]">
@@ -317,10 +317,10 @@ export function AdminImageGallery({
               </div>
               <div className="flex items-start justify-between gap-3 px-5 pb-5">
                 <div className="min-w-0">
-                  <DialogTitle className="truncate text-sm font-semibold text-[#1a1c1a]">
+                  <DialogTitle className="truncate text-sm font-semibold text-[#141414]">
                     {attachmentDisplayName(preview.url)}
                   </DialogTitle>
-                  <DialogDescription className="mt-0.5 text-xs text-[#83746b]">
+                  <DialogDescription className="mt-0.5 text-xs text-[#6b6b6b]">
                     {preview.createdAt ? formatDate(preview.createdAt) : t("view")}
                   </DialogDescription>
                 </div>
@@ -329,7 +329,7 @@ export function AdminImageGallery({
                     href={preview.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#e3e2e0] bg-white px-3 text-xs font-semibold text-[#51443c] transition-colors hover:bg-[#efeeeb]"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#e3e2e0] bg-white px-3 text-xs font-semibold text-[#3d3a36] transition-colors hover:bg-[#efeeeb]"
                   >
                     <Icon name="open_in_new" size={16} />
                     {t("view")}
@@ -389,13 +389,13 @@ function LockedDropzone({
   const t = useTranslations("admin.attachments");
   return (
     <div className="flex min-h-[13.5rem] flex-col items-center justify-center rounded-2xl border border-dashed border-[#d5c3b8]/80 bg-[#faf9f6]/60 px-5 py-8 text-center">
-      <span className="mb-3 flex size-12 items-center justify-center rounded-full bg-white/80 text-[#83746b] shadow-sm">
+      <span className="mb-3 flex size-12 items-center justify-center rounded-full bg-white/80 text-[#6b6b6b] shadow-sm">
         <Icon name="lock" size={22} />
       </span>
-      <p className="text-sm font-semibold text-[#51443c]">
+      <p className="text-sm font-semibold text-[#3d3a36]">
         {title ?? t("lockedTitle")}
       </p>
-      <p className="mt-1 max-w-[16rem] text-xs leading-relaxed text-[#83746b]">
+      <p className="mt-1 max-w-[16rem] text-xs leading-relaxed text-[#6b6b6b]">
         {hint ?? t("lockedHint")}
       </p>
     </div>
@@ -438,7 +438,7 @@ function AddTile({
       </span>
       <span
         className={cn(
-          "mt-0.5 text-[#83746b]",
+          "mt-0.5 text-[#6b6b6b]",
           compact ? "text-[11px] leading-tight" : "mt-1 max-w-[16rem] text-xs leading-relaxed",
         )}
       >
@@ -492,7 +492,7 @@ function QueuedPhoto({
         <button
           type="button"
           onClick={onRemove}
-          className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white/92 text-[#51443c] shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-[#ba1a1a]"
+          className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white/92 text-[#3d3a36] shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-[#ba1a1a]"
           aria-label={t("removeFromQueue")}
         >
           <Icon name="close" size={16} />
@@ -549,7 +549,7 @@ function PhotoTile({
         <button
           type="button"
           onClick={onPreview}
-          className="pointer-events-auto flex size-8 items-center justify-center rounded-full bg-white/92 text-[#51443c] shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
+          className="pointer-events-auto flex size-8 items-center justify-center rounded-full bg-white/92 text-[#3d3a36] shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
           aria-label={t("view")}
         >
           <Icon name="zoom_in" size={16} />

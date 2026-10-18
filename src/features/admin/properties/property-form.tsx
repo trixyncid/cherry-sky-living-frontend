@@ -1,36 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
+import { useEffect, useState } from "react";
+import {
+  AdminCurrencyInput,
+  AdminField,
+  adminInputClassName,
+} from "@/features/admin/components/admin-field";
 import {
   AdminDetailPage,
   AdminFormActions,
   AdminFormError,
   AdminFormSection,
 } from "@/features/admin/components/admin-form-layout";
-import {
-  AdminCurrencyInput,
-  AdminField,
-  adminInputClassName,
-} from "@/features/admin/components/admin-field";
 import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
+import { PropertyPreview } from "@/features/admin/components/form-previews";
 import {
   useProperty,
   usePropertyMutations,
 } from "@/features/admin/hooks/use-admin-queries";
+import { firstPhoto } from "@/features/admin/inventory/inventory-kit";
+import { getErrorMessage } from "@/features/admin/lib/errors";
+import { formatIdrInput, parseIdrInput } from "@/features/admin/lib/format";
+import {
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
+import { propertyFormSchema } from "@/features/admin/properties/schemas";
+import { useRouter } from "@/i18n/routing";
 import {
   deletePropertyAttachment,
   uploadPropertyImage,
 } from "@/lib/api/admin/attachments";
-import { getErrorMessage } from "@/features/admin/lib/errors";
-import {
-  formatIdrInput,
-  parseIdrInput,
-} from "@/features/admin/lib/format";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
-import { propertyFormSchema } from "@/features/admin/properties/schemas";
 import { adminKeys } from "@/lib/query/keys";
 import { cn } from "@/lib/utils";
 
@@ -56,6 +58,7 @@ const emptyForm: FormState = {
 
 export function PropertyForm({ id }: { id?: string }) {
   const t = useTranslations("admin.crud");
+  const tq = useTranslations("admin.mobile.actions");
   const tp = useTranslations("admin.pages.properties");
   const ta = useTranslations("admin.attachments");
   const router = useRouter();
@@ -197,23 +200,22 @@ export function PropertyForm({ id }: { id?: string }) {
     (isEdit && isLoading);
 
   if (isEdit && isLoading && !property) {
-    return <p className="text-sm text-[#83746b]">{t("loading")}</p>;
+    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
   }
 
   const photoCount = attachments.length;
 
   return (
     <AdminDetailPage
+      section={tp("title")}
+      mode={isEdit ? "edit" : "create"}
       backHref={BASE}
       backLabel={t("backToList")}
-      title={isEdit ? property?.name || t("editTitle") : t("createTitle")}
+      title={isEdit ? property?.name || t("editTitle") : tq("addProperty")}
       description={isEdit ? tp("editDescription") : tp("formDescription")}
     >
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21.5rem]">
-        <form
-          onSubmit={(e) => void handleSubmit(e)}
-          className="space-y-6"
-        >
+        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
           <AdminFormError message={formError} />
 
           <AdminFormSection
@@ -289,7 +291,7 @@ export function PropertyForm({ id }: { id?: string }) {
                     setForm((f) => ({ ...f, paymentDueDay: e.target.value }))
                   }
                 />
-                <p className="mt-1 text-xs text-[#83746b]">
+                <p className="mt-1 text-xs text-[#6b6b6b]">
                   {tp("paymentDueDayHint")}
                 </p>
               </AdminField>
@@ -306,7 +308,7 @@ export function PropertyForm({ id }: { id?: string }) {
                     setForm((f) => ({ ...f, lateFeePerDay }))
                   }
                 />
-                <p className="mt-1 text-xs text-[#83746b]">
+                <p className="mt-1 text-xs text-[#6b6b6b]">
                   {tp("lateFeeHint")}
                 </p>
               </AdminField>
@@ -330,7 +332,7 @@ export function PropertyForm({ id }: { id?: string }) {
                     }))
                   }
                 />
-                <p className="mt-1 text-xs text-[#83746b]">
+                <p className="mt-1 text-xs text-[#6b6b6b]">
                   {tp("renewalHint")}
                 </p>
               </AdminField>
@@ -342,19 +344,33 @@ export function PropertyForm({ id }: { id?: string }) {
             cancelLabel={t("cancel")}
             pending={pending}
             submitDisabled={isEdit && !isDirty}
+            dirty={isEdit ? isDirty : undefined}
             submitLabel={isEdit ? tp("saveDetails") : tp("saveAndAddPhotos")}
             pendingLabel={t("saving")}
           />
         </form>
 
-        <aside className={cn("lg:sticky lg:top-6", isEdit && "max-lg:order-first")}>
+        <aside
+          className={cn(
+            "space-y-4 lg:sticky lg:top-4",
+            isEdit && "max-lg:order-first",
+          )}
+        >
+          <PropertyPreview
+            name={form.name}
+            city={form.city}
+            address={form.address}
+            photo={firstPhoto(attachments)}
+            dueDay={form.paymentDueDay}
+            lateFee={parseIdrInput(form.lateFeePerDay) || 0}
+          />
           <AdminFormSection
             icon="photo_library"
             title={tp("photosTitle")}
             hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
             headerExtra={
               isEdit && photoCount > 0 ? (
-                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#51443c]">
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#3d3a36]">
                   {ta("photoCount", { count: photoCount })}
                 </span>
               ) : null

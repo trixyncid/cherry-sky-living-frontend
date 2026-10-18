@@ -12,11 +12,14 @@ import { computeLedgerSummary } from "@/features/admin/bookkeeping/compute-ledge
 import { AdminAlert } from "@/features/admin/components/admin-alert";
 import {
   AdminDateRangePicker,
-  AdminSearchInput,
+  AdminSelect,
 } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminPagination } from "@/features/admin/components/admin-pagination";
-import { PropertyFilter } from "@/features/admin/components/property-filter";
+import {
+  AdminToolbar,
+  usePropertyToolbarFilter,
+} from "@/features/admin/components/admin-toolbar";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { getLedgerEntrySortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
@@ -47,7 +50,11 @@ import {
 } from "@/features/admin/lib/show-api-error";
 import { Segmented } from "@/features/admin/overview/dashboard-widgets";
 import { Link } from "@/i18n/routing";
-import { isLedgerCategoryForType } from "@/lib/ledger-categories";
+import {
+  isLedgerCategoryForType,
+  LEDGER_EXPENSE_CATEGORIES,
+  LEDGER_INCOME_CATEGORIES,
+} from "@/lib/ledger-categories";
 import type { LedgerEntry, LedgerEntryType } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
 
@@ -259,6 +266,11 @@ export function BookkeepingList() {
       : tb("allTime");
   const flow = summary.income + summary.expense;
   const incomeShare = flow > 0 ? (summary.income / flow) * 100 : 50;
+  const tt = useTranslations("admin.toolbar");
+  const propertyToolbar = usePropertyToolbarFilter(
+    propertyFilter,
+    setPropertyFilter,
+  );
   const categoryLabel = (key: string) =>
     key === "none" ? tp("categoryNone") : tp(`categories.${key}`);
 
@@ -286,6 +298,93 @@ export function BookkeepingList() {
           {tb("addExpense")}
         </Link>
       </div>
+
+      <AdminToolbar
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t("searchPlaceholder"),
+        }}
+        filters={[
+          {
+            key: "type",
+            label: tt("type"),
+            active: typeFilter !== "",
+            chip:
+              typeFilter === "income" ? tp("typeIncome") : tp("typeExpense"),
+            onClear: () => {
+              setTypeFilter("");
+              setCategoryFilter("");
+            },
+            width: "w-auto",
+            control: (
+              <Segmented
+                label={tp("typeFilter")}
+                value={typeFilter || "all"}
+                onChange={(v) => {
+                  setTypeFilter(v === "all" ? "" : v);
+                  setCategoryFilter("");
+                  setPage(1);
+                }}
+                options={[
+                  { id: "all", label: tp("allTypes") },
+                  { id: "income", label: tp("typeIncome") },
+                  { id: "expense", label: tp("typeExpense") },
+                ]}
+              />
+            ),
+          },
+          propertyToolbar,
+          {
+            key: "dates",
+            label: tt("dates"),
+            active: Boolean(startDate || endDate),
+            chip: periodLabel,
+            onClear: () => {
+              setStartDate("");
+              setEndDate("");
+            },
+            width: "w-60",
+            control: (
+              <AdminDateRangePicker
+                from={startDate}
+                to={endDate}
+                onFromChange={setStartDate}
+                onToChange={setEndDate}
+                placeholder={tp("dateRangePlaceholder")}
+              />
+            ),
+          },
+          {
+            key: "category",
+            label: tt("category"),
+            active: categoryFilter !== "",
+            chip: categoryFilter ? categoryLabel(categoryFilter) : undefined,
+            onClear: () => setCategoryFilter(""),
+            width: "w-44",
+            control: (
+              <AdminSelect
+                value={categoryFilter}
+                onChange={(e) => {
+                  setCategoryFilter(e.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="">{tt("all")}</option>
+                {[
+                  ...(typeFilter !== "expense" ? LEDGER_INCOME_CATEGORIES : []),
+                  ...(typeFilter !== "income" ? LEDGER_EXPENSE_CATEGORIES : []),
+                ].map((c) => (
+                  <option key={c} value={c}>
+                    {categoryLabel(c)}
+                  </option>
+                ))}
+              </AdminSelect>
+            ),
+          },
+        ]}
+        resultCount={loading ? undefined : total}
+      />
 
       {/* Statement */}
       <section className="mb-4 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
@@ -455,51 +554,6 @@ export function BookkeepingList() {
           );
         })}
       </section>
-
-      {/* Filters */}
-      <div className="mb-4 flex w-full min-w-0 flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center">
-        <Segmented
-          label={tp("typeFilter")}
-          value={typeFilter || "all"}
-          onChange={(v) => {
-            setTypeFilter(v === "all" ? "" : v);
-            setCategoryFilter("");
-            setPage(1);
-          }}
-          options={[
-            { id: "all", label: tp("allTypes") },
-            { id: "income", label: tp("typeIncome") },
-            { id: "expense", label: tp("typeExpense") },
-          ]}
-        />
-        <PropertyFilter value={propertyFilter} onChange={setPropertyFilter} />
-        <div className="w-full sm:w-[15rem]">
-          <AdminDateRangePicker
-            id="ledger-date-range"
-            from={startDate}
-            to={endDate}
-            onFromChange={setStartDate}
-            onToChange={setEndDate}
-            placeholder={tp("dateRangePlaceholder")}
-          />
-        </div>
-        <AdminSearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder={t("searchPlaceholder")}
-          className="lg:max-w-sm lg:flex-1"
-        />
-        {categoryFilter ? (
-          <button
-            type="button"
-            onClick={() => setCategoryFilter("")}
-            className="inline-flex h-10 items-center gap-1.5 self-start rounded-full bg-[#1c0b0a] px-4 text-sm text-white lg:self-auto"
-          >
-            {categoryLabel(categoryFilter)}
-            <Icon name="close" size={16} />
-          </button>
-        ) : null}
-      </div>
 
       {dateRangeError && (
         <p className="mb-4 text-sm text-[#a1271b]">{dateRangeError}</p>

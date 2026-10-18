@@ -63,7 +63,6 @@ export function HeroSearchBar({
 }: HeroSearchBarProps) {
   const t = useTranslations("search");
   const router = useRouter();
-  const [location, setLocation] = useState(initialFilters?.location ?? "");
   const [propertyId, setPropertyId] = useState(
     initialFilters?.propertyId ?? "",
   );
@@ -77,16 +76,11 @@ export function HeroSearchBar({
     initialFilters?.durationDays,
   );
 
-  const initialLocation = initialFilters?.location ?? "";
   const initialPropertyId = initialFilters?.propertyId ?? "";
   const initialPriceMin = initialFilters?.priceMin;
   const initialPriceMax = initialFilters?.priceMax;
   const initialAvailability = initialFilters?.availability ?? "all";
   const initialDurationDays = initialFilters?.durationDays;
-
-  useEffect(() => {
-    setLocation(initialLocation);
-  }, [initialLocation]);
 
   useEffect(() => {
     setPropertyId(initialPropertyId);
@@ -128,7 +122,8 @@ export function HeroSearchBar({
 
     return {
       ...initialFilters,
-      location: location.trim() || undefined,
+      // No location filter: also clears a stale ?q= from older links.
+      location: undefined,
       propertyId: propertyId || undefined,
       availability,
       durationDays,
@@ -199,8 +194,8 @@ export function HeroSearchBar({
         className="mx-auto w-full rounded-[1.25rem] bg-white p-3 shadow-[0_24px_60px_-34px_rgb(20_16_14/0.35)] sm:p-4"
       >
         <div className="flex flex-col gap-3 md:flex-row md:items-end">
-          <div className="grid min-w-0 flex-1 grid-cols-2 gap-3 lg:grid-cols-3">
-            <label className="order-1 flex flex-col gap-1.5">
+          <div className="grid min-w-0 flex-1 grid-cols-2 gap-3">
+            <label className="flex flex-col gap-1.5">
               <FieldLabel icon="apartment">{t("lookingFor")}</FieldLabel>
               <SelectWrap>
                 <select
@@ -224,18 +219,8 @@ export function HeroSearchBar({
               </SelectWrap>
             </label>
 
-            <label className="order-3 col-span-2 flex flex-col gap-1.5 lg:order-2 lg:col-span-1">
-              <FieldLabel icon="location_on">{t("location")}</FieldLabel>
-              <input
-                type="search"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder={t("placeholder")}
-                className="h-12 w-full rounded-xl border border-[#cfc5c1] bg-white px-4 text-base font-medium text-[#141414] placeholder:text-[#6b6b6b] focus:border-[#141414] focus:outline-none"
-              />
-            </label>
 
-            <label className="order-2 flex flex-col gap-1.5 lg:order-3">
+            <label className="flex flex-col gap-1.5">
               <FieldLabel icon="payments">{t("priceRange")}</FieldLabel>
               <SelectWrap>
                 <select

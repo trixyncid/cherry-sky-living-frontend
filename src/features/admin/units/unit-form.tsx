@@ -1,30 +1,34 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
+import { useEffect, useMemo, useState } from "react";
+import {
+  AdminField,
+  AdminSelect,
+  adminInputClassName,
+} from "@/features/admin/components/admin-field";
 import {
   AdminDetailPage,
   AdminFormActions,
   AdminFormError,
   AdminFormSection,
 } from "@/features/admin/components/admin-form-layout";
-import {
-  AdminField,
-  AdminSelect,
-  adminInputClassName,
-} from "@/features/admin/components/admin-field";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
+import { UnitPreview } from "@/features/admin/components/form-previews";
+import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import {
   useUnit,
   useUnitMutations,
   useUnitTypes,
 } from "@/features/admin/hooks/use-admin-queries";
-import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import { resolveUnitTypePropertyName } from "@/features/admin/lib/entity-display";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import {
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
 import { unitMaxOccupancySchema } from "@/features/admin/properties/schemas";
+import { useRouter } from "@/i18n/routing";
 import type { UnitStatus } from "@/lib/types/admin";
 
 const BASE = "/admin/units";
@@ -45,6 +49,7 @@ const emptyForm: FormState = {
 
 export function UnitForm({ id }: { id?: string }) {
   const t = useTranslations("admin.crud");
+  const tq = useTranslations("admin.mobile.actions");
   const tp = useTranslations("admin.pages.units");
   const router = useRouter();
   const isEdit = !!id;
@@ -138,14 +143,28 @@ export function UnitForm({ id }: { id?: string }) {
     (isEdit && isLoading);
 
   if (isEdit && isLoading && !unit) {
-    return <p className="text-sm text-[#83746b]">{t("loading")}</p>;
+    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
   }
 
   return (
     <AdminDetailPage
+      section={tp("title")}
+      mode={isEdit ? "edit" : "create"}
+      aside={
+        <UnitPreview
+          name={form.name}
+          maxOccupancy={form.maxOccupancy}
+          propertyName={properties.find((p) => p.id === form.propertyId)?.name}
+          unitTypeName={
+            (isEdit ? unitTypes : availableUnitTypes).find(
+              (ut) => ut.id === form.unitTypeId,
+            )?.name
+          }
+        />
+      }
       backHref={BASE}
       backLabel={t("backToList")}
-      title={isEdit ? unit?.name || t("editTitle") : t("createTitle")}
+      title={isEdit ? unit?.name || t("editTitle") : tq("addUnit")}
       description={isEdit ? tp("editDescription") : tp("formDescription")}
       wide={false}
     >
@@ -159,7 +178,11 @@ export function UnitForm({ id }: { id?: string }) {
         >
           <div className="grid gap-4 sm:grid-cols-2">
             {!isEdit ? (
-              <AdminField label={t("property")} htmlFor="unit-property" required>
+              <AdminField
+                label={t("property")}
+                htmlFor="unit-property"
+                required
+              >
                 <AdminSelect
                   id="unit-property"
                   required
@@ -231,7 +254,7 @@ export function UnitForm({ id }: { id?: string }) {
                   setForm((f) => ({ ...f, maxOccupancy: e.target.value }))
                 }
               />
-              <p className="mt-1 text-xs text-[#83746b]">
+              <p className="mt-1 text-xs text-[#6b6b6b]">
                 {tp("occupancyHint")}
               </p>
             </AdminField>
@@ -246,7 +269,9 @@ export function UnitForm({ id }: { id?: string }) {
                   <option value="vacant">{tp("status.vacant")}</option>
                   <option value="occupied">{tp("status.occupied")}</option>
                 </AdminSelect>
-                <p className="mt-1 text-xs text-[#83746b]">{tp("statusHint")}</p>
+                <p className="mt-1 text-xs text-[#6b6b6b]">
+                  {tp("statusHint")}
+                </p>
               </AdminField>
             ) : null}
           </div>
@@ -257,6 +282,7 @@ export function UnitForm({ id }: { id?: string }) {
           cancelLabel={t("cancel")}
           pending={pending}
           submitDisabled={isEdit && !isDirty}
+          dirty={isEdit ? isDirty : undefined}
           submitLabel={tp("saveDetails")}
           pendingLabel={t("saving")}
         />

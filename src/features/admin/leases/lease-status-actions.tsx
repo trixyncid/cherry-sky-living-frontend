@@ -47,12 +47,12 @@ export function AdminLeaseStatusActions({ lease }: { lease: Lease }) {
   }
 
   return (
-    <div className="rounded-xl border border-[#e3e2e0] bg-[#faf9f7] p-4">
+    <div className="rounded-2xl border border-[#efe7e5] bg-[#faf7f6] p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-semibold text-[#1a1c1a]">{tp("paymentStatus")}</p>
+        <p className="text-sm font-semibold text-[#141414]">{tp("paymentStatus")}</p>
         <LeaseStatusBadge status={lease.status as LeaseStatus} />
       </div>
-      <p className="mb-3 text-xs leading-relaxed text-[#83746b]">
+      <p className="mb-3 text-xs leading-relaxed text-[#6b6b6b]">
         {tp("paymentStatusHint")}
       </p>
       {lease.status !== "paid" && !hasPaymentAttachment(lease) ? (
@@ -64,7 +64,7 @@ export function AdminLeaseStatusActions({ lease }: { lease: Lease }) {
             type="button"
             disabled={pending}
             onClick={() => void run("review", "statusSubmittedForReview")}
-            className="inline-flex items-center gap-1 rounded-lg border border-[#71130d]/30 bg-white px-3 py-1.5 text-xs font-semibold text-[#71130d] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#e8bfb9] bg-white px-4 text-sm font-medium text-[#71130d] transition-colors hover:bg-[#efeeeb] disabled:opacity-50"
           >
             <Icon name="rate_review" size={16} />
             {tp("markWaitingForReview")}
@@ -75,7 +75,7 @@ export function AdminLeaseStatusActions({ lease }: { lease: Lease }) {
             type="button"
             disabled={pending}
             onClick={() => void run("confirm", "statusConfirmed")}
-            className="inline-flex items-center gap-1 rounded-lg bg-[#71130d] px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[#71130d] px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <Icon name="check" size={16} />
             {tp("confirmPaid")}
@@ -86,7 +86,7 @@ export function AdminLeaseStatusActions({ lease }: { lease: Lease }) {
             type="button"
             disabled={pending}
             onClick={() => void run("reject", "statusRejected")}
-            className="inline-flex items-center gap-1 rounded-lg border border-[#ba1a1a]/30 bg-white px-3 py-1.5 text-xs font-semibold text-[#ba1a1a] transition-colors hover:bg-[#fff5f5] disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#f5c2bd] bg-white px-4 text-sm font-medium text-[#a1271b] transition-colors hover:bg-[#fff5f5] disabled:opacity-50"
           >
             <Icon name="close" size={16} />
             {tp("rejectToUnpaid")}

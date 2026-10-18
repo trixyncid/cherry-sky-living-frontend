@@ -4,9 +4,12 @@ import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import { AdminSearchInput } from "@/features/admin/components/admin-field";
+import { AdminSelect } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
-import { PropertyFilter } from "@/features/admin/components/property-filter";
+import {
+  AdminToolbar,
+  usePropertyToolbarFilter,
+} from "@/features/admin/components/admin-toolbar";
 import {
   type LeaseRenewalStatus,
   LeaseRenewalStatusBadge,
@@ -89,6 +92,11 @@ export function LeaseRenewalsList() {
     propertyId: propertyFilter || undefined,
   });
   const lookups = useAdminLookups();
+  const tt = useTranslations("admin.toolbar");
+  const propertyToolbar = usePropertyToolbarFilter(
+    propertyFilter,
+    setPropertyFilter,
+  );
 
   const requests = useMemo(
     () => data.filter((l) => l.leaseRenewal?.isRenewLease),
@@ -219,25 +227,40 @@ export function LeaseRenewalsList() {
         </div>
       </section>
 
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <PropertyFilter value={propertyFilter} onChange={setPropertyFilter} />
-        <AdminSearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder={t("searchPlaceholder")}
-          className="sm:max-w-md sm:flex-1"
-        />
-        {stage !== "all" ? (
-          <button
-            type="button"
-            onClick={() => setStage("all")}
-            className="inline-flex h-10 items-center gap-1.5 self-start rounded-full bg-white px-4 text-sm text-[#3d3a36] hover:text-[#71130d] sm:self-auto"
-          >
-            <Icon name="filter_alt_off" size={16} />
-            {tp("filters.all")}
-          </button>
-        ) : null}
-      </div>
+      <AdminToolbar
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t("searchPlaceholder"),
+        }}
+        filters={[
+          propertyToolbar,
+          {
+            key: "stage",
+            label: tt("status"),
+            active: stage !== "all",
+            chip: stage !== "all" ? tp(`status.${stage}`) : undefined,
+            onClear: () => setStage("all"),
+            width: "w-56",
+            control: (
+              <AdminSelect
+                value={stage}
+                onChange={(e) => setStage(e.target.value as StageFilter)}
+              >
+                <option value="all">{tp("filters.all")}</option>
+                {STAGES.map((st) => (
+                  <option key={st.id} value={st.id}>
+                    {tp(`status.${st.id}`)}
+                  </option>
+                ))}
+              </AdminSelect>
+            ),
+          },
+        ]}
+        resultCount={
+          isLoading ? undefined : groups.reduce((n, g) => n + g.rows.length, 0)
+        }
+      />
 
       {error ? (
         <div className="mb-4">

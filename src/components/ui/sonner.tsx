@@ -1,7 +1,12 @@
 "use client";
 
 import { Toaster as Sonner, type ToasterProps } from "sonner";
+import { Icon } from "@/components/shared/Icon";
 
+/**
+ * App toaster in the dashboard card style (see `.cherry-toast` in
+ * globals.css): white card, round status icon, title + description.
+ */
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
@@ -10,6 +15,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
       closeButton
       position="top-center"
       duration={4000}
+      gap={10}
+      offset={{ top: 20 }}
+      mobileOffset={{ top: 12, left: 12, right: 12 }}
       swipeDirections={["top"]}
       toastOptions={{
         classNames: {
@@ -24,20 +32,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
         },
       }}
       icons={{
-        success: null,
-        info: null,
-        warning: null,
-        error: null,
-        loading: null,
+        success: <Icon name="check_circle" size={20} filled />,
+        error: <Icon name="error" size={20} filled />,
+        warning: <Icon name="warning" size={20} filled />,
+        info: <Icon name="info" size={20} filled />,
+        loading: <span className="cherry-toast-spinner" aria-hidden />,
       }}
-      style={
-        {
-          "--normal-bg": "rgb(255 255 255 / 0.62)",
-          "--normal-text": "#1a1c1a",
-          "--normal-border": "rgb(255 255 255 / 0.68)",
-          "--border-radius": "1.75rem",
-        } as React.CSSProperties
-      }
       {...props}
     />
   );

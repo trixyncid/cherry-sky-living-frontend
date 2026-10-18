@@ -18,6 +18,7 @@ import {
 } from "@/features/admin/components/admin-form-layout";
 import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
+import { LedgerPreview } from "@/features/admin/components/form-previews";
 import {
   useLedgerEntry,
   useLedgerEntryMutations,
@@ -67,6 +68,7 @@ const emptyForm: FormState = {
 
 export function LedgerEntryForm({ id }: { id?: string }) {
   const t = useTranslations("admin.crud");
+  const tq = useTranslations("admin.mobile.actions");
   const tp = useTranslations("admin.pages.bookkeeping");
   const ta = useTranslations("admin.attachments");
   const router = useRouter();
@@ -215,16 +217,22 @@ export function LedgerEntryForm({ id }: { id?: string }) {
     (isEdit && isLoading);
 
   if (isEdit && isLoading && !entry) {
-    return <p className="text-sm text-[#83746b]">{t("loading")}</p>;
+    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
   }
 
   const photoCount = attachments.length;
 
   return (
     <AdminDetailPage
+      section={tp("title")}
+      mode={isEdit ? "edit" : "create"}
       backHref={BASE}
       backLabel={t("backToList")}
-      title={isEdit ? entry?.description || t("editTitle") : t("createTitle")}
+      title={
+        isEdit
+          ? entry?.description || t("editTitle")
+          : tq(form.type === "expense" ? "recordExpense" : "recordIncome")
+      }
       description={isEdit ? tp("editDescription") : tp("formDescription")}
     >
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21.5rem]">
@@ -334,21 +342,37 @@ export function LedgerEntryForm({ id }: { id?: string }) {
             cancelLabel={t("cancel")}
             pending={pending}
             submitDisabled={isEdit && !isDirty}
+            dirty={isEdit ? isDirty : undefined}
             submitLabel={isEdit ? tp("saveDetails") : tp("saveAndAddPhotos")}
             pendingLabel={t("saving")}
           />
         </form>
 
         <aside
-          className={cn("lg:sticky lg:top-6", isEdit && "max-lg:order-first")}
+          className={cn(
+            "space-y-4 lg:sticky lg:top-4",
+            isEdit && "max-lg:order-first",
+          )}
         >
+          <LedgerPreview
+            type={form.type}
+            amount={parseIdrInput(form.amount) || 0}
+            categoryLabel={
+              form.category ? tp(`categories.${form.category}`) : undefined
+            }
+            description={form.description}
+            date={form.date}
+            propertyName={
+              properties.find((p) => p.id === form.propertyId)?.name
+            }
+          />
           <AdminFormSection
             icon="photo_library"
             title={tp("photosTitle")}
             hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
             headerExtra={
               isEdit && photoCount > 0 ? (
-                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#51443c]">
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#3d3a36]">
                   {ta("photoCount", { count: photoCount })}
                 </span>
               ) : null

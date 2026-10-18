@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,10 +13,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import { AdminSearchInput } from "@/features/admin/components/admin-field";
+import { AdminSelect } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminPagination } from "@/features/admin/components/admin-pagination";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
+import { AdminToolbar } from "@/features/admin/components/admin-toolbar";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { getStaffUserSortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
@@ -63,8 +64,23 @@ export function StaffList() {
     [],
   );
 
+  const tt = useTranslations("admin.toolbar");
+  const [roleFilter, setRoleFilter] = useState<"" | StaffUser["role"]>("");
+  const [activeFilter, setActiveFilter] = useState<"" | "active" | "inactive">(
+    "",
+  );
+  const visible = useMemo(
+    () =>
+      data.filter(
+        (u) =>
+          (!roleFilter || u.role === roleFilter) &&
+          (!activeFilter || u.isActive === (activeFilter === "active")),
+      ),
+    [data, roleFilter, activeFilter],
+  );
+
   const { page, setPage, pageData, total, pageSize, setPageSize } =
-    useClientTable(data, getSortValue, { defaultSortKey: "name" });
+    useClientTable(visible, getSortValue, { defaultSortKey: "name" });
 
   async function confirmToggleActive() {
     if (!toggleUser) return;
@@ -134,14 +150,59 @@ export function StaffList() {
 
       <div className="mb-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="flex flex-col gap-4">
-          <AdminSearchInput
-            value={search}
-            onChange={(v) => {
-              setSearch(v);
-              setPage(1);
+          <AdminToolbar
+            className="mb-0"
+            search={{
+              value: search,
+              onChange: (v) => {
+                setSearch(v);
+                setPage(1);
+              },
+              placeholder: tp("searchPlaceholder"),
             }}
-            placeholder={tp("searchPlaceholder")}
-            className="w-full sm:max-w-md"
+            filters={[
+              {
+                key: "role",
+                label: tt("role"),
+                active: roleFilter !== "",
+                chip: roleFilter ? tp(`roles.${roleFilter}`) : undefined,
+                onClear: () => setRoleFilter(""),
+                width: "w-40",
+                control: (
+                  <AdminSelect
+                    value={roleFilter}
+                    onChange={(e) =>
+                      setRoleFilter(e.target.value as typeof roleFilter)
+                    }
+                  >
+                    <option value="">{tt("all")}</option>
+                    <option value="superadmin">{tp("roles.superadmin")}</option>
+                    <option value="admin">{tp("roles.admin")}</option>
+                  </AdminSelect>
+                ),
+              },
+              {
+                key: "active",
+                label: tt("status"),
+                active: activeFilter !== "",
+                chip: activeFilter === "active" ? tt("active") : tt("inactive"),
+                onClear: () => setActiveFilter(""),
+                width: "w-40",
+                control: (
+                  <AdminSelect
+                    value={activeFilter}
+                    onChange={(e) =>
+                      setActiveFilter(e.target.value as typeof activeFilter)
+                    }
+                  >
+                    <option value="">{tt("all")}</option>
+                    <option value="active">{tt("active")}</option>
+                    <option value="inactive">{tt("inactive")}</option>
+                  </AdminSelect>
+                ),
+              },
+            ]}
+            resultCount={isLoading ? undefined : visible.length}
           />
 
           {error && (
@@ -150,7 +211,7 @@ export function StaffList() {
 
           {isLoading ? (
             <SkeletonCards count={2} className="sm:grid-cols-2" />
-          ) : data.length === 0 ? (
+          ) : visible.length === 0 ? (
             <EmptyPanel icon="badge" title={tp("empty")} />
           ) : (
             (["superadmin", "admin"] as const).map((role) => {

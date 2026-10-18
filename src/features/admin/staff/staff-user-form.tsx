@@ -1,16 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
+import { useEffect, useState } from "react";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import { useAdminShell } from "@/features/admin/components/admin-shell-context";
-import {
-  AdminDetailPage,
-  AdminFormActions,
-  AdminFormError,
-  AdminFormSection,
-} from "@/features/admin/components/admin-form-layout";
 import {
   AdminField,
   AdminPasswordInput,
@@ -18,17 +10,29 @@ import {
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
 import {
+  AdminDetailPage,
+  AdminFormActions,
+  AdminFormError,
+  AdminFormSection,
+} from "@/features/admin/components/admin-form-layout";
+import { useAdminShell } from "@/features/admin/components/admin-shell-context";
+import { PersonPreview } from "@/features/admin/components/form-previews";
+import {
   useStaffUser,
   useStaffUserMutations,
 } from "@/features/admin/hooks/use-admin-queries";
-import {
-  createStaffUserSchema,
-  updateStaffUserSchema,
-  type CreateStaffUserValues,
-  type UpdateStaffUserValues,
-} from "@/features/admin/staff/schemas";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import {
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
+import {
+  type CreateStaffUserValues,
+  createStaffUserSchema,
+  type UpdateStaffUserValues,
+  updateStaffUserSchema,
+} from "@/features/admin/staff/schemas";
+import { useRouter } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
 import { UserRole } from "@/lib/types/auth";
 
@@ -50,15 +54,16 @@ const emptyEditForm: UpdateStaffUserValues = {
 export function StaffUserForm({ id }: { id?: string }) {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.staff");
+  const to = useTranslations("admin.pages.operations");
   const router = useRouter();
   const { user: currentUser } = useAdminShell();
   const isEdit = !!id;
   const isSuperadmin = currentUser.role === UserRole.SUPERADMIN;
   const { data: staffUser, isLoading } = useStaffUser(id ?? "", isEdit);
   const mutations = useStaffUserMutations();
-  const [form, setForm] = useState<CreateStaffUserValues | UpdateStaffUserValues>(
-    isEdit ? emptyEditForm : emptyCreateForm,
-  );
+  const [form, setForm] = useState<
+    CreateStaffUserValues | UpdateStaffUserValues
+  >(isEdit ? emptyEditForm : emptyCreateForm);
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -147,12 +152,23 @@ export function StaffUserForm({ id }: { id?: string }) {
 
   if (isEdit && isLoading) {
     return (
-      <p className="p-8 text-center text-sm text-[#83746b]">{t("loading")}</p>
+      <p className="p-8 text-center text-sm text-[#6b6b6b]">{t("loading")}</p>
     );
   }
 
   return (
     <AdminDetailPage
+      section={tp("title")}
+      mode={isEdit ? "edit" : "create"}
+      aside={
+        <PersonPreview
+          name={form.name}
+          email={form.email}
+          role={form.role}
+          roleLabel={tp(`roles.${form.role}`)}
+          roleHint={to(`roleCan.${form.role}`)}
+        />
+      }
       backHref={BASE}
       backLabel={t("backToList")}
       title={isEdit ? staffUser?.name || tp("editTitle") : tp("createTitle")}
@@ -175,7 +191,9 @@ export function StaffUserForm({ id }: { id?: string }) {
                 autoComplete="name"
                 className={adminInputClassName}
                 value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
               />
             </AdminField>
             <AdminField label={t("email")} htmlFor="staff-email" required>
@@ -210,7 +228,7 @@ export function StaffUserForm({ id }: { id?: string }) {
                 ) : null}
               </AdminSelect>
               {!isSuperadmin ? (
-                <p className="mt-1 text-xs text-[#83746b]">{tp("roleHint")}</p>
+                <p className="mt-1 text-xs text-[#6b6b6b]">{tp("roleHint")}</p>
               ) : null}
             </AdminField>
           </div>
@@ -222,14 +240,16 @@ export function StaffUserForm({ id }: { id?: string }) {
             title={tp("credentialsTitle")}
             hint={tp("passwordHint")}
           >
-            <AdminField label={tp("password")} htmlFor="staff-password" required>
+            <AdminField
+              label={tp("password")}
+              htmlFor="staff-password"
+              required
+            >
               <AdminPasswordInput
                 id="staff-password"
                 required
                 value={"password" in form ? form.password : ""}
-                onChange={(password) =>
-                  setForm((f) => ({ ...f, password }))
-                }
+                onChange={(password) => setForm((f) => ({ ...f, password }))}
                 showLabel={tp("showPassword")}
                 hideLabel={tp("hidePassword")}
               />
@@ -242,6 +262,7 @@ export function StaffUserForm({ id }: { id?: string }) {
           cancelLabel={t("cancel")}
           pending={pending}
           submitDisabled={isEdit && !isDirty}
+          dirty={isEdit ? isDirty : undefined}
           submitLabel={isEdit ? tp("saveDetails") : tp("createTitle")}
           pendingLabel={t("saving")}
         />

@@ -1,36 +1,34 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
-import {
-  AdminDetailPage,
-  AdminFormActions,
-  AdminFormError,
-  AdminFormSection,
-} from "@/features/admin/components/admin-form-layout";
+import { useEffect, useMemo, useState } from "react";
 import {
   AdminCurrencyInput,
   AdminField,
   AdminSelect,
 } from "@/features/admin/components/admin-field";
 import {
+  AdminDetailPage,
+  AdminFormActions,
+  AdminFormError,
+  AdminFormSection,
+} from "@/features/admin/components/admin-form-layout";
+import { useAdminShell } from "@/features/admin/components/admin-shell-context";
+import { PricingPreview } from "@/features/admin/components/form-previews";
+import {
   useUnitPricing,
   useUnitPricingMutations,
   useUnitPricings,
   useUnitTypes,
 } from "@/features/admin/hooks/use-admin-queries";
-import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { getErrorMessage } from "@/features/admin/lib/errors";
+import { formatIdrInput, parseIdrInput } from "@/features/admin/lib/format";
 import {
-  formatIdrInput,
-  parseIdrInput,
-} from "@/features/admin/lib/format";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
-import {
-  DAILY_DURATION_DAYS,
-  MONTHLY_DURATION_DAYS,
-} from "@/lib/billing";
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
+import { useRouter } from "@/i18n/routing";
+import { DAILY_DURATION_DAYS, MONTHLY_DURATION_DAYS } from "@/lib/billing";
 import type { UnitPricing } from "@/lib/types/admin";
 
 const BASE = "/admin/pricing";
@@ -62,6 +60,7 @@ function sameForm(a: FormState, b: FormState) {
 
 export function PricingForm({ id }: { id?: string }) {
   const t = useTranslations("admin.crud");
+  const tq = useTranslations("admin.mobile.actions");
   const tp = useTranslations("admin.pages.pricing");
   const router = useRouter();
   const isEdit = !!id;
@@ -70,7 +69,9 @@ export function PricingForm({ id }: { id?: string }) {
   const { properties } = useAdminShell();
   const { data: pricing, isLoading } = useUnitPricing(id ?? "", isEdit);
   const unitTypeIdForLoad = pricing?.unitTypeId;
-  const siblingUnitTypeId = isEdit ? unitTypeIdForLoad : form.unitTypeId || undefined;
+  const siblingUnitTypeId = isEdit
+    ? unitTypeIdForLoad
+    : form.unitTypeId || undefined;
   const { data: unitTypePricings = EMPTY_PRICINGS, isLoading: siblingLoading } =
     useUnitPricings(
       siblingUnitTypeId ? { unitTypeId: siblingUnitTypeId } : undefined,
@@ -90,8 +91,9 @@ export function PricingForm({ id }: { id?: string }) {
   useEffect(() => {
     if (pricing) {
       const monthly =
-        unitTypePricings.find((p) => p.durationDays === MONTHLY_DURATION_DAYS) ??
-        (pricing.durationDays === MONTHLY_DURATION_DAYS ? pricing : null);
+        unitTypePricings.find(
+          (p) => p.durationDays === MONTHLY_DURATION_DAYS,
+        ) ?? (pricing.durationDays === MONTHLY_DURATION_DAYS ? pricing : null);
       const daily =
         unitTypePricings.find((p) => p.durationDays === DAILY_DURATION_DAYS) ??
         (pricing.durationDays === DAILY_DURATION_DAYS ? pricing : null);
@@ -116,7 +118,9 @@ export function PricingForm({ id }: { id?: string }) {
       setForm((f) => {
         const next: FormState = {
           ...f,
-          monthlyPrice: monthly ? formatIdrInput(monthly.price) : f.monthlyPrice,
+          monthlyPrice: monthly
+            ? formatIdrInput(monthly.price)
+            : f.monthlyPrice,
           dailyPrice: daily ? formatIdrInput(daily.price) : f.dailyPrice,
         };
         return sameForm(f, next) ? f : next;
@@ -181,14 +185,30 @@ export function PricingForm({ id }: { id?: string }) {
     (isEdit && (isLoading || siblingLoading));
 
   if (isEdit && isLoading && !pricing) {
-    return <p className="text-sm text-[#83746b]">{t("loading")}</p>;
+    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
   }
 
   return (
     <AdminDetailPage
+      section={tp("title")}
+      mode={isEdit ? "edit" : "create"}
+      aside={
+        <PricingPreview
+          monthly={parseIdrInput(form.monthlyPrice) || 0}
+          daily={parseIdrInput(form.dailyPrice) || 0}
+          unitTypeName={
+            (isEdit ? unitTypes : availableUnitTypes).find(
+              (ut) => ut.id === form.unitTypeId,
+            )?.name
+          }
+          propertyName={properties.find((p) => p.id === form.propertyId)?.name}
+        />
+      }
       backHref={BASE}
       backLabel={t("backToList")}
-      title={isEdit ? t("editTitle") : t("createTitle")}
+      title={
+        isEdit ? (pricing?.unitType?.name ?? t("editTitle")) : tq("setPricing")
+      }
       description={isEdit ? tp("editDescription") : tp("formDescription")}
       wide={false}
     >
@@ -202,7 +222,11 @@ export function PricingForm({ id }: { id?: string }) {
         >
           <div className="grid gap-4 sm:grid-cols-2">
             {!isEdit ? (
-              <AdminField label={t("property")} htmlFor="price-property" required>
+              <AdminField
+                label={t("property")}
+                htmlFor="price-property"
+                required
+              >
                 <AdminSelect
                   id="price-property"
                   required
@@ -261,7 +285,11 @@ export function PricingForm({ id }: { id?: string }) {
           hint={tp("pricesHint")}
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label={tp("monthlyPrice")} htmlFor="price-monthly" required>
+            <AdminField
+              label={tp("monthlyPrice")}
+              htmlFor="price-monthly"
+              required
+            >
               <AdminCurrencyInput
                 id="price-monthly"
                 required
@@ -270,7 +298,9 @@ export function PricingForm({ id }: { id?: string }) {
                   setForm((f) => ({ ...f, monthlyPrice }))
                 }
               />
-              <p className="mt-1 text-xs text-[#83746b]">{tp("monthlyPriceHint")}</p>
+              <p className="mt-1 text-xs text-[#6b6b6b]">
+                {tp("monthlyPriceHint")}
+              </p>
             </AdminField>
             <AdminField label={tp("dailyPrice")} htmlFor="price-daily" required>
               <AdminCurrencyInput
@@ -281,7 +311,9 @@ export function PricingForm({ id }: { id?: string }) {
                   setForm((f) => ({ ...f, dailyPrice }))
                 }
               />
-              <p className="mt-1 text-xs text-[#83746b]">{tp("dailyPriceHint")}</p>
+              <p className="mt-1 text-xs text-[#6b6b6b]">
+                {tp("dailyPriceHint")}
+              </p>
             </AdminField>
           </div>
         </AdminFormSection>

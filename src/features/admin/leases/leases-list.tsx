@@ -4,10 +4,12 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import { AdminSearchInput } from "@/features/admin/components/admin-field";
-import { AdminFilterRow } from "@/features/admin/components/admin-filter-row";
+import { AdminSelect } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
-import { PropertyFilter } from "@/features/admin/components/property-filter";
+import {
+  AdminToolbar,
+  usePropertyToolbarFilter,
+} from "@/features/admin/components/admin-toolbar";
 import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
@@ -46,6 +48,12 @@ import { cn } from "@/lib/utils";
 
 const BASE = "/admin/leases";
 const COLUMN_PREVIEW = 8;
+
+const STATUS_LABEL = {
+  unpaid: "statusUnpaid",
+  waiting_for_review: "statusReview",
+  paid: "statusPaid",
+} as const;
 
 const COLUMNS: {
   status: LeaseStatus;
@@ -86,6 +94,9 @@ export function LeasesList() {
   const [propertyFilter, setPropertyFilter] = useState("");
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"board" | "list">("board");
+  const [statusFilter, setStatusFilter] = useState<"" | LeaseStatus>("");
+  const tt = useTranslations("admin.toolbar");
+  const td = useTranslations("admin.pages.overview.dash");
   const [mobileColumn, setMobileColumn] = useState<LeaseStatus>("unpaid");
   const {
     data = [],
@@ -100,8 +111,11 @@ export function LeasesList() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return data;
-    return data.filter((lease) =>
+    const byStatus = statusFilter
+      ? data.filter((l) => l.status === statusFilter)
+      : data;
+    if (!q) return byStatus;
+    return byStatus.filter((lease) =>
       [
         lease.unit?.name ?? lease.unitId,
         resolveLeasePropertyName(lease, lookups),
@@ -111,7 +125,7 @@ export function LeasesList() {
         .toLowerCase()
         .includes(q),
     );
-  }, [data, search, lookups]);
+  }, [data, search, lookups, statusFilter]);
 
   const columns = useMemo(() => {
     const by: Record<LeaseStatus, Lease[]> = {
@@ -159,6 +173,10 @@ export function LeasesList() {
   }
 
   const deletePending = mutations.remove.isPending;
+  const propertyToolbar = usePropertyToolbarFilter(
+    propertyFilter,
+    setPropertyFilter,
+  );
 
   return (
     <>
@@ -195,7 +213,36 @@ export function LeasesList() {
         />
       </div>
 
-      <AdminFilterRow
+      <AdminToolbar
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t("searchPlaceholder"),
+        }}
+        filters={[
+          propertyToolbar,
+          {
+            key: "status",
+            label: tt("status"),
+            active: statusFilter !== "",
+            chip: statusFilter ? td(STATUS_LABEL[statusFilter]) : undefined,
+            onClear: () => setStatusFilter(""),
+            width: "w-48",
+            control: (
+              <AdminSelect
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value as typeof statusFilter)
+                }
+              >
+                <option value="">{tt("all")}</option>
+                <option value="unpaid">{td("statusUnpaid")}</option>
+                <option value="waiting_for_review">{td("statusReview")}</option>
+                <option value="paid">{td("statusPaid")}</option>
+              </AdminSelect>
+            ),
+          },
+        ]}
         trailing={
           <Segmented
             label={to("view")}
@@ -207,15 +254,8 @@ export function LeasesList() {
             ]}
           />
         }
-      >
-        <PropertyFilter value={propertyFilter} onChange={setPropertyFilter} />
-        <AdminSearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder={t("searchPlaceholder")}
-          className="sm:max-w-md sm:flex-1"
-        />
-      </AdminFilterRow>
+        resultCount={isLoading ? undefined : filtered.length}
+      />
 
       {error ? (
         <div className="mb-4">
