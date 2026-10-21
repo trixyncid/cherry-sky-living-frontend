@@ -23,6 +23,7 @@ import {
   AdminFormSection,
 } from "@/features/admin/components/admin-form-layout";
 import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import {
   useTenantUser,
@@ -44,7 +45,7 @@ import { updateTenantUserSchema } from "@/features/admin/users/schemas";
 import { TenantResetPasswordDialog } from "@/features/admin/users/tenant-reset-password-dialog";
 import { Link } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
-import { displayEmailOrEmpty } from "@/lib/phone";
+import { contactSummary, displayEmailOrEmpty } from "@/lib/phone";
 import { cn } from "@/lib/utils";
 
 const BASE = "/admin/users";
@@ -140,7 +141,7 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
   }
 
   if (isLoading) {
-    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
+    return <p className="text-sm text-fg-muted">{t("loading")}</p>;
   }
 
   if (error || !tenant) {
@@ -166,8 +167,8 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
         title={form.name || tenant.name}
         description={tp("detailDescription")}
         aside={
-          <section className="overflow-hidden rounded-[1.75rem] border border-[#efe7e5] bg-white">
-            <div className="flex flex-col items-center gap-3 bg-[#faf7f6] px-5 py-6 text-center">
+          <section className="overflow-hidden rounded-[1.75rem] border border-line bg-white">
+            <div className="flex flex-col items-center gap-3 bg-subtle px-5 py-6 text-center">
               <div className="relative">
                 <Avatar
                   name={tenant.name}
@@ -183,30 +184,30 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                 <p className="text-xl font-medium tracking-tight">
                   {tenant.name}
                 </p>
-                <p className="text-sm text-[#6b6b6b]">
-                  {phone ?? displayEmailOrEmpty(tenant.email) ?? "—"}
+                <p className="text-sm text-fg-muted">
+                  {contactSummary(tenant) || "—"}
                 </p>
               </div>
               <span
                 className={cn(
                   "rounded-full px-3 py-1 text-xs font-medium",
                   tenant.isActive
-                    ? "bg-[#dff3d6] text-[#2f6d22]"
-                    : "bg-[#efeeeb] text-[#6b6b6b]",
+                    ? "bg-success-soft text-success"
+                    : "bg-hover text-fg-muted",
                 )}
               >
                 {tenant.isActive ? tp("statusActive") : tp("statusInactive")}
               </span>
             </div>
             <dl className="grid grid-cols-2 gap-2 p-4 text-sm">
-              <div className="rounded-2xl bg-[#faf7f6] p-3">
-                <dt className="text-xs text-[#6b6b6b]">{tp("joined")}</dt>
+              <div className="rounded-2xl bg-subtle p-3">
+                <dt className="text-xs text-fg-muted">{tp("joined")}</dt>
                 <dd className="font-medium">
                   {formatDate(tenant.createdAt, locale)}
                 </dd>
               </div>
-              <div className="rounded-2xl bg-[#faf7f6] p-3">
-                <dt className="text-xs text-[#6b6b6b]">{tp("leaseCount")}</dt>
+              <div className="rounded-2xl bg-subtle p-3">
+                <dt className="text-xs text-fg-muted">{tp("leaseCount")}</dt>
                 <dd className="font-medium">{leases.length}</dd>
               </div>
             </dl>
@@ -221,7 +222,7 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
               <button
                 type="button"
                 onClick={() => setResetOpen(true)}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[#ece4e2] bg-white px-4 text-sm font-medium text-[#141414] hover:border-[#e8bfb9] hover:text-[#71130d]"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-sm font-medium text-fg hover:border-brand-line hover:text-brand"
               >
                 <Icon name="lock_reset" size={18} />
                 {tp("resetPassword")}
@@ -232,8 +233,8 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                 className={cn(
                   "inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium",
                   tenant.isActive
-                    ? "text-[#a1271b] hover:bg-[#fdecea]"
-                    : "bg-[#71130d] text-white hover:bg-[#8a1a12]",
+                    ? "text-danger hover:bg-danger-soft"
+                    : "bg-brand text-white hover:bg-brand-hover",
                 )}
               >
                 <Icon
@@ -250,7 +251,7 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
           <form onSubmit={(e) => void handleSave(e)} className="space-y-6">
             {formError ? <AdminAlert message={formError} /> : null}
             <AdminFormSection
-              icon="badge"
+              icon="person"
               title={tp("accountSection")}
               hint={tp("identityHint")}
             >
@@ -298,7 +299,7 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                       setForm((f) => ({ ...f, email: e.target.value }))
                     }
                   />
-                  <p className="mt-1 text-xs text-[#6b6b6b]">
+                  <p className="mt-1 text-xs text-fg-muted">
                     {tp("emailOptionalHint")}
                   </p>
                 </AdminField>
@@ -315,9 +316,12 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
             />
           </form>
 
-          <AdminFormSection icon="description" title={tp("leasesSection")}>
+          <AdminFormSection
+            icon={adminPageIcons.leases}
+            title={tp("leasesSection")}
+          >
             {leases.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-[#e3d6d3] p-6 text-center text-sm text-[#6b6b6b]">
+              <p className="rounded-2xl border border-dashed border-line p-6 text-center text-sm text-fg-muted">
                 {tp("leasesEmpty")}
               </p>
             ) : (
@@ -328,17 +332,17 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                     <li key={lease.id}>
                       <Link
                         href={`/admin/leases/${lease.id}/edit`}
-                        className="flex flex-wrap items-center gap-3 rounded-2xl bg-[#faf7f6] p-3 transition-colors hover:bg-[#f6f0ef]"
+                        className="flex flex-wrap items-center gap-3 rounded-2xl bg-subtle p-3 transition-colors hover:bg-hover"
                       >
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#71130d]">
-                          <Icon name="bed" size={20} />
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-brand">
+                          <Icon name={adminPageIcons.units} size={20} />
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-[15px] font-medium">
                             {lease.unit?.name ?? lease.unitId} ·{" "}
                             {resolveLeasePropertyName(lease, lookups)}
                           </span>
-                          <span className="block text-sm text-[#6b6b6b]">
+                          <span className="block text-sm text-fg-muted">
                             {formatDate(lease.startDate, locale)} {tl("to")}{" "}
                             {formatDate(lease.endDate, locale)}
                           </span>
@@ -347,7 +351,7 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                         <Icon
                           name="chevron_right"
                           size={20}
-                          className="text-[#6b6b6b]"
+                          className="text-fg-muted"
                         />
                       </Link>
                     </li>

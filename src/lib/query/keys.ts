@@ -58,6 +58,12 @@ export const adminKeys = {
     }) => [...adminKeys.ledgerEntries.all(), filters ?? {}] as const,
     detail: (id: string) => [...adminKeys.ledgerEntries.all(), id] as const,
   },
+  pettyCash: {
+    all: () => [...adminKeys.all, "petty-cash"] as const,
+    list: (filters?: Record<string, string | undefined>) =>
+      [...adminKeys.pettyCash.all(), filters ?? {}] as const,
+    detail: (id: string) => [...adminKeys.pettyCash.all(), id] as const,
+  },
   dashboard: {
     all: () => [...adminKeys.all, "dashboard"] as const,
     overview: (propertyId?: string) =>

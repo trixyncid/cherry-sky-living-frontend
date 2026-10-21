@@ -10,10 +10,15 @@ import {
   AdminToolbar,
   usePropertyToolbarFilter,
 } from "@/features/admin/components/admin-toolbar";
-import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
+import {
+  LeaseBillingBadge,
+  LeaseStatusBadge,
+} from "@/features/admin/components/status-badge";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
+import { useAdminPropertyFilter } from "@/features/admin/hooks/use-admin-property-filter";
 import {
   useLeaseMutations,
   useLeases,
@@ -43,7 +48,8 @@ import {
   TermProgress,
 } from "@/features/admin/operations/ops-kit";
 import { Segmented } from "@/features/admin/overview/dashboard-widgets";
-import type { Lease, LeaseStatus } from "@/lib/types/admin";
+import { Link } from "@/i18n/routing";
+import type { Lease, LeaseInvoice, LeaseStatus } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
 
 const BASE = "/admin/leases";
@@ -65,33 +71,52 @@ const COLUMNS: {
     status: "unpaid",
     key: "colUnpaid",
     icon: "money_off",
-    accent: "bg-[#a1271b]",
+    accent: "bg-danger",
   },
   {
     status: "waiting_for_review",
     key: "colReview",
     icon: "rate_review",
-    accent: "bg-[#c98a4b]",
+    accent: "bg-warning",
   },
-  { status: "paid", key: "colPaid", icon: "verified", accent: "bg-[#3f9a52]" },
+  { status: "paid", key: "colPaid", icon: "verified", accent: "bg-success" },
 ];
 
-function hasPaymentProof(lease: Lease) {
-  return (lease.attachments ?? lease.downpaymentAttachments ?? []).some(
-    (a) => a.kind === "payment",
+/**
+ * Board column from where the tenant stands on their payment schedule:
+ * anything due / overdue / move-in not paid → Unpaid; a receipt to check →
+ * Awaiting review; paid so far or in full → Paid.
+ */
+function boardColumnFor(lease: Lease): LeaseStatus {
+  const state = lease.billing?.state;
+  if (!state) return lease.status;
+  if (state === "review") return "waiting_for_review";
+  if (state === "current" || state === "paid") return "paid";
+  return "unpaid";
+}
+
+/** The bill a card is about: the most urgent open bill. */
+function focusInvoice(lease: Lease): LeaseInvoice | null {
+  const open = (lease.invoices ?? []).filter((inv) => inv.status !== "paid");
+  return (
+    open.find((inv) => inv.status === "waiting_for_review") ??
+    open.find((inv) => inv.daysLate > 0) ??
+    open[0] ??
+    null
   );
 }
 
 /**
- * Leases — a payment board. Each lease sits in Unpaid / Awaiting review /
- * Paid, most urgent first, with confirm/reject right on the card. Phones
- * get the same columns as tabs; "List" gives a compact all-in-one view.
+ * Leases — a payment board. Each tenant sits in Unpaid / Awaiting review /
+ * Paid based on their bills (most days late first), with the bill that
+ * matters on the card. Phones get the columns as tabs; "List" is compact.
  */
 export function LeasesList() {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.leases");
   const to = useTranslations("admin.pages.operations");
-  const [propertyFilter, setPropertyFilter] = useState("");
+  const { propertyId: propertyFilter, setPropertyId: setPropertyFilter } =
+    useAdminPropertyFilter();
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"board" | "list">("board");
   const [statusFilter, setStatusFilter] = useState<"" | LeaseStatus>("");
@@ -112,7 +137,7 @@ export function LeasesList() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const byStatus = statusFilter
-      ? data.filter((l) => l.status === statusFilter)
+      ? data.filter((l) => boardColumnFor(l) === statusFilter)
       : data;
     if (!q) return byStatus;
     return byStatus.filter((lease) =>
@@ -133,7 +158,7 @@ export function LeasesList() {
       waiting_for_review: [],
       paid: [],
     };
-    for (const l of filtered) by[l.status]?.push(l);
+    for (const l of filtered) by[boardColumnFor(l)]?.push(l);
     by.unpaid.sort((a, b) => (b.daysLate ?? 0) - (a.daysLate ?? 0));
     by.waiting_for_review.sort((a, b) =>
       a.updatedAt.localeCompare(b.updatedAt),
@@ -149,8 +174,11 @@ export function LeasesList() {
   const kpis = useMemo(() => {
     const unpaid = columns.unpaid;
     return {
-      outstanding: unpaid.reduce((s, l) => s + (l.amountDue ?? 0), 0),
-      overdue: unpaid.filter((l) => (l.daysLate ?? 0) > 0).length,
+      outstanding: filtered.reduce(
+        (s, l) => s + (l.billing?.outstandingAmount ?? 0),
+        0,
+      ),
+      overdue: unpaid.filter((l) => (l.billing?.overdueCount ?? 0) > 0).length,
       review: columns.waiting_for_review.length,
       ending: columns.paid.filter((l) => {
         const end = getLeaseEndDateValue(l);
@@ -159,7 +187,7 @@ export function LeasesList() {
         return d >= 0 && d <= 30;
       }).length,
     };
-  }, [columns]);
+  }, [columns, filtered]);
 
   async function confirmDelete() {
     if (!deleteDialog.item) return;
@@ -266,7 +294,7 @@ export function LeasesList() {
       {isLoading ? (
         <SkeletonCards count={3} className="lg:grid-cols-3" />
       ) : filtered.length === 0 ? (
-        <EmptyPanel icon="description" title={t("empty")} />
+        <EmptyPanel icon={adminPageIcons.leases} title={t("empty")} />
       ) : view === "board" ? (
         <>
           {/* Phones: one column at a time */}
@@ -295,9 +323,7 @@ export function LeasesList() {
           </div>
         </>
       ) : (
-        <section
-          className={cn(panel, "divide-y divide-[#f1ebea] overflow-hidden")}
-        >
+        <section className={cn(panel, "divide-y divide-line overflow-hidden")}>
           {[
             ...columns.unpaid,
             ...columns.waiting_for_review,
@@ -348,22 +374,22 @@ function BoardColumn({
   return (
     <section
       className={cn(
-        "flex flex-col rounded-[1.75rem] bg-[#efe8e6]/70 p-2",
+        "flex flex-col rounded-[1.75rem] bg-hover/70 p-2",
         hiddenOnMobile && "hidden lg:flex",
       )}
     >
       <header className="flex items-center justify-between px-3 pb-2 pt-2.5">
-        <h3 className="flex items-center gap-2 text-[15px] font-medium text-[#141414]">
+        <h3 className="flex items-center gap-2 text-[15px] font-medium text-fg">
           <span className={cn("size-2.5 rounded-full", column.accent)} />
           {to(column.key)}
         </h3>
-        <span className="rounded-full bg-white px-2.5 py-0.5 text-sm tabular-nums text-[#3d3a36]">
+        <span className="rounded-full bg-white px-2.5 py-0.5 text-sm tabular-nums text-fg-2">
           {leases.length}
         </span>
       </header>
       <ul className="flex flex-col gap-2">
         {shown.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-[#d9cfcc] px-4 py-8 text-center text-sm text-[#6b6b6b]">
+          <li className="rounded-2xl border border-dashed border-line-strong px-4 py-8 text-center text-sm text-fg-muted">
             {to("emptyColumn")}
           </li>
         ) : (
@@ -381,7 +407,7 @@ function BoardColumn({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="mx-auto mt-2 rounded-full px-4 py-2 text-sm font-medium text-[#71130d] hover:bg-white"
+          className="mx-auto mt-2 rounded-full px-4 py-2 text-sm font-medium text-brand hover:bg-white"
         >
           {expanded ? to("showLess") : to("showAll", { count: leases.length })}
         </button>
@@ -405,22 +431,33 @@ function LeaseCard({
   const locale = useLocale();
   const lookups = useAdminLookups();
   const mutations = useLeaseMutations();
+  const tb = useTranslations("admin.pages.leases.billing");
   const tenant = resolveLeaseTenantLabel(lease);
   const end = getLeaseEndDateValue(lease);
-  const proof = hasPaymentProof(lease);
-  const late = lease.daysLate ?? 0;
+  const bill = focusInvoice(lease);
+  const billing = lease.billing;
+  const late = bill?.daysLate ?? 0;
   const busy =
-    mutations.confirmPayment.isPending || mutations.rejectPayment.isPending;
-  const canConfirm =
-    (lease.status === "unpaid" || lease.status === "waiting_for_review") &&
-    proof;
-  const canReject = lease.status === "waiting_for_review";
+    mutations.confirmInvoices.isPending ||
+    mutations.setInvoicePending.isPending;
+  const inReview = bill?.status === "waiting_for_review";
+  const canConfirm = inReview && !!bill?.proofAttachmentId;
 
   async function run(action: "confirm" | "reject") {
+    if (!bill) return;
     try {
-      if (action === "confirm")
-        await mutations.confirmPayment.mutateAsync(lease.id);
-      else await mutations.rejectPayment.mutateAsync(lease.id);
+      if (action === "confirm") {
+        await mutations.confirmInvoices.mutateAsync({
+          id: lease.id,
+          invoiceIds: [bill.id],
+        });
+      } else {
+        await mutations.setInvoicePending.mutateAsync({
+          id: lease.id,
+          invoiceId: bill.id,
+          status: "unpaid",
+        });
+      }
       showApiSuccess(
         tp(action === "confirm" ? "statusConfirmed" : "statusRejected"),
       );
@@ -434,21 +471,40 @@ function LeaseCard({
       <div className="flex items-start gap-3">
         <Avatar name={tenant} seed={lease.userId} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-medium text-[#141414]">
-            {tenant}
-          </p>
-          <p className="truncate text-xs text-[#6b6b6b]">
+          <p className="truncate text-[15px] font-medium text-fg">{tenant}</p>
+          <p className="truncate text-xs text-fg-muted">
             {lease.unit?.name ?? "—"} ·{" "}
             {resolveLeasePropertyName(lease, lookups)}
           </p>
         </div>
-        <p className="shrink-0 text-[15px] font-medium tabular-nums text-[#141414]">
-          {rupiah(lease.amountDue ?? lease.unitPricing?.price ?? 0)}
+        <p className="shrink-0 text-[15px] font-medium tabular-nums text-fg">
+          {rupiah(bill?.amount ?? lease.amountDue ?? 0)}
         </p>
       </div>
 
+      {bill ? (
+        <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 text-xs text-fg-2">
+          <span className="font-medium text-fg">
+            {tb("billLabel", { n: bill.sequence })}
+          </span>
+          <span className="text-fg-muted">·</span>
+          {tb("dueOn", { date: formatDate(bill.dueDate, locale) })}
+          {billing && billing.invoiceCount > 1 ? (
+            <>
+              <span className="text-fg-muted">·</span>
+              <span className="text-fg-muted">
+                {tb("summaryPaid", {
+                  paid: billing.paidCount,
+                  total: billing.invoiceCount,
+                })}
+              </span>
+            </>
+          ) : null}
+        </p>
+      ) : null}
+
       <div className="mt-3">
-        <div className="mb-1.5 flex items-center justify-between text-xs text-[#6b6b6b]">
+        <div className="mb-1.5 flex items-center justify-between text-xs text-fg-muted">
           <span>{formatDate(lease.startDate, locale)}</span>
           <span>{end ? formatDate(end, locale) : "—"}</span>
         </div>
@@ -456,53 +512,70 @@ function LeaseCard({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        {lease.status === "unpaid" && late > 0 ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-[#fde2df] px-2.5 py-1 text-xs font-medium text-[#a1271b]">
+        {bill && bill.status === "unpaid" && late > 0 ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-danger-soft px-2.5 py-1 text-xs font-medium text-danger">
             <Icon name="warning" size={14} />
             {to("daysLate", { count: late })}
+            {bill.lateFeeAmount > 0 ? ` · ${rupiah(bill.lateFeeAmount)}` : null}
           </span>
         ) : null}
-        {lease.status !== "paid" ? (
+        {bill?.lateFeeWaived ? (
+          <span className="inline-flex items-center rounded-full bg-hover px-2.5 py-1 text-xs font-medium text-fg-2">
+            {tb("feeWaived")}
+          </span>
+        ) : null}
+        {bill ? (
           <span
             className={cn(
               "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium",
-              proof
-                ? "bg-[#dff3d6] text-[#2f6d22]"
-                : "bg-[#f6f0ef] text-[#6b6b6b]",
+              bill.proofAttachmentId
+                ? "bg-success-soft text-success"
+                : "bg-hover text-fg-muted",
             )}
           >
-            <Icon name={proof ? "receipt_long" : "hourglass_empty"} size={14} />
-            {proof ? to("proofAttached") : to("noProof")}
+            <Icon
+              name={bill.proofAttachmentId ? "receipt_long" : "hourglass_empty"}
+              size={14}
+            />
+            {bill.proofAttachmentId ? to("proofAttached") : to("noProof")}
           </span>
         ) : end ? (
           <DueChip date={end} warnWithin={30} />
         ) : null}
         {lease.leaseRenewal?.isRenewLease ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-[#f3dedb] px-2.5 py-1 text-xs font-medium text-[#71130d]">
-            <Icon name="autorenew" size={14} />
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand">
+            <Icon name={adminPageIcons.leaseRenewals} size={14} />
             {to("renewalAsked")}
           </span>
         ) : null}
       </div>
 
-      <div className="mt-3 flex items-center gap-2 border-t border-[#f6f0ef] pt-3">
+      <div className="mt-3 flex items-center gap-2 border-t border-line pt-3">
         {canConfirm ? (
           <button
             type="button"
             disabled={busy}
             onClick={() => void run("confirm")}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[#71130d] px-3.5 text-sm font-medium text-white hover:bg-[#8a1a12] disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-brand px-3.5 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-50"
           >
             <Icon name="check" size={16} />
             {tp("confirmPaid")}
           </button>
+        ) : bill && !inReview ? (
+          <Link
+            href={`${BASE}/${lease.id}/edit`}
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-brand px-3.5 text-sm font-medium text-white hover:bg-brand-hover"
+          >
+            <Icon name="payments" size={16} />
+            {tb("recordPayment")}
+          </Link>
         ) : null}
-        {canReject ? (
+        {inReview ? (
           <button
             type="button"
             disabled={busy}
             onClick={() => void run("reject")}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#f5c2bd] px-3 text-sm font-medium text-[#a1271b] hover:bg-[#fdecea] disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-danger-soft px-3 text-sm font-medium text-danger hover:bg-danger-soft disabled:opacity-50"
           >
             <Icon name="close" size={16} />
             {to("reject")}
@@ -546,20 +619,31 @@ function ListRow({
     <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-1 px-4 py-3 sm:grid-cols-[auto_minmax(0,1.3fr)_minmax(0,1fr)_auto_auto_auto] sm:gap-x-5 sm:px-5">
       <Avatar name={tenant} seed={lease.userId} />
       <div className="min-w-0">
-        <p className="truncate font-medium text-[#141414]">{tenant}</p>
-        <p className="truncate text-xs text-[#6b6b6b]">
+        <p className="truncate font-medium text-fg">{tenant}</p>
+        <p className="truncate text-xs text-fg-muted">
           {lease.unit?.name ?? "—"} · {resolveLeasePropertyName(lease, lookups)}
         </p>
       </div>
-      <p className="col-span-3 row-start-2 text-sm text-[#3d3a36] sm:col-span-1 sm:row-start-auto">
+      <p className="col-span-3 row-start-2 text-sm text-fg-2 sm:col-span-1 sm:row-start-auto">
         {formatDate(lease.startDate, locale)} →{" "}
         {end ? formatDate(end, locale) : "—"}
       </p>
       <span className="hidden sm:block">
-        <LeaseStatusBadge status={lease.status} />
+        {lease.billing ? (
+          <LeaseBillingBadge
+            state={lease.billing.state}
+            overdueCount={lease.billing.overdueCount}
+          />
+        ) : (
+          <LeaseStatusBadge status={lease.status} />
+        )}
       </span>
-      <p className="text-right font-medium tabular-nums text-[#141414]">
-        {rupiah(lease.amountDue ?? 0)}
+      <p className="text-right font-medium tabular-nums text-fg">
+        {rupiah(
+          lease.billing && lease.billing.outstandingAmount > 0
+            ? lease.billing.outstandingAmount
+            : (lease.amountDue ?? 0),
+        )}
       </p>
       <div className="hidden gap-1.5 sm:flex">
         <IconAction
@@ -595,16 +679,16 @@ function Kpi({
       <span
         className={cn(
           "flex size-10 shrink-0 items-center justify-center rounded-full",
-          tone === "red" && "bg-[#fde2df] text-[#a1271b]",
-          tone === "sand" && "bg-[#f9e3c8] text-[#8a5a2b]",
-          tone === "neutral" && "bg-[#f6f0ef] text-[#71130d]",
+          tone === "red" && "bg-danger-soft text-danger",
+          tone === "sand" && "bg-warning-soft text-warning",
+          tone === "neutral" && "bg-hover text-brand",
         )}
       >
         <Icon name={icon} size={20} />
       </span>
       <div className="min-w-0">
-        <p className="truncate text-sm text-[#6b6b6b]">{label}</p>
-        <p className="truncate text-xl font-medium tracking-tight tabular-nums text-[#141414]">
+        <p className="truncate text-sm text-fg-muted">{label}</p>
+        <p className="truncate text-xl font-medium tracking-tight tabular-nums text-fg">
           {value}
         </p>
       </div>

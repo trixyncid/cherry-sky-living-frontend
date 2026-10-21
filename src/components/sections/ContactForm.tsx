@@ -149,10 +149,10 @@ export function ContactForm() {
   return (
     <div id="contact-form" className="scroll-mt-28">
       <div className="mb-6">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#83746b]">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-fg-muted">
           {t("subtitle")}
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-[#1a1c1a] md:text-3xl">
+        <h2 className="text-2xl font-semibold tracking-tight text-fg md:text-3xl">
           {t("title")}
         </h2>
       </div>
@@ -162,7 +162,7 @@ export function ContactForm() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-50px" }}
-        className="rounded-[1.5rem] border border-[#e3e2e0] bg-white p-6 sm:p-8"
+        className="rounded-[1.5rem] border border-line bg-white p-6 sm:p-8"
       >
         {/* Form Fields */}
         <div className="space-y-6">
@@ -172,7 +172,7 @@ export function ContactForm() {
             <div>
               <label
                 htmlFor="contact-name"
-                className="block mb-2 text-sm font-semibold text-[#1a1c1a]"
+                className="block mb-2 text-sm font-semibold text-fg"
               >
                 {t("name")}
                 <RequiredMark className="ml-0.5" />
@@ -184,11 +184,11 @@ export function ContactForm() {
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder={t("namePlaceholder")}
-                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8a1a12]/60 focus:ring-2 focus:ring-[#8a1a12]/15 ${
+                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-brand-hover/60 focus:ring-2 focus:ring-brand-hover/15 ${
                   errors.name
                     ? "border-red-500 bg-red-50"
-                    : "border-[#cfc5c1] bg-white"
-                } text-[#1a1c1a] placeholder:text-[#6b6b6b]`}
+                    : "border-line-strong bg-white"
+                } text-fg placeholder:text-fg-muted`}
               />
               {errors.name && (
                 <p className="text-xs text-red-500 mt-1">{errors.name}</p>
@@ -199,7 +199,7 @@ export function ContactForm() {
             <div>
               <label
                 htmlFor="contact-email"
-                className="block mb-2 text-sm font-semibold text-[#1a1c1a]"
+                className="block mb-2 text-sm font-semibold text-fg"
               >
                 {t("email")}
                 <RequiredMark className="ml-0.5" />
@@ -211,11 +211,11 @@ export function ContactForm() {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder={t("emailPlaceholder")}
-                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8a1a12]/60 focus:ring-2 focus:ring-[#8a1a12]/15 ${
+                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-brand-hover/60 focus:ring-2 focus:ring-brand-hover/15 ${
                   errors.email
                     ? "border-red-500 bg-red-50"
-                    : "border-[#cfc5c1] bg-white"
-                } text-[#1a1c1a] placeholder:text-[#6b6b6b]`}
+                    : "border-line-strong bg-white"
+                } text-fg placeholder:text-fg-muted`}
               />
               {errors.email && (
                 <p className="text-xs text-red-500 mt-1">{errors.email}</p>
@@ -229,7 +229,7 @@ export function ContactForm() {
             <div>
               <label
                 htmlFor="contact-phone"
-                className="block mb-2 text-sm font-semibold text-[#1a1c1a]"
+                className="block mb-2 text-sm font-semibold text-fg"
               >
                 {t("phone")}
                 <RequiredMark className="ml-0.5" />
@@ -241,11 +241,11 @@ export function ContactForm() {
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder={t("phonePlaceholder")}
-                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8a1a12]/60 focus:ring-2 focus:ring-[#8a1a12]/15 ${
+                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-brand-hover/60 focus:ring-2 focus:ring-brand-hover/15 ${
                   errors.phone
                     ? "border-red-500 bg-red-50"
-                    : "border-[#cfc5c1] bg-white"
-                } text-[#1a1c1a] placeholder:text-[#6b6b6b]`}
+                    : "border-line-strong bg-white"
+                } text-fg placeholder:text-fg-muted`}
               />
               {errors.phone && (
                 <p className="text-xs text-red-500 mt-1">{errors.phone}</p>
@@ -256,7 +256,7 @@ export function ContactForm() {
             <div>
               <label
                 htmlFor="contact-subject"
-                className="block mb-2 text-sm font-semibold text-[#1a1c1a]"
+                className="block mb-2 text-sm font-semibold text-fg"
               >
                 {t("subject")}
                 <RequiredMark className="ml-0.5" />
@@ -268,11 +268,11 @@ export function ContactForm() {
                 value={formData.subject}
                 onChange={handleInputChange}
                 placeholder={t("subjectPlaceholder")}
-                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8a1a12]/60 focus:ring-2 focus:ring-[#8a1a12]/15 ${
+                className={`w-full rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-brand-hover/60 focus:ring-2 focus:ring-brand-hover/15 ${
                   errors.subject
                     ? "border-red-500 bg-red-50"
-                    : "border-[#cfc5c1] bg-white"
-                } text-[#1a1c1a] placeholder:text-[#6b6b6b]`}
+                    : "border-line-strong bg-white"
+                } text-fg placeholder:text-fg-muted`}
               />
               {errors.subject && (
                 <p className="text-xs text-red-500 mt-1">{errors.subject}</p>
@@ -284,7 +284,7 @@ export function ContactForm() {
           <motion.div variants={item}>
             <label
               htmlFor="contact-message"
-              className="mb-2 block text-sm font-semibold text-[#1a1c1a]"
+              className="mb-2 block text-sm font-semibold text-fg"
             >
               {t("message")}
               <RequiredMark className="ml-0.5" />
@@ -296,11 +296,11 @@ export function ContactForm() {
               onChange={handleInputChange}
               placeholder={t("messagePlaceholder")}
               rows={5}
-              className={`w-full resize-none rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-[#8a1a12]/60 focus:ring-2 focus:ring-[#8a1a12]/15 ${
+              className={`w-full resize-none rounded-xl border px-4 py-3 transition-colors focus:outline-none focus:border-brand-hover/60 focus:ring-2 focus:ring-brand-hover/15 ${
                 errors.message
                   ? "border-red-500 bg-red-50"
-                  : "border-[#cfc5c1] bg-white"
-              } text-[#1a1c1a] placeholder:text-[#6b6b6b]`}
+                  : "border-line-strong bg-white"
+              } text-fg placeholder:text-fg-muted`}
             />
             {errors.message && (
               <p className="text-xs text-red-500 mt-1">{errors.message}</p>
@@ -339,12 +339,12 @@ export function ContactForm() {
           {/* Action Buttons */}
           <motion.div
             variants={item}
-            className="grid gap-4 border-t border-[#e3e2e0] pt-6 sm:grid-cols-2"
+            className="grid gap-4 border-t border-line pt-6 sm:grid-cols-2"
           >
             <Button
               onClick={handleSendViaWhatsApp}
               disabled={isSubmitting}
-              className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] font-semibold text-white hover:bg-[#1fb855]"
+              className="flex items-center justify-center gap-2 rounded-xl bg-ink font-semibold text-white hover:bg-ink-2"
             >
               <Icon name="whatsapp" size={18} />
               {t("sendViaWhatsApp")}
@@ -352,7 +352,7 @@ export function ContactForm() {
             <Button
               onClick={handleSendViaEmail}
               disabled={isSubmitting}
-              className="flex items-center justify-center gap-2 rounded-xl bg-[#71130d] font-semibold text-white hover:bg-[#8a1a12]"
+              className="flex items-center justify-center gap-2 rounded-xl bg-brand font-semibold text-white hover:bg-brand-hover"
             >
               <Icon name="mail" size={18} />
               {t("sendViaEmail")}

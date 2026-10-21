@@ -1,7 +1,7 @@
 /**
- * Lead form (landing-page-instructions §7.1–7.2): inquiry or waitlist.
- * Two required fields; optional details collapsed. Honeypot + server rate
- * limit instead of a CAPTCHA. Success state offers WhatsApp immediately.
+ * Message form (inquiry or waitlist). Two required fields; optional details
+ * collapsed. Sending opens WhatsApp with a friendly message built from the
+ * answers — nothing is stored on the server.
  */
 
 "use client";
@@ -13,10 +13,10 @@ import { DatePicker } from "@/components/date-picker";
 import { Icon } from "@/components/shared/Icon";
 import { SelectMenu } from "@/components/shared/select-menu";
 import { localized, siteConfig } from "@/config/site";
+import { formatDate } from "@/features/admin/lib/format";
 import { Link } from "@/i18n/routing";
-import { getLeadSource, track } from "@/lib/analytics";
-import { ApiError } from "@/lib/api/errors";
-import { createLead, isValidIndonesianMobile } from "@/lib/api/public/leads";
+import { track } from "@/lib/analytics";
+import { isValidIndonesianMobile } from "@/lib/api/public/leads";
 import type { Kost } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { generateWhatsAppURL } from "@/lib/utils/format";
@@ -59,16 +59,45 @@ export function LeadForm({
   const [moveIn, setMoveIn] = useState("");
   const [budget, setBudget] = useState("");
   const [message, setMessage] = useState("");
-  const [website, setWebsite] = useState(""); // honeypot
   const [errors, setErrors] = useState<Errors>({});
-  const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
+  const [status, setStatus] = useState<"idle" | "done">("idle");
+  const [sentUrl, setSentUrl] = useState("");
 
-  const whatsappUrl = generateWhatsAppURL(
-    siteConfig.whatsappNumber,
-    type === "waitlist" && roomName && propertyName
-      ? tWhatsapp("waitlist", { roomType: roomName, propertyName })
-      : tWhatsapp("generalInquiry"),
-  );
+  /** The visitor's answers as a friendly WhatsApp message. */
+  const buildMessage = () => {
+    const propertyLabel =
+      propertyName ?? kosts.find((k) => k.id === selectedProperty)?.name ?? "";
+    const intro =
+      message.trim() ||
+      (type === "waitlist" && roomName && propertyLabel
+        ? tWhatsapp("leadForm.waitlistDefault", {
+            room: roomName,
+            property: propertyLabel,
+          })
+        : tWhatsapp("leadForm.inquiryDefault"));
+    const details = [
+      roomName && type !== "waitlist"
+        ? tWhatsapp("leadForm.room", { value: roomName })
+        : null,
+      propertyLabel && !(type === "waitlist" && !message.trim())
+        ? tWhatsapp("leadForm.property", { value: propertyLabel })
+        : null,
+      moveIn
+        ? tWhatsapp("leadForm.moveIn", { value: formatDate(moveIn, locale) })
+        : null,
+      budget ? tWhatsapp("leadForm.budget", { value: budget }) : null,
+      tWhatsapp("leadForm.phone", { value: phone.trim() }),
+    ].filter(Boolean);
+    return [
+      tWhatsapp("leadForm.greeting", { name: name.trim() }),
+      "",
+      intro,
+      "",
+      ...details,
+      "",
+      tWhatsapp("leadForm.closing"),
+    ].join("\n");
+  };
 
   const validate = (): Errors => {
     const next: Errors = {};
@@ -77,43 +106,21 @@ export function LeadForm({
     return next;
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const found = validate();
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
-    setStatus("sending");
-    try {
-      await createLead({
-        type,
-        name: name.trim(),
-        phone,
-        propertyId: selectedProperty || undefined,
-        unitTypeId,
-        moveInDate: moveIn || undefined,
-        budget: budget
-          ? Number(budget.replace(/\D/g, "")) || undefined
-          : undefined,
-        message: message.trim() || undefined,
-        pagePath: window.location.pathname,
-        source: getLeadSource(),
-        website,
-      });
-      track(type === "waitlist" ? "submit_waitlist" : "submit_inquiry", {
-        property: propertyName ?? selectedProperty,
-        room: roomName,
-      });
-      setStatus("done");
-    } catch (error) {
-      setStatus("idle");
-      setErrors({
-        form:
-          error instanceof ApiError && error.status === 429
-            ? t("errors.rateLimited")
-            : t("errors.generic"),
-      });
-    }
+    const url = generateWhatsAppURL(siteConfig.whatsappNumber, buildMessage());
+    // Open synchronously from the click so pop-up blockers allow it.
+    window.open(url, "_blank", "noopener,noreferrer");
+    track(type === "waitlist" ? "submit_waitlist" : "submit_inquiry", {
+      property: propertyName ?? selectedProperty,
+      room: roomName,
+    });
+    setSentUrl(url);
+    setStatus("done");
   };
 
   const responseTime = localized(siteConfig.responseTime, locale);
@@ -121,48 +128,46 @@ export function LeadForm({
 
   const label = cn(
     "mb-1.5 block text-sm font-semibold",
-    dark ? "text-white/85" : "text-[#1a1c1a]",
+    dark ? "text-white/85" : "text-fg",
   );
   const input = cn(
     "h-12 w-full rounded-xl border px-4 text-base transition-colors focus:outline-none focus:ring-2",
     dark
       ? "border-white/15 bg-white/10 text-white placeholder:text-white/45 focus:border-white/40 focus:ring-white/20"
-      : "border-[#cfc5c1] bg-white text-[#141414] placeholder:text-[#6b6b6b] focus:border-[#141414] focus:ring-[#141414]/10",
+      : "border-line-strong bg-white text-fg placeholder:text-fg-muted focus:border-fg focus:ring-fg/10",
   );
   const errorText = cn(
     "mt-1.5 text-sm",
-    dark ? "text-[#fca5a5]" : "text-[#ba1a1a]",
+    dark ? "text-[#fca5a5]" : "text-danger",
   );
 
   if (status === "done") {
     return (
       <output className={cn("flex flex-col items-start gap-4", className)}>
-        <span className="flex size-12 items-center justify-center rounded-full bg-[#059669]/15 text-[#059669]">
+        <span className="flex size-12 items-center justify-center rounded-full bg-success/15 text-success">
           <Icon name="check" size={24} />
         </span>
         <p
           className={cn(
             "text-lg font-semibold",
-            dark ? "text-white" : "text-[#1a1c1a]",
+            dark ? "text-white" : "text-fg",
           )}
         >
           {t("success.title", { name: name.trim().split(" ")[0] })}
         </p>
-        <p
-          className={cn("text-base", dark ? "text-white/70" : "text-[#51443c]")}
-        >
+        <p className={cn("text-base", dark ? "text-white/70" : "text-fg-2")}>
           {responseTime
             ? t("success.bodyWithTime", { time: responseTime })
             : t("success.body", { hours })}
         </p>
         <a
-          href={whatsappUrl}
+          href={sentUrl}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() =>
             track("click_whatsapp", { location: `lead_success_${type}` })
           }
-          className="inline-flex h-12 items-center gap-2 rounded-full bg-[#25D366] px-6 text-[15px] font-semibold text-white transition-colors hover:bg-[#1fb855]"
+          className="inline-flex h-12 items-center gap-2 rounded-full bg-ink px-6 text-[15px] font-semibold text-white transition-colors hover:bg-ink-2"
         >
           <Icon name="whatsapp" size={18} />
           {t("success.openWhatsApp")}
@@ -177,21 +182,6 @@ export function LeadForm({
       noValidate
       className={cn("flex flex-col gap-4", className)}
     >
-      {/* Honeypot: hidden from people and assistive tech, tempting to bots */}
-      <div
-        aria-hidden
-        className="absolute -left-[9999px] h-px w-px overflow-hidden"
-      >
-        <label htmlFor={`${uid}-website`}>Website</label>
-        <input
-          id={`${uid}-website`}
-          tabIndex={-1}
-          autoComplete="off"
-          value={website}
-          onChange={(e) => setWebsite(e.target.value)}
-        />
-      </div>
-
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor={`${uid}-name`} className={label}>
@@ -250,7 +240,7 @@ export function LeadForm({
         aria-expanded={showMore}
         className={cn(
           "inline-flex items-center gap-1.5 self-start text-sm font-semibold",
-          dark ? "text-[#f4bb92]" : "text-[#71130d]",
+          dark ? "text-brand-bright" : "text-brand",
         )}
       >
         <Icon name={showMore ? "remove" : "add"} size={16} />
@@ -329,19 +319,19 @@ export function LeadForm({
 
       <button
         type="submit"
-        disabled={status === "sending"}
-        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#71130d] px-7 text-[15px] font-semibold text-white transition-colors hover:bg-[#8a1a12] disabled:opacity-60"
+        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-brand px-7 text-[15px] font-semibold text-white transition-colors hover:bg-brand-hover"
       >
-        {status === "sending" ? t("sending") : t(`submit.${type}`)}
+        <Icon name="whatsapp" size={18} />
+        {t(`submit.${type}`)}
       </button>
 
-      <p className={cn("text-sm", dark ? "text-white/55" : "text-[#83746b]")}>
+      <p className={cn("text-sm", dark ? "text-white/55" : "text-fg-muted")}>
         {t("consent")}{" "}
         <Link
           href="/privacy"
           className={cn(
             "underline underline-offset-2",
-            dark ? "hover:text-white" : "hover:text-[#71130d]",
+            dark ? "hover:text-white" : "hover:text-brand",
           )}
         >
           {t("privacy")}

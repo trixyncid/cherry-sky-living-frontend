@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Cherry Sky Living Admin Suite — Sign in",
+  title: "Sign in",
+  // Staff sign-in is not linked anywhere public; keep it out of search too.
+  robots: { index: false, follow: false },
 };
 
 export default function AdminLoginLayout({

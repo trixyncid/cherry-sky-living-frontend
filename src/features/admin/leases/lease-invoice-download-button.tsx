@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { buildLeaseInvoice } from "@/features/admin/leases/build-lease-invoice";
 import { downloadLeaseInvoicePdf } from "@/features/admin/leases/generate-lease-invoice-pdf";
 import { formatDate, formatIdr } from "@/features/admin/lib/format";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
-import { cn } from "@/lib/utils";
+import {
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
 import type { Lease } from "@/lib/types/admin";
+import { cn } from "@/lib/utils";
 
 type LeaseInvoiceDownloadButtonProps = {
   lease: Lease;
@@ -41,6 +44,7 @@ export function LeaseInvoiceDownloadButton({
         rentLineLabel: tp("rentLine"),
         rentLineDescription: tp("rentLineDescription"),
         lateFeeLineLabel: tp("lateFeeLine"),
+        discountLineLabel: tp("discountLine"),
         lateFeeLineDescription: ({ days, perDay }) =>
           tp("lateFeeLineDescription", { days, perDay }),
         statusPaid: tp("statusPaid"),
@@ -54,7 +58,7 @@ export function LeaseInvoiceDownloadButton({
         formatDate: (value) => formatDate(value, locale),
       });
 
-      downloadLeaseInvoicePdf(invoice, {
+      await downloadLeaseInvoicePdf(invoice, {
         title: tp("pdfTitle"),
         invoiceNumber: tp("invoiceNumber"),
         issuedOn: tp("issuedOn"),
@@ -70,6 +74,11 @@ export function LeaseInvoiceDownloadButton({
         totalPaid: tp("totalPaid"),
         notes: tp("notes"),
         thankYou: tp("thankYou"),
+        subtotal: tp("subtotal"),
+        total: tp("total"),
+        amountPaid: tp("amountPaid"),
+        balanceDue: tp("balanceDue"),
+        overdueStamp: tp("overdueStamp"),
         formatMoney: formatIdr,
         formatIssuedDate: (value) => formatDate(value, locale),
       });
@@ -90,8 +99,8 @@ export function LeaseInvoiceDownloadButton({
       className={cn(
         "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50",
         variant === "primary"
-          ? "bg-[#71130d] text-white hover:opacity-90"
-          : "border border-[#71130d]/30 bg-white text-[#71130d] hover:bg-[#efeeeb]",
+          ? "bg-brand text-white hover:opacity-90"
+          : "border border-brand/30 bg-white text-brand hover:bg-hover",
         className,
       )}
     >

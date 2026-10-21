@@ -14,37 +14,23 @@ import {
 } from "@/components/ui/sheet";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { AdminSignOutDialog } from "@/features/admin/components/admin-sign-out-dialog";
-import { adminNavGroups } from "@/features/admin/constants/nav-items";
+import {
+  adminCreateActions,
+  adminNavGroupsForRole,
+  adminPageIcons,
+} from "@/features/admin/constants/nav-items";
 import {
   activeNavHref,
-  usePendingRenewals,
+  navTaskBadge,
+  useAdminTasks,
 } from "@/features/admin/lib/nav-state";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { signOutClient } from "@/lib/auth/sign-out-client";
 import { UserRole } from "@/lib/types/auth";
 import { cn } from "@/lib/utils";
 
-const CREATE_ACTIONS = [
-  { href: "/admin/leases/new", icon: "post_add", key: "newLease" },
-  {
-    href: "/admin/bookkeeping/new?type=income",
-    icon: "south_west",
-    key: "recordIncome",
-  },
-  {
-    href: "/admin/bookkeeping/new?type=expense",
-    icon: "north_east",
-    key: "recordExpense",
-  },
-  { href: "/admin/users/new", icon: "person_add", key: "addTenant" },
-  { href: "/admin/units/new", icon: "bed", key: "addUnit" },
-  { href: "/admin/pricing/new", icon: "sell", key: "setPricing" },
-  { href: "/admin/unit-types/new", icon: "category", key: "addUnitType" },
-  { href: "/admin/properties/new", icon: "add_home", key: "addProperty" },
-] as const;
-
 const sheetClass =
-  "max-h-[88dvh] gap-0 overflow-y-auto rounded-t-[1.75rem] border-[#ece4e2] bg-white px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3";
+  "max-h-[88dvh] gap-0 overflow-y-auto rounded-t-[1.75rem] border-line bg-white px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3";
 
 /**
  * Phone navigation for the admin portal: Home · Leases · (+) · Units · More.
@@ -56,21 +42,13 @@ export function AdminMobileNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAdminShell();
-  const pending = usePendingRenewals();
+  const tasks = useAdminTasks();
   const current = activeNavHref(pathname);
   const [sheet, setSheet] = useState<"create" | "more" | null>(null);
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
 
-  const groups =
-    user.role === UserRole.SUPERADMIN
-      ? adminNavGroups
-      : adminNavGroups
-          .map((g) => ({
-            ...g,
-            items: g.items.filter((i) => i.key !== "staff"),
-          }))
-          .filter((g) => g.items.length > 0);
+  const groups = adminNavGroupsForRole(user.role === UserRole.SUPERADMIN);
 
   const onTab = (href: string) => current === href;
   const inMore =
@@ -96,16 +74,17 @@ export function AdminMobileNav() {
           {
             key: "home",
             label: tm("home"),
-            icon: "space_dashboard",
+            icon: adminPageIcons.overview,
             href: "/admin",
             active: onTab("/admin"),
           },
           {
             key: "leases",
             label: tm("leases"),
-            icon: "description",
+            icon: adminPageIcons.leases,
             href: "/admin/leases",
             active: onTab("/admin/leases"),
+            badge: tasks.payments.length,
           },
           {
             key: "create",
@@ -117,7 +96,7 @@ export function AdminMobileNav() {
           {
             key: "units",
             label: tm("units"),
-            icon: "apartment",
+            icon: adminPageIcons.units,
             href: "/admin/units",
             active: onTab("/admin/units"),
           },
@@ -126,7 +105,7 @@ export function AdminMobileNav() {
             label: tm("more"),
             icon: "menu",
             active: inMore || sheet === "more",
-            badge: pending,
+            badge: navTaskBadge("leaseRenewals", tasks),
             onClick: () => setSheet("more"),
           },
         ]}
@@ -139,17 +118,17 @@ export function AdminMobileNav() {
       >
         <SheetContent side="bottom" className={sheetClass}>
           <span
-            className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-[#e6dedb]"
+            className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line"
             aria-hidden
           />
-          <SheetTitle className="text-xl font-medium tracking-tight text-[#141414]">
+          <SheetTitle className="text-xl font-medium tracking-tight text-fg">
             {tm("createTitle")}
           </SheetTitle>
-          <SheetDescription className="mb-4 text-sm text-[#6b6b6b]">
+          <SheetDescription className="mb-4 text-sm text-fg-muted">
             {tm("createHint")}
           </SheetDescription>
           <div className="grid grid-cols-2 gap-2.5">
-            {CREATE_ACTIONS.map((a, i) => (
+            {adminCreateActions.map((a, i) => (
               <Link
                 key={a.key}
                 href={a.href}
@@ -157,14 +136,14 @@ export function AdminMobileNav() {
                 className={cn(
                   "flex min-h-20 flex-col justify-between gap-2 rounded-2xl p-3.5 text-[15px] font-medium transition-colors",
                   i === 0
-                    ? "bg-[#71130d] text-white"
-                    : "border border-[#ece4e2] bg-white text-[#141414] active:bg-[#f6f0ef]",
+                    ? "bg-brand text-white"
+                    : "border border-line bg-white text-fg active:bg-hover",
                 )}
               >
                 <Icon
                   name={a.icon}
                   size={22}
-                  className={i === 0 ? "text-white" : "text-[#71130d]"}
+                  className={i === 0 ? "text-white" : "text-brand"}
                 />
                 {tm(`actions.${a.key}`)}
               </Link>
@@ -180,7 +159,7 @@ export function AdminMobileNav() {
       >
         <SheetContent side="bottom" className={sheetClass}>
           <span
-            className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-[#e6dedb]"
+            className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line"
             aria-hidden
           />
           <SheetTitle className="sr-only">{tm("menuTitle")}</SheetTitle>
@@ -191,34 +170,34 @@ export function AdminMobileNav() {
           <Link
             href="/admin/profile"
             onClick={() => setSheet(null)}
-            className="mb-4 flex items-center gap-3 rounded-2xl bg-[#faf7f6] p-3"
+            className="mb-4 flex items-center gap-3 rounded-2xl bg-subtle p-3"
           >
             <ProfileAvatarPlaceholder
-              className="size-12 rounded-full ring-2 ring-[#e8bfb9]"
+              className="size-12 rounded-full ring-2 ring-brand-line"
               iconSize={22}
               label={user.name}
             />
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[15px] font-medium text-[#141414]">
+              <span className="block truncate text-[15px] font-medium text-fg">
                 {user.name}
               </span>
-              <span className="block truncate text-sm text-[#6b6b6b]">
+              <span className="block truncate text-sm text-fg-muted">
                 {user.email}
               </span>
             </span>
-            <Icon name="chevron_right" size={20} className="text-[#6b6b6b]" />
+            <Icon name="chevron_right" size={20} className="text-fg-muted" />
           </Link>
 
           <div className="space-y-4">
             {groups.map((group) => (
               <section key={group.id}>
-                <p className="mb-2 px-1 text-sm font-medium text-[#6b6b6b]">
+                <p className="mb-2 px-1 text-sm font-medium text-fg-muted">
                   {t(group.labelKey)}
                 </p>
                 <div className="grid grid-cols-3 gap-2">
                   {group.items.map((item) => {
                     const active = current === item.href;
-                    const badge = item.key === "leaseRenewals" ? pending : 0;
+                    const badge = navTaskBadge(item.key, tasks);
                     return (
                       <Link
                         key={item.key}
@@ -228,18 +207,18 @@ export function AdminMobileNav() {
                         className={cn(
                           "relative flex min-h-[5.25rem] flex-col items-center justify-center gap-1.5 rounded-2xl px-2 text-center text-[13px] font-medium leading-tight transition-colors",
                           active
-                            ? "bg-[#71130d] text-white"
-                            : "border border-[#ece4e2] bg-white text-[#141414] active:bg-[#f6f0ef]",
+                            ? "bg-brand text-white"
+                            : "border border-line bg-white text-fg active:bg-hover",
                         )}
                       >
                         <Icon
                           name={item.icon}
                           size={22}
-                          className={active ? "text-white" : "text-[#71130d]"}
+                          className={active ? "text-white" : "text-brand"}
                         />
                         {t(item.labelKey)}
                         {badge > 0 ? (
-                          <span className="absolute right-2 top-2 flex min-w-5 items-center justify-center rounded-full bg-[#71130d] px-1 text-[11px] font-semibold leading-5 text-white ring-2 ring-white">
+                          <span className="absolute right-2 top-2 flex min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[11px] font-semibold leading-5 text-white ring-2 ring-white">
                             {badge > 9 ? "9+" : badge}
                           </span>
                         ) : null}
@@ -251,7 +230,7 @@ export function AdminMobileNav() {
             ))}
           </div>
 
-          <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#f1ebea] pt-4">
+          <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
             <LanguageSwitcher variant="navbar" isSolid />
             <button
               type="button"
@@ -259,7 +238,7 @@ export function AdminMobileNav() {
                 setSheet(null);
                 setSignOutOpen(true);
               }}
-              className="inline-flex h-11 items-center gap-2 rounded-full px-4 text-[15px] font-medium text-[#a1271b] active:bg-[#fdecea]"
+              className="inline-flex h-11 items-center gap-2 rounded-full px-4 text-[15px] font-medium text-danger active:bg-danger-soft"
             >
               <Icon name="logout" size={18} />
               {t("nav.signOut")}

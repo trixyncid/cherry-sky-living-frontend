@@ -66,7 +66,7 @@ function DialogContent({
       >
         {children}
         {showCloseButton && (
-          <DialogPrimitive.Close className="absolute top-4 right-4 rounded-lg p-1 text-[#83746b] opacity-70 transition-opacity hover:bg-[#f6f0ef] hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-[#8a1a12]/30">
+          <DialogPrimitive.Close className="absolute top-4 right-4 rounded-lg p-1 text-fg-muted opacity-70 transition-opacity hover:bg-hover hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-brand/30">
             <XIcon className="size-4" />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
@@ -106,7 +106,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-lg font-semibold text-[#1a1c1a]", className)}
+      className={cn("text-lg font-semibold text-fg", className)}
       {...props}
     />
   );
@@ -119,7 +119,7 @@ function DialogDescription({
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn("text-sm text-[#51443c]", className)}
+      className={cn("text-sm text-fg-2", className)}
       {...props}
     />
   );

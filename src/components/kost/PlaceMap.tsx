@@ -19,7 +19,7 @@ export function PlaceMap({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-[1.25rem] bg-[#e7e4df]",
+        "relative overflow-hidden rounded-[1.25rem] bg-line",
         className,
       )}
     >

@@ -16,6 +16,7 @@ import { useTenantShell } from "@/features/tenant/components/tenant-shell-contex
 import { tenantNavItems } from "@/features/tenant/constants/nav-items";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { signOutClient } from "@/lib/auth/sign-out-client";
+import { contactSummary } from "@/lib/phone";
 import { cn } from "@/lib/utils";
 
 function activeHref(pathname: string): string {
@@ -139,7 +140,9 @@ export function TenantTopNav() {
                 <p className="truncate text-[15px] font-semibold text-[#141414]">
                   {user.name}
                 </p>
-                <p className="truncate text-sm text-[#6b6b6b]">{user.email}</p>
+                <p className="truncate text-sm text-[#6b6b6b]">
+                  {contactSummary(user)}
+                </p>
               </div>
               <Link
                 href="/tenant/profile"

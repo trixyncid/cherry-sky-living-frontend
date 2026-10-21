@@ -1,11 +1,12 @@
 /**
- * Public contact details from env.
- * Prefer NEXT_PUBLIC_WHATSAPP_NUMBER so client components can read it.
+ * Public contact number (WhatsApp and phone). Hardcoded on purpose so every
+ * environment shows the same number.
  */
 
-const DEFAULT_WHATSAPP_NUMBER = "08116359119";
+export const CONTACT_WHATSAPP_NUMBER = "+6281269175252";
+/** Same number, formatted for reading. */
+export const CONTACT_PHONE_DISPLAY = "+62 812-6917-5252";
 
 export function getContactWhatsAppNumber(): string {
-  const fromEnv = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.trim();
-  return fromEnv || DEFAULT_WHATSAPP_NUMBER;
+  return CONTACT_WHATSAPP_NUMBER;
 }

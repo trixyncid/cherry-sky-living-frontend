@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useEffect, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
+import { SelectMenu } from "@/components/shared/select-menu";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "@/i18n/routing";
 import { listPublicProperties } from "@/lib/api/public/properties";
@@ -35,23 +36,10 @@ interface HeroSearchBarProps {
 
 function FieldLabel({ icon, children }: { icon: string; children: ReactNode }) {
   return (
-    <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[#6b6b6b]">
+    <span className="flex items-center gap-1.5 text-[13px] font-semibold text-fg-muted">
       <Icon name={icon} size={14} />
       {children}
     </span>
-  );
-}
-
-function SelectWrap({ children }: { children: ReactNode }) {
-  return (
-    <div className="relative">
-      {children}
-      <Icon
-        name="expand_more"
-        size={18}
-        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6b6b6b]"
-      />
-    </div>
   );
 }
 
@@ -147,8 +135,7 @@ export function HeroSearchBar({
     commit(buildFilters());
   };
 
-  const fieldClass =
-    "h-12 w-full appearance-none rounded-xl border border-[#cfc5c1] bg-white pl-4 pr-9 text-base font-medium text-[#141414] placeholder:text-[#6b6b6b] focus:border-[#141414] focus:outline-none";
+  const fieldClass = "h-12 font-medium";
 
   const pills: {
     id: string;
@@ -184,76 +171,53 @@ export function HeroSearchBar({
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.45, duration: 0.5 }}
-      className={cn(
-        "relative z-20 w-full",
-        overlapping && "-mb-14 md:-mb-16",
-      )}
+      className={cn("relative z-20 w-full", overlapping && "-mb-14 md:-mb-16")}
     >
       <form
         onSubmit={handleSubmit}
-        className="mx-auto w-full rounded-[1.25rem] bg-white p-3 shadow-[0_24px_60px_-34px_rgb(20_16_14/0.35)] sm:p-4"
+        className="mx-auto w-full rounded-[1.25rem] bg-white p-3 shadow-[0_24px_60px_-34px_rgb(11_11_13/0.35)] sm:p-4"
       >
         <div className="flex flex-col gap-3 md:flex-row md:items-end">
           <div className="grid min-w-0 flex-1 grid-cols-2 gap-3">
-            <label className="flex flex-col gap-1.5">
+            <div className="flex min-w-0 flex-col gap-1.5">
               <FieldLabel icon="apartment">{t("lookingFor")}</FieldLabel>
-              <SelectWrap>
-                <select
-                  value={propertyId}
-                  onChange={(e) => setPropertyId(e.target.value)}
-                  className={cn(fieldClass, "cursor-pointer")}
-                >
-                  <option value="" className="text-[#1a1c1a]">
-                    {t("propertyAny")}
-                  </option>
-                  {properties.map((property) => (
-                    <option
-                      key={property.id}
-                      value={property.id}
-                      className="text-[#1a1c1a]"
-                    >
-                      {property.name}
-                    </option>
-                  ))}
-                </select>
-              </SelectWrap>
-            </label>
+              <SelectMenu
+                aria-label={t("lookingFor")}
+                value={propertyId}
+                onChange={setPropertyId}
+                options={[
+                  { value: "", label: t("propertyAny") },
+                  ...properties.map((property) => ({
+                    value: property.id,
+                    label: property.name,
+                  })),
+                ]}
+                className={fieldClass}
+              />
+            </div>
 
-
-            <label className="flex flex-col gap-1.5">
+            <div className="flex min-w-0 flex-col gap-1.5">
               <FieldLabel icon="payments">{t("priceRange")}</FieldLabel>
-              <SelectWrap>
-                <select
-                  value={priceBand}
-                  onChange={(e) =>
-                    setPriceBand(e.target.value as SearchPriceBand)
-                  }
-                  className={cn(fieldClass, "cursor-pointer")}
-                >
-                  <option value="any" className="text-[#1a1c1a]">
-                    {t("priceAny")}
-                  </option>
-                  <option value="under1" className="text-[#1a1c1a]">
-                    {t("priceUnder1m")}
-                  </option>
-                  <option value="1to2" className="text-[#1a1c1a]">
-                    {t("price1to2m")}
-                  </option>
-                  <option value="2to3" className="text-[#1a1c1a]">
-                    {t("price2to3m")}
-                  </option>
-                  <option value="3plus" className="text-[#1a1c1a]">
-                    {t("price3mPlus")}
-                  </option>
-                </select>
-              </SelectWrap>
-            </label>
+              <SelectMenu
+                aria-label={t("priceRange")}
+                value={priceBand}
+                onChange={(value) => setPriceBand(value as SearchPriceBand)}
+                options={[
+                  { value: "any", label: t("priceAny") },
+                  { value: "under1", label: t("priceUnder1m") },
+                  { value: "1to2", label: t("price1to2m") },
+                  { value: "2to3", label: t("price2to3m") },
+                  { value: "3plus", label: t("price3mPlus") },
+                ]}
+                className={fieldClass}
+              />
+            </div>
           </div>
 
           <Button
             type="submit"
             size="lg"
-            className="h-12 w-full shrink-0 rounded-full bg-[#71130d] px-6 text-[15px] font-semibold text-white hover:bg-[#8a1a12] md:w-auto"
+            className="h-12 w-full shrink-0 rounded-full bg-brand px-6 text-[15px] font-semibold text-white hover:bg-brand-hover md:w-auto"
           >
             <Icon name="search" size={18} className="mr-2" />
             {t("findProperties")}
@@ -270,7 +234,7 @@ export function HeroSearchBar({
                 className={cn(
                   "rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors",
                   pill.active
-                    ? "bg-[#71130d] text-white"
+                    ? "bg-brand text-white"
                     : "border border-white/20 bg-white/10 text-white/80 hover:bg-white/15",
                 )}
               >

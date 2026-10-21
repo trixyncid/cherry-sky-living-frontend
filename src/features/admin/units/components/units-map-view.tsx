@@ -1,17 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
+import type { AdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import { UnitDetailSheet } from "@/features/admin/units/components/unit-detail-sheet";
 import { UnitRoomTile } from "@/features/admin/units/components/unit-room-tile";
 import {
   groupUnitsForMap,
   type PropertyUnitGroup,
 } from "@/features/admin/units/lib/group-units-for-map";
-import type { AdminLookups } from "@/features/admin/hooks/use-admin-lookups";
-import { cn } from "@/lib/utils";
 import type { Unit } from "@/lib/types/admin";
+import { cn } from "@/lib/utils";
 
 interface UnitsMapViewProps {
   units: Unit[];
@@ -33,17 +34,17 @@ function BuildingCard({
   const t = useTranslations("admin.pages.units");
 
   return (
-    <article className="glass-panel overflow-hidden rounded-[1.75rem]">
-      <header className="relative overflow-hidden border-b border-white/40 bg-gradient-to-br from-maroon-deep/92 via-[#71130d]/88 to-ferrugem/82 px-5 py-5 text-white backdrop-blur-xl">
+    <article className="glass-panel overflow-hidden rounded-2xl">
+      <header className="relative overflow-hidden bg-ink px-5 py-5 text-white">
         <div
-          className="pointer-events-none absolute -right-8 -top-8 size-32 rounded-full bg-white/10"
+          className="pointer-events-none absolute -right-10 -top-16 size-40 rounded-full bg-brand/40 blur-3xl"
           aria-hidden
         />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <div className="flex items-center gap-2.5">
               <div className="rounded-xl border border-white/20 bg-white/10 p-2">
-                <Icon name="apartment" size={22} />
+                <Icon name={adminPageIcons.properties} size={22} />
               </div>
               <h3 className="truncate text-lg font-semibold tracking-tight">
                 {group.propertyName}
@@ -63,17 +64,17 @@ function BuildingCard({
             <StatPill
               label={t("status.vacant")}
               value={group.stats.vacant}
-              className="bg-emerald-500/20 text-emerald-50"
+              className="bg-white/10 text-white"
             />
             <StatPill
               label={t("status.occupied")}
               value={group.stats.occupied}
-              className="bg-red-600/30 font-bold text-red-100 ring-1 ring-red-400/30"
+              className="bg-white/10 text-white"
             />
             <StatPill
               label={t("occupancy")}
               value={`${group.stats.occupancyPct}%`}
-              className="bg-white/15 text-white"
+              className="bg-brand text-white"
             />
           </div>
         </div>
@@ -82,12 +83,12 @@ function BuildingCard({
       <div className="space-y-6 p-5">
         {group.floors.map((floorGroup) => (
           <section key={floorGroup.floor ?? "other"}>
-            <h4 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#83746b]">
-              <Icon name="layers" size={16} className="text-[#a89b92]" />
+            <h4 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-fg-muted">
+              <Icon name="layers" size={16} className="text-fg-faint" />
               {floorGroup.floor === null
                 ? t("floorOther")
                 : t("floorLabel", { floor: floorGroup.floor })}
-              <span className="font-normal normal-case text-[#a89b92]">
+              <span className="font-normal normal-case text-fg-faint">
                 ({floorGroup.units.length})
               </span>
             </h4>
@@ -134,13 +135,13 @@ function MapLegend() {
   const t = useTranslations("admin.pages.units");
 
   const items = [
-    { status: "vacant" as const, dot: "bg-emerald-500" },
-    { status: "occupied" as const, dot: "bg-red-600" },
+    { status: "vacant" as const, dot: "bg-success" },
+    { status: "occupied" as const, dot: "bg-ink" },
   ];
 
   return (
-    <div className="glass-panel flex flex-wrap items-center gap-4 rounded-xl px-4 py-3 text-sm text-[#51443c]">
-      <span className="text-xs font-semibold uppercase tracking-wide text-[#83746b]">
+    <div className="glass-panel flex flex-wrap items-center gap-4 rounded-xl px-4 py-3 text-sm text-fg-2">
+      <span className="text-xs font-semibold uppercase tracking-wide text-fg-muted">
         {t("legend")}
       </span>
       {items.map(({ status, dot }) => (
@@ -148,14 +149,14 @@ function MapLegend() {
           key={status}
           className={cn(
             "inline-flex items-center gap-2",
-            status === "occupied" && "font-bold text-[#ba1a1a]",
+            status === "occupied" && "font-bold text-danger",
           )}
         >
           <span className={cn("size-2.5 rounded-full", dot)} />
           {t(`status.${status}`)}
         </span>
       ))}
-      <span className="hidden text-xs text-[#a89b92] sm:inline">
+      <span className="hidden text-xs text-fg-faint sm:inline">
         · {t("hoverHint")}
       </span>
     </div>
@@ -179,7 +180,7 @@ export function UnitsMapView({
 
   if (propertyGroups.length === 0) {
     return (
-      <p className="glass-panel rounded-2xl border-dashed p-10 text-center text-sm text-[#83746b]">
+      <p className="glass-panel rounded-2xl border-dashed p-10 text-center text-sm text-fg-muted">
         {t("mapEmpty")}
       </p>
     );

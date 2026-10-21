@@ -71,7 +71,8 @@
             "liveReply": "Replies personally on WhatsApp",
             "cornerLeft": "Two residences in Medan, managed directly by the owner",
             "cornerRight": "Monthly rent from",
-            "seeRooms": "See available rooms"
+            "seeRooms": "See available rooms",
+            "waitlistOpen": "Waitlist open"
         },
         "finder": {
             "residence": "Residence",
@@ -137,7 +138,7 @@
             },
             "titleLead": "From first message",
             "titleAccent": "to your own keys.",
-            "hours": "Surveys Mon–Sat · 08:00–18:00 WIB",
+            "hours": "Viewings Mon–Sat · 08:00–17:00 WIB",
             "choose": {
                 "title": "Pick a room",
                 "description": "Browse live availability and monthly prices. Every room shows exactly what is included."
@@ -146,8 +147,8 @@
         "cta": {
             "eyebrow": "Ready to visit?",
             "title": "See a room before you commit",
-            "description": "Surveys run Monday–Saturday, 08:00–18:00 WIB. Pick a time and we’ll meet you at the property.",
-            "schedule": "Schedule a survey",
+            "description": "Viewings run Monday–Saturday, 08:00–17:00 WIB. Pick a time and we’ll meet you at the property.",
+            "schedule": "Book a viewing",
             "whatsapp": "Message us",
             "liveTitle": "{count, plural, =0 {Be first in line for the next room.} one {# room is open today.} other {# rooms are open today.}}",
             "titleAccent": "Come and see it in person.",
@@ -173,8 +174,8 @@
             "items": {
                 "visit": {
                     "q": "Can I visit a room before I rent?",
-                    "a": "Yes — we schedule a survey visit first. Surveys are available Monday–Saturday, 08:00–18:00 WIB. Please share your preferred schedule so our admin can be on standby at the location.",
-                    "cta": "Schedule a survey"
+                    "a": "Yes — we schedule a viewing first. Viewings are available Monday–Saturday, 08:00–17:00 WIB. Please share your preferred schedule so our admin can be on standby at the location.",
+                    "cta": "Book a viewing"
                 },
                 "deposit": {
                     "q": "Is a deposit required?",
@@ -230,15 +231,15 @@
                 }
             },
             "surveyDialog": {
-                "title": "Schedule a room survey",
-                "description": "Surveys are available Monday–Saturday, 08:00–18:00 WIB. Fill in your details and we will open WhatsApp with a prepared message for our team.",
+                "title": "Schedule a room viewing",
+                "description": "Viewings are available Monday–Saturday, 08:00–17:00 WIB. Fill in your details and we will open WhatsApp with a prepared message for our team.",
                 "name": "Full name",
                 "namePlaceholder": "Your full name",
                 "phone": "Phone number",
-                "phonePlaceholder": "e.g. 08116359119",
-                "surveyDate": "Survey date",
+                "phonePlaceholder": "e.g. 081269175252",
+                "surveyDate": "Viewing date",
                 "surveyDatePlaceholder": "Select a date",
-                "surveyTime": "Survey time",
+                "surveyTime": "Viewing time",
                 "surveyTimePlaceholder": "Select a time",
                 "unit": "Room type to view",
                 "unitPlaceholder": "Select a room type",
@@ -252,7 +253,7 @@
                 "required": "This field is required",
                 "invalidPhone": "Please enter a valid phone number",
                 "invalidDate": "Choose a Monday–Saturday date from today onward",
-                "message": "Dear Cherry Sky Living,\n\nI would like to schedule a room survey.\n\nName: {name}\nPhone: {phone}\nSurvey date & time: {surveyDay}, {surveyTime} WIB\nRoom type to view: {roomType}\nProperty: {property}\n\nPlease confirm so an admin can be on standby. Thank you."
+                "message": "Hi there 👋 I'm {name} and I'd love to come see a room.\n\n📅 {viewingDay} at {viewingTime} WIB\n🏠 {roomType} at {property}\n📱 {phone}\n\nCould you confirm that works? Thanks so much 🙏"
             },
             "cardTitle": "Talk to the owner",
             "cardSub": "Replies personally on WhatsApp"
@@ -335,20 +336,22 @@
             "directions": "Directions",
             "loadMap": "Show map",
             "mapHint": "The map loads only when you open it, to keep this page fast.",
-            "askAvailability": "Ask us about availability"
+            "askAvailability": "Ask us about availability",
+            "deposit": "Refundable deposit"
         },
         "floating": {
             "seeRooms": "See rooms",
             "whatsapp": "WhatsApp",
             "chatLabel": "Chat with us on WhatsApp",
-            "call": "Call us"
+            "call": "Call us",
+            "bookViewing": "Book a viewing"
         },
         "continuation": {
             "lead": "Whether you're starting university, beginning a new job, or simply want a calmer place to live,",
             "accent": "we help you find a furnished room that fits your budget, your routine and the way you like to live.",
-            "iconRooms": "Browse available rooms",
-            "iconChat": "Chat with us on WhatsApp",
-            "iconLocation": "See where the residences are",
+            "iconRooms": "Browse rooms",
+            "iconChat": "Chat on WhatsApp",
+            "iconLocation": "See location",
             "photoRoom": "A furnished room at {name}",
             "photoHouse": "{name} residence"
         },
@@ -480,7 +483,7 @@
             "email": "Email",
             "emailPlaceholder": "name@email.com",
             "phone": "Phone Number",
-            "phonePlaceholder": "+62 811-6359-119",
+            "phonePlaceholder": "+62 812-6917-5252",
             "password": "Password",
             "passwordPlaceholder": "Minimum 6 characters",
             "confirmPassword": "Confirm Password",
@@ -568,7 +571,7 @@
         "duration7": "7 days",
         "duration12": "12 days",
         "duration30": "per month",
-        "durationDaysCount": "{days} days",
+        "durationDaysCount": "{days, plural, one {# day} other {# days}}",
         "unitTypes": "Unit Types",
         "unitsAvailable": "{count} rooms available",
         "noPricing": "Pricing not available",
@@ -590,7 +593,8 @@
         "emptyTitle": "No rooms match these filters",
         "emptyDescription": "Try a wider budget or another residence, or join the waitlist and we'll message you when something fits.",
         "emptyWaitlist": "Join the waitlist",
-        "resultsHint": "Prices are per month. Every room shows what's included."
+        "resultsHint": "Prices are per month. Every room shows what's included.",
+        "duration1": "Daily"
     },
     "property": {
         "flagship": "Flagship Property",
@@ -658,29 +662,45 @@
         "about": "Two well-kept residences in Medan for students and professionals: furnished rooms, 24/7 security, and a team that stays with you from viewing to keys."
     },
     "whatsapp": {
-        "inquiry": "Dear Cherry Sky Living,\n\nI would like to request further information regarding {propertyName}. Thank you.",
-        "roomInquiry": "Dear Cherry Sky Living,\n\nI would like to inquire about the availability of {roomType} at {propertyName}. Kindly advise on the next steps. Thank you.",
-        "generalInquiry": "Dear Cherry Sky Living,\n\nI would like to inquire about available rooms and rental information. Kindly advise at your earliest convenience. Thank you.",
-        "visitSchedule": "Dear Cherry Sky Living,\n\nI would like to schedule a viewing of {propertyName}. Please let me know the available times. Thank you.",
+        "inquiry": "Hi there 👋 I'm checking out {propertyName} and would love to know more. Thanks! 🙏",
+        "roomInquiry": "Hi there 👋 Is the {roomType} at {propertyName} still available? What would be the next step to rent it? Thanks! 🙏",
+        "generalInquiry": "Hi there 👋 I'm looking for a room. Could you share which rooms are available and the prices? Thanks! 🙏",
+        "visitSchedule": "Hi there 👋 I'd love to drop by {propertyName} to see the rooms. When would be a good time? Thanks! 🙏",
         "inquiryDialog": {
             "title": "Inquire via WhatsApp",
-            "description": "Please complete your details below. WhatsApp will open with a prepared inquiry for our team. No inquiry is recorded on this website.",
+            "description": "Please complete your details below. WhatsApp will open with a prepared inquiry for our team, and we keep a copy of your request so we can follow up.",
             "name": "Full name",
             "namePlaceholder": "Your full name",
             "phone": "Contact number",
-            "phonePlaceholder": "e.g. 08116359119",
-            "duration": "Preferred rental duration",
-            "durationPlaceholder": "Select duration",
+            "phonePlaceholder": "e.g. 081269175252",
+            "visitDate": "Visit date",
+            "visitDatePlaceholder": "Pick a date",
+            "visitTime": "Visit time",
+            "visitTimePlaceholder": "Pick a time",
+            "visitHint": "Visits Monday–Saturday, 08:00–17:00 WIB. Our team will confirm on WhatsApp.",
             "checkInDate": "Preferred move-in date",
             "checkInDatePlaceholder": "Select move-in date",
             "depositNote": "Please note: a deposit of {amount} is required to proceed with a lease. Payment details will be confirmed by our team after the terms have been agreed.",
             "submit": "Continue to WhatsApp",
             "required": "This field is required",
             "invalidPhone": "Please enter a valid phone number",
-            "bookingMessage": "Dear Cherry Sky Living,\n\nI would like to inquire about the availability of {roomType} at {propertyName}.\n\nInquiry details:\nFull name: {name}\nContact number: {phone}\nPreferred rental duration: {duration}\nPreferred move-in date: {checkInDate}\nDeposit noted: {deposit}\n\nKindly provide further information regarding this unit. Thank you."
+            "invalidVisitDate": "Pick a Monday–Saturday from today onwards",
+            "bookingMessage": "Hi there 👋 I'm {name} and I'm interested in the {roomType} at {propertyName}.\n\n📅 I'd like to visit: {visitDay} at {visitTime} WIB\n🔑 Planning to move in: {checkInDate}\n📱 My number: {phone}\n\n{hasDeposit, select, yes {I've noted the {deposit} deposit too. } other {}}Looking forward to hearing from you, thanks! 🙏"
         },
-        "roomViewing": "Dear Cherry Sky Living,\n\nI would like to schedule a viewing of {roomType} at {propertyName}. Please let me know the available times. Thank you.",
-        "waitlist": "Dear Cherry Sky Living,\n\nI would like to join the waitlist for {roomType} at {propertyName}. Please let me know when a room becomes available. Thank you."
+        "roomViewing": "Hi there 👋 I'd love to see the {roomType} at {propertyName}. When would be a good time? Thanks! 🙏",
+        "waitlist": "Hi there 👋 Looks like the {roomType} at {propertyName} is full right now. Could you let me know when one opens up? Thanks! 🙏",
+        "forgotPassword": "Hi there 👋 I can't sign in to the tenant portal. Could you help me reset my password? Thanks! 🙏",
+        "leadForm": {
+            "greeting": "Hi there 👋 I'm {name}.",
+            "inquiryDefault": "I'd like to ask about your rooms.",
+            "waitlistDefault": "Could you let me know when a {room} at {property} opens up?",
+            "room": "🛏️ Room: {value}",
+            "property": "🏠 Residence: {value}",
+            "moveIn": "🔑 Planning to move in: {value}",
+            "budget": "💰 Budget: {value} / month",
+            "phone": "📱 My number: {value}",
+            "closing": "Thanks! 🙏"
+        }
     },
     "roomDetail": {
         "title": "Room Details",
@@ -699,7 +719,8 @@
         "share": "Share",
         "backToHome": "Back to Home",
         "viewOnMap": "View on Map",
-        "verified": "Verified"
+        "verified": "Verified",
+        "depositLabel": "Refundable deposit"
     },
     "common": {
         "brand": {
@@ -723,7 +744,20 @@
         "loginShell": {
             "backToWebsite": "Back to website",
             "adminHeadline": "Every room, lease and payment in one place.",
-            "tenantHeadline": "Your lease, renewals and payments, all in one place."
+            "tenantHeadline": "Your room, bills and renewal, in one place.",
+            "welcome": "Welcome back",
+            "adminEyebrow": "Admin Suite",
+            "tenantEyebrow": "Tenant Portal",
+            "adminPoint1": "Approve rent payments in a tap",
+            "adminPoint2": "Handle renewal requests on time",
+            "adminPoint3": "Track the bank ledger and petty cash",
+            "tenantPoint1": "See every monthly bill and its due date",
+            "tenantPoint2": "Send your payment receipt from your phone",
+            "tenantPoint3": "Renew your lease without the paperwork",
+            "adminForgot": "Forgot your password? Ask the owner or a super admin to reset it.",
+            "tenantForgot": "Forgot your password or can't sign in?",
+            "tenantForgotAction": "Message us on WhatsApp",
+            "rights": "© {year} Cherry Sky Living"
         }
     },
     "about": {
@@ -841,8 +875,8 @@
             "weekendClosed": "Sunday: Closed",
             "addressSkykost": "SKYKOST: Jl. Gaharu Gg. Amat Lama No. 12, Medan",
             "addressCherry": "CHERRY KOST: Jl. Setia Budi No. 45, Medan",
-            "phonePrimary": "+62 811-6359-119",
-            "phoneSecondary": "+62 811-6359-119",
+            "phonePrimary": "+62 812-6917-5252",
+            "phoneSecondary": "+62 812-6917-5252",
             "emailPrimary": "info@cherryskykost.com",
             "emailSecondary": "support@cherryskykost.com",
             "viewMap": "View Map",
@@ -863,7 +897,7 @@
             "subjectPlaceholder": "What is your question about?",
             "sendViaWhatsApp": "Send via WhatsApp",
             "sendViaEmail": "Send via Email",
-            "whatsappMessage": "Dear Cherry Sky Living,\n\nI would like to inquire about your properties.\n\nName: {name}\nEmail: {email}\nPhone: {phone}\nSubject: {subject}\n\nMessage:\n{message}\n\nThank you.",
+            "whatsappMessage": "Hi there 👋 I'm {name} and I have a question about {subject}.\n\n{message}\n\n📱 {phone}\n✉️ {email}\n\nThanks so much! 🙏",
             "sending": "Sending...",
             "sent": "Message sent successfully!",
             "error": "Error sending message. Please try again.",
@@ -951,7 +985,7 @@
                 "content": "If you have any questions regarding these Terms and Conditions, please contact us at:",
                 "items": [
                     "Email: legal@cherryskykost.com",
-                    "Phone: +62 811-6359-119",
+                    "Phone: +62 812-6917-5252",
                     "Address: Jl. Gaharu Gg. Amat Lama No. 12, Medan"
                 ]
             }
@@ -1054,7 +1088,7 @@
                 "content": "If you have questions about this Privacy Policy or our privacy practices, please contact us at:",
                 "items": [
                     "Email: privacy@cherryskykost.com",
-                    "Phone: +62 811-6359-119",
+                    "Phone: +62 812-6917-5252",
                     "Address: Jl. Gaharu Gg. Amat Lama No. 12, Medan"
                 ]
             }
@@ -1111,13 +1145,17 @@
             "pricing": "Pricing",
             "bookkeeping": "Bookkeeping",
             "signOut": "Logout",
+            "collapseSidebar": "Collapse sidebar",
+            "expandSidebar": "Expand sidebar",
             "groups": {
                 "main": "Main",
                 "inventory": "Inventory",
                 "operations": "Operations",
                 "finance": "Finance"
             },
-            "shortcuts": "Shortcuts"
+            "shortcuts": "Shortcuts",
+            "pettyCash": "Petty cash",
+            "toProcess": "{count} to process"
         },
         "header": {
             "notifications": "Notifications",
@@ -1256,17 +1294,28 @@
             "dropActive": "Drop to add",
             "addMore": "Add photos",
             "addMoreHint": "Drop or click",
-            "queuedBadge": "Selected",
-            "queueHint": "{count} file(s) ready. Review, then click Upload.",
-            "uploadSelected": "Upload {count} file(s)",
-            "clearQueue": "Clear",
             "removeFromQueue": "Remove from selection",
             "uploading": "Uploading…",
-            "lockedTitle": "Photos unlock after you save",
-            "lockedHint": "Save the details first. You'll stay on this page so you can add photos right away.",
             "invalidType": "Only JPEG, PNG, WebP, and GIF images can be uploaded.",
             "invalidTypeWithPdf": "Only JPEG, PNG, WebP, GIF, or PDF files can be uploaded.",
-            "tooLarge": "Each file must be 5 MB or smaller."
+            "tooLarge": "Each file must be 5 MB or smaller.",
+            "pendingBadge": "Uploads on save",
+            "failedBadge": "Upload failed",
+            "retry": "Retry",
+            "deferredHint": "{count, plural, one {# file uploads} other {# files upload}} when you save.",
+            "takePhoto": "Take photo",
+            "fileKind": "File type",
+            "leaveWarning": "Some files haven't been uploaded yet. Leave this page anyway?",
+            "savedUploading": "Saved. Uploading {count, plural, one {# file} other {# files}}…",
+            "uploadedCount": "{count, plural, one {File uploaded.} other {# files uploaded.}}",
+            "uploadFailedCount": "{count, plural, one {A file couldn't be uploaded. Use Retry on it.} other {# files couldn't be uploaded. Use Retry on them.}}",
+            "chooseKindBadge": "Choose type",
+            "whatIsThis": "What is this file?",
+            "changeKind": "Change type",
+            "saving": "Saving…",
+            "kindRequired": "Choose a type for each file before saving.",
+            "kindUpdated": "Document type updated.",
+            "kindUpdateFailed": "Couldn't change the document type."
         },
         "pages": {
             "overview": {
@@ -1470,21 +1519,16 @@
                 "identityTitle": "Property details",
                 "identityHint": "Name and location shown to tenants on the public listing.",
                 "photosTitle": "Listing photos",
-                "photosHint": "These photos appear on the public listing. Choose or drop files, then click Upload — this does not use Save details.",
-                "photosHintCreate": "Photos can be added after the property exists. Save details and you'll stay here to upload them.",
-                "createdStayToUpload": "Property saved. You can add listing photos now.",
+                "photosHint": "Photos upload as soon as you add them and appear on the public listing.",
+                "photosHintCreate": "Add photos now — they upload when you create the property.",
+                "createdStayToUpload": "Property created.",
                 "saveDetails": "Save details",
-                "saveAndAddPhotos": "Save and add photos",
+                "saveAndAddPhotos": "Create property",
                 "image": "Property image",
                 "imageHint": "Optional. Upload an image for this property.",
-                "imageUploaded": "Photo uploaded.",
-                "imagesUploaded": "{count} photos uploaded.",
-                "imagesUploadPartial": "{failed} of {total} photos failed to upload.",
                 "uploadImage": "Upload image",
                 "uploadingImage": "Uploading…",
-                "saveFirstToUpload": "Save this property first, then upload its image.",
                 "imageRequired": "Please choose an image file first.",
-                "imageUploadFailed": "Failed to upload property image.",
                 "paymentRulesTitle": "Payment & renewal rules",
                 "paymentRulesHint": "Applied to new leases at this property. Existing leases keep their stored values.",
                 "paymentDueDay": "Payment due day",
@@ -1492,7 +1536,14 @@
                 "lateFeePerDay": "Late fee per day",
                 "lateFeeHint": "Charged for each overdue day on new leases.",
                 "renewalConfirmDays": "Renewal reminder",
-                "renewalHint": "Days before lease end to ask the tenant to renew."
+                "renewalHint": "Days before lease end to ask the tenant to renew.",
+                "paymentDueDayPlaceholder": "e.g. 5",
+                "lateFeePlaceholder": "e.g. Rp. 100.000",
+                "renewalDaysPlaceholder": "e.g. 5",
+                "paymentRulesRequired": "Fill in the payment due day, late fee per day and renewal reminder. Enter 0 for no late fee.",
+                "deposit": "Deposit",
+                "depositPlaceholder": "e.g. Rp. 300.000",
+                "depositHint": "Refundable deposit shown on the website. Leave blank to hide it."
             },
             "unitTypes": {
                 "title": "Unit types",
@@ -1505,23 +1556,18 @@
                 "identityTitle": "Unit type details",
                 "identityHint": "Name, property, and description shown on the public listing. Each type belongs to one property.",
                 "photosTitle": "Room photos",
-                "photosHint": "These photos appear on the public listing. Choose or drop files, then click Upload — this does not use Save details.",
-                "photosHintCreate": "Photos can be added after the unit type exists. Save details and you'll stay here to upload them.",
-                "createdStayToUpload": "Unit type saved. You can add room photos now.",
+                "photosHint": "Photos upload as soon as you add them and appear on the public listing.",
+                "photosHintCreate": "Add photos now — they upload when you create the unit type.",
+                "createdStayToUpload": "Unit type created.",
                 "saveDetails": "Save details",
-                "saveAndAddPhotos": "Save and add photos",
+                "saveAndAddPhotos": "Create unit type",
                 "descriptionPlaceholder": "e.g. Spacious studio with queen bed, private bathroom, AC, and wardrobe. Ideal for one occupant.",
                 "descriptionHint": "Shown on the public property page. Describe layout, amenities, and who this room suits.",
                 "image": "Unit type image",
                 "imageHint": "Optional. Upload an image for this unit type.",
-                "imageUploaded": "Photo uploaded.",
-                "imagesUploaded": "{count} photos uploaded.",
-                "imagesUploadPartial": "{failed} of {total} photos failed to upload.",
                 "uploadImage": "Upload image",
                 "uploadingImage": "Uploading…",
-                "saveFirstToUpload": "Save this unit type first, then upload its image.",
-                "imageRequired": "Please choose an image file first.",
-                "imageUploadFailed": "Failed to upload unit type image."
+                "imageRequired": "Please choose an image file first."
             },
             "units": {
                 "title": "Units",
@@ -1554,6 +1600,8 @@
                 "leaseStart": "Lease start",
                 "leaseEnd": "Lease end",
                 "tenant": "Tenant",
+                "closeDetails": "Close room details",
+                "noLeaseHint": "This room is ready for a tenant. Create a lease to fill it.",
                 "status": {
                     "vacant": "Vacant",
                     "occupied": "Occupied"
@@ -1744,15 +1792,11 @@
                 "termsTitle": "Lease terms",
                 "termsHint": "Dates, pricing, and payment status.",
                 "photosTitle": "Documents",
-                "photosHint": "Choose the document type, then add files and click Upload. This does not use Save details.",
-                "photosHintCreate": "Save the lease first. You’ll stay here to add agreement, downpayment, or payment documents.",
-                "createdStayToUpload": "Lease saved. You can add documents now.",
+                "photosHint": "Files upload as soon as you add them. Set the type on each file before it uploads.",
+                "photosHintCreate": "Add the agreement or downpayment proof now — they upload when you create the lease. Rent receipts go on the bills under Payment schedule.",
+                "createdStayToUpload": "Lease created.",
                 "saveDetails": "Save details",
-                "saveAndAddPhotos": "Save and add documents",
-                "saveFirstToUpload": "Save this lease first, then upload documents.",
-                "imagesUploaded": "{count} files uploaded.",
-                "imagesUploadPartial": "{failed} of {total} files failed to upload.",
-                "attachmentKindHint": "Applies to the next files you upload.",
+                "saveAndAddPhotos": "Create lease",
                 "unitPrefillHint": "Creating a lease for {unit} at {property}. Choose the tenant and pricing package below.",
                 "addNewTenant": "Add new tenant",
                 "noTenantsMatch": "No tenants match your search.",
@@ -1776,8 +1820,6 @@
                 "uploadImage": "Upload file",
                 "uploadingImage": "Uploading…",
                 "imageRequired": "Please choose a file first.",
-                "imageUploaded": "File uploaded successfully.",
-                "imageUploadFailed": "Failed to upload file.",
                 "endDate": "End date",
                 "leasePeriod": "Lease period",
                 "leasePeriodPlaceholder": "Select start and end dates",
@@ -1815,7 +1857,6 @@
                 "fullMonths": "Full months",
                 "monthlySubtotal": "Full-month rent",
                 "calculationFormula": "Calculation summary",
-                "attachmentKind": "Document type",
                 "kindAgreement": "Agreement",
                 "kindDownpayment": "Downpayment",
                 "kindPayment": "Payment",
@@ -1855,7 +1896,7 @@
                     "totalDue": "Total to pay",
                     "totalPaid": "Total paid",
                     "notes": "Notes",
-                    "thankYou": "Thank you for staying with Cherry Sky Living.",
+                    "thankYou": "Thank you for staying with us.",
                     "rentLine": "Lease rent",
                     "rentLineDescription": "Billed amount for this lease period.",
                     "lateFeeLine": "Late fee",
@@ -1866,7 +1907,13 @@
                     "notePaid": "This invoice is marked as paid. No further payment is required for this lease period.",
                     "noteDue": "Please settle the total amount by the payment due date. Contact the office if you need payment instructions.",
                     "noteReview": "Payment has been submitted and is waiting for office confirmation. The total includes any late fee accrued until confirmation.",
-                    "noteOverdue": "This invoice is {days} day(s) overdue. The total includes the accrued late fee."
+                    "noteOverdue": "This invoice is {days} day(s) overdue. The total includes the accrued late fee.",
+                    "discountLine": "Discount",
+                    "subtotal": "Subtotal",
+                    "amountPaid": "Amount paid",
+                    "balanceDue": "Balance due",
+                    "overdueStamp": "Overdue",
+                    "total": "Total"
                 },
                 "stats": {
                     "totalBadge": "Total",
@@ -1875,6 +1922,107 @@
                     "activeLeases": "Active Lease Agreements",
                     "expiring": "Expiring within 30 days",
                     "collected": "Collected this month"
+                },
+                "billing": {
+                    "sectionTitle": "Payment schedule",
+                    "sectionHint": "Every bill of this lease. Tick the bills a tenant paid for to record the payment — one receipt can cover several months.",
+                    "cycleLabel": "How will the tenant pay?",
+                    "cycleMonthly": "Monthly",
+                    "cycleMonthlyHint": "One bill per month, due on day {day}.",
+                    "cycleUpfront": "Up front",
+                    "cycleUpfrontHint": "One bill for the whole stay.",
+                    "firstMonthLabel": "Move-in month",
+                    "firstSeparate": "Short first bill",
+                    "firstSeparateHint": "{days, plural, one {# day} other {# days}} at the daily rate, billed on their own.",
+                    "firstMerged": "Merge into next month",
+                    "firstMergedHint": "Add those {days, plural, one {# day} other {# days}} to the first full month's bill.",
+                    "previewTitle": "Bills that will be created",
+                    "previewEmpty": "Pick the dates and price to see the bills.",
+                    "billLabel": "Bill {n}",
+                    "dueOn": "Due {date}",
+                    "paidOn": "Paid {date}",
+                    "total": "Total",
+                    "summaryPaid": "{paid} of {total} paid",
+                    "outstanding": "Due now",
+                    "lateFees": "Late fees",
+                    "nextDue": "Next bill",
+                    "nothingDue": "Nothing due",
+                    "state": {
+                        "overdue": "Overdue",
+                        "review": "Receipt to check",
+                        "due": "Due today",
+                        "current": "Up to date",
+                        "paid": "Paid in full",
+                        "upcoming": "Not due yet"
+                    },
+                    "daysLate": "{count, plural, one {# day late} other {# days late}}",
+                    "lateFee": "Late fee {amount}",
+                    "feeWaived": "Late fee waived",
+                    "receipt": "Receipt",
+                    "selectBill": "Select bill {n}",
+                    "selectAllDue": "Select all due",
+                    "clearSelection": "Clear",
+                    "recordPaymentFor": "Record payment · {count, plural, one {# bill} other {# bills}}",
+                    "actions": "Actions for bill {n}",
+                    "markReview": "Receipt received, check later",
+                    "markUnpaid": "Mark as unpaid",
+                    "waiveFee": "Waive late fee",
+                    "unwaiveFee": "Charge late fee again",
+                    "switchTitle": "Change to {cycle}?",
+                    "switchBody": "Paid bills stay as they are. Unpaid bills are replaced by a new {cycle} schedule.",
+                    "switchConfirm": "Change payment type",
+                    "updated": "Payment schedule updated",
+                    "empty": "This lease has no bills yet.",
+                    "dialog": {
+                        "title": "Record payment",
+                        "description": "Confirm the selected bills as paid. Rent and late fees are added to Bookkeeping.",
+                        "rent": "Rent",
+                        "lateFees": "Late fees",
+                        "total": "Total received",
+                        "receiptLabel": "Transfer receipt",
+                        "receiptUpload": "Upload a photo or PDF",
+                        "receiptExisting": "Or use a receipt already on this lease",
+                        "receiptNone": "Choose a receipt",
+                        "receiptRequired": "Add the transfer receipt to confirm the payment.",
+                        "waive": "Waive the late fees on these bills",
+                        "waiveReason": "Reason (optional)",
+                        "confirm": "Confirm payment",
+                        "confirming": "Confirming…",
+                        "success": "{count, plural, one {Bill marked as paid} other {# bills marked as paid}}",
+                        "method": "Payment method",
+                        "methodBank": "Bank transfer",
+                        "methodCash": "Cash",
+                        "methodCashHint": "Goes into {property}'s petty cash, not the bank ledger.",
+                        "receiptOptional": "Receipt (optional)",
+                        "paidCash": "Cash"
+                    },
+                    "waiveDialog": {
+                        "title": "Waive the late fee on bill {n}?",
+                        "body": "The tenant won't be charged a late fee for this bill. If it's already paid, the late fee is removed from Bookkeeping.",
+                        "reason": "Reason (optional)",
+                        "confirm": "Waive late fee"
+                    },
+                    "recordPayment": "Record payment"
+                },
+                "discount": {
+                    "label": "Discount",
+                    "optional": "Optional",
+                    "none": "None",
+                    "amount": "Rupiah",
+                    "percent": "Percent",
+                    "amountLabel": "Discount amount",
+                    "percentLabel": "Discount (%)",
+                    "noteLabel": "Reason (optional)",
+                    "notePlaceholder": "e.g. Early-bird promo",
+                    "amountHint": "Comes off the lease total, starting with the first bill.",
+                    "percentHint": "Comes off every bill.",
+                    "totalOff": "{amount} off this lease.",
+                    "unpaidOnly": "Only bills that aren't paid yet will change.",
+                    "receiptLine": "Discount −{amount}",
+                    "summaryAmount": "Discount: {amount} off the lease",
+                    "summaryPercent": "Discount: {value}% off every bill",
+                    "errorValue": "Enter the discount amount, or choose None.",
+                    "errorPercent": "A percentage discount can't be more than 100%."
                 }
             },
             "leaseRenewals": {
@@ -1973,16 +2121,11 @@
                 "detailsTitle": "Entry details",
                 "detailsHint": "Type, amount, and when it happened.",
                 "photosTitle": "Receipts",
-                "photosHint": "Choose or drop files, then click Upload — this does not use Save details.",
-                "photosHintCreate": "Save the entry first. You’ll stay here to add receipt photos.",
-                "createdStayToUpload": "Entry saved. You can add receipts now.",
+                "photosHint": "Receipts upload as soon as you add them.",
+                "photosHintCreate": "Add or snap the receipt now — it uploads when you save the entry.",
+                "createdStayToUpload": "Entry saved.",
                 "saveDetails": "Save details",
-                "saveAndAddPhotos": "Save and add receipts",
-                "saveFirstToUpload": "Save this entry first, then upload receipts.",
-                "imageUploaded": "Receipt uploaded.",
-                "imagesUploaded": "{count} receipts uploaded.",
-                "imagesUploadPartial": "{failed} of {total} receipts failed to upload.",
-                "imageUploadFailed": "Failed to upload receipt.",
+                "saveAndAddPhotos": "Save entry",
                 "entryType": "Type",
                 "typeIncome": "Income",
                 "typeExpense": "Expense",
@@ -2134,6 +2277,101 @@
                 "whereTo": "Where money goes",
                 "journal": "Journal",
                 "entriesCount": "{count, plural, one {# entry} other {# entries}}"
+            },
+            "pettyCash": {
+                "title": "Petty cash",
+                "description": "Cash kept at each property, separate from the bank ledger. Top it up, record cash spending with a receipt, and count it regularly.",
+                "balance": "Cash in the box",
+                "totalBalance": "All petty cash",
+                "lastCounted": "Last counted {date}",
+                "neverCounted": "Not counted yet",
+                "lowBalance": "Running low",
+                "negative": "Below zero — count the cash",
+                "moneyIn": "Money in",
+                "moneyOut": "Money out",
+                "periodHint": "For the selected dates",
+                "actions": {
+                    "expense": "Cash expense",
+                    "top_up": "Top up",
+                    "cash_in": "Cash in",
+                    "return_to_bank": "Return to bank",
+                    "count": "Count cash"
+                },
+                "types": {
+                    "top_up": "Top-up",
+                    "expense": "Expense",
+                    "cash_in": "Cash in",
+                    "return_to_bank": "Return to bank",
+                    "adjustment": "Cash count"
+                },
+                "typeHints": {
+                    "top_up": "Cash added to the box, e.g. withdrawn from the bank.",
+                    "expense": "Cash spent — add a photo of the receipt.",
+                    "cash_in": "Cash received, e.g. a tenant paying in cash.",
+                    "return_to_bank": "Cash taken from the box and deposited at the bank."
+                },
+                "columns": {
+                    "date": "Date",
+                    "entry": "Entry",
+                    "amount": "Amount",
+                    "balance": "Balance"
+                },
+                "fromBill": "Bill {n}, paid in cash",
+                "voided": "Voided",
+                "voidReason": "Reason: {reason}",
+                "showVoided": "Show voided",
+                "empty": "No cash movements yet.",
+                "emptyHint": "Start by recording how much cash is in the box with a top-up.",
+                "filterType": "Type",
+                "allTypes": "All types",
+                "edit": "Edit",
+                "void": "Void",
+                "receipt": "Receipt",
+                "voidDialog": {
+                    "title": "Void this entry?",
+                    "body": "It stays in the history, crossed out, and stops counting towards the balance.",
+                    "reason": "Reason (optional)",
+                    "confirm": "Void entry",
+                    "done": "Entry voided"
+                },
+                "countDialog": {
+                    "title": "Count the cash",
+                    "description": "Count the cash in the box and enter the total. Any difference to the book is recorded so the balance matches what's really there.",
+                    "counted": "Counted cash",
+                    "book": "Book balance",
+                    "difference": "Difference",
+                    "matches": "Matches the book",
+                    "over": "{amount} more than the book",
+                    "short": "{amount} short",
+                    "note": "Note (optional)",
+                    "confirm": "Save count",
+                    "done": "Cash count saved"
+                },
+                "form": {
+                    "newDescription": "Record a cash movement for one property's petty cash.",
+                    "editDescription": "Update this cash entry.",
+                    "detailsTitle": "Cash entry",
+                    "detailsHint": "Which cash box, how much, and what for.",
+                    "entryType": "Type",
+                    "amount": "Amount",
+                    "category": "Category",
+                    "categoryNone": "No category",
+                    "descriptionPlaceholder": "e.g. Light bulbs for the corridor",
+                    "date": "Date",
+                    "amountRequired": "Enter an amount above zero.",
+                    "propertyRequired": "Choose which property's cash box.",
+                    "receiptsTitle": "Receipts",
+                    "receiptsHint": "Receipts upload as soon as you add them.",
+                    "receiptsHintCreate": "Add or snap the receipt now — it uploads when you save.",
+                    "save": "Save entry",
+                    "saveChanges": "Save changes",
+                    "created": "Cash entry saved.",
+                    "balanceNow": "Cash in the box now: {amount}",
+                    "balanceAfter": "After this entry: {amount}",
+                    "lockedBill": "This entry comes from a bill paid in cash. Change it from the lease's payment schedule.",
+                    "lockedCount": "A cash count can't be edited. Void it and count again.",
+                    "voidedNotice": "This entry was voided and no longer counts."
+                }
             }
         },
         "mobile": {
@@ -2153,7 +2391,8 @@
                 "addUnit": "Add unit",
                 "setPricing": "Set pricing",
                 "addUnitType": "Add room type",
-                "addProperty": "Add property"
+                "addProperty": "Add property",
+                "cashExpense": "Cash expense"
             }
         },
         "form": {
@@ -2228,6 +2467,22 @@
             "active": "Active",
             "inactive": "Inactive",
             "vacantBetween": "Vacant between"
+        },
+        "notifications": {
+            "title": "Notifications",
+            "buttonLabelCount": "{count, plural, one {# item needs your attention} other {# items need your attention}}",
+            "toDo": "{count} to do",
+            "emptyTitle": "You're all caught up",
+            "emptyHint": "Payments to approve and renewal requests will show up here.",
+            "viewAll": "View all",
+            "groups": {
+                "payments": "Payments to approve",
+                "renewals": "Renewal requests",
+                "renewalLeases": "Renewals to finish"
+            },
+            "paymentDetail": "Bill {n} · {amount} · receipt sent",
+            "renewalDetail": "Wants to renew — approve or decline",
+            "renewalLeaseDetail": "Approved — create the new lease"
         }
     },
     "tenant": {
@@ -2271,8 +2526,8 @@
                     "description": "Invalid email, phone number, or password."
                 },
                 "forbidden": {
-                    "title": "Wrong portal",
-                    "description": "Use the admin login to sign in."
+                    "title": "Can't sign in here",
+                    "description": "This account can't use the tenant portal. Contact the property office if you need help."
                 },
                 "deactivated": {
                     "title": "Account deactivated",
@@ -2356,7 +2611,18 @@
                     "lateFeeLineHintNone": "No late fee yet — pay on or before the due date.",
                     "totalLine": "Total to pay",
                     "paidTotalLine": "Total paid",
-                    "monthlyRateNote": "Monthly package rate for this unit is {rate}. The billed rent above can differ for short or prorated periods."
+                    "monthlyRateNote": "Monthly package rate for this unit is {rate}. The billed rent above can differ for short or prorated periods.",
+                    "scheduleTitle": "Payment schedule",
+                    "billLabel": "Bill {n}",
+                    "dueOn": "Due {date}",
+                    "paidOn": "Paid {date}",
+                    "statusPaid": "Paid",
+                    "statusUnpaid": "Unpaid",
+                    "statusReview": "Being checked",
+                    "feeWaived": "late fee waived",
+                    "lateFee": "late fee Rp {amount}",
+                    "nextBill": "Next payment: Rp {amount}, due {date}.",
+                    "discount": "Discount −{amount}"
                 },
                 "renewal": {
                     "promptTitle": "Would you like to renew your lease?",
@@ -2489,7 +2755,8 @@
                 "past": "Past"
             },
             "noLease": "You don't have a lease yet",
-            "noLeaseHint": "Once management sets up your lease, your room, payments and documents will show up here."
+            "noLeaseHint": "Once management sets up your lease, your room, payments and documents will show up here.",
+            "nextBill": "Next payment {amount}, due {date}."
         },
         "mobile": {
             "home": "Home",
@@ -2512,11 +2779,11 @@
         "budgetPlaceholder": "e.g. 2000000",
         "message": "Message",
         "messagePlaceholder": "Anything we should know?",
-        "consent": "By sending, you agree we may contact you on WhatsApp about rooms.",
+        "consent": "Sending opens WhatsApp with your message ready — nothing is sent until you press send there.",
         "privacy": "Privacy policy",
         "submit": {
-            "inquiry": "Send inquiry",
-            "waitlist": "Join waitlist"
+            "inquiry": "Send via WhatsApp",
+            "waitlist": "Join waitlist via WhatsApp"
         },
         "sending": "Sending…",
         "errors": {
@@ -2526,10 +2793,10 @@
             "rateLimited": "Too many attempts. Please try again in a few minutes, or message us on WhatsApp."
         },
         "success": {
-            "title": "Thanks, {name}! We've got your request.",
-            "body": "We'll reply on WhatsApp during viewing hours ({hours}).",
-            "bodyWithTime": "We'll reply on WhatsApp within {time}.",
-            "openWhatsApp": "Open WhatsApp now",
+            "title": "WhatsApp is open, {name}!",
+            "body": "Press send in WhatsApp and we'll reply during viewing hours ({hours}).",
+            "bodyWithTime": "Press send in WhatsApp and we'll reply within {time}.",
+            "openWhatsApp": "WhatsApp didn't open? Tap here",
             "another": "Send another"
         },
         "waitlist": {

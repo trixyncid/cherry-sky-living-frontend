@@ -34,7 +34,7 @@ export function ShareButton({
       type="button"
       onClick={share}
       className={cn(
-        "inline-flex h-11 items-center gap-2 rounded-full border border-[#dedad4] bg-white px-4 text-sm font-semibold text-[#141414] transition-colors hover:border-[#141414]",
+        "inline-flex h-11 items-center gap-2 rounded-full border border-line-strong bg-white px-4 text-sm font-semibold text-fg transition-colors hover:border-fg",
         className,
       )}
     >

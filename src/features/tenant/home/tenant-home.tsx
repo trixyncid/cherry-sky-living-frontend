@@ -14,6 +14,7 @@ import { useTenantShell } from "@/features/tenant/components/tenant-shell-contex
 import { useTenantLeases } from "@/features/tenant/hooks/use-tenant-queries";
 import { LeaseRenewalPrompt } from "@/features/tenant/leases/lease-renewal-prompt";
 import { getTenantRenewalView } from "@/features/tenant/lib/lease-renewal";
+import { tenantPaymentView } from "@/features/tenant/lib/payment-view";
 import { Link } from "@/i18n/routing";
 import { getContactWhatsAppNumber } from "@/lib/contact";
 import { useKosts } from "@/lib/hooks/use-kost-data";
@@ -126,11 +127,12 @@ export function TenantHome() {
       ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${propertyName}, ${address}`)}`
       : null;
 
-  // Payment
-  const status = lease.status;
-  const late = status === "paid" ? 0 : Math.max(0, lease.daysLate ?? 0);
-  const lateFee = status === "paid" ? 0 : Math.max(0, lease.lateFeeAmount ?? 0);
-  const totalDue = (lease.amountDue ?? 0) + lateFee;
+  // Payment — the bills due now (monthly leases), not the whole stay.
+  const payment = tenantPaymentView(lease);
+  const status = payment.status;
+  const late = payment.daysLate;
+  const lateFee = payment.lateFee;
+  const totalDue = payment.amount + lateFee;
   const waIntro = { name: user.name, unit: unitName, property: propertyName };
   const proofUrl = generateWhatsAppURL(
     getContactWhatsAppNumber(),
@@ -224,7 +226,14 @@ export function TenantHome() {
                 <p className="text-lg font-medium text-[#1f5a2a]">
                   {t("paid")}
                 </p>
-                <p className="text-sm text-[#3d3a36]">{t("paidHint")}</p>
+                <p className="text-sm text-[#3d3a36]">
+                  {payment.next
+                    ? t("nextBill", {
+                        amount: rupiah(payment.next.amount),
+                        date: formatDate(payment.next.dueDate, locale),
+                      })
+                    : t("paidHint")}
+                </p>
               </div>
             </div>
           ) : (
@@ -239,10 +248,10 @@ export function TenantHome() {
                   Rp {formatIdrTable(totalDue)}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2 text-sm">
-                  {lease.paymentDueDate ? (
+                  {payment.dueDate ? (
                     <span className="rounded-full bg-[#f6f0ef] px-3 py-1 text-[#3d3a36]">
                       {t("dueBy", {
-                        date: formatDate(lease.paymentDueDate, locale),
+                        date: formatDate(payment.dueDate, locale),
                       })}
                     </span>
                   ) : null}

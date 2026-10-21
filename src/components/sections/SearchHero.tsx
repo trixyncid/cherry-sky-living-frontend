@@ -65,7 +65,7 @@ export function SearchHero({
             </p>
           ))}
         </div>
-        <div className="text-left text-[#141414]">
+        <div className="text-left text-fg">
           <HeroSearchBar
             initialFilters={initialFilters}
             onSubmit={onSearchSubmit}

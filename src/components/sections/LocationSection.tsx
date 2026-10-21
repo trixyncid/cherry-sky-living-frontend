@@ -49,7 +49,7 @@ export function LocationSection({
                   <div
                     key={i}
                     aria-hidden
-                    className="h-40 animate-pulse rounded-[1.5rem] bg-[#efeeeb]"
+                    className="h-40 animate-pulse rounded-[1.5rem] bg-hover"
                   />
                 ))
               : kosts.map((kost, index) => (
@@ -58,14 +58,14 @@ export function LocationSection({
                     delay={index * 0.08}
                     className="rounded-[1.25rem] bg-white p-5"
                   >
-                    <h2 className="text-lg font-semibold tracking-tight text-[#141414]">
+                    <h2 className="text-lg font-semibold tracking-tight text-fg">
                       {kost.name}
                     </h2>
-                    <p className="mt-1.5 flex items-start gap-2 text-base leading-relaxed text-[#3d3a36]">
+                    <p className="mt-1.5 flex items-start gap-2 text-base leading-relaxed text-fg-2">
                       <Icon
                         name="location_on"
                         size={18}
-                        className="mt-0.5 shrink-0 text-[#71130d]"
+                        className="mt-0.5 shrink-0 text-brand"
                       />
                       {[kost.location.address, kost.location.city]
                         .filter(Boolean)
@@ -76,7 +76,7 @@ export function LocationSection({
                         href={mapsSearchUrl(kost)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex h-10 items-center gap-1.5 rounded-full bg-[#71130d] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#8a1a12]"
+                        className="inline-flex h-10 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
                       >
                         <Icon name="near_me" size={16} />
                         {t("directions")}
@@ -96,7 +96,7 @@ export function LocationSection({
                             property: kost.name,
                           })
                         }
-                        className="inline-flex h-10 items-center gap-1.5 rounded-full border border-[#dedad4] px-4 text-sm font-semibold text-[#141414] transition-colors hover:border-[#141414]"
+                        className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line-strong px-4 text-sm font-semibold text-fg transition-colors hover:border-fg"
                       >
                         <Icon
                           name="whatsapp"
@@ -109,8 +109,8 @@ export function LocationSection({
                   </Reveal>
                 ))}
 
-            <div className="flex items-center gap-3 rounded-[1.25rem] bg-[#71130d] p-5 text-white text-base">
-              <Icon name="schedule" size={20} className="text-[#f3dedb]" />
+            <div className="flex items-center gap-3 rounded-[1.25rem] bg-brand p-5 text-white text-base">
+              <Icon name="schedule" size={20} className="text-brand-soft" />
               <span>
                 <span className="font-semibold">{t("viewingHours")}:</span>{" "}
                 {localized(siteConfig.viewingHours.days, locale)}{" "}
@@ -121,7 +121,7 @@ export function LocationSection({
 
           <Reveal
             delay={0.1}
-            className="relative min-h-[20rem] overflow-hidden rounded-[1.25rem] bg-[#e7e4df] lg:min-h-[28rem]"
+            className="relative min-h-[20rem] overflow-hidden rounded-[1.25rem] bg-line lg:min-h-[28rem]"
           >
             <iframe
               src={MEDAN_MAP_EMBED_URL}

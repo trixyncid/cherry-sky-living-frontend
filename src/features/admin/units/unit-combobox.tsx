@@ -149,7 +149,7 @@ export function UnitCombobox({
             className={cn(
               adminInputClassName,
               "relative flex h-11 cursor-pointer items-center pr-10 text-left",
-              !displayUnit && "text-[#6b6b6b]",
+              !displayUnit && "text-fg-muted",
             )}
           >
             <span className="truncate">
@@ -158,7 +158,7 @@ export function UnitCombobox({
                 : t("selectUnit")}
             </span>
             <span
-              className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-[#83746b]"
+              className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-fg-muted"
               aria-hidden
             >
               <Icon
@@ -174,7 +174,7 @@ export function UnitCombobox({
           className="w-[var(--radix-popover-trigger-width)] min-w-[18rem] p-0"
           align="start"
         >
-          <div className="border-b border-[#e8ddd4] bg-[#faf9f6] p-2">
+          <div className="border-b border-line bg-subtle p-2">
             <AdminSearchInput
               ref={searchRef}
               variant="menu"
@@ -212,11 +212,11 @@ export function UnitCombobox({
             className="max-h-72 overflow-y-auto p-1"
           >
             {showLoading ? (
-              <li className="px-3 py-6 text-center text-sm text-[#83746b]">
+              <li className="px-3 py-6 text-center text-sm text-fg-muted">
                 {t("loading")}
               </li>
             ) : filteredUnits.length === 0 ? (
-              <li className="px-3 py-6 text-center text-sm text-[#83746b]">
+              <li className="px-3 py-6 text-center text-sm text-fg-muted">
                 {emptyMessage}
               </li>
             ) : (
@@ -246,13 +246,13 @@ export function UnitCombobox({
                         <span className="block truncate font-medium">
                           {unit.name}
                         </span>
-                        <span className="block truncate text-xs text-[#83746b]">
+                        <span className="block truncate text-xs text-fg-muted">
                           {unitType}
                           {property !== "—" ? ` · ${property}` : ""}
                         </span>
                       </span>
                       {unit.status === "occupied" && (
-                        <span className="shrink-0 text-xs text-[#83746b]">
+                        <span className="shrink-0 text-xs text-fg-muted">
                           {tp("status.occupied")}
                         </span>
                       )}
@@ -260,7 +260,7 @@ export function UnitCombobox({
                         <Icon
                           name="check"
                           size={18}
-                          className="shrink-0 text-[#71130d]"
+                          className="shrink-0 text-brand"
                         />
                       )}
                     </button>

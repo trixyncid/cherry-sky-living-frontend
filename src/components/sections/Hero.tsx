@@ -1,10 +1,9 @@
 /**
- * Hero — full-bleed night-toned photo with the navbar floating over it.
- * Centre: live availability badge, headline, keyword search and suggested
- * searches built from live data (budget / residence / move-in, §5.2).
- * Sides: glass cards ("why residents stay" facts, live availability).
- * Corners: owner-managed trust note and live starting rent. All numbers
- * are computed from property data — no invented counts or logos.
+ * Hero — fits one screen on desktop so every visitor sees the whole offer.
+ * Left: live availability, headline, the room finder as the primary action
+ * and WhatsApp as the quiet alternative. Right: a full-height photo carrying
+ * the proof — live per-residence availability and three real numbers.
+ * Every number comes from property data — no invented counts or logos.
  */
 
 "use client";
@@ -14,14 +13,14 @@ import { useLocale, useTranslations } from "next-intl";
 import { HeroRoomFinder } from "@/components/sections/HeroRoomFinder";
 import { Icon } from "@/components/shared/Icon";
 import { localized, siteConfig } from "@/config/site";
+import { Link } from "@/i18n/routing";
+import { track } from "@/lib/analytics";
 import type { Kost } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { formatCurrency } from "@/lib/utils/format";
+import { formatCurrency, generateWhatsAppURL } from "@/lib/utils/format";
 
 /** Local, preloaded photo: paints immediately so it can be the LCP element. */
 const HERO_PHOTO = "/assets/cherry-kost.jpeg";
-
-const WHY_ICONS = ["wifi", "ac_unit", "shield_lock", "local_parking"] as const;
 
 interface HeroProps {
   kosts?: Kost[];
@@ -29,166 +28,85 @@ interface HeroProps {
   isLoading?: boolean;
 }
 
-const glass =
-  "rounded-2xl border border-white/12 bg-white/[0.08] p-4 backdrop-blur-md";
+function LiveDot({ on }: { on: boolean }) {
+  return (
+    <span className="relative flex size-2 shrink-0">
+      {on ? (
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success-bright/70 motion-reduce:animate-none" />
+      ) : null}
+      <span
+        className={cn(
+          "relative inline-flex size-2 rounded-full",
+          on ? "bg-success-bright" : "bg-warning",
+        )}
+      />
+    </span>
+  );
+}
 
 export function Hero({ kosts = [], isLoading = false }: HeroProps) {
   const t = useTranslations();
   const tn = useTranslations("hero.night");
   const tTrust = useTranslations("trust");
+  const tWhatsapp = useTranslations("whatsapp");
   const locale = useLocale();
 
   const ready = !isLoading;
   const availableRooms = kosts.reduce((sum, k) => sum + k.availableRooms, 0);
+  const totalRooms = kosts.reduce((sum, k) => sum + k.totalRooms, 0);
   const prices = kosts.map((k) => k.priceRange.min).filter((p) => p > 0);
   const lowest = prices.length > 0 ? Math.min(...prices) : 0;
-  const facts = (tTrust.raw("facts") as string[]).slice(0, 4);
-
-  const whyCard = (
-    <div className={glass}>
-      <p className="mb-3 flex items-center gap-2 text-[15px] font-medium">
-        <Icon name="verified" size={18} />
-        {tn("whyTitle")}
-      </p>
-      <ul className="flex flex-col gap-2 text-sm text-white/80">
-        {facts.map((fact, i) => (
-          <li key={fact} className="flex items-center gap-2">
-            <Icon
-              name={WHY_ICONS[i] ?? "check"}
-              size={16}
-              className="text-white/60"
-            />
-            {fact}
-          </li>
-        ))}
-      </ul>
-    </div>
+  const whatsappUrl = generateWhatsAppURL(
+    siteConfig.whatsappNumber,
+    tWhatsapp("generalInquiry"),
   );
+  const viewingHours = tn("liveViewings", {
+    days: localized(siteConfig.viewingHours.days, locale),
+    time: siteConfig.viewingHours.time,
+  });
 
-  const liveCard = (
-    <div className={glass}>
-      <p className="mb-3 flex items-center gap-2 text-[15px] font-medium">
-        <span className="relative flex size-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34d399]/70 motion-reduce:animate-none" />
-          <span className="relative inline-flex size-2 rounded-full bg-[#34d399]" />
-        </span>
-        {tn("liveTitle")}
-      </p>
-      <ul className="flex flex-col gap-2 text-sm text-white/80">
-        {ready
-          ? kosts.map((k) => (
-              <li key={k.id} className="flex items-center gap-2">
-                <Icon name="apartment" size={16} className="text-white/60" />
-                {k.totalRooms > 0
-                  ? tn("liveResidence", {
-                      name: k.name,
-                      available: k.availableRooms,
-                      total: k.totalRooms,
-                    })
-                  : tn("liveAsk", { name: k.name })}
-              </li>
-            ))
-          : [0, 1].map((i) => (
-              <li
-                key={i}
-                className="h-4 w-40 animate-pulse rounded bg-white/15"
-              />
-            ))}
-        <li className="flex items-center gap-2">
-          <Icon name="schedule" size={16} className="text-white/60" />
-          {tn("liveViewings", {
-            days: localized(siteConfig.viewingHours.days, locale),
-            time: siteConfig.viewingHours.time,
-          })}
-        </li>
-        <li className="flex items-center gap-2">
-          <Icon name="forum" size={16} className="text-white/60" />
-          {tn("liveReply")}
-        </li>
-      </ul>
-    </div>
-  );
+  const proof = [
+    {
+      value:
+        ready && lowest > 0 ? formatCurrency(lowest, { compact: true }) : "—",
+      label: t("hero.statPrice"),
+    },
+    {
+      value: ready && totalRooms > 0 ? `${availableRooms}/${totalRooms}` : "—",
+      label: t("hero.statRooms"),
+    },
+    {
+      value: ready ? String(kosts.length) : "—",
+      label: t("hero.statResidences"),
+    },
+  ];
 
   return (
     <section
       aria-labelledby="hero-heading"
-      className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#1c0b0a] text-white lg:min-h-[min(100svh,56rem)]"
+      className="relative overflow-hidden bg-ink text-white"
     >
-      <Image
-        src={HERO_PHOTO}
-        alt={t("common.brand.fullName")}
-        fill
-        priority
-        loading="eager"
-        sizes="100vw"
-        className="object-cover object-[center_62%]"
-      />
-      {/* Night grade: navy tint + top/bottom shade for legible text */}
-      <div className="pointer-events-none absolute inset-0 bg-[#4a100c]/45 mix-blend-multiply" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgb(28_11_10/0.92)_0%,rgb(28_11_10/0.7)_30%,rgb(28_11_10/0.25)_58%,rgb(28_11_10/0.6)_80%,rgb(28_11_10/1)_100%)]" />
-
-      {/* Guide lines */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-y-0 left-[22%] hidden w-px bg-white/10 lg:block"
+        className="pointer-events-none absolute -left-48 -top-40 size-[40rem] rounded-full bg-brand/30 blur-[140px]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-y-0 right-[22%] hidden w-px bg-white/10 lg:block"
+        className="pointer-events-none absolute -bottom-56 left-1/3 size-[30rem] rounded-full bg-brand/15 blur-[140px]"
       />
 
-      <div className="relative z-10 mx-auto grid w-full max-w-[90rem] flex-1 gap-8 px-5 pb-6 pt-24 sm:px-8 lg:grid-cols-[1fr_minmax(0,51rem)_1fr] lg:gap-6 lg:pt-28">
-        {/* Left column */}
-        <div className="order-3 flex flex-col justify-between gap-6 lg:order-1 lg:pt-[15.5rem]">
-          <div className="w-full lg:max-w-[16rem]">{whyCard}</div>
-          <div className="hidden lg:block">
-            <div className="flex -space-x-3">
-              {kosts.slice(0, 3).map((k) =>
-                k.thumbnail ? (
-                  <span
-                    key={k.id}
-                    className="relative size-11 overflow-hidden rounded-full ring-2 ring-[#1c0b0a]"
-                  >
-                    <Image
-                      src={k.thumbnail}
-                      alt={k.name}
-                      fill
-                      sizes="56px"
-                      className="object-cover"
-                    />
-                  </span>
-                ) : null,
-              )}
-            </div>
-            <p className="mt-3 max-w-[15rem] text-base leading-snug">
-              {tn("cornerLeft")}
-            </p>
-            <span aria-hidden className="mt-4 block h-px w-14 bg-white/40" />
-          </div>
-        </div>
-
-        {/* Centre */}
-        <div className="order-1 flex flex-col items-center text-center lg:order-2">
+      {/* Desktop: exactly one screen (nav floats on top), within sane bounds. */}
+      <div className="relative mx-auto grid w-full max-w-[90rem] gap-8 px-5 pb-8 pt-24 sm:px-8 lg:h-[100svh] lg:max-h-[62rem] lg:min-h-[40rem] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-12 lg:pb-8">
+        {/* ——— Message + primary action ——— */}
+        <div className="flex flex-col justify-center">
           <p
             aria-live="polite"
-            className="inline-flex items-center gap-2.5 rounded-full border border-white/12 bg-white/[0.08] px-4 py-2 text-[15px] backdrop-blur-md"
+            className="inline-flex w-fit items-center gap-2.5 rounded-full border border-white/12 bg-white/[0.06] px-4 py-2 text-sm"
           >
-            <span className="relative flex size-2">
-              {availableRooms > 0 ? (
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34d399]/70 motion-reduce:animate-none" />
-              ) : null}
-              <span
-                className={cn(
-                  "relative inline-flex size-2 rounded-full",
-                  availableRooms > 0 ? "bg-[#34d399]" : "bg-[#fbbf24]",
-                )}
-              />
-            </span>
+            <LiveDot on={availableRooms > 0} />
             {ready ? (
-              <span>
-                <span className="font-semibold">
-                  {t("hero.availableNow", { count: availableRooms })}
-                </span>
+              <span className="font-medium">
+                {t("hero.availableNow", { count: availableRooms })}
               </span>
             ) : (
               <span className="inline-block h-4 w-40 animate-pulse rounded bg-white/20" />
@@ -197,49 +115,113 @@ export function Hero({ kosts = [], isLoading = false }: HeroProps) {
 
           <h1
             id="hero-heading"
-            className="mt-5 text-balance text-[clamp(2rem,3.2vw,2.9rem)] font-medium leading-[1.06] tracking-[-0.035em]"
+            className="mt-5 text-balance text-[clamp(2.2rem,4.2vw,3.7rem)] font-semibold leading-[1.03] tracking-[-0.04em]"
           >
-            <span className="block">{t("hero.titleLead")}</span>
-            <span className="block">{t("hero.titleAccent")}</span>
+            {t("hero.titleLead")}{" "}
+            <span className="text-brand-bright">{t("hero.titleAccent")}</span>
           </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-white/75">
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-white/70 lg:text-[17px]">
             {t("hero.subtitle")}
           </p>
 
-          <div className="mt-6 flex w-full justify-center">
+          <div className="mt-7">
             <HeroRoomFinder kosts={kosts} />
           </div>
-        </div>
 
-        {/* Right column */}
-        <div className="order-2 flex flex-col justify-between gap-6 lg:order-3 lg:items-end lg:pt-[15.5rem]">
-          <div className="w-full lg:max-w-[17rem]">{liveCard}</div>
-          <div className="hidden text-right lg:block">
-            <p className="text-[clamp(1.9rem,2.8vw,2.5rem)] font-medium leading-none tracking-[-0.04em] tabular-nums">
-              {ready && lowest > 0
-                ? formatCurrency(lowest, { compact: true })
-                : "—"}
-            </p>
-            <p className="mt-2 text-base">
-              {tn("cornerRight")}
-              <span className="text-white/60">{t("hero.perMonth")}</span>
-            </p>
-            <span
-              aria-hidden
-              className="ml-auto mt-4 block h-px w-14 bg-white/40"
-            />
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/10 pt-4 text-sm text-white/60">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track("click_whatsapp", { location: "hero" })}
+              className="inline-flex items-center gap-2 font-semibold text-white underline-offset-4 hover:underline"
+            >
+              <Icon name="whatsapp" size={18} className="text-[#25d366]" />
+              {t("hero.chatWhatsApp")}
+            </a>
+            <span className="flex items-center gap-1.5">
+              <Icon name="forum" size={16} />
+              {tn("liveReply")}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Icon name="schedule" size={16} />
+              {viewingHours}
+            </span>
           </div>
         </div>
-      </div>
 
-      <div className="relative z-10 flex justify-center pb-6">
-        <a
-          href="#properties"
-          className="inline-flex h-11 items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-5 text-[15px] backdrop-blur-md transition-colors hover:bg-white/15"
-        >
-          {tn("seeRooms")}
-          <Icon name="arrow_downward" size={16} />
-        </a>
+        {/* ——— Photo + proof ——— */}
+        <div className="flex min-h-0 flex-col gap-3">
+          <div className="relative aspect-[4/3] min-h-0 overflow-hidden rounded-[2rem] ring-1 ring-white/10 lg:aspect-auto lg:flex-1">
+            <Image
+              src={HERO_PHOTO}
+              alt={t("common.brand.fullName")}
+              fill
+              priority
+              loading="eager"
+              sizes="(min-width: 1024px) 45vw, 100vw"
+              className="object-cover object-[center_60%]"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(11_11_13/0.85),transparent_40%)]" />
+
+            <span className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-ink shadow-sm">
+              <Icon name="verified_user" size={15} className="text-brand" />
+              {tTrust("ownerSub")}
+            </span>
+
+            <dl className="absolute inset-x-0 bottom-0 grid grid-cols-3 divide-x divide-white/15 px-2 pb-5">
+              {proof.map((item) => (
+                <div key={item.label} className="px-3 sm:px-5">
+                  <dt className="text-[11px] leading-snug text-white/65 sm:text-xs">
+                    {item.label}
+                  </dt>
+                  <dd className="mt-1 text-[clamp(1.15rem,2vw,1.6rem)] font-semibold tracking-tight tabular-nums">
+                    {item.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          {/* Live availability per residence */}
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {ready
+              ? kosts.map((k) => (
+                  <li key={k.id}>
+                    <Link
+                      href={`/kosts/${k.id}`}
+                      className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm transition-colors hover:border-white/25 hover:bg-white/10"
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <LiveDot on={k.availableRooms > 0} />
+                        <span className="truncate font-medium">{k.name}</span>
+                      </span>
+                      <span
+                        className={cn(
+                          "shrink-0 text-xs font-semibold",
+                          k.availableRooms > 0
+                            ? "text-success-bright"
+                            : "text-brand-bright",
+                        )}
+                      >
+                        {k.totalRooms > 0 && k.availableRooms > 0
+                          ? t("hero.roomsOfTotal", {
+                              available: k.availableRooms,
+                              total: k.totalRooms,
+                            })
+                          : tn("waitlistOpen")}
+                      </span>
+                    </Link>
+                  </li>
+                ))
+              : [0, 1].map((i) => (
+                  <li
+                    key={i}
+                    className="h-12 animate-pulse rounded-2xl bg-white/[0.06]"
+                  />
+                ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

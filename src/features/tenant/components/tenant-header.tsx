@@ -1,12 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Icon } from "@/components/shared/Icon";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { ProfileAvatarPlaceholder } from "@/components/shared/profile-avatar-placeholder";
-import { Icon } from "@/components/shared/Icon";
-import { Link, usePathname } from "@/i18n/routing";
-import { tenantNavItems } from "@/features/tenant/constants/nav-items";
 import { useTenantShell } from "@/features/tenant/components/tenant-shell-context";
+import { tenantNavItems } from "@/features/tenant/constants/nav-items";
+import { Link, usePathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
 export function TenantHeader() {
@@ -17,8 +17,7 @@ export function TenantHeader() {
 
   const activeItem =
     tenantNavItems.find(
-      (item) =>
-        pathname === item.href || pathname.startsWith(`${item.href}/`),
+      (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
     ) ?? tenantNavItems[0];
 
   const pageTitle = pathname.startsWith("/tenant/profile")
@@ -67,7 +66,9 @@ export function TenantHeader() {
                 <span className="block max-w-[120px] truncate text-sm font-semibold text-[#1a1c1a]">
                   {user.name}
                 </span>
-                <span className="block text-xs text-[#83746b]">{th("roleTenant")}</span>
+                <span className="block text-xs text-[#83746b]">
+                  {th("roleTenant")}
+                </span>
               </span>
             </Link>
           </div>

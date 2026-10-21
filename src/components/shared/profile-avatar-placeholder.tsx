@@ -15,7 +15,7 @@ export function ProfileAvatarPlaceholder({
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#efeeeb] text-[#83746b]",
+        "flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-hover text-fg-muted",
         className,
       )}
       aria-label={label}

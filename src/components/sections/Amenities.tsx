@@ -66,7 +66,7 @@ export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
             titleLead={t("titleLead")}
             titleAccent={t("titleAccent")}
             aside={
-              <p className="text-base leading-relaxed text-[#6b6b6b]">
+              <p className="text-base leading-relaxed text-fg-muted">
                 {t("description")}
               </p>
             }
@@ -78,7 +78,7 @@ export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
             <Reveal
               key={extra.id}
               delay={index * 0.08}
-              className="relative min-h-[18rem] overflow-hidden rounded-[1.25rem] bg-[#2a2420] lg:min-h-[22rem]"
+              className="relative min-h-[18rem] overflow-hidden rounded-[1.25rem] bg-ink lg:min-h-[22rem]"
             >
               <Image
                 src={photos[index] ?? FALLBACK_PHOTOS[index]}
@@ -110,12 +110,12 @@ export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
               <Icon
                 name={item.icon}
                 size={44}
-                className="text-[#141414] [font-variation-settings:'wght'_200]"
+                className="text-fg [font-variation-settings:'wght'_200]"
               />
-              <h3 className="mt-6 text-xl font-medium tracking-tight text-[#141414]">
+              <h3 className="mt-6 text-xl font-medium tracking-tight text-fg">
                 {t(`items.${item.id}.title`)}
               </h3>
-              <p className="mt-1.5 text-base leading-relaxed text-[#6b6b6b]">
+              <p className="mt-1.5 text-base leading-relaxed text-fg-muted">
                 {t(`items.${item.id}.description`)}
               </p>
             </Reveal>
@@ -126,7 +126,7 @@ export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
       {/* Full-bleed photo with the transparency panel (§5.8, §7.4) */}
       {/* Ends on the footer's deep wine so the photo flows into it with no
           light strip, whatever the floating card's height. */}
-      <div className="relative mt-14 bg-[#1c0b0a] pb-14 lg:mt-20 lg:pb-20">
+      <div className="relative mt-14 bg-ink pb-14 lg:mt-20 lg:pb-20">
         <div className="relative h-[26rem] w-full overflow-hidden lg:h-[34rem]">
           <Image
             src={photos[2] ?? FALLBACK_PHOTOS[1]}
@@ -139,7 +139,7 @@ export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
         <div className="mx-auto w-full max-w-[90rem] px-5 sm:px-8">
           <Reveal className="relative -mt-24 ml-auto w-full max-w-md overflow-hidden rounded-[1.25rem] bg-white shadow-[0_30px_60px_-30px_rgb(0_0_0/0.4)] lg:-mt-72">
             <div className="p-6">
-              <p className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#047857]">
+              <p className="mb-4 flex items-center gap-2 text-sm font-semibold text-success">
                 <Icon name="check_circle" size={18} />
                 {t("included")}
               </p>
@@ -147,26 +147,26 @@ export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
                 {included.map((item) => (
                   <li
                     key={item.label}
-                    className="flex items-center gap-2 text-[15px] text-[#141414]"
+                    className="flex items-center gap-2 text-[15px] text-fg"
                   >
                     <Icon
                       name={item.icon}
                       size={16}
-                      className="text-[#047857]"
+                      className="text-success"
                     />
                     {item.label}
                   </li>
                 ))}
               </ul>
-              <p className="mb-3 mt-6 flex items-center gap-2 text-sm font-semibold text-[#71130d]">
+              <p className="mb-3 mt-6 flex items-center gap-2 text-sm font-semibold text-brand">
                 <Icon name="receipt_long" size={18} />
                 {t("paidSeparately")}
               </p>
-              <ul className="flex flex-col gap-2 text-[15px] leading-relaxed text-[#3d3a36]">
+              <ul className="flex flex-col gap-2 text-[15px] leading-relaxed text-fg-2">
                 <li>{t("electricity")}</li>
                 <li>{t("deposit")}</li>
               </ul>
-              <p className="mt-4 border-t border-[#efeeeb] pt-4 text-[15px] font-semibold text-[#141414]">
+              <p className="mt-4 border-t border-hover pt-4 text-[15px] font-semibold text-fg">
                 {t("noAgent")}
               </p>
             </div>

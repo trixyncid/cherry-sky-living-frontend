@@ -7,9 +7,9 @@
 
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { PropertyImageCarousel } from "@/components/kost/PropertyImageCarousel";
 import { Icon } from "@/components/shared/Icon";
 import { Link } from "@/i18n/routing";
-import { PropertyImageCarousel } from "@/components/kost/PropertyImageCarousel";
 import type { Kost, SearchFilters } from "@/lib/types";
 import { formatCurrency, generateWhatsAppURL } from "@/lib/utils/format";
 
@@ -29,7 +29,7 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div
             key={i}
-            className="h-80 animate-pulse rounded-[1.5rem] bg-[#efe8e0]"
+            className="h-80 animate-pulse rounded-[1.5rem] bg-hover"
           />
         ))}
       </div>
@@ -47,12 +47,12 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
           <Icon
             name="error_outline"
             size={64}
-            className="mx-auto mb-4 text-[#d5c3b8]"
+            className="mx-auto mb-4 text-line-strong"
           />
-          <h3 className="mb-2 text-2xl font-bold text-[#1a1c1a]">
+          <h3 className="mb-2 text-2xl font-bold text-fg">
             {t("common.error")}
           </h3>
-          <p className="text-sm text-[#83746b]">
+          <p className="text-sm text-fg-muted">
             {error.message || t("search.tryDifferentFilters")}
           </p>
         </div>
@@ -71,12 +71,12 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
           <Icon
             name="search_off"
             size={64}
-            className="mx-auto mb-4 text-[#d5c3b8]"
+            className="mx-auto mb-4 text-line-strong"
           />
-          <h3 className="mb-2 text-2xl font-bold text-[#1a1c1a]">
+          <h3 className="mb-2 text-2xl font-bold text-fg">
             {t("search.noResults")}
           </h3>
-          <p className="text-sm text-[#83746b]">
+          <p className="text-sm text-fg-muted">
             {t("search.tryDifferentFilters")}
           </p>
         </div>
@@ -119,7 +119,7 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
                   href={`/kosts/${kost.id}`}
                 />
                 <div className="pointer-events-none absolute left-3 top-3 z-10">
-                  <span className="rounded-lg bg-[#1a130f]/75 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
+                  <span className="rounded-lg bg-ink/75 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
                     {t("propertyDetail.availableRooms", {
                       available: kost.availableRooms,
                       total: kost.totalRooms,
@@ -130,10 +130,10 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
 
               <div className="flex flex-1 flex-col gap-3 p-5">
                 <div>
-                  <h3 className="mb-1 line-clamp-1 text-lg font-bold text-[#1a1c1a] group-hover:text-[#71130d]">
+                  <h3 className="mb-1 line-clamp-1 text-lg font-bold text-fg group-hover:text-brand">
                     {kost.name}
                   </h3>
-                  <p className="flex items-start gap-1 text-sm text-[#83746b]">
+                  <p className="flex items-start gap-1 text-sm text-fg-muted">
                     <Icon
                       name="location_on"
                       size={14}
@@ -146,7 +146,7 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-3 text-xs text-[#83746b]">
+                <div className="flex flex-wrap gap-3 text-xs text-fg-muted">
                   {kost.roomTypes.slice(0, 2).map((roomType) => (
                     <span
                       key={roomType.id}
@@ -167,16 +167,16 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
                   ) : null}
                 </div>
 
-                <div className="mt-auto flex items-center justify-between gap-3 border-t border-[#eee4db] pt-4">
+                <div className="mt-auto flex items-center justify-between gap-3 border-t border-line pt-4">
                   <div>
                     {kost.priceRange.min > 0 ? (
                       <>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-[#83746b]">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-fg-muted">
                           {t("pricing.startingFrom")}
                         </p>
-                        <p className="text-lg font-bold text-[#1a1c1a]">
+                        <p className="text-lg font-bold text-fg">
                           {formatCurrency(kost.priceRange.min)}
-                          <span className="text-xs font-normal text-[#83746b]">
+                          <span className="text-xs font-normal text-fg-muted">
                             {t("pricing.perMonth")}
                           </span>
                         </p>
@@ -189,7 +189,7 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
                         href={inquiryUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[#25D366] bg-white text-[#25D366] transition-colors hover:bg-[#f4fbf6]"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[#25D366] bg-white text-[#25D366] transition-colors hover:bg-success-soft"
                         aria-label={t("cta.sendInquiry")}
                       >
                         <Icon name="whatsapp" size={16} />
@@ -197,7 +197,7 @@ export function KostGrid({ kosts, isLoading, error }: KostGridProps) {
                     ) : null}
                     <Link
                       href={`/kosts/${kost.id}`}
-                      className="inline-flex h-9 items-center rounded-xl bg-[#71130d] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#8a1a12]"
+                      className="inline-flex h-9 items-center rounded-xl bg-brand px-4 text-xs font-semibold text-white transition-colors hover:bg-brand-hover"
                     >
                       {t("cta.viewDetails")}
                     </Link>

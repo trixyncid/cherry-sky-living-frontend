@@ -61,14 +61,14 @@ export function VacancyByTypeChart({
         />
         <Tooltip
           content={<ChartTooltip valueFormatter={(v) => String(v)} />}
-          cursor={{ fill: "rgb(111 70 39 / 0.06)" }}
+          cursor={{ fill: "rgb(11 11 13 / 0.06)" }}
         />
         <Legend
           verticalAlign="top"
           align="right"
           iconType="circle"
           iconSize={8}
-          wrapperStyle={{ fontSize: 12, color: "#51443c", paddingBottom: 4 }}
+          wrapperStyle={{ fontSize: 12, color: "var(--adm-fg-2)", paddingBottom: 4 }}
         />
         <Bar
           dataKey="occupied"

@@ -75,8 +75,13 @@ const labels = {
   rentLineLabel: "Lease rent",
   rentLineDescription: "Billed amount",
   lateFeeLineLabel: "Late fee",
-  lateFeeLineDescription: ({ days, perDay }: { days: number; perDay: string }) =>
-    `${days} × ${perDay}`,
+  lateFeeLineDescription: ({
+    days,
+    perDay,
+  }: {
+    days: number;
+    perDay: string;
+  }) => `${days} × ${perDay}`,
   statusPaid: "Paid",
   statusUnpaid: "Unpaid",
   statusWaitingForReview: "Waiting for review",

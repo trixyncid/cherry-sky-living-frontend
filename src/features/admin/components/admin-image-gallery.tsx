@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useId, useRef, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import {
   Dialog,
@@ -9,11 +9,21 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import {
+  type AttachmentQueue,
+  isPdfFile,
+  type QueuedFile,
+} from "@/features/admin/hooks/use-attachment-queue";
+import {
+  type AdminAttachmentItem,
   attachmentDisplayName,
   isPdfAttachment,
-  type AdminAttachmentItem,
 } from "@/features/admin/lib/attachments";
 import { formatDate } from "@/features/admin/lib/format";
 import { cn } from "@/lib/utils";
@@ -22,40 +32,43 @@ const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
 const DOCUMENT_ACCEPT = `${IMAGE_ACCEPT},application/pdf`;
 const MAX_BYTES = 5 * 1024 * 1024;
 
-type QueuedTile = {
-  id: string;
-  file: File;
-  previewUrl: string;
-  isPdf: boolean;
-};
+export type AttachmentKindOption = { value: string; label: string };
 
+/**
+ * Photos / documents of a record. Files can be added any time:
+ * - new record (queue.deferred): they wait and upload when the form is saved
+ * - existing record: they upload as soon as they're added
+ * Failed uploads stay with a Retry button.
+ */
 export function AdminImageGallery({
   attachments,
-  onUpload,
+  queue,
   onDelete,
-  disabled = false,
-  disabledTitle,
-  disabledHint,
   error,
   allowPdf = false,
+  kindOptions,
+  onKindChange,
+  camera = false,
 }: {
   attachments: AdminAttachmentItem[];
-  onUpload: (files: File[]) => Promise<void>;
+  queue: AttachmentQueue;
   onDelete: (id: string) => Promise<void>;
-  disabled?: boolean;
-  disabledTitle?: string;
-  disabledHint?: string;
   error?: string | null;
   /** When true, accepts PDF in addition to images (lease agreements / proofs). */
   allowPdf?: boolean;
+  /** Per-file document type picker (leases). */
+  kindOptions?: AttachmentKindOption[];
+  /** Change the type of an uploaded file (shows a menu on its tile). */
+  onKindChange?: (id: string, kind: string) => Promise<void>;
+  /** Show a "Take photo" button on phones (receipts). */
+  camera?: boolean;
 }) {
   const t = useTranslations("admin.attachments");
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const dragCount = useRef(0);
   const [dragActive, setDragActive] = useState(false);
-  const [queued, setQueued] = useState<QueuedTile[]>([]);
-  const [uploading, setUploading] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const [preview, setPreview] = useState<AdminAttachmentItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminAttachmentItem | null>(
@@ -64,99 +77,46 @@ export function AdminImageGallery({
   const [deletePending, setDeletePending] = useState(false);
 
   const accept = allowPdf ? DOCUMENT_ACCEPT : IMAGE_ACCEPT;
-  const queuedRef = useRef(queued);
-  queuedRef.current = queued;
-
-  useEffect(() => {
-    return () => {
-      queuedRef.current.forEach((item) => {
-        if (!item.isPdf) URL.revokeObjectURL(item.previewUrl);
-      });
-    };
-  }, []);
-
   const displayError = localError ?? error;
+  const queued = queue.items;
   const hasPhotos = attachments.length > 0 || queued.length > 0;
+  const waiting = queued.filter((it) => it.status === "pending").length;
 
   function openPicker() {
-    if (disabled || uploading) return;
     inputRef.current?.click();
   }
 
-  function resetInput() {
+  function resetInputs() {
     if (inputRef.current) inputRef.current.value = "";
+    if (cameraRef.current) cameraRef.current.value = "";
   }
 
-  async function handleFiles(fileList: FileList | File[]) {
-    if (disabled || uploading) return;
+  function handleFiles(fileList: FileList | File[]) {
     const files = Array.from(fileList);
     if (files.length === 0) return;
 
     const allowed = files.filter((file) => isAllowedFile(file, allowPdf));
     if (allowed.length === 0) {
       setLocalError(allowPdf ? t("invalidTypeWithPdf") : t("invalidType"));
-      resetInput();
+      resetInputs();
       return;
     }
 
     const oversized = allowed.find((file) => file.size > MAX_BYTES);
     if (oversized) {
       setLocalError(t("tooLarge"));
-      resetInput();
+      resetInputs();
       return;
     }
 
     setLocalError(null);
-    const tiles: QueuedTile[] = allowed.map((file) => {
-      const isPdf = isPdfFile(file);
-      return {
-        id: crypto.randomUUID(),
-        file,
-        previewUrl: isPdf ? "" : URL.createObjectURL(file),
-        isPdf,
-      };
-    });
-    setQueued((current) => [...current, ...tiles]);
-    resetInput();
-  }
-
-  function removeQueued(id: string) {
-    setQueued((current) => {
-      const target = current.find((item) => item.id === id);
-      if (target && !target.isPdf) URL.revokeObjectURL(target.previewUrl);
-      return current.filter((item) => item.id !== id);
-    });
-  }
-
-  function clearQueue() {
-    queued.forEach((item) => {
-      if (!item.isPdf) URL.revokeObjectURL(item.previewUrl);
-    });
-    setQueued([]);
-  }
-
-  async function handleUpload() {
-    if (disabled || uploading || queued.length === 0) return;
-
-    setLocalError(null);
-    setUploading(true);
-    try {
-      await onUpload(queued.map((item) => item.file));
-      queued.forEach((item) => {
-        if (!item.isPdf) URL.revokeObjectURL(item.previewUrl);
-      });
-      setQueued([]);
-    } catch {
-      // Parent reports the error; keep the selection so the user can retry.
-    } finally {
-      setUploading(false);
-    }
+    queue.add(allowed);
+    resetInputs();
   }
 
   function onDragEnter(event: React.DragEvent) {
     event.preventDefault();
     event.stopPropagation();
-    if (disabled || uploading) return;
     dragCount.current += 1;
     setDragActive(true);
   }
@@ -181,8 +141,7 @@ export function AdminImageGallery({
     event.stopPropagation();
     dragCount.current = 0;
     setDragActive(false);
-    if (disabled || uploading) return;
-    void handleFiles(event.dataTransfer.files);
+    handleFiles(event.dataTransfer.files);
   }
 
   async function confirmDelete() {
@@ -205,7 +164,7 @@ export function AdminImageGallery({
       onDrop={onDrop}
       className={cn(
         "relative rounded-2xl transition-colors",
-        dragActive && !disabled && "bg-ferrugem/8",
+        dragActive && "bg-brand/8",
       )}
     >
       <input
@@ -214,35 +173,43 @@ export function AdminImageGallery({
         type="file"
         accept={accept}
         multiple
-        disabled={disabled || uploading}
         className="sr-only"
         aria-label={t("dropTitle")}
-        onChange={(event) => void handleFiles(event.target.files ?? [])}
+        onChange={(event) => handleFiles(event.target.files ?? [])}
       />
+      {camera ? (
+        <input
+          ref={cameraRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="sr-only"
+          tabIndex={-1}
+          aria-hidden
+          onChange={(event) => handleFiles(event.target.files ?? [])}
+        />
+      ) : null}
 
-      {disabled ? (
-        <LockedDropzone title={disabledTitle} hint={disabledHint} />
-      ) : hasPhotos ? (
+      {hasPhotos ? (
         <div className="grid grid-cols-2 gap-2.5">
-          <AddTile
-            onClick={openPicker}
-            compact
-            disabled={uploading}
-            allowPdf={allowPdf}
-          />
+          <AddTile onClick={openPicker} compact allowPdf={allowPdf} />
           {queued.map((item) => (
             <QueuedPhoto
               key={item.id}
-              src={item.previewUrl}
-              name={item.file.name}
-              isPdf={item.isPdf}
-              uploading={uploading}
-              onRemove={() => removeQueued(item.id)}
+              item={item}
+              kindOptions={kindOptions}
+              onKindChange={(kind) => queue.setKind(item.id, kind)}
+              onRemove={() => queue.remove(item.id)}
+              onRetry={() => queue.retry(item.id)}
             />
           ))}
           {attachments.map((item) => (
             <PhotoTile
               key={item.id}
+              kindOptions={onKindChange ? kindOptions : undefined}
+              onKindChange={
+                onKindChange ? (kind) => onKindChange(item.id, kind) : undefined
+              }
               item={item}
               onPreview={() => setPreview(item)}
               onDelete={() => setDeleteTarget(item)}
@@ -253,37 +220,27 @@ export function AdminImageGallery({
         <AddTile onClick={openPicker} allowPdf={allowPdf} />
       )}
 
-      {queued.length > 0 && !disabled ? (
-        <div className="mt-3 space-y-2">
-          <p className="text-xs leading-relaxed text-[#6b6b6b]">
-            {t("queueHint", { count: queued.length })}
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              disabled={uploading}
-              onClick={clearQueue}
-              className="glass-control inline-flex h-9 flex-1 items-center justify-center rounded-xl px-3 text-xs font-semibold text-[#3d3a36] transition-colors hover:bg-white/80 disabled:opacity-50"
-            >
-              {t("clearQueue")}
-            </button>
-            <button
-              type="button"
-              disabled={uploading}
-              onClick={() => void handleUpload()}
-              className="admin-btn-primary inline-flex h-9 flex-[1.4] items-center justify-center rounded-xl px-3 text-xs font-semibold disabled:opacity-60"
-            >
-              {uploading
-                ? t("uploading")
-                : t("uploadSelected", { count: queued.length })}
-            </button>
-          </div>
-        </div>
+      {camera ? (
+        <button
+          type="button"
+          onClick={() => cameraRef.current?.click()}
+          className="mt-2.5 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-line-strong bg-panel text-sm font-medium text-fg transition-colors hover:bg-hover sm:hidden"
+        >
+          <Icon name="photo_camera" size={18} />
+          {t("takePhoto")}
+        </button>
       ) : null}
 
-      {dragActive && !disabled && !uploading ? (
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl border-2 border-dashed border-[#71130d] bg-[#faf9f6]/88 backdrop-blur-sm">
-          <div className="flex flex-col items-center gap-1 text-[#71130d]">
+      {queue.deferred && waiting > 0 ? (
+        <p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-fg-muted">
+          <Icon name="schedule" size={14} className="mt-px shrink-0" />
+          {t("deferredHint", { count: waiting })}
+        </p>
+      ) : null}
+
+      {dragActive ? (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl border-2 border-dashed border-brand bg-subtle/88 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-1 text-brand">
             <Icon name="download" size={28} />
             <p className="text-sm font-semibold">{t("dropActive")}</p>
           </div>
@@ -291,14 +248,17 @@ export function AdminImageGallery({
       ) : null}
 
       {displayError ? (
-        <p className="mt-3 text-xs text-[#ba1a1a]">{displayError}</p>
+        <p className="mt-3 text-xs text-danger">{displayError}</p>
       ) : null}
 
-      <Dialog open={preview !== null} onOpenChange={(open) => !open && setPreview(null)}>
-        <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-2xl [&>button]:bg-white/90 [&>button]:text-[#3d3a36] [&>button]:hover:bg-white">
+      <Dialog
+        open={preview !== null}
+        onOpenChange={(open) => !open && setPreview(null)}
+      >
+        <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-2xl [&>button]:bg-white/90 [&>button]:text-fg-2 [&>button]:hover:bg-white">
           {preview ? (
             <>
-              <div className="relative aspect-[4/3] bg-[#1a1c1a]">
+              <div className="relative aspect-[4/3] bg-ink">
                 {isPdfAttachment(preview) ? (
                   <div className="flex size-full flex-col items-center justify-center gap-3 text-white">
                     <Icon name="description" size={48} />
@@ -317,11 +277,13 @@ export function AdminImageGallery({
               </div>
               <div className="flex items-start justify-between gap-3 px-5 pb-5">
                 <div className="min-w-0">
-                  <DialogTitle className="truncate text-sm font-semibold text-[#141414]">
+                  <DialogTitle className="truncate text-sm font-semibold text-fg">
                     {attachmentDisplayName(preview.url)}
                   </DialogTitle>
-                  <DialogDescription className="mt-0.5 text-xs text-[#6b6b6b]">
-                    {preview.createdAt ? formatDate(preview.createdAt) : t("view")}
+                  <DialogDescription className="mt-0.5 text-xs text-fg-muted">
+                    {preview.createdAt
+                      ? formatDate(preview.createdAt)
+                      : t("view")}
                   </DialogDescription>
                 </div>
                 <div className="flex shrink-0 gap-2">
@@ -329,7 +291,7 @@ export function AdminImageGallery({
                     href={preview.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#e3e2e0] bg-white px-3 text-xs font-semibold text-[#3d3a36] transition-colors hover:bg-[#efeeeb]"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-line bg-white px-3 text-xs font-semibold text-fg-2 transition-colors hover:bg-hover"
                   >
                     <Icon name="open_in_new" size={16} />
                     {t("view")}
@@ -337,7 +299,7 @@ export function AdminImageGallery({
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(preview)}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#ba1a1a]/20 bg-[#ba1a1a]/8 px-3 text-xs font-semibold text-[#ba1a1a] transition-colors hover:bg-[#ba1a1a]/14"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-danger/20 bg-danger/8 px-3 text-xs font-semibold text-danger transition-colors hover:bg-danger/14"
                   >
                     <Icon name="delete" size={16} />
                     {t("remove")}
@@ -352,21 +314,12 @@ export function AdminImageGallery({
       <AdminDeleteDialog
         open={deleteTarget !== null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        itemName={
-          deleteTarget ? attachmentDisplayName(deleteTarget.url) : ""
-        }
+        itemName={deleteTarget ? attachmentDisplayName(deleteTarget.url) : ""}
         onConfirm={confirmDelete}
         pending={deletePending}
       />
     </div>
   );
-}
-
-function isPdfFile(file: File) {
-  if (file.type === "application/pdf" || file.type === "application/x-pdf") {
-    return true;
-  }
-  return /\.pdf$/i.test(file.name);
 }
 
 function isAllowedFile(file: File, allowPdf: boolean) {
@@ -377,29 +330,6 @@ function isAllowedFile(file: File, allowPdf: boolean) {
     if (allowPdf && /\.pdf$/i.test(file.name)) return true;
   }
   return false;
-}
-
-function LockedDropzone({
-  title,
-  hint,
-}: {
-  title?: string;
-  hint?: string;
-}) {
-  const t = useTranslations("admin.attachments");
-  return (
-    <div className="flex min-h-[13.5rem] flex-col items-center justify-center rounded-2xl border border-dashed border-[#d5c3b8]/80 bg-[#faf9f6]/60 px-5 py-8 text-center">
-      <span className="mb-3 flex size-12 items-center justify-center rounded-full bg-white/80 text-[#6b6b6b] shadow-sm">
-        <Icon name="lock" size={22} />
-      </span>
-      <p className="text-sm font-semibold text-[#3d3a36]">
-        {title ?? t("lockedTitle")}
-      </p>
-      <p className="mt-1 max-w-[16rem] text-xs leading-relaxed text-[#6b6b6b]">
-        {hint ?? t("lockedHint")}
-      </p>
-    </div>
-  );
 }
 
 function AddTile({
@@ -421,13 +351,13 @@ function AddTile({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#d5c3b8] bg-white/40 text-ferrugem transition-all hover:border-ferrugem hover:bg-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ferrugem/25 disabled:cursor-not-allowed disabled:opacity-60",
+        "group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-line-strong bg-subtle text-brand transition-all hover:border-brand hover:bg-brand-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-60",
         compact ? "aspect-[4/3] px-3 py-4" : "min-h-[13.5rem] px-5 py-8",
       )}
     >
       <span
         className={cn(
-          "mb-2 flex items-center justify-center rounded-full bg-ferrugem/10 text-ferrugem transition-transform group-hover:scale-105",
+          "mb-2 flex items-center justify-center rounded-full bg-brand/10 text-brand transition-transform group-hover:scale-105",
           compact ? "size-10" : "mb-3 size-12",
         )}
       >
@@ -438,8 +368,10 @@ function AddTile({
       </span>
       <span
         className={cn(
-          "mt-0.5 text-[#6b6b6b]",
-          compact ? "text-[11px] leading-tight" : "mt-1 max-w-[16rem] text-xs leading-relaxed",
+          "mt-0.5 text-fg-muted",
+          compact
+            ? "text-[11px] leading-tight"
+            : "mt-1 max-w-[16rem] text-xs leading-relaxed",
         )}
       >
         {compact
@@ -453,38 +385,63 @@ function AddTile({
 }
 
 function QueuedPhoto({
-  src,
-  name,
-  isPdf,
-  uploading,
+  item,
+  kindOptions,
+  onKindChange,
   onRemove,
+  onRetry,
 }: {
-  src: string;
-  name: string;
-  isPdf: boolean;
-  uploading: boolean;
+  item: QueuedFile;
+  kindOptions?: AttachmentKindOption[];
+  onKindChange: (kind: string) => void;
   onRemove: () => void;
+  onRetry: () => void;
 }) {
   const t = useTranslations("admin.attachments");
+  const uploading = item.status === "uploading";
+  const failed = item.status === "failed";
+  const needsKind = !!kindOptions && !item.kind;
 
   return (
-    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#efeeeb] ring-2 ring-ferrugem/70 ring-offset-2 ring-offset-transparent">
-      {isPdf ? (
-        <div className="flex size-full flex-col items-center justify-center gap-1 bg-ferrugem-soft/60 text-ferrugem">
+    <div
+      className={cn(
+        "relative aspect-[4/3] overflow-hidden rounded-2xl bg-hover ring-2 ring-offset-2 ring-offset-transparent",
+        failed ? "ring-danger" : "ring-brand/60",
+      )}
+    >
+      {item.isPdf ? (
+        <div className="flex size-full flex-col items-center justify-center gap-1 bg-brand-soft/60 text-brand">
           <Icon name="description" size={28} />
           <span className="max-w-[90%] truncate px-2 text-[11px] font-medium">
-            {name}
+            {item.file.name}
           </span>
         </div>
       ) : (
         /* eslint-disable-next-line @next/next/no-img-element */
-        <img src={src} alt={name} className="size-full object-cover" />
+        <img
+          src={item.previewUrl}
+          alt={item.file.name}
+          className="size-full object-cover"
+        />
       )}
-      <span className="absolute left-2 top-2 rounded-full bg-[#71130d] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-        {t("queuedBadge")}
-      </span>
+
+      {!uploading ? (
+        <span
+          className={cn(
+            "absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white",
+            failed ? "bg-danger" : needsKind ? "bg-ink" : "bg-brand",
+          )}
+        >
+          {failed
+            ? t("failedBadge")
+            : needsKind
+              ? t("chooseKindBadge")
+              : t("pendingBadge")}
+        </span>
+      ) : null}
+
       {uploading ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-[#1a1c1a]/45 text-white">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-ink/45 text-white">
           <span className="size-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
           <span className="text-[11px] font-semibold">{t("uploading")}</span>
         </div>
@@ -492,12 +449,33 @@ function QueuedPhoto({
         <button
           type="button"
           onClick={onRemove}
-          className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white/92 text-[#3d3a36] shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-[#ba1a1a]"
+          className="absolute right-2 top-2 z-10 flex size-8 items-center justify-center rounded-full bg-white/92 text-fg-2 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-danger"
           aria-label={t("removeFromQueue")}
+          title={t("removeFromQueue")}
         >
           <Icon name="close" size={16} />
         </button>
       )}
+
+      {failed ? (
+        <div className="absolute inset-x-2 bottom-2 flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={onRetry}
+            title={item.error || t("failedBadge")}
+            className="inline-flex h-7 items-center gap-1 rounded-full bg-white px-2.5 text-[11px] font-semibold text-danger shadow-sm hover:bg-danger-soft"
+          >
+            <Icon name="refresh" size={14} />
+            {t("retry")}
+          </button>
+        </div>
+      ) : kindOptions && !uploading ? (
+        <KindPicker
+          options={kindOptions}
+          value={item.kind}
+          onChange={onKindChange}
+        />
+      ) : null}
     </div>
   );
 }
@@ -506,17 +484,21 @@ function PhotoTile({
   item,
   onPreview,
   onDelete,
+  kindOptions,
+  onKindChange,
 }: {
   item: AdminAttachmentItem;
   onPreview: () => void;
   onDelete: () => void;
+  kindOptions?: AttachmentKindOption[];
+  onKindChange?: (kind: string) => Promise<void>;
 }) {
   const t = useTranslations("admin.attachments");
   const name = attachmentDisplayName(item.url);
   const pdf = isPdfAttachment(item);
 
   return (
-    <div className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#efeeeb] shadow-sm">
+    <div className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-hover shadow-sm">
       <button
         type="button"
         onClick={onPreview}
@@ -524,7 +506,7 @@ function PhotoTile({
         aria-label={t("view")}
       >
         {pdf ? (
-          <div className="flex size-full flex-col items-center justify-center gap-1 bg-ferrugem-soft/50 text-ferrugem transition-transform duration-300 group-hover:scale-[1.04]">
+          <div className="flex size-full flex-col items-center justify-center gap-1 bg-brand-soft/50 text-brand transition-transform duration-300 group-hover:scale-[1.04]">
             <Icon name="description" size={28} />
             <span className="max-w-[90%] truncate px-2 text-[11px] font-medium">
               {name}
@@ -539,17 +521,24 @@ function PhotoTile({
           />
         )}
       </button>
-      {item.kindLabel ? (
-        <span className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-[#1a1c1a]/70 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">
+      {item.kindLabel && kindOptions && onKindChange ? (
+        <KindMenu
+          label={item.kindLabel}
+          value={item.kind}
+          options={kindOptions}
+          onChange={onKindChange}
+        />
+      ) : item.kindLabel ? (
+        <span className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-ink/70 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">
           {item.kindLabel}
         </span>
       ) : null}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1a1c1a]/55 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/55 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100" />
       <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
         <button
           type="button"
           onClick={onPreview}
-          className="pointer-events-auto flex size-8 items-center justify-center rounded-full bg-white/92 text-[#3d3a36] shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
+          className="pointer-events-auto flex size-8 items-center justify-center rounded-full bg-white/92 text-fg-2 shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
           aria-label={t("view")}
         >
           <Icon name="zoom_in" size={16} />
@@ -557,12 +546,147 @@ function PhotoTile({
         <button
           type="button"
           onClick={onDelete}
-          className="pointer-events-auto flex size-8 items-center justify-center rounded-full bg-white/92 text-[#ba1a1a] shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
+          className="pointer-events-auto flex size-8 items-center justify-center rounded-full bg-white/92 text-danger shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
           aria-label={t("remove")}
         >
           <Icon name="delete" size={16} />
         </button>
       </div>
     </div>
+  );
+}
+
+/**
+ * Document type choice on a waiting file: one button per type until chosen,
+ * then a chip showing the choice that reopens the options.
+ */
+function KindPicker({
+  options,
+  value,
+  onChange,
+}: {
+  options: AttachmentKindOption[];
+  value?: string;
+  onChange: (kind: string) => void;
+}) {
+  const t = useTranslations("admin.attachments");
+  const name = useId();
+  const [editing, setEditing] = useState(false);
+  const chosen = options.find((option) => option.value === value);
+
+  if (chosen && !editing) {
+    return (
+      <button
+        type="button"
+        title={t("changeKind")}
+        onClick={() => setEditing(true)}
+        className="absolute bottom-2 left-2 inline-flex max-w-[calc(100%-1rem)] items-center gap-0.5 rounded-full bg-white/95 py-1 pl-2.5 pr-1.5 text-[11px] font-semibold text-brand shadow-sm backdrop-blur-sm hover:bg-white"
+      >
+        <span className="truncate">{chosen.label}</span>
+        <Icon name="expand_more" size={14} />
+      </button>
+    );
+  }
+
+  return (
+    <fieldset
+      // min-w-0: fieldsets don't shrink by default and would widen the tile.
+      className="absolute inset-x-1.5 bottom-1.5 flex min-w-0 flex-wrap gap-1 rounded-xl bg-white/95 p-1 shadow-sm ring-2 ring-brand/50 backdrop-blur-sm"
+    >
+      <legend className="sr-only">{t("whatIsThis")}</legend>
+      {options.map((option) => {
+        const checked = value === option.value;
+        return (
+          <label
+            key={option.value}
+            className={cn(
+              "flex h-6 min-w-0 flex-auto cursor-pointer items-center justify-center rounded-md px-1.5 text-[10.5px] font-semibold transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand/40",
+              checked
+                ? "bg-brand text-white"
+                : "bg-hover text-fg-2 hover:bg-brand-soft hover:text-brand",
+            )}
+          >
+            <input
+              type="radio"
+              name={name}
+              className="sr-only"
+              checked={checked}
+              onChange={() => {
+                setEditing(false);
+                onChange(option.value);
+              }}
+            />
+            <span className="truncate">{option.label}</span>
+          </label>
+        );
+      })}
+    </fieldset>
+  );
+}
+
+/** Type chip on an uploaded file; opens a small menu to correct it. */
+function KindMenu({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value?: string;
+  options: AttachmentKindOption[];
+  onChange: (kind: string) => Promise<void>;
+}) {
+  const t = useTranslations("admin.attachments");
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  async function choose(kind: string) {
+    setOpen(false);
+    if (kind === value) return;
+    setSaving(true);
+    try {
+      await onChange(kind);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          disabled={saving}
+          title={t("changeKind")}
+          className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-0.5 rounded-full bg-ink/75 py-0.5 pl-2 pr-1 text-[10px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-ink disabled:opacity-60"
+        >
+          {saving ? t("saving") : label}
+          <Icon name="expand_more" size={14} />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        side="top"
+        sideOffset={6}
+        className="w-auto min-w-40 rounded-xl border-line p-1"
+      >
+        <p className="px-2.5 pb-1 pt-1.5 text-[11px] font-semibold text-fg-muted">
+          {t("changeKind")}
+        </p>
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => void choose(option.value)}
+            className="flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-fg hover:bg-hover"
+          >
+            {option.label}
+            {option.value === value ? (
+              <Icon name="check" size={14} className="text-brand" />
+            ) : null}
+          </button>
+        ))}
+      </PopoverContent>
+    </Popover>
   );
 }

@@ -11,8 +11,8 @@ export function LedgerTypeBadge({ type }: { type: LedgerEntryType }) {
       className={cn(
         "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold",
         isIncome
-          ? "bg-[#E6F4EA] text-[#137333]"
-          : "bg-[#ffdad6] text-[#ba1a1a]",
+          ? "bg-success-soft text-success"
+          : "bg-danger-soft text-danger",
       )}
     >
       {isIncome ? t("typeIncome") : t("typeExpense")}

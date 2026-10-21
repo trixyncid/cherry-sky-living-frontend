@@ -95,25 +95,25 @@ export function HomeFaq({ asPage = false }: HomeFaqProps) {
               <Eyebrow>{t("eyebrow")}</Eyebrow>
               <h2
                 id="faq-heading"
-                className="mt-4 text-[clamp(2.2rem,4.4vw,3.6rem)] font-medium leading-[1.02] tracking-[-0.04em] text-[#141414]"
+                className="mt-4 text-[clamp(2.2rem,4.4vw,3.6rem)] font-medium leading-[1.02] tracking-[-0.04em] text-fg"
               >
                 {t("title")}
               </h2>
-              <p className="mt-5 max-w-md text-base leading-relaxed text-[#6b6b6b]">
+              <p className="mt-5 max-w-md text-base leading-relaxed text-fg-muted">
                 {t("description")}
               </p>
             </div>
           )}
 
-          <div className="flex max-w-md items-center gap-4 rounded-[1.25rem] bg-[#f7f3f2] p-3">
-            <span className="flex size-24 shrink-0 items-center justify-center rounded-xl bg-[#71130d] text-[#25D366]">
+          <div className="flex max-w-md items-center gap-4 rounded-[1.25rem] bg-canvas p-3">
+            <span className="flex size-24 shrink-0 items-center justify-center rounded-xl bg-brand text-[#25D366]">
               <Icon name="whatsapp" size={40} />
             </span>
             <div className="min-w-0">
-              <p className="text-[17px] font-semibold text-[#141414]">
+              <p className="text-[17px] font-semibold text-fg">
                 {t("cardTitle")}
               </p>
-              <p className="text-sm text-[#6b6b6b]">{t("cardSub")}</p>
+              <p className="text-sm text-fg-muted">{t("cardSub")}</p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <ArrowPill
                   href={whatsappUrl}
@@ -129,7 +129,7 @@ export function HomeFaq({ asPage = false }: HomeFaqProps) {
                 </ArrowPill>
                 <Link
                   href="/contact"
-                  className="px-2 text-sm font-semibold text-[#141414] underline-offset-4 hover:underline"
+                  className="px-2 text-sm font-semibold text-fg underline-offset-4 hover:underline"
                 >
                   {t("contactCta")}
                 </Link>
@@ -149,8 +149,8 @@ export function HomeFaq({ asPage = false }: HomeFaqProps) {
                   className={cn(
                     "overflow-hidden rounded-xl border transition-colors duration-300",
                     isOpen
-                      ? "border-[#dedad4] bg-[#f7f3f2]"
-                      : "border-transparent bg-[#f7f3f2] hover:border-[#dedad4]",
+                      ? "border-line-strong bg-canvas"
+                      : "border-transparent bg-canvas hover:border-line-strong",
                   )}
                 >
                   <h3>
@@ -159,20 +159,20 @@ export function HomeFaq({ asPage = false }: HomeFaqProps) {
                       onClick={() => setOpenId(isOpen ? null : id)}
                       aria-expanded={isOpen}
                       aria-controls={panelId}
-                      className="flex w-full items-center gap-4 px-5 py-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#71130d] sm:px-6"
+                      className="flex w-full items-center gap-4 px-5 py-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand sm:px-6"
                     >
-                      <span className="w-6 shrink-0 text-sm font-medium tabular-nums text-[#6b6b6b]">
+                      <span className="w-6 shrink-0 text-sm font-medium tabular-nums text-fg-muted">
                         {String(index + 1).padStart(2, "0")}
                       </span>
-                      <span className="flex-1 text-[17px] font-semibold tracking-tight text-[#141414] sm:text-lg">
+                      <span className="flex-1 text-[17px] font-semibold tracking-tight text-fg sm:text-lg">
                         {t(`items.${id}.q`)}
                       </span>
                       <span
                         className={cn(
                           "flex size-9 shrink-0 items-center justify-center rounded-full transition-all duration-300 motion-reduce:transition-none",
                           isOpen
-                            ? "rotate-45 bg-[#71130d] text-white"
-                            : "bg-[#e7e4df] text-[#141414]",
+                            ? "rotate-45 bg-brand text-white"
+                            : "bg-line text-fg",
                         )}
                       >
                         <Icon name="add" size={18} />
@@ -193,7 +193,7 @@ export function HomeFaq({ asPage = false }: HomeFaqProps) {
                         transition={{ duration: 0.3 }}
                         className="overflow-hidden"
                       >
-                        <div className="px-5 pb-6 pl-15 text-base leading-relaxed text-[#3d3a36] sm:px-6 sm:pl-[4rem]">
+                        <div className="px-5 pb-6 pl-15 text-base leading-relaxed text-fg-2 sm:px-6 sm:pl-[4rem]">
                           <p>{t(`items.${id}.a`)}</p>
                           {id === "visit" ? (
                             <SurveyScheduleDialog

@@ -1,20 +1,21 @@
 /**
- * Final call to action (§5.13) — rounded card on the footer's photo:
- * live availability headline, viewing + inquiry actions (the inquiry form
- * opens in a dialog and saves a lead).
+ * Final call to action (§5.13): two ways to convert, side by side.
+ * Black panel — live availability, Book a viewing (saves a lead) and
+ * WhatsApp. White panel — the short inquiry form inline, so visitors who
+ * prefer to be contacted can leave their number without opening a dialog.
  */
 
 "use client";
 
-import Image from "next/image";
-import { useTranslations } from "next-intl";
-import { LeadDialog } from "@/components/leads/LeadDialog";
+import { useLocale, useTranslations } from "next-intl";
+import { LeadForm } from "@/components/leads/LeadForm";
 import { SurveyScheduleDialog } from "@/components/sections/SurveyScheduleDialog";
 import { Icon } from "@/components/shared/Icon";
 import { Reveal } from "@/components/shared/Reveal";
+import { localized, siteConfig } from "@/config/site";
+import { track } from "@/lib/analytics";
 import type { Kost } from "@/lib/types";
-
-const FALLBACK_PHOTO = "/assets/cherry-kost.jpeg";
+import { generateWhatsAppURL } from "@/lib/utils/format";
 
 export function FinalCtaCard({
   kosts = [],
@@ -24,58 +25,69 @@ export function FinalCtaCard({
   isLoading?: boolean;
 }) {
   const t = useTranslations("home.cta");
-  const tFooter = useTranslations("footer");
+  const tLeads = useTranslations("leads.inquiry");
+  const tWhatsapp = useTranslations("whatsapp");
+  const locale = useLocale();
   const availableRooms = kosts.reduce((sum, k) => sum + k.availableRooms, 0);
-  const photo =
-    kosts.flatMap((k) => k.roomTypes.flatMap((rt) => rt.images))[1] ??
-    kosts[0]?.thumbnail ??
-    FALLBACK_PHOTO;
+  const whatsappUrl = generateWhatsAppURL(
+    siteConfig.whatsappNumber,
+    tWhatsapp("generalInquiry"),
+  );
 
   return (
-    <Reveal className="relative mx-auto w-full max-w-5xl overflow-hidden rounded-[2rem] bg-[#f4f5f8] shadow-[0_40px_80px_-40px_rgb(0_0_0/0.6)]">
-      <div className="absolute inset-y-0 right-0 hidden w-[62%] sm:block">
-        <Image
-          src={photo}
-          alt=""
-          fill
-          sizes="(max-width: 1280px) 60vw, 720px"
-          className="object-cover [mask-image:linear-gradient(to_right,transparent_0%,black_45%)]"
+    <Reveal className="mx-auto grid w-full max-w-5xl overflow-hidden rounded-[2rem] shadow-[0_40px_80px_-40px_rgb(0_0_0/0.7)] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+      {/* Act now */}
+      <div className="relative overflow-hidden bg-ink-2 px-7 py-9 text-white ring-1 ring-inset ring-white/10 sm:px-10 sm:py-11">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -left-20 -top-24 size-72 rounded-full bg-brand/40 blur-[90px]"
         />
-      </div>
-      <div className="relative max-w-xl px-7 py-9 sm:px-10 sm:py-11">
-        <h2
-          id="cta-heading"
-          className="text-[clamp(1.75rem,2.6vw,2.35rem)] font-medium leading-[1.08] tracking-[-0.03em] text-[#141414]"
-        >
-          {isLoading ? (
-            <span className="inline-block h-[0.9em] w-3/4 animate-pulse rounded-lg bg-[#e3e4e9] align-middle" />
-          ) : (
-            t("liveTitle", { count: availableRooms })
-          )}
-          <span className="block text-[#6b6f7a]">{t("titleAccent")}</span>
-        </h2>
-        <p className="mt-4 max-w-md text-base leading-relaxed text-[#3d4048]">
-          {t("description")}
-        </p>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <SurveyScheduleDialog
-            triggerLabel={t("schedule")}
-            className="mt-0 h-12 justify-center gap-2.5 rounded-full bg-[#71130d] px-7 text-[15px] font-medium shadow-[0_18px_36px_-18px_rgb(0_0_0/0.6)] hover:bg-[#8a1a12]"
-          />
-          <LeadDialog
-            type="inquiry"
-            kosts={kosts}
-            trigger={
-              <button
-                type="button"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-[#141414]/15 bg-white/80 px-6 text-[15px] font-medium text-[#141414] backdrop-blur-sm hover:bg-white"
-              >
-                <Icon name="edit_note" size={18} />
-                {tFooter("sendInquiry")}
-              </button>
-            }
-          />
+        <div className="relative">
+          <h2
+            id="cta-heading"
+            className="text-[clamp(1.75rem,2.6vw,2.35rem)] font-semibold leading-[1.08] tracking-[-0.03em]"
+          >
+            {isLoading ? (
+              <span className="inline-block h-[0.9em] w-3/4 animate-pulse rounded-lg bg-white/15 align-middle" />
+            ) : (
+              t("liveTitle", { count: availableRooms })
+            )}
+            <span className="block text-brand-bright">{t("titleAccent")}</span>
+          </h2>
+          <p className="mt-4 max-w-md text-base leading-relaxed text-white/70">
+            {t("description")}
+          </p>
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <SurveyScheduleDialog
+              triggerLabel={t("schedule")}
+              className="mt-0 h-12 justify-center gap-2 rounded-full bg-brand px-6 text-[15px] hover:bg-brand-hover"
+            />
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track("click_whatsapp", { location: "final_cta" })}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/20 px-6 text-[15px] font-medium text-white transition-colors hover:bg-white/10"
+            >
+              <Icon name="whatsapp" size={18} className="text-[#25d366]" />
+              {t("whatsapp")}
+            </a>
+          </div>
+          <p className="mt-6 flex items-center gap-2 text-sm text-white/55">
+            <Icon name="schedule" size={16} />
+            {t("hoursLabel")}: {localized(siteConfig.viewingHours.days, locale)}{" "}
+            {siteConfig.viewingHours.time}
+          </p>
         </div>
+      </div>
+
+      {/* Or be contacted */}
+      <div className="bg-white px-7 py-9 sm:px-10 sm:py-11">
+        <p className="text-lg font-semibold tracking-tight text-fg">
+          {tLeads("title")}
+        </p>
+        <p className="mt-1 text-sm text-fg-muted">{tLeads("description")}</p>
+        <LeadForm type="inquiry" kosts={kosts} className="mt-5" />
       </div>
     </Reveal>
   );

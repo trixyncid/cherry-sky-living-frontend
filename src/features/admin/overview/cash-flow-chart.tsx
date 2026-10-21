@@ -96,7 +96,7 @@ export function CashFlowChart({
           align="right"
           iconType="circle"
           iconSize={8}
-          wrapperStyle={{ fontSize: 12, color: "#51443c", paddingBottom: 8 }}
+          wrapperStyle={{ fontSize: 12, color: "var(--adm-fg-2)", paddingBottom: 8 }}
         />
         <Bar
           dataKey="income"

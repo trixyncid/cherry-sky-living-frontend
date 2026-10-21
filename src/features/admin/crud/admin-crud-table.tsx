@@ -37,7 +37,7 @@ function SortIndicator({
       <Icon
         name="swap_vert"
         size={16}
-        className="text-[#b0a29a] opacity-0 transition-opacity group-hover/th:opacity-100 group-focus-visible/th:opacity-100 [[data-sorted=true]_&]:opacity-100"
+        className="text-fg-faint opacity-0 transition-opacity group-hover/th:opacity-100 group-focus-visible/th:opacity-100 [[data-sorted=true]_&]:opacity-100"
       />
     );
   }
@@ -46,7 +46,7 @@ function SortIndicator({
     <Icon
       name={direction === "asc" ? "arrow_upward" : "arrow_downward"}
       size={16}
-      className="text-[#71130d]"
+      className="text-brand"
     />
   );
 }
@@ -64,7 +64,7 @@ export function AdminCrudTable({
   return (
     <table className={cn("w-full border-collapse text-left", className)}>
       <thead>
-        <tr className="border-b border-white/40 bg-white/35">
+        <tr className="border-b border-line bg-subtle">
           {columns.map((col) => {
             const sortable = isColumnSortable(col.key, col.sortable);
             const active = sortable && sortKey === col.key;
@@ -80,7 +80,7 @@ export function AdminCrudTable({
                 <th
                   key={col.key}
                   className={cn(
-                    "px-6 py-4 text-sm font-semibold text-[#51443c]",
+                    "px-6 py-3 text-xs font-medium uppercase tracking-wide text-fg-muted",
                     alignClass,
                     col.className,
                   )}
@@ -107,10 +107,10 @@ export function AdminCrudTable({
                   data-sorted={active ? "true" : undefined}
                   onClick={() => onSort(col.key)}
                   className={cn(
-                    "group/th inline-flex w-full items-center gap-1.5 text-sm font-semibold text-[#51443c] transition-colors hover:text-[#71130d]",
+                    "group/th inline-flex w-full items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-fg-muted transition-colors hover:text-fg",
                     col.align === "right" && "justify-end",
                     col.align === "center" && "justify-center",
-                    active && "text-[#71130d]",
+                    active && "text-fg",
                   )}
                   aria-label={
                     active
@@ -132,7 +132,7 @@ export function AdminCrudTable({
           })}
         </tr>
       </thead>
-      <tbody className="divide-y divide-white/35">{children}</tbody>
+      <tbody className="divide-y divide-line">{children}</tbody>
     </table>
   );
 }
@@ -145,12 +145,7 @@ export function AdminCrudTableRow({
   className?: string;
 }) {
   return (
-    <tr
-      className={cn(
-        "group transition-colors hover:bg-white/40",
-        className,
-      )}
-    >
+    <tr className={cn("group transition-colors hover:bg-subtle", className)}>
       {children}
     </tr>
   );
@@ -168,7 +163,7 @@ export function AdminCrudTableCell({
   return (
     <td
       className={cn(
-        "px-6 py-4 align-middle text-sm text-[#1a1c1a]",
+        "px-6 py-4 align-middle text-sm text-fg",
         align === "right" && "text-right",
         align === "center" && "text-center",
         className,

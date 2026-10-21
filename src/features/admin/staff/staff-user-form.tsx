@@ -17,6 +17,7 @@ import {
 } from "@/features/admin/components/admin-form-layout";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { PersonPreview } from "@/features/admin/components/form-previews";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import {
   useStaffUser,
   useStaffUserMutations,
@@ -152,7 +153,7 @@ export function StaffUserForm({ id }: { id?: string }) {
 
   if (isEdit && isLoading) {
     return (
-      <p className="p-8 text-center text-sm text-[#6b6b6b]">{t("loading")}</p>
+      <p className="p-8 text-center text-sm text-fg-muted">{t("loading")}</p>
     );
   }
 
@@ -179,7 +180,7 @@ export function StaffUserForm({ id }: { id?: string }) {
         <AdminFormError message={formError} />
 
         <AdminFormSection
-          icon="badge"
+          icon={adminPageIcons.staff}
           title={tp("identityTitle")}
           hint={tp("identityHint")}
         >
@@ -228,7 +229,7 @@ export function StaffUserForm({ id }: { id?: string }) {
                 ) : null}
               </AdminSelect>
               {!isSuperadmin ? (
-                <p className="mt-1 text-xs text-[#6b6b6b]">{tp("roleHint")}</p>
+                <p className="mt-1 text-xs text-fg-muted">{tp("roleHint")}</p>
               ) : null}
             </AdminField>
           </div>

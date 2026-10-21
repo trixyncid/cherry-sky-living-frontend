@@ -1,45 +1,33 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { motion } from "framer-motion";
-import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { Icon } from "@/components/shared/Icon";
-import { RequiredMark } from "@/components/shared/required-mark";
-import { useRouter } from "@/i18n/routing";
 import {
-  adminLoginSchema,
+  AdminLoginShell,
+  LoginField,
+  LoginSubmit,
+  PasswordToggle,
+} from "@/features/admin/login/admin-login-shell";
+import {
   type AdminLoginValues,
+  adminLoginSchema,
 } from "@/features/admin/login/schemas";
-import { AdminLoginShell } from "@/features/admin/login/admin-login-shell";
+import { useRouter } from "@/i18n/routing";
 import { authClient } from "@/lib/auth/client";
-import { signOutClient } from "@/lib/auth/sign-out-client";
-import { getRoleFromAuthUser, getRoleFromSignInData } from "@/lib/auth/post-login";
+import {
+  type LoginErrorKey,
+  loginErrorKeyFromAuthError,
+} from "@/lib/auth/errors";
+import {
+  getRoleFromAuthUser,
+  getRoleFromSignInData,
+} from "@/lib/auth/post-login";
 import { getHomePathForRole } from "@/lib/auth/redirects";
-import { loginErrorKeyFromAuthError, type LoginErrorKey } from "@/lib/auth/errors";
 import { assertCanAccessAdminPortal } from "@/lib/auth/role";
+import { signOutClient } from "@/lib/auth/sign-out-client";
 import { toast } from "@/lib/toast";
-import { cn } from "@/lib/utils";
-
-const fieldMotion = {
-  hidden: { opacity: 0, y: 12 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: 0.28 + i * 0.06,
-      duration: 0.45,
-      ease: [0.22, 1, 0.36, 1] as const,
-    },
-  }),
-};
-
-const inputClassName = cn(
-  "glass-control block h-12 w-full rounded-xl pl-10 pr-3 text-base text-[#141414]",
-  "transition-all placeholder:text-[#6b6b6b]",
-  "focus:outline-none",
-);
 
 function showLoginError(
   t: ReturnType<typeof useTranslations<"admin.login">>,
@@ -130,18 +118,8 @@ export function AdminLoginForm() {
 
   return (
     <AdminLoginShell portal="admin">
-      <motion.h1
-        className="text-lg font-semibold tracking-tight text-[#141414]"
-        variants={fieldMotion}
-        custom={0}
-        initial="hidden"
-        animate="visible"
-      >
-        {t("title")}
-      </motion.h1>
-
       <form
-        className="mt-5 space-y-5"
+        className="space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -150,124 +128,59 @@ export function AdminLoginForm() {
       >
         <form.Field name="email">
           {(field) => (
-            <motion.div
-              variants={fieldMotion}
-              custom={1}
-              initial="hidden"
-              animate="visible"
-            >
-              <label
-                htmlFor="admin-email"
-                className="mb-2 block text-sm font-semibold tracking-wide text-[#141414]"
-                aria-required
-              >
-                {t("emailLabel")}
-                <RequiredMark className="ml-0.5" />
-              </label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Icon name="mail" size={20} className="text-[#6b6b6b]" />
-                </div>
-                <input
-                  id="admin-email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder={t("emailPlaceholder")}
-                  required
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  className={inputClassName}
-                />
-              </div>
-            </motion.div>
+            <LoginField
+              id="admin-email"
+              label={t("emailLabel")}
+              icon="mail"
+              type="email"
+              autoComplete="email"
+              placeholder={t("emailPlaceholder")}
+              required
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(e) => field.handleChange(e.target.value)}
+            />
           )}
         </form.Field>
 
         <form.Field name="password">
           {(field) => (
-            <motion.div
-              variants={fieldMotion}
-              custom={2}
-              initial="hidden"
-              animate="visible"
-            >
-              <label
-                htmlFor="admin-password"
-                className="mb-2 block text-sm font-semibold tracking-wide text-[#141414]"
-                aria-required
-              >
-                {t("passwordLabel")}
-                <RequiredMark className="ml-0.5" />
-              </label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Icon name="lock" size={20} className="text-[#6b6b6b]" />
-                </div>
-                <input
-                  id="admin-password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  required
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  className={cn(inputClassName, "pr-10")}
+            <LoginField
+              id="admin-password"
+              label={t("passwordLabel")}
+              icon="lock"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              placeholder="••••••••"
+              required
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(e) => field.handleChange(e.target.value)}
+              trailing={
+                <PasswordToggle
+                  visible={showPassword}
+                  onToggle={() => setShowPassword((v) => !v)}
+                  showLabel={t("showPassword")}
+                  hideLabel={t("hidePassword")}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#6b6b6b] transition-colors hover:text-[#141414]"
-                  aria-label={showPassword ? t("hidePassword") : t("showPassword")}
-                >
-                  <Icon
-                    name={showPassword ? "visibility_off" : "visibility"}
-                    size={20}
-                  />
-                </button>
-              </div>
-            </motion.div>
+              }
+            />
           )}
         </form.Field>
 
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
-            <motion.div
-              variants={fieldMotion}
-              custom={3}
-              initial="hidden"
-              animate="visible"
-            >
-              <motion.button
-                type="submit"
-                disabled={!canSubmit || isSubmitting}
-                className={cn(
-                  "admin-btn-primary mt-1 flex h-12 w-full items-center justify-center rounded-full border border-transparent",
-                  "px-4 text-[15px] font-semibold",
-                  "transition-all duration-200",
-                  "focus:outline-none focus:ring-2 focus:ring-[#141414] focus:ring-offset-2 focus:ring-offset-white",
-                  "disabled:cursor-not-allowed disabled:opacity-60",
-                )}
-                whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
-                whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-              >
-                {isSubmitting ? t("submitting") : t("submit")}
-              </motion.button>
-            </motion.div>
+            <div className="pt-2">
+              <LoginSubmit
+                pending={!!isSubmitting}
+                disabled={!canSubmit}
+                label={t("submit")}
+                pendingLabel={t("submitting")}
+              />
+            </div>
           )}
         </form.Subscribe>
       </form>
-
-      <motion.div
-        className="mt-8 border-t border-[#f0efed] pt-5 text-center"
-        variants={fieldMotion}
-        custom={4}
-        initial="hidden"
-        animate="visible"
-      >
-        <p className="text-xs font-medium text-[#6b6b6b]">{t("securityNote")}</p>
-      </motion.div>
     </AdminLoginShell>
   );
 }

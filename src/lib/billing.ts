@@ -128,3 +128,122 @@ export function toMonthEndInputValue(dateStr: string): string {
   const day = String(end.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
+
+export type BillingCycle = "monthly" | "upfront";
+export type FirstPeriodMode = "separate" | "merged";
+
+export type PreviewInvoice = {
+  periodStart: Date;
+  periodEnd: Date;
+  /** After discount. */
+  amount: number;
+  /** Taken off this bill by the lease discount. */
+  discount?: number;
+  dueDate: Date;
+};
+
+export type LeaseDiscountInput = {
+  type: "amount" | "percent" | null;
+  value: number;
+};
+
+/**
+ * Mirror of the backend `applyLeaseDiscount`: percent comes off every bill;
+ * a Rupiah amount comes off the lease total, earliest bills first. Bills never
+ * go below zero.
+ */
+export function applyLeaseDiscount(
+  schedule: PreviewInvoice[],
+  discount: LeaseDiscountInput,
+): PreviewInvoice[] {
+  if (!discount.type || discount.value <= 0) {
+    return schedule.map((row) => ({ ...row, discount: 0 }));
+  }
+  if (discount.type === "percent") {
+    const pct = Math.min(discount.value, 100);
+    return schedule.map((row) => {
+      const off = Math.min(row.amount, Math.round((row.amount * pct) / 100));
+      return { ...row, amount: row.amount - off, discount: off };
+    });
+  }
+  let remaining = discount.value;
+  return schedule.map((row) => {
+    const off = Math.min(row.amount, remaining);
+    remaining -= off;
+    return { ...row, amount: row.amount - off, discount: off };
+  });
+}
+
+/** Due day in the bill's start month (clamped), never before the bill starts. */
+function previewDueDate(start: Date, paymentDueDay: number): Date {
+  const day = Math.min(Math.max(1, paymentDueDay), daysInMonth(start));
+  const due = new Date(start.getFullYear(), start.getMonth(), day);
+  return due < start ? start : due;
+}
+
+/**
+ * Frontend mirror of the backend schedule (lib/billing-schedule.ts) for the
+ * new-lease preview: monthly = one bill per calendar month (mid-month
+ * move-in: short first bill, or merged into the first full month);
+ * upfront = one bill. The server is the source of truth.
+ */
+export function previewInvoiceSchedule(input: {
+  startDate: Date;
+  endDate: Date;
+  monthlyPrice: number;
+  dailyRate?: number | null;
+  billingCycle: BillingCycle;
+  firstPeriodMode: FirstPeriodMode;
+  paymentDueDay: number;
+}): PreviewInvoice[] {
+  const { startDate, endDate, monthlyPrice, dailyRate, paymentDueDay } = input;
+  if (input.billingCycle === "upfront") {
+    return [
+      {
+        periodStart: startDate,
+        periodEnd: endDate,
+        amount: computeLeaseAmount(startDate, endDate, monthlyPrice, dailyRate)
+          .amountDue,
+        dueDate: previewDueDate(startDate, paymentDueDay),
+      },
+    ];
+  }
+
+  const periods: PreviewInvoice[] = [];
+  let cursor = startDate;
+  while (cursor <= endDate) {
+    const monthEnd = endOfMonth(cursor);
+    const periodEnd = monthEnd < endDate ? monthEnd : endDate;
+    periods.push({
+      periodStart: cursor,
+      periodEnd,
+      amount: computeLeaseAmount(cursor, periodEnd, monthlyPrice, dailyRate)
+        .amountDue,
+      dueDate: previewDueDate(cursor, paymentDueDay),
+    });
+    cursor = new Date(
+      periodEnd.getFullYear(),
+      periodEnd.getMonth(),
+      periodEnd.getDate() + 1,
+    );
+  }
+
+  const [first, second, ...rest] = periods;
+  if (
+    input.firstPeriodMode === "merged" &&
+    startDate.getDate() !== 1 &&
+    first &&
+    second
+  ) {
+    return [
+      {
+        periodStart: first.periodStart,
+        periodEnd: second.periodEnd,
+        amount: first.amount + second.amount,
+        dueDate: first.dueDate,
+      },
+      ...rest,
+    ];
+  }
+  return periods;
+}

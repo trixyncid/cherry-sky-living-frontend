@@ -10,7 +10,8 @@ type ToastOptions = {
 function show(variant: ToastVariant, message: string, options?: ToastOptions) {
   const payload = {
     description: options?.description,
-    duration: options?.duration ?? 4000,
+    // Errors stay longer so they can be read (matches the CSS countdown).
+    duration: options?.duration ?? (variant === "error" ? 6000 : 4000),
   };
 
   switch (variant) {

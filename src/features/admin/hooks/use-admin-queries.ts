@@ -1,31 +1,41 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getAdminDashboard } from "@/lib/api/admin/dashboard";
 import {
-  confirmLeasePayment,
+  confirmLeaseInvoices,
   createLease,
   deleteLease,
   getLease,
   listLeases,
-  rejectLeasePayment,
-  submitLeaseForReview,
+  setLeaseInvoiceLateFeeWaiver,
+  setLeaseInvoicePending,
   updateLease,
+  updateLeaseBilling,
   updateLeaseRenewal,
 } from "@/lib/api/admin/leases";
 import {
   createLedgerEntry,
   deleteLedgerEntry,
   getLedgerEntry,
+  type LedgerEntryFilters,
   listLedgerEntries,
   updateLedgerEntry,
-  type LedgerEntryFilters,
 } from "@/lib/api/admin/ledger-entries";
+import {
+  countPettyCash,
+  createPettyCashEntry,
+  getPettyCashEntry,
+  listPettyCash,
+  type PettyCashFilters,
+  updatePettyCashEntry,
+  voidPettyCashEntry,
+} from "@/lib/api/admin/petty-cash";
 import {
   changeAdminPassword,
   getAdminProfile,
   updateAdminProfile,
 } from "@/lib/api/admin/profile";
-import { getAdminDashboard } from "@/lib/api/admin/dashboard";
 import {
   createProperty,
   deleteProperty,
@@ -33,6 +43,15 @@ import {
   listProperties,
   updateProperty,
 } from "@/lib/api/admin/properties";
+import {
+  createStaffUser,
+  deleteStaffUser,
+  getStaffUser,
+  listStaffUsers,
+  resetStaffPassword,
+  setStaffUserActive,
+  updateStaffUser,
+} from "@/lib/api/admin/staff";
 import {
   createUnitPricing,
   deleteUnitPricing,
@@ -57,21 +76,12 @@ import {
   updateUnit,
 } from "@/lib/api/admin/units";
 import {
-  createStaffUser,
-  deleteStaffUser,
-  getStaffUser,
-  listStaffUsers,
-  resetStaffPassword,
-  setStaffUserActive,
-  updateStaffUser,
-} from "@/lib/api/admin/staff";
-import {
   createTenantUser,
-  updateTenantUser,
   getTenantUser,
   listTenantUsers,
   resetTenantPassword,
   setTenantUserActive,
+  updateTenantUser,
 } from "@/lib/api/admin/users";
 import { adminKeys } from "@/lib/query/keys";
 import type { LedgerEntryType, UnitStatus } from "@/lib/types/admin";
@@ -204,10 +214,7 @@ export function useUnitPricingMutations() {
   };
 }
 
-export function useUnits(
-  propertyId?: string,
-  options?: { enabled?: boolean },
-) {
+export function useUnits(propertyId?: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: adminKeys.units.list(propertyId),
     queryFn: () => listUnits(propertyId),
@@ -270,12 +277,13 @@ export function useLeases(
     userId?: string;
     propertyId?: string;
   },
-  options?: { enabled?: boolean },
+  options?: { enabled?: boolean; refetchInterval?: number },
 ) {
   return useQuery({
     queryKey: adminKeys.leases.list(filters),
     queryFn: () => listLeases(filters),
     enabled: options?.enabled ?? true,
+    refetchInterval: options?.refetchInterval,
   });
 }
 
@@ -312,7 +320,10 @@ export function useTenantUserMutations() {
     void qc.invalidateQueries({ queryKey: adminKeys.users.all() });
 
   return {
-    create: useMutation({ mutationFn: createTenantUser, onSuccess: invalidate }),
+    create: useMutation({
+      mutationFn: createTenantUser,
+      onSuccess: invalidate,
+    }),
     update: useMutation({
       mutationFn: ({
         id,
@@ -384,9 +395,53 @@ export function useLeaseMutations() {
     void qc.invalidateQueries({ queryKey: adminKeys.leases.all() });
     void qc.invalidateQueries({ queryKey: adminKeys.units.all() });
     void qc.invalidateQueries({ queryKey: adminKeys.dashboard.all() });
+    // Confirming bills posts rent / late-fee income (bank or petty cash).
+    void qc.invalidateQueries({ queryKey: adminKeys.ledgerEntries.all() });
+    void qc.invalidateQueries({ queryKey: adminKeys.pettyCash.all() });
   };
 
   return {
+    updateBilling: useMutation({
+      mutationFn: ({
+        id,
+        ...input
+      }: { id: string } & Parameters<typeof updateLeaseBilling>[1]) =>
+        updateLeaseBilling(id, input),
+      onSuccess: invalidate,
+    }),
+    confirmInvoices: useMutation({
+      mutationFn: ({
+        id,
+        ...input
+      }: { id: string } & Parameters<typeof confirmLeaseInvoices>[1]) =>
+        confirmLeaseInvoices(id, input),
+      onSuccess: invalidate,
+    }),
+    setInvoicePending: useMutation({
+      mutationFn: ({
+        id,
+        invoiceId,
+        status,
+      }: {
+        id: string;
+        invoiceId: string;
+        status: "unpaid" | "waiting_for_review";
+      }) => setLeaseInvoicePending(id, invoiceId, status),
+      onSuccess: invalidate,
+    }),
+    setLateFeeWaiver: useMutation({
+      mutationFn: ({
+        id,
+        invoiceId,
+        ...input
+      }: {
+        id: string;
+        invoiceId: string;
+        waived: boolean;
+        reason?: string;
+      }) => setLeaseInvoiceLateFeeWaiver(id, invoiceId, input),
+      onSuccess: invalidate,
+    }),
     create: useMutation({
       mutationFn: (input: Parameters<typeof createLease>[0]) =>
         createLease(input),
@@ -396,25 +451,8 @@ export function useLeaseMutations() {
       mutationFn: ({
         id,
         ...input
-      }: {
-        id: string;
-        startDate?: string;
-        endDate?: string;
-        unitPricingId?: string;
-        allowPaidOverride?: boolean;
-      }) => updateLease(id, input),
-      onSuccess: invalidate,
-    }),
-    confirmPayment: useMutation({
-      mutationFn: confirmLeasePayment,
-      onSuccess: invalidate,
-    }),
-    rejectPayment: useMutation({
-      mutationFn: rejectLeasePayment,
-      onSuccess: invalidate,
-    }),
-    submitForReview: useMutation({
-      mutationFn: submitLeaseForReview,
+      }: { id: string } & Parameters<typeof updateLease>[1]) =>
+        updateLease(id, input),
       onSuccess: invalidate,
     }),
     confirmRenewal: useMutation({
@@ -455,7 +493,10 @@ export function useLedgerEntryMutations() {
   };
 
   return {
-    create: useMutation({ mutationFn: createLedgerEntry, onSuccess: invalidate }),
+    create: useMutation({
+      mutationFn: createLedgerEntry,
+      onSuccess: invalidate,
+    }),
     update: useMutation({
       mutationFn: ({
         id,
@@ -472,7 +513,10 @@ export function useLedgerEntryMutations() {
       }) => updateLedgerEntry(id, input),
       onSuccess: invalidate,
     }),
-    remove: useMutation({ mutationFn: deleteLedgerEntry, onSuccess: invalidate }),
+    remove: useMutation({
+      mutationFn: deleteLedgerEntry,
+      onSuccess: invalidate,
+    }),
   };
 }
 
@@ -495,6 +539,50 @@ export function useAdminProfileMutations() {
     }),
     changePassword: useMutation({
       mutationFn: changeAdminPassword,
+    }),
+  };
+}
+
+export function usePettyCash(filters?: PettyCashFilters, enabled = true) {
+  return useQuery({
+    queryKey: adminKeys.pettyCash.list(filters),
+    queryFn: () => listPettyCash(filters),
+    enabled,
+  });
+}
+
+export function usePettyCashEntry(id: string, enabled = true) {
+  return useQuery({
+    queryKey: adminKeys.pettyCash.detail(id),
+    queryFn: () => getPettyCashEntry(id),
+    enabled: enabled && !!id,
+  });
+}
+
+export function usePettyCashMutations() {
+  const qc = useQueryClient();
+  const invalidate = () => {
+    void qc.invalidateQueries({ queryKey: adminKeys.pettyCash.all() });
+    void qc.invalidateQueries({ queryKey: adminKeys.leases.all() });
+  };
+  return {
+    create: useMutation({
+      mutationFn: createPettyCashEntry,
+      onSuccess: invalidate,
+    }),
+    update: useMutation({
+      mutationFn: ({
+        id,
+        ...input
+      }: { id: string } & Parameters<typeof updatePettyCashEntry>[1]) =>
+        updatePettyCashEntry(id, input),
+      onSuccess: invalidate,
+    }),
+    count: useMutation({ mutationFn: countPettyCash, onSuccess: invalidate }),
+    void: useMutation({
+      mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
+        voidPettyCashEntry(id, reason),
+      onSuccess: invalidate,
     }),
   };
 }

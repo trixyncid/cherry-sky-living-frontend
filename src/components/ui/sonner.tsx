@@ -4,8 +4,8 @@ import { Toaster as Sonner, type ToasterProps } from "sonner";
 import { Icon } from "@/components/shared/Icon";
 
 /**
- * App toaster in the dashboard card style (see `.cherry-toast` in
- * globals.css): white card, round status icon, title + description.
+ * App toaster in the brand style (see `.cherry-toast` in globals.css): ink
+ * card, coloured status icon tile, title + description, countdown bar.
  */
 const Toaster = ({ ...props }: ToasterProps) => {
   return (

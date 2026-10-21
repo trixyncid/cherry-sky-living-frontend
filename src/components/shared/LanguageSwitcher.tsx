@@ -73,7 +73,7 @@ export function LanguageSwitcher({ variant = 'navbar', isSolid = true }: Languag
                     'flex items-center justify-center rounded-xl transition-all duration-300',
                     variant === 'navbar'
                         ? cn('h-9 w-9', isSolid ? 'hover:bg-white/70' : 'hover:bg-white/15')
-                        : 'h-10 w-10 hover:bg-[#faf9f6]',
+                        : 'h-10 w-10 hover:bg-subtle',
                 )}
             >
                 <span className={`fi fi-${currentLanguage.countryCode} text-xl`} />
@@ -101,7 +101,7 @@ export function LanguageSwitcher({ variant = 'navbar', isSolid = true }: Languag
                                             'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                                             isActive
                                                 ? 'admin-btn-primary'
-                                                : 'text-[#1a1c1a] hover:bg-[#f6f1ec]',
+                                                : 'text-fg hover:bg-subtle',
                                         )}
                                     >
                                         <span className={`fi fi-${language.countryCode} text-xl`} />

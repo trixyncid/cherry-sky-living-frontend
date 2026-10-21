@@ -36,7 +36,7 @@ function UnitTypeTable({ unitTypes }: { unitTypes: SearchUnitTypeResult[] }) {
   return (
     <div className="overflow-x-auto rounded-[1.25rem] bg-white">
       <table className="w-full min-w-[40rem] text-left text-[15px]">
-        <thead className="border-b border-[#efeeeb] text-[13px] font-semibold text-[#6b6b6b]">
+        <thead className="border-b border-hover text-[13px] font-semibold text-fg-muted">
           <tr>
             <th scope="col" className="px-5 py-4">
               {t("search.colRoom")}
@@ -58,7 +58,7 @@ function UnitTypeTable({ unitTypes }: { unitTypes: SearchUnitTypeResult[] }) {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#efeeeb]">
+        <tbody className="divide-y divide-hover">
           {unitTypes.map((unitType) => {
             const detailUrl = `/kosts/${unitType.propertyId}/${unitType.id}`;
             const { displayPrice } = monthlyDisplay(unitType);
@@ -66,26 +66,24 @@ function UnitTypeTable({ unitTypes }: { unitTypes: SearchUnitTypeResult[] }) {
             return (
               <tr
                 key={`${unitType.propertyId}-${unitType.id}`}
-                className="hover:bg-[#f7f3f2]"
+                className="hover:bg-canvas"
               >
-                <td className="px-5 py-4 font-semibold text-[#141414]">
-                  <Link href={detailUrl} className="hover:text-[#71130d]">
+                <td className="px-5 py-4 font-semibold text-fg">
+                  <Link href={detailUrl} className="hover:text-brand">
                     {unitType.name}
                   </Link>
                 </td>
-                <td className="px-5 py-4 text-[#3d3a36]">
-                  {unitType.propertyName}
-                </td>
-                <td className="px-5 py-4 text-[#3d3a36]">
+                <td className="px-5 py-4 text-fg-2">{unitType.propertyName}</td>
+                <td className="px-5 py-4 text-fg-2">
                   {unitType.size ? `${unitType.size} m²` : "—"}
                 </td>
-                <td className="px-5 py-4 text-right font-semibold tabular-nums text-[#141414]">
+                <td className="px-5 py-4 text-right font-semibold tabular-nums text-fg">
                   {displayPrice > 0
                     ? formatCurrency(displayPrice)
                     : t("search.noPricing")}
                 </td>
                 <td className="px-5 py-4">
-                  <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-[#141414]">
+                  <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-fg">
                     <span
                       className={`size-1.5 rounded-full ${isOpen ? "bg-status-vacant" : "bg-status-occupied"}`}
                     />
@@ -100,7 +98,7 @@ function UnitTypeTable({ unitTypes }: { unitTypes: SearchUnitTypeResult[] }) {
                   {isOpen ? (
                     <Link
                       href={detailUrl}
-                      className="inline-flex h-9 items-center rounded-full bg-[#71130d] px-4 text-sm font-semibold text-white hover:bg-[#8a1a12]"
+                      className="inline-flex h-9 items-center rounded-full bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-hover"
                     >
                       {t("cta.viewDetails")}
                     </Link>
@@ -114,7 +112,7 @@ function UnitTypeTable({ unitTypes }: { unitTypes: SearchUnitTypeResult[] }) {
                       trigger={
                         <button
                           type="button"
-                          className="inline-flex h-9 items-center whitespace-nowrap rounded-full border border-[#dedad4] px-4 text-sm font-semibold text-[#141414] hover:border-[#141414]"
+                          className="inline-flex h-9 items-center whitespace-nowrap rounded-full border border-line-strong px-4 text-sm font-semibold text-fg hover:border-fg"
                         >
                           {t("leads.submit.waitlist")}
                         </button>
@@ -156,14 +154,14 @@ export function UnitTypeSearchGrid({
     return (
       <div className="flex flex-col items-start gap-5 rounded-[1.25rem] bg-white p-8 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-4">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#f7f3f2] text-[#71130d]">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-canvas text-brand">
             <Icon name="search_off" size={24} />
           </span>
           <div>
-            <h3 className="text-xl font-medium tracking-tight text-[#141414]">
+            <h3 className="text-xl font-medium tracking-tight text-fg">
               {t("search.emptyTitle")}
             </h3>
-            <p className="mt-1 max-w-xl text-base text-[#6b6b6b]">
+            <p className="mt-1 max-w-xl text-base text-fg-muted">
               {t("search.emptyDescription")}
             </p>
           </div>
@@ -173,7 +171,7 @@ export function UnitTypeSearchGrid({
             <button
               type="button"
               onClick={onReset}
-              className="inline-flex h-11 items-center rounded-full border border-[#dedad4] px-5 text-[15px] font-semibold text-[#141414] hover:border-[#141414]"
+              className="inline-flex h-11 items-center rounded-full border border-line-strong px-5 text-[15px] font-semibold text-fg hover:border-fg"
             >
               {t("search.clearAll")}
             </button>
@@ -183,7 +181,7 @@ export function UnitTypeSearchGrid({
             trigger={
               <button
                 type="button"
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-[#71130d] px-5 text-[15px] font-semibold text-white hover:bg-[#8a1a12]"
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-brand px-5 text-[15px] font-semibold text-white hover:bg-brand-hover"
               >
                 <Icon name="notifications" size={16} />
                 {t("search.emptyWaitlist")}
@@ -215,8 +213,8 @@ export function UnitTypeSearchGrid({
             availableCount={unitType.availableCount}
             totalCount={unitType.totalCount}
             monthlyPrice={displayPrice}
-            pricings={unitType.pricings}
             whatsappNumber={unitType.whatsappNumber}
+            deposit={unitType.deposit}
             tags={unitType.size ? [`${unitType.size} m²`] : []}
           />
         );

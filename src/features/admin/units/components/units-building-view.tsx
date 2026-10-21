@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import type { AdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import {
   resolveUnitTenantLabel,
@@ -35,16 +36,16 @@ interface UnitsBuildingViewProps {
 }
 
 const TILE: Record<RoomVisual, string> = {
-  vacant: "border-[#bfe0c3] bg-[#eef8ec] text-[#1f5a2a] hover:border-[#7fb98a]",
+  vacant: "border-success-soft bg-success-soft text-success hover:border-success",
   occupied:
-    "border-[#ead0cc] bg-[#fbf1ef] text-[#71130d] hover:border-[#c97f76]",
-  ghost: "border-[#eee8e6] bg-[#faf8f7] text-[#a39b95] hover:border-[#ddd3d0]",
+    "border-brand-line bg-brand-tint text-brand hover:border-brand-line",
+  ghost: "border-line bg-subtle text-fg-faint hover:border-line",
 };
 
 const DOT: Record<RoomVisual, string> = {
-  vacant: "bg-[#3f9a52]",
-  occupied: "bg-[#71130d]",
-  ghost: "bg-[#d6ccc9]",
+  vacant: "bg-success",
+  occupied: "bg-brand",
+  ghost: "bg-line-strong",
 };
 
 export function UnitsBuildingView({
@@ -209,7 +210,7 @@ export function UnitsBuildingView({
 
   if (!property) {
     return (
-      <p className="rounded-[1.75rem] bg-white p-10 text-center text-sm text-[#6b6b6b]">
+      <p className="rounded-[1.75rem] bg-white p-10 text-center text-sm text-fg-muted">
         {t("mapEmpty")}
       </p>
     );
@@ -249,8 +250,8 @@ export function UnitsBuildingView({
           "shrink-0 rounded-2xl text-left transition-colors",
           compact ? "min-w-[6.5rem] px-3 py-2" : "w-full px-3 py-2",
           active
-            ? "bg-[#71130d] text-white shadow-[0_12px_24px_-14px_rgb(113_19_13/0.8)]"
-            : "border border-[#ece4e2] bg-white text-[#141414] hover:border-[#e8bfb9]",
+            ? "bg-brand text-white shadow-[0_12px_24px_-14px_rgb(122_22_48/0.8)]"
+            : "border border-line bg-white text-fg hover:border-brand-line",
         )}
       >
         {floor ? (
@@ -260,7 +261,7 @@ export function UnitsBuildingView({
               <span
                 className={cn(
                   "text-xs tabular-nums",
-                  active ? "text-white/80" : "text-[#6b6b6b]",
+                  active ? "text-white/80" : "text-fg-muted",
                 )}
               >
                 {tb("floorVacant", { count: vacant })}
@@ -269,18 +270,18 @@ export function UnitsBuildingView({
             <span
               className={cn(
                 "mt-1.5 flex h-1.5 overflow-hidden rounded-full",
-                active ? "bg-white/25" : "bg-[#f1ebea]",
+                active ? "bg-white/25" : "bg-hover",
               )}
             >
               <span
-                className={active ? "bg-[#9fe0ab]" : "bg-[#3f9a52]"}
+                className={active ? "bg-success" : "bg-success"}
                 style={{ width: `${total ? (vacant / total) * 100 : 0}%` }}
               />
             </span>
           </>
         ) : (
           <span className="flex items-center gap-2 py-0.5 text-sm font-medium">
-            <Icon name="apartment" size={16} />
+            <Icon name={adminPageIcons.properties} size={16} />
             {tb("wholeBuilding")}
           </span>
         )}
@@ -311,18 +312,18 @@ export function UnitsBuildingView({
                 className={cn(
                   "flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors",
                   p.id === property.id
-                    ? "bg-[#1c0b0a] text-white"
-                    : "bg-[#f6f0ef] text-[#3d3a36] hover:text-[#71130d]",
+                    ? "bg-ink text-white"
+                    : "bg-hover text-fg-2 hover:text-brand",
                 )}
               >
-                <Icon name="apartment" size={16} />
+                <Icon name={adminPageIcons.properties} size={16} />
                 {p.name}
                 <span
                   className={cn(
                     "rounded-full px-2 py-0.5 text-xs",
                     p.id === property.id
                       ? "bg-white/15"
-                      : "bg-white text-[#2f6d22]",
+                      : "bg-white text-success",
                   )}
                 >
                   {tb("floorVacant", { count: p.vacant })}
@@ -334,11 +335,11 @@ export function UnitsBuildingView({
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <h2 className="truncate text-xl font-medium tracking-tight text-[#141414] sm:text-2xl">
+            <h2 className="truncate text-xl font-medium tracking-tight text-fg sm:text-2xl">
               {property.name}
             </h2>
             {property.address ? (
-              <p className="mt-1 flex items-center gap-1.5 truncate text-sm text-[#6b6b6b]">
+              <p className="mt-1 flex items-center gap-1.5 truncate text-sm text-fg-muted">
                 <Icon name="location_on" size={16} />
                 {property.address}
               </p>
@@ -348,25 +349,25 @@ export function UnitsBuildingView({
             <Stat
               label={t("status.vacant")}
               value={property.vacant}
-              className="bg-[#eef8ec] text-[#1f5a2a]"
+              className="bg-success-soft text-success"
             />
             <Stat
               label={t("status.occupied")}
               value={property.occupied}
-              className="bg-[#fbf1ef] text-[#71130d]"
+              className="bg-brand-tint text-brand"
             />
             <Stat
               label={t("occupancy")}
               value={`${property.units.length ? Math.round((property.occupied / property.units.length) * 100) : 0}%`}
-              className="bg-[#f6f0ef] text-[#141414]"
+              className="bg-hover text-fg"
             />
           </dl>
         </div>
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
           {availabilityMode ? (
-            <p className="flex items-center gap-2 rounded-full bg-[#eef8ec] px-3 py-2 text-sm text-[#1f5a2a]">
-              <span className="size-2.5 rounded-full bg-[#3f9a52]" />
+            <p className="flex items-center gap-2 rounded-full bg-success-soft px-3 py-2 text-sm text-success">
+              <span className="size-2.5 rounded-full bg-success" />
               {tb("available")}
             </p>
           ) : (
@@ -387,8 +388,8 @@ export function UnitsBuildingView({
             className={cn(
               "inline-flex h-11 min-w-11 items-center justify-center gap-2 rounded-full px-3 text-sm font-medium transition-colors sm:px-4",
               exploded
-                ? "bg-[#1c0b0a] text-white"
-                : "border border-[#ece4e2] bg-white text-[#3d3a36] hover:text-[#71130d]",
+                ? "bg-ink text-white"
+                : "border border-line bg-white text-fg-2 hover:text-brand",
             )}
           >
             <Icon name={exploded ? "unfold_less" : "unfold_more"} size={18} />
@@ -417,7 +418,7 @@ export function UnitsBuildingView({
             })}
             overlay={
               <div className="absolute right-3 top-3 hidden max-h-[calc(100%-5.5rem)] w-44 flex-col gap-1.5 overflow-y-auto rounded-3xl bg-white/70 p-2 backdrop-blur-md lg:flex">
-                <p className="px-2 pt-1 text-xs font-medium uppercase tracking-[0.06em] text-[#6b6b6b]">
+                <p className="px-2 pt-1 text-xs font-medium uppercase tracking-[0.06em] text-fg-muted">
                   {tb("floors")}
                 </p>
                 {pickerItems.map((item) => renderPickerItem(item, false))}
@@ -430,16 +431,16 @@ export function UnitsBuildingView({
                 typeof floorKey === "number" && floorIndexOf(unit) === floorKey;
               return (
                 <>
-                  <p className="flex items-center justify-between gap-2 text-[15px] font-medium text-[#141414]">
+                  <p className="flex items-center justify-between gap-2 text-[15px] font-medium text-fg">
                     {unit.name}
                     <span
                       className={cn("size-2.5 rounded-full", DOT[visual])}
                     />
                   </p>
-                  <p className="text-xs text-[#6b6b6b]">
+                  <p className="text-xs text-fg-muted">
                     {resolveUnitTypeNameForUnit(unit, lookups)}
                   </p>
-                  <p className="mt-2 text-sm text-[#3d3a36]">
+                  <p className="mt-2 text-sm text-fg-2">
                     {visual === "ghost"
                       ? tb("notMatching")
                       : t(
@@ -449,7 +450,7 @@ export function UnitsBuildingView({
                       ? ` · ${tenant}`
                       : ""}
                   </p>
-                  <p className="mt-2 text-xs text-[#857f77]">
+                  <p className="mt-2 text-xs text-fg-muted">
                     {onSelected ? tb("clickForDetails") : tb("clickToPeek")}
                   </p>
                 </>
@@ -463,11 +464,11 @@ export function UnitsBuildingView({
           {pickerItems.map((item) => renderPickerItem(item, true))}
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#3d3a36]">
-          <Legend dot="bg-[#3f9a52]" label={t("status.vacant")} />
-          <Legend dot="bg-[#71130d]" label={t("status.occupied")} />
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-fg-2">
+          <Legend dot="bg-success" label={t("status.vacant")} />
+          <Legend dot="bg-brand" label={t("status.occupied")} />
           {matchingIds || vacantOnly ? (
-            <Legend dot="bg-[#d6ccc9]" label={tb("notMatching")} />
+            <Legend dot="bg-line-strong" label={tb("notMatching")} />
           ) : null}
         </div>
       </section>
@@ -478,10 +479,10 @@ export function UnitsBuildingView({
           <>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-xl font-medium tracking-tight text-[#141414]">
+                <h3 className="text-xl font-medium tracking-tight text-fg">
                   {floorTitle(selectedFloor)}
                 </h3>
-                <p className="mt-0.5 text-sm text-[#6b6b6b]">
+                <p className="mt-0.5 text-sm text-fg-muted">
                   {tb("floorSummary", {
                     total: selectedFloor.units.length,
                     vacant: vacantIn(selectedFloor),
@@ -529,7 +530,7 @@ export function UnitsBuildingView({
                         "flex min-h-16 w-full flex-col items-start justify-between rounded-2xl border p-2.5 text-left transition-colors",
                         TILE[visual],
                         selectedUnit?.id === unit.id &&
-                          "ring-2 ring-[#141414] ring-offset-1",
+                          "ring-2 ring-fg ring-offset-1",
                       )}
                     >
                       <span className="flex w-full items-center justify-between gap-1">
@@ -555,21 +556,21 @@ export function UnitsBuildingView({
           <>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-xl font-medium tracking-tight text-[#141414]">
+                <h3 className="text-xl font-medium tracking-tight text-fg">
                   {tb("vacantRooms")}
                 </h3>
-                <p className="mt-0.5 text-sm text-[#6b6b6b]">
+                <p className="mt-0.5 text-sm text-fg-muted">
                   {tb("pickFloorHint")}
                 </p>
               </div>
             </div>
             {vacantFloors.length === 0 ? (
-              <p className="mt-4 flex items-center gap-2 rounded-2xl bg-[#faf7f6] p-4 text-[15px] text-[#3d3a36]">
-                <Icon name="task_alt" size={20} className="text-[#2f6d22]" />
+              <p className="mt-4 flex items-center gap-2 rounded-2xl bg-subtle p-4 text-[15px] text-fg-2">
+                <Icon name="task_alt" size={20} className="text-success" />
                 {tb("noVacant")}
               </p>
             ) : (
-              <ul className="mt-4 flex flex-col divide-y divide-[#f1ebea]">
+              <ul className="mt-4 flex flex-col divide-y divide-line">
                 {vacantFloors.map(({ floor, i, rooms }) => (
                   <li
                     key={floor.floor ?? "x"}
@@ -578,10 +579,10 @@ export function UnitsBuildingView({
                     <button
                       type="button"
                       onClick={() => chooseFloor(i)}
-                      className="flex shrink-0 items-center gap-2 text-left text-sm font-medium text-[#141414] hover:text-[#71130d] sm:w-36"
+                      className="flex shrink-0 items-center gap-2 text-left text-sm font-medium text-fg hover:text-brand sm:w-36"
                     >
                       {floorTitle(floor)}
-                      <span className="rounded-full bg-[#eef8ec] px-2 py-0.5 text-xs text-[#1f5a2a]">
+                      <span className="rounded-full bg-success-soft px-2 py-0.5 text-xs text-success">
                         {rooms.length}
                       </span>
                     </button>
@@ -591,7 +592,7 @@ export function UnitsBuildingView({
                           key={unit.id}
                           type="button"
                           onClick={() => openUnit(unit)}
-                          className="h-9 rounded-full border border-[#bfe0c3] bg-[#eef8ec] px-3 text-sm font-medium text-[#1f5a2a] tabular-nums transition-colors hover:border-[#7fb98a]"
+                          className="h-9 rounded-full border border-success-soft bg-success-soft px-3 text-sm font-medium text-success tabular-nums transition-colors hover:border-success"
                         >
                           {unit.name}
                         </button>
@@ -664,7 +665,7 @@ function FloorStep({
       title={label}
       disabled={disabled}
       onClick={onClick}
-      className="flex size-11 items-center justify-center rounded-full border border-[#ece4e2] bg-white text-[#3d3a36] transition-colors hover:text-[#71130d] disabled:opacity-40"
+      className="flex size-11 items-center justify-center rounded-full border border-line bg-white text-fg-2 transition-colors hover:text-brand disabled:opacity-40"
     >
       <Icon name={icon} size={20} />
     </button>

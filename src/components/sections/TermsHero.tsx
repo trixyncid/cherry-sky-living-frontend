@@ -48,14 +48,14 @@ export function TermsHero() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-lg font-light text-[#f5f2ee] md:text-xl"
+          className="text-lg font-light text-panel md:text-xl"
         >
           {t("subtitle")}
         </motion.p>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="max-w-2xl text-base font-light leading-relaxed text-[#f5f2ee]"
+          className="max-w-2xl text-base font-light leading-relaxed text-panel"
         >
           {t("description")}
         </motion.p>

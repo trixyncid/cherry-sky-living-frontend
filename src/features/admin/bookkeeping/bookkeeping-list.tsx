@@ -20,11 +20,13 @@ import {
   AdminToolbar,
   usePropertyToolbarFilter,
 } from "@/features/admin/components/admin-toolbar";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { getLedgerEntrySortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
+import { useAdminPropertyFilter } from "@/features/admin/hooks/use-admin-property-filter";
 import {
   useLeases,
   useLedgerEntries,
@@ -76,7 +78,8 @@ function isDateInRange(
 export function BookkeepingList() {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.bookkeeping");
-  const [propertyFilter, setPropertyFilter] = useState("");
+  const { propertyId: propertyFilter, setPropertyId: setPropertyFilter } =
+    useAdminPropertyFilter();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -127,8 +130,14 @@ export function BookkeepingList() {
         ids.add(entry.leaseId);
       }
     }
+    // Rent paid in cash lives in petty cash, never in the bank ledger.
+    for (const lease of leases) {
+      if (lease.invoices?.some((inv) => inv.paymentMethod === "cash")) {
+        ids.add(lease.id);
+      }
+    }
     return ids;
-  }, [activeEntries]);
+  }, [activeEntries, leases]);
   const leaseIncome = useMemo(() => {
     const paidLeases = leases.filter(
       (l) => l.status === "paid" && !postedRentLeaseIds.has(l.id),
@@ -285,14 +294,14 @@ export function BookkeepingList() {
       <div className="mb-5 flex flex-wrap gap-2">
         <Link
           href={`${BASE}/new?type=income`}
-          className="inline-flex h-11 items-center gap-2 rounded-full bg-[#2f6d22] px-5 text-[15px] font-medium text-white hover:bg-[#28601d]"
+          className="inline-flex h-11 items-center gap-2 rounded-full bg-success px-5 text-[15px] font-medium text-white hover:bg-success"
         >
           <Icon name="add" size={18} />
           {tb("addIncome")}
         </Link>
         <Link
           href={`${BASE}/new?type=expense`}
-          className="inline-flex h-11 items-center gap-2 rounded-full bg-[#71130d] px-5 text-[15px] font-medium text-white hover:bg-[#8a1a12]"
+          className="inline-flex h-11 items-center gap-2 rounded-full bg-brand px-5 text-[15px] font-medium text-white hover:bg-brand-hover"
         >
           <Icon name="remove" size={18} />
           {tb("addExpense")}
@@ -391,11 +400,11 @@ export function BookkeepingList() {
         <div className={cn(panel, "flex flex-col gap-5 p-5 sm:p-6")}>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-sm text-[#6b6b6b]">{tb("netResult")}</p>
+              <p className="text-sm text-fg-muted">{tb("netResult")}</p>
               <p
                 className={cn(
                   "mt-1 text-[clamp(2rem,3.2vw,2.75rem)] font-medium leading-none tracking-[-0.035em] tabular-nums",
-                  summary.net >= 0 ? "text-[#141414]" : "text-[#a1271b]",
+                  summary.net >= 0 ? "text-fg" : "text-danger",
                 )}
               >
                 {summary.net < 0 ? "−" : ""}Rp{" "}
@@ -407,8 +416,8 @@ export function BookkeepingList() {
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium",
                   summary.net >= 0
-                    ? "bg-[#dff3d6] text-[#2f6d22]"
-                    : "bg-[#fde2df] text-[#a1271b]",
+                    ? "bg-success-soft text-success"
+                    : "bg-danger-soft text-danger",
                 )}
               >
                 <Icon
@@ -417,7 +426,7 @@ export function BookkeepingList() {
                 />
                 {summary.net >= 0 ? tp("stats.profit") : tp("stats.loss")}
               </span>
-              <span className="rounded-full bg-[#f6f0ef] px-3 py-1 text-xs text-[#6b6b6b]">
+              <span className="rounded-full bg-hover px-3 py-1 text-xs text-fg-muted">
                 {periodLabel}
               </span>
             </div>
@@ -425,37 +434,37 @@ export function BookkeepingList() {
 
           <div>
             <div
-              className="flex h-3 overflow-hidden rounded-full bg-[#f1ebea]"
+              className="flex h-3 overflow-hidden rounded-full bg-hover"
               aria-hidden
             >
               <div
-                className="bg-[#3f9a52] transition-[width] duration-700"
+                className="bg-success transition-[width] duration-700"
                 style={{ width: `${incomeShare}%` }}
               />
-              <div className="flex-1 bg-[#b4463c]" />
+              <div className="flex-1 bg-danger" />
             </div>
             <div className="mt-3 grid grid-cols-2 gap-3">
-              <div className="rounded-2xl bg-[#eef8ec] p-3.5">
-                <p className="flex items-center gap-1.5 text-sm text-[#2f6d22]">
+              <div className="rounded-2xl bg-success-soft p-3.5">
+                <p className="flex items-center gap-1.5 text-sm text-success">
                   <Icon name="south_west" size={16} />
                   {tp("stats.income")}
                 </p>
-                <p className="mt-1 text-xl font-medium tabular-nums text-[#141414]">
+                <p className="mt-1 text-xl font-medium tabular-nums text-fg">
                   {rupiah(summary.income)}
                 </p>
-                <p className="text-xs text-[#6b6b6b]">
+                <p className="text-xs text-fg-muted">
                   {tp("stats.incomeHint")}
                 </p>
               </div>
-              <div className="rounded-2xl bg-[#fbf1ef] p-3.5">
-                <p className="flex items-center gap-1.5 text-sm text-[#a1271b]">
+              <div className="rounded-2xl bg-brand-tint p-3.5">
+                <p className="flex items-center gap-1.5 text-sm text-danger">
                   <Icon name="north_east" size={16} />
                   {tp("stats.expense")}
                 </p>
-                <p className="mt-1 text-xl font-medium tabular-nums text-[#141414]">
+                <p className="mt-1 text-xl font-medium tabular-nums text-fg">
                   {rupiah(summary.expense)}
                 </p>
-                <p className="text-xs text-[#6b6b6b]">
+                <p className="text-xs text-fg-muted">
                   {tp("stats.expenseHint")}
                 </p>
               </div>
@@ -464,18 +473,18 @@ export function BookkeepingList() {
         </div>
 
         {/* Monthly cash flow: income above the line, expenses below */}
-        <div className="flex flex-col rounded-[1.75rem] bg-[#1c0b0a] p-5 text-white sm:p-6">
+        <div className="flex flex-col rounded-[1.75rem] bg-ink p-5 text-white sm:p-6">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-medium tracking-tight">
               {tb("byMonth")}
             </h2>
             <span className="flex items-center gap-3 text-xs text-white/70">
               <span className="flex items-center gap-1.5">
-                <span className="size-2 rounded-full bg-[#7fd08e]" />
+                <span className="size-2 rounded-full bg-success" />
                 {tp("typeIncome")}
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="size-2 rounded-full bg-[#e6806f]" />
+                <span className="size-2 rounded-full bg-brand-bright" />
                 {tp("typeExpense")}
               </span>
             </span>
@@ -495,11 +504,11 @@ export function BookkeepingList() {
           const total = rows.reduce((s, r) => s + r.amount, 0);
           return (
             <div key={type} className={cn(panel, "p-5")}>
-              <h3 className="mb-3 text-[15px] font-medium text-[#141414]">
+              <h3 className="mb-3 text-[15px] font-medium text-fg">
                 {type === "income" ? tb("whereFrom") : tb("whereTo")}
               </h3>
               {rows.length === 0 ? (
-                <p className="text-sm text-[#6b6b6b]">{t("empty")}</p>
+                <p className="text-sm text-fg-muted">{t("empty")}</p>
               ) : (
                 <ul className="flex flex-col gap-1">
                   {rows.slice(0, 5).map((r) => {
@@ -517,29 +526,27 @@ export function BookkeepingList() {
                           className={cn(
                             "w-full rounded-xl px-2.5 py-2 text-left transition-colors",
                             active
-                              ? "bg-[#f6f0ef] ring-1 ring-[#e8bfb9]"
-                              : "hover:bg-[#faf7f6]",
+                              ? "bg-hover ring-1 ring-brand-line"
+                              : "hover:bg-subtle",
                           )}
                         >
                           <span className="flex items-center gap-2.5 text-sm">
                             <CategoryIcon category={r.key} type={type} small />
-                            <span className="flex-1 truncate text-[#141414]">
+                            <span className="flex-1 truncate text-fg">
                               {categoryLabel(r.key)}
                             </span>
-                            <span className="tabular-nums text-[#3d3a36]">
+                            <span className="tabular-nums text-fg-2">
                               {rupiah(r.amount)}
                             </span>
-                            <span className="w-10 text-right text-xs tabular-nums text-[#857f77]">
+                            <span className="w-10 text-right text-xs tabular-nums text-fg-muted">
                               {Math.round(pct)}%
                             </span>
                           </span>
-                          <span className="mt-1.5 ml-9 block h-1.5 overflow-hidden rounded-full bg-[#f1ebea]">
+                          <span className="mt-1.5 ml-9 block h-1.5 overflow-hidden rounded-full bg-hover">
                             <span
                               className={cn(
                                 "block h-full rounded-full",
-                                type === "income"
-                                  ? "bg-[#3f9a52]"
-                                  : "bg-[#b4463c]",
+                                type === "income" ? "bg-success" : "bg-danger",
                               )}
                               style={{ width: `${pct}%` }}
                             />
@@ -556,7 +563,7 @@ export function BookkeepingList() {
       </section>
 
       {dateRangeError && (
-        <p className="mb-4 text-sm text-[#a1271b]">{dateRangeError}</p>
+        <p className="mb-4 text-sm text-danger">{dateRangeError}</p>
       )}
 
       {(ledgerError || leasesError) && (
@@ -579,21 +586,21 @@ export function BookkeepingList() {
       {loading ? (
         <SkeletonCards count={2} />
       ) : filtered.length === 0 ? (
-        <EmptyPanel icon="receipt_long" title={t("empty")} />
+        <EmptyPanel icon={adminPageIcons.bookkeeping} title={t("empty")} />
       ) : (
         <section className={cn(panel, "overflow-hidden")}>
-          <header className="flex items-center justify-between border-b border-[#f1ebea] px-5 py-4">
-            <h2 className="text-lg font-medium tracking-tight text-[#141414]">
+          <header className="flex items-center justify-between border-b border-line px-5 py-4">
+            <h2 className="text-lg font-medium tracking-tight text-fg">
               {tb("journal")}
             </h2>
-            <span className="text-sm text-[#6b6b6b]">
+            <span className="text-sm text-fg-muted">
               {tb("entriesCount", { count: total })}
             </span>
           </header>
           {days.map((g) => (
             <div key={g.day}>
-              <div className="flex items-center justify-between bg-[#faf7f6] px-5 py-2 text-sm">
-                <span className="font-medium text-[#3d3a36]">
+              <div className="flex items-center justify-between bg-subtle px-5 py-2 text-sm">
+                <span className="font-medium text-fg-2">
                   {new Intl.DateTimeFormat(locale, {
                     weekday: "short",
                     day: "numeric",
@@ -604,14 +611,14 @@ export function BookkeepingList() {
                 <span
                   className={cn(
                     "tabular-nums",
-                    g.net >= 0 ? "text-[#2f6d22]" : "text-[#a1271b]",
+                    g.net >= 0 ? "text-success" : "text-danger",
                   )}
                 >
                   {g.net >= 0 ? "+" : "−"}
                   {rupiah(Math.abs(g.net))}
                 </span>
               </div>
-              <ul className="divide-y divide-[#f6f0ef]">
+              <ul className="divide-y divide-line">
                 {g.entries.map((entry) => {
                   const fromLease = isLeaseIncomeEntry(entry.id);
                   const receipts = entry.attachments?.length ?? 0;
@@ -625,10 +632,10 @@ export function BookkeepingList() {
                         type={entry.type}
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[15px] font-medium text-[#141414]">
+                        <p className="truncate text-[15px] font-medium text-fg">
                           {entry.description}
                         </p>
-                        <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-[#6b6b6b]">
+                        <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-fg-muted">
                           <span>
                             {entry.property?.name ?? tp("noProperty")}
                           </span>
@@ -642,7 +649,7 @@ export function BookkeepingList() {
                             </span>
                           ) : null}
                           {fromLease ? (
-                            <span className="rounded-full bg-[#f3dedb] px-2 py-0.5 text-[11px] font-medium text-[#71130d]">
+                            <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-medium text-brand">
                               {tp("fromLease")}
                             </span>
                           ) : null}
@@ -652,8 +659,8 @@ export function BookkeepingList() {
                         className={cn(
                           "shrink-0 text-right text-[15px] font-medium tabular-nums",
                           entry.type === "income"
-                            ? "text-[#2f6d22]"
-                            : "text-[#a1271b]",
+                            ? "text-success"
+                            : "text-danger",
                         )}
                       >
                         {entry.type === "income" ? "+" : "−"}
@@ -699,7 +706,7 @@ export function BookkeepingList() {
             </div>
           ))}
           {total > pageSize ? (
-            <div className="border-t border-[#f1ebea]">
+            <div className="border-t border-line">
               <AdminPagination
                 page={page}
                 pageSize={pageSize}
@@ -762,8 +769,8 @@ function CategoryIcon({
         "flex shrink-0 items-center justify-center rounded-full",
         small ? "size-7" : "size-10",
         type === "income"
-          ? "bg-[#dff3d6] text-[#2f6d22]"
-          : "bg-[#fde2df] text-[#a1271b]",
+          ? "bg-success-soft text-success"
+          : "bg-danger-soft text-danger",
       )}
     >
       <Icon
@@ -803,7 +810,7 @@ function MonthChart({
               <div
                 className={cn(
                   "w-full max-w-9 rounded-t-lg",
-                  last ? "bg-[#7fd08e]" : "bg-[#7fd08e]/55",
+                  last ? "bg-success" : "bg-success/55",
                 )}
                 style={{ height: `${Math.max(3, (m.income / max) * 100)}%` }}
               />
@@ -813,7 +820,7 @@ function MonthChart({
               <div
                 className={cn(
                   "w-full max-w-9 rounded-b-lg",
-                  last ? "bg-[#e6806f]" : "bg-[#e6806f]/55",
+                  last ? "bg-brand-bright" : "bg-brand-bright/55",
                 )}
                 style={{ height: `${Math.max(3, (m.expense / max) * 100)}%` }}
               />
@@ -829,7 +836,7 @@ function MonthChart({
             <span
               className={cn(
                 "truncate text-[11px] tabular-nums",
-                net >= 0 ? "text-[#9fe0ab]" : "text-[#f2a184]",
+                net >= 0 ? "text-success" : "text-brand-bright",
               )}
             >
               {net >= 0 ? "+" : "−"}

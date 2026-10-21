@@ -2,10 +2,10 @@
  * Core Type Definitions for Cherry Sky Living Platform
  */
 
-export type BathroomType = 'dalam' | 'luar' | 'bersama';
-export type RoomStatus = 'available' | 'rented' | 'reserved' | 'full';
-export type PropertyType = 'putra' | 'putri' | 'campur';
-export type FacilityCategory = 'room' | 'building' | 'service' | 'security';
+export type BathroomType = "dalam" | "luar" | "bersama";
+export type RoomStatus = "available" | "rented" | "reserved" | "full";
+export type PropertyType = "putra" | "putri" | "campur";
+export type FacilityCategory = "room" | "building" | "service" | "security";
 
 /**
  * Pricing package for a room type (e.g. 7-day, 30-day rent)
@@ -94,6 +94,8 @@ export interface Kost {
   reviewCount?: number;
   isFeatured: boolean;
   whatsappNumber: string;
+  /** Refundable deposit (Rp) set by the owner; undefined when not set. */
+  deposit?: number;
   phone?: string;
   rules?: string[];
   createdAt: Date;
@@ -117,6 +119,8 @@ export interface SearchUnitTypeResult {
   pricings: RoomTypePricing[];
   minPrice: number;
   whatsappNumber: string;
+  /** The property's refundable deposit (Rp), when set. */
+  deposit?: number;
   size?: number;
   description?: string;
 }
@@ -131,11 +135,11 @@ export interface SearchFilters {
   unitTypeId?: string;
   priceMin?: number;
   priceMax?: number;
-  availability?: 'available' | 'all';
+  availability?: "available" | "all";
   startDate?: string;
   endDate?: string;
   durationDays?: number;
-  sortBy?: 'property-asc' | 'price-asc' | 'price-desc' | 'newest';
+  sortBy?: "property-asc" | "price-asc" | "price-desc" | "newest";
   page?: number;
   pageSize?: number;
 }
@@ -145,7 +149,7 @@ export interface SearchFilters {
  */
 export interface KostCardProps {
   kost: Kost;
-  variant?: 'default' | 'compact' | 'featured';
+  variant?: "default" | "compact" | "featured";
   showCTA?: boolean;
   onCTAClick?: () => void;
 }
@@ -159,7 +163,7 @@ export interface RoomTypeCardProps {
 
 export interface FacilityListProps {
   facilities: Facility[];
-  variant?: 'grid' | 'list' | 'compact';
+  variant?: "grid" | "list" | "compact";
   showCategory?: boolean;
   highlightPremium?: boolean;
 }
@@ -167,7 +171,7 @@ export interface FacilityListProps {
 export interface WhatsAppButtonProps {
   phoneNumber: string;
   message?: string;
-  variant?: 'default' | 'icon' | 'compact';
+  variant?: "default" | "icon" | "compact";
   className?: string;
   label?: string;
 }
@@ -176,6 +180,6 @@ export interface WhatsAppButtonProps {
  * Skeleton Loading Props
  */
 export interface SkeletonCardProps {
-  variant?: 'kost' | 'room' | 'facility';
+  variant?: "kost" | "room" | "facility";
   count?: number;
 }

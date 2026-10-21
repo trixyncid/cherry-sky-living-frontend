@@ -89,9 +89,9 @@ export function generateInquiryMessage(
     roomType?: string
 ): string {
     if (roomType) {
-        return `Yth. Cherry Sky Living,\n\nSaya ingin menanyakan ketersediaan ${roomType} di ${propertyName}. Mohon informasi mengenai langkah selanjutnya. Terima kasih.`;
+        return `Halo kak 👋 Kamar ${roomType} di ${propertyName} masih ada? Kalau mau sewa, langkah selanjutnya gimana ya? Makasih 🙏`;
     }
-    return `Yth. Cherry Sky Living,\n\nSaya ingin meminta informasi lebih lanjut mengenai ${propertyName}. Terima kasih.`;
+    return `Halo kak 👋 Saya lagi lihat-lihat ${propertyName} nih. Boleh minta info lebih lanjut? Makasih 🙏`;
 }
 
 /**
@@ -100,7 +100,7 @@ export function generateInquiryMessage(
  * @returns Pre-filled visit scheduling message
  */
 export function generateVisitMessage(propertyName: string): string {
-    return `Yth. Cherry Sky Living,\n\nSaya ingin menjadwalkan kunjungan ke ${propertyName}. Mohon informasi mengenai waktu yang tersedia. Terima kasih.`;
+    return `Halo kak 👋 Saya mau main ke ${propertyName} buat lihat kamar. Kira-kira kapan bisanya ya? Makasih 🙏`;
 }
 
 /**

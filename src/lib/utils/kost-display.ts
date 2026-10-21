@@ -4,6 +4,7 @@ type TranslateFn = (key: string, values?: Record<string, string | number>) => st
 
 export function getDurationLabel(durationDays: number, t: TranslateFn): string {
     const known: Record<number, string> = {
+        1: t('search.duration1'),
         7: t('search.duration7'),
         12: t('search.duration12'),
         30: t('search.duration30'),

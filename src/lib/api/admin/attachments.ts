@@ -1,9 +1,9 @@
 import { apiFetch, apiFetchFormData } from "@/lib/api/client";
 import type {
   ApiDataResponse,
-  LedgerEntryAttachment,
   LeaseAttachment,
   LeaseAttachmentKind,
+  LedgerEntryAttachment,
   PropertyAttachment,
   UnitTypeAttachment,
 } from "@/lib/types/admin";
@@ -26,22 +26,14 @@ export function uploadPropertyImage(
   propertyId: string,
   file: File,
 ): Promise<void> {
-  return uploadAttachment(
-    "/admin/attachments/property",
-    { propertyId },
-    file,
-  );
+  return uploadAttachment("/admin/attachments/property", { propertyId }, file);
 }
 
 export function uploadUnitTypeImage(
   unitTypeId: string,
   file: File,
 ): Promise<void> {
-  return uploadAttachment(
-    "/admin/attachments/unit-type",
-    { unitTypeId },
-    file,
-  );
+  return uploadAttachment("/admin/attachments/unit-type", { unitTypeId }, file);
 }
 
 export function uploadLeaseAttachment(
@@ -49,11 +41,7 @@ export function uploadLeaseAttachment(
   file: File,
   kind: LeaseAttachmentKind = "downpayment",
 ): Promise<void> {
-  return uploadAttachment(
-    "/admin/attachments/lease",
-    { leaseId, kind },
-    file,
-  );
+  return uploadAttachment("/admin/attachments/lease", { leaseId, kind }, file);
 }
 
 export function uploadLedgerEntryImage(
@@ -91,6 +79,18 @@ export async function deleteUnitTypeAttachment(
   const res = await apiFetch<ApiDataResponse<UnitTypeAttachment>>(
     `/admin/attachments/unit-type/${id}`,
     { method: "DELETE" },
+  );
+  return res.data;
+}
+
+/** Change an uploaded lease file's document type. */
+export async function updateLeaseAttachmentKind(
+  id: string,
+  kind: LeaseAttachmentKind,
+): Promise<LeaseAttachment> {
+  const res = await apiFetch<ApiDataResponse<LeaseAttachment>>(
+    `/admin/attachments/lease/${id}`,
+    { method: "PATCH", body: { kind } },
   );
   return res.data;
 }

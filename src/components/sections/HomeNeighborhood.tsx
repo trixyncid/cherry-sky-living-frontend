@@ -33,16 +33,16 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
     : undefined;
 
   return (
-    <section className="w-full bg-[#faf9f6] px-6 py-20 lg:px-10">
+    <section className="w-full bg-subtle px-6 py-20 lg:px-10">
       <div className="mx-auto grid w-full max-w-7xl items-start gap-12 lg:grid-cols-2 lg:gap-14">
         <div>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#83746b]">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-fg-muted">
             {t("eyebrow")}
           </p>
-          <h2 className="mb-4 max-w-md text-3xl font-semibold tracking-tight text-[#1a1c1a] md:text-4xl">
+          <h2 className="mb-4 max-w-md text-3xl font-semibold tracking-tight text-fg md:text-4xl">
             {t("title")}
           </h2>
-          <p className="mb-8 max-w-md text-sm leading-relaxed text-[#83746b] md:text-base">
+          <p className="mb-8 max-w-md text-sm leading-relaxed text-fg-muted md:text-base">
             {t("description")}
           </p>
 
@@ -50,7 +50,7 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
             initial={{ opacity: 0, scale: 0.99 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="overflow-hidden rounded-[1.5rem] border border-[#e3e2e0]"
+            className="overflow-hidden rounded-[1.5rem] border border-line"
           >
             <iframe
               src={MEDAN_MAP_EMBED_URL}
@@ -72,7 +72,7 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
             viewport={{ once: true }}
             className="flex flex-col"
           >
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[1.5rem] bg-[#f5e4d4] sm:aspect-[5/6]">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[1.5rem] bg-brand-soft sm:aspect-[5/6]">
               {featured.thumbnail ? (
                 <Image
                   src={featured.thumbnail}
@@ -82,7 +82,7 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
                   className="object-cover"
                 />
               ) : null}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-maroon-deep/90 via-maroon-deep/45 to-transparent p-6 pt-24 text-white">
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-deep/90 via-brand-deep/45 to-transparent p-6 pt-24 text-white">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
                   {featured.location.district || featured.location.city}
                 </p>
@@ -105,13 +105,13 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
               </div>
             </div>
 
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-b border-[#e3e2e0] pb-5">
-              <div className="flex flex-wrap gap-4 text-sm text-[#51443c]">
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-5">
+              <div className="flex flex-wrap gap-4 text-sm text-fg-2">
                 <span className="inline-flex items-center gap-1.5">
                   <Icon
                     name="meeting_room"
                     size={16}
-                    className="text-[#71130d]"
+                    className="text-brand"
                   />
                   {t("roomsAvailable", {
                     available: featured.availableRooms,
@@ -119,9 +119,9 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
                   })}
                 </span>
                 {featured.priceRange.min > 0 ? (
-                  <span className="font-semibold text-[#1a1c1a]">
+                  <span className="font-semibold text-fg">
                     {formatCurrency(featured.priceRange.min)}
-                    <span className="ml-0.5 font-medium text-[#83746b]">
+                    <span className="ml-0.5 font-medium text-fg-muted">
                       {tPricing("perMonth")}
                     </span>
                   </span>
@@ -132,7 +132,7 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
                 href={`/kosts/${featured.id}`}
-                className="inline-flex h-11 flex-1 items-center justify-center rounded-xl border border-[#d5c3b8] bg-white px-4 text-sm font-semibold text-[#1a1c1a] transition-colors hover:bg-[#f5f2ee] sm:flex-none"
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-xl border border-line-strong bg-white px-4 text-sm font-semibold text-fg transition-colors hover:bg-subtle sm:flex-none"
               >
                 {tCta("viewDetails")}
               </Link>
@@ -141,7 +141,7 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
                   href={visitUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#71130d] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#8a1a12] sm:flex-none"
+                  className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover sm:flex-none"
                 >
                   <Icon name="whatsapp" size={16} />
                   {t("requestVisit")}

@@ -22,7 +22,7 @@ import { LeadDialog } from "@/components/leads/LeadDialog";
 import { Eyebrow } from "@/components/shared/ArrowPill";
 import { Icon } from "@/components/shared/Icon";
 import { ShareButton } from "@/components/shared/ShareButton";
-import { depositFor, localized, siteConfig } from "@/config/site";
+import { localized, siteConfig } from "@/config/site";
 import { Link } from "@/i18n/routing";
 import { track } from "@/lib/analytics";
 import { useKosts } from "@/lib/hooks/use-kost-data";
@@ -63,17 +63,13 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
       <PublicPageShell hideCta>
         <section className="flex min-h-[70vh] items-center justify-center px-5 pt-24">
           <div className="max-w-md text-center">
-            <Icon
-              name="search_off"
-              size={48}
-              className="mx-auto text-[#71130d]"
-            />
-            <h1 className="mt-4 text-2xl font-medium tracking-tight text-[#141414]">
+            <Icon name="search_off" size={48} className="mx-auto text-brand" />
+            <h1 className="mt-4 text-2xl font-medium tracking-tight text-fg">
               {t("propertyDetail.unitTypeNotFound")}
             </h1>
             <Link
               href={`/kosts/${kost.id}`}
-              className="mt-6 inline-flex h-12 items-center gap-2 rounded-full bg-[#71130d] px-6 text-[15px] font-semibold text-white"
+              className="mt-6 inline-flex h-12 items-center gap-2 rounded-full bg-brand px-6 text-[15px] font-semibold text-white"
             >
               <Icon name="arrow_back" size={18} />
               {t("detail.backToResidence", { name: kost.name })}
@@ -89,7 +85,7 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
   const address = [kost.location.address, kost.location.city]
     .filter(Boolean)
     .join(", ");
-  const deposit = depositFor(kost.name);
+  const deposit = kost.deposit;
   const hours = `${localized(siteConfig.viewingHours.days, locale)} ${siteConfig.viewingHours.time}`;
   const roomMessage = t("whatsapp.roomInquiry", {
     roomType: roomType.name,
@@ -167,15 +163,15 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <Eyebrow>{kost.name}</Eyebrow>
-              <h1 className="mt-3 text-[clamp(2.2rem,4.6vw,3.75rem)] font-medium leading-[1.02] tracking-[-0.04em] text-[#141414]">
+              <h1 className="mt-3 text-[clamp(2.2rem,4.6vw,3.75rem)] font-medium leading-[1.02] tracking-[-0.04em] text-fg">
                 {roomType.name}
               </h1>
               <ul className="mt-4 flex flex-wrap gap-2">
-                <li className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-sm font-semibold text-[#141414]">
+                <li className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-sm font-semibold text-fg">
                   <span
                     className={cn(
                       "size-2 rounded-full",
-                      isOpen ? "bg-[#059669]" : "bg-[#ba1a1a]",
+                      isOpen ? "bg-success" : "bg-danger",
                     )}
                   />
                   {isOpen
@@ -185,20 +181,20 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
                     : t("status.full")}
                 </li>
                 {price > 0 ? (
-                  <li className="rounded-full bg-white px-3.5 py-1.5 text-sm font-semibold text-[#141414]">
+                  <li className="rounded-full bg-white px-3.5 py-1.5 text-sm font-semibold text-fg">
                     {formatCurrency(price)}
-                    <span className="font-normal text-[#6b6b6b]">
+                    <span className="font-normal text-fg-muted">
                       {t("pricing.perMonth")}
                     </span>
                   </li>
                 ) : null}
                 {roomType.size ? (
-                  <li className="rounded-full border border-[#dedad4] px-3.5 py-1.5 text-sm text-[#3d3a36]">
+                  <li className="rounded-full border border-line-strong px-3.5 py-1.5 text-sm text-fg-2">
                     {roomType.size} m²
                   </li>
                 ) : null}
                 {capacity ? (
-                  <li className="rounded-full border border-[#dedad4] px-3.5 py-1.5 text-sm text-[#3d3a36]">
+                  <li className="rounded-full border border-line-strong px-3.5 py-1.5 text-sm text-fg-2">
                     {capacity}
                   </li>
                 ) : null}
@@ -207,7 +203,7 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/kosts/${kost.id}`}
-                className="inline-flex h-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-[#3d3a36] hover:text-[#141414]"
+                className="inline-flex h-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-fg-2 hover:text-fg"
               >
                 <Icon name="arrow_back" size={16} />
                 {t("detail.backToResidence", { name: kost.name })}
@@ -234,9 +230,9 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
             <ul className="grid grid-cols-2 gap-3 xl:grid-cols-4">
               {specs.map((spec) => (
                 <li key={spec.label} className="rounded-[1.25rem] bg-white p-5">
-                  <Icon name={spec.icon} size={22} className="text-[#71130d]" />
-                  <p className="mt-4 text-sm text-[#6b6b6b]">{spec.label}</p>
-                  <p className="mt-0.5 text-[17px] font-semibold tracking-tight text-[#141414]">
+                  <Icon name={spec.icon} size={22} className="text-brand" />
+                  <p className="mt-4 text-sm text-fg-muted">{spec.label}</p>
+                  <p className="mt-0.5 text-[17px] font-semibold tracking-tight text-fg">
                     {spec.value}
                   </p>
                 </li>
@@ -244,7 +240,7 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
             </ul>
 
             {roomType.description ? (
-              <p className="max-w-3xl text-[clamp(1.15rem,1.7vw,1.4rem)] font-medium leading-snug tracking-tight text-[#141414]">
+              <p className="max-w-3xl text-[clamp(1.15rem,1.7vw,1.4rem)] font-medium leading-snug tracking-tight text-fg">
                 {roomType.description}
               </p>
             ) : null}
@@ -253,7 +249,7 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
               <section aria-labelledby="packages-title">
                 <h2
                   id="packages-title"
-                  className="mb-4 text-2xl font-medium tracking-tight text-[#141414]"
+                  className="mb-4 text-2xl font-medium tracking-tight text-fg"
                 >
                   {t("detail.priceBreakdown")}
                 </h2>
@@ -264,19 +260,19 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
                       <li
                         key={p.id}
                         className={cn(
-                          "flex items-center justify-between gap-4 border-b border-[#efeeeb] px-5 py-4 last:border-b-0",
-                          monthly && "bg-[#faf9f7]",
+                          "flex items-center justify-between gap-4 border-b border-hover px-5 py-4 last:border-b-0",
+                          monthly && "bg-subtle",
                         )}
                       >
-                        <span className="flex items-center gap-2 text-base text-[#3d3a36]">
+                        <span className="flex items-center gap-2 text-base text-fg-2">
                           {getDurationLabel(p.durationDays, t)}
                           {monthly ? (
-                            <span className="rounded-full bg-[#71130d] px-2.5 py-0.5 text-xs font-semibold text-white">
+                            <span className="rounded-full bg-brand px-2.5 py-0.5 text-xs font-semibold text-white">
                               {t("pricing.popular")}
                             </span>
                           ) : null}
                         </span>
-                        <span className="text-lg font-semibold tracking-tight text-[#141414] tabular-nums">
+                        <span className="text-lg font-semibold tracking-tight text-fg tabular-nums">
                           {formatCurrency(p.price)}
                         </span>
                       </li>
@@ -289,7 +285,7 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
             <section aria-labelledby="included-title">
               <h2
                 id="included-title"
-                className="mb-4 text-2xl font-medium tracking-tight text-[#141414]"
+                className="mb-4 text-2xl font-medium tracking-tight text-fg"
               >
                 {t("detail.facilities")}
               </h2>
@@ -301,17 +297,17 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
                 <div>
                   <h2
                     id="room-location-title"
-                    className="text-2xl font-medium tracking-tight text-[#141414]"
+                    className="text-2xl font-medium tracking-tight text-fg"
                   >
                     {t("detail.location")}
                   </h2>
-                  <p className="mt-1 text-base text-[#3d3a36]">{address}</p>
+                  <p className="mt-1 text-base text-fg-2">{address}</p>
                 </div>
                 <a
                   href={directionsUrl(kost.name, address)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-10 items-center gap-1.5 rounded-full border border-[#dedad4] bg-white px-4 text-sm font-semibold text-[#141414] hover:border-[#141414]"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line-strong bg-white px-4 text-sm font-semibold text-fg hover:border-fg"
                 >
                   <Icon name="near_me" size={16} />
                   {t("detail.directions")}
@@ -331,35 +327,35 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
             className="scroll-mt-24 lg:sticky lg:top-24 lg:self-start"
           >
             <div className="rounded-[1.25rem] bg-white p-6">
-              <p className="text-lg font-semibold tracking-tight text-[#141414]">
+              <p className="text-lg font-semibold tracking-tight text-fg">
                 {isOpen
                   ? t("detail.bookingCardTitle")
                   : t("detail.joinWaitlist")}
               </p>
               {price > 0 ? (
                 <p className="mt-4">
-                  <span className="text-[1.9rem] font-medium tracking-tight text-[#141414] tabular-nums">
+                  <span className="text-[1.9rem] font-medium tracking-tight text-fg tabular-nums">
                     {formatCurrency(price)}
                   </span>
-                  <span className="ml-1 text-sm text-[#6b6b6b]">
+                  <span className="ml-1 text-sm text-fg-muted">
                     {t("pricing.perMonth")}
                   </span>
                 </p>
               ) : (
-                <p className="mt-4 text-base text-[#6b6b6b]">
+                <p className="mt-4 text-base text-fg-muted">
                   {t("search.noPricing")}
                 </p>
               )}
               {deposit ? (
-                <p className="mt-1 text-sm text-[#6b6b6b]">
+                <p className="mt-1 text-sm text-fg-muted">
                   {t("detail.depositFor", { amount: formatCurrency(deposit) })}
                 </p>
               ) : null}
-              <p className="mt-4 flex items-center gap-2 text-sm text-[#3d3a36]">
+              <p className="mt-4 flex items-center gap-2 text-sm text-fg-2">
                 <span
                   className={cn(
                     "size-2 rounded-full",
-                    isOpen ? "bg-[#059669]" : "bg-[#ba1a1a]",
+                    isOpen ? "bg-success" : "bg-danger",
                   )}
                 />
                 {isOpen
@@ -374,13 +370,14 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
                 {isOpen ? (
                   <WhatsAppInquiryDialog
                     phoneNumber={kost.whatsappNumber}
+                    deposit={kost.deposit}
                     propertyName={kost.name}
                     roomName={roomType.name}
-                    pricings={pricings}
-                    fallbackPrice={price}
+                    propertyId={kost.id}
+                    unitTypeId={roomType.id}
                     variant="compact"
                     label={t("cta.bookViewing")}
-                    className="h-12 w-full justify-center rounded-full bg-[#71130d] text-[15px] font-semibold hover:bg-[#8a1a12]"
+                    className="h-12 w-full justify-center rounded-full bg-brand text-[15px] font-semibold hover:bg-brand-hover"
                   />
                 ) : (
                   <LeadDialog
@@ -392,7 +389,7 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
                     trigger={
                       <button
                         type="button"
-                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#71130d] text-[15px] font-semibold text-white hover:bg-[#8a1a12]"
+                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand text-[15px] font-semibold text-white hover:bg-brand-hover"
                       >
                         <Icon name="notifications" size={16} />
                         {t("detail.joinWaitlist")}
@@ -411,7 +408,7 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
                       room: roomType.name,
                     })
                   }
-                  className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-[#dedad4] text-[15px] font-semibold text-[#141414] hover:bg-[#f7f3f2]"
+                  className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-line-strong text-[15px] font-semibold text-fg hover:bg-canvas"
                 >
                   <Icon name="whatsapp" size={16} className="text-[#25D366]" />
                   {t("cta.whatsapp")}
@@ -421,13 +418,13 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
                   onClick={() =>
                     track("click_call", { location: "room_booking_card" })
                   }
-                  className="inline-flex h-11 items-center justify-center gap-2 text-[15px] font-semibold text-[#3d3a36] hover:text-[#141414]"
+                  className="inline-flex h-11 items-center justify-center gap-2 text-[15px] font-semibold text-fg-2 hover:text-fg"
                 >
                   <Icon name="call" size={16} />
                   {t("detail.call")} {siteConfig.phone}
                 </a>
               </div>
-              <p className="mt-4 border-t border-[#efeeeb] pt-4 text-sm leading-relaxed text-[#6b6b6b]">
+              <p className="mt-4 border-t border-hover pt-4 text-sm leading-relaxed text-fg-muted">
                 {t("detail.noCharge")} {t("detail.replyHint", { hours })}
               </p>
             </div>
@@ -438,17 +435,15 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
       {similar.length > 0 ? (
         <section
           aria-labelledby="similar-title"
-          className="w-full border-t border-[#e7e4df] py-14"
+          className="w-full border-t border-line py-14"
         >
           <div className="mx-auto w-full max-w-[90rem] px-5 sm:px-8">
             <h2
               id="similar-title"
-              className="text-[clamp(1.6rem,2.8vw,2.25rem)] font-medium tracking-[-0.025em] text-[#141414]"
+              className="text-[clamp(1.6rem,2.8vw,2.25rem)] font-medium tracking-[-0.025em] text-fg"
             >
               {t("detail.similarTitle")}{" "}
-              <span className="text-[#857f77]">
-                {t("detail.similarAccent")}
-              </span>
+              <span className="text-fg-muted">{t("detail.similarAccent")}</span>
             </h2>
           </div>
           <div className="mt-6 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:scroll-px-8 sm:px-8 lg:scroll-px-[max(2rem,calc((100vw-90rem)/2+2rem))] lg:px-[max(2rem,calc((100vw-90rem)/2+2rem))] [&::-webkit-scrollbar]:hidden">
@@ -465,8 +460,8 @@ export function RoomDetailView({ kost, roomTypeId }: RoomDetailViewProps) {
                 availableCount={rt.availableCount}
                 totalCount={rt.totalCount}
                 monthlyPrice={monthlyPrice(rt)}
-                pricings={rt.pricings ?? []}
                 whatsappNumber={k.whatsappNumber}
+                deposit={k.deposit}
                 tags={rt.size ? [`${rt.size} m²`] : []}
               />
             ))}

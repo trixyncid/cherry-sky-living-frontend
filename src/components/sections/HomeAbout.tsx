@@ -57,7 +57,7 @@ function RevealStatement({ text }: { text: string }) {
   return (
     <p
       ref={ref}
-      className="text-[clamp(1.5rem,2.6vw,2.25rem)] font-medium leading-[1.22] tracking-[-0.025em] text-[#141414]"
+      className="text-[clamp(1.5rem,2.6vw,2.25rem)] font-medium leading-[1.22] tracking-[-0.025em] text-fg"
     >
       {reduceMotion
         ? text
@@ -108,7 +108,7 @@ export function HomeAbout({ kosts = [], isLoading = false }: HomeAboutProps) {
       aria-label={t("eyebrow")}
       className="w-full px-5 py-16 sm:px-8 lg:py-24"
     >
-      <div className="mx-auto w-full max-w-[90rem] border-t border-[#dedad4] pt-10 lg:pt-14">
+      <div className="mx-auto w-full max-w-[90rem] border-t border-line-strong pt-10 lg:pt-14">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16">
           <div className="flex flex-col gap-8">
             <Eyebrow>{t("eyebrow")}</Eyebrow>
@@ -136,7 +136,7 @@ export function HomeAbout({ kosts = [], isLoading = false }: HomeAboutProps) {
                   className="object-cover"
                 />
               </div>
-              <p className="text-base font-medium leading-relaxed text-[#141414]">
+              <p className="text-base font-medium leading-relaxed text-fg">
                 {t("points.support")}
               </p>
             </Reveal>
@@ -148,14 +148,14 @@ export function HomeAbout({ kosts = [], isLoading = false }: HomeAboutProps) {
                   delay={index * 0.08}
                   className="flex min-h-[10rem] flex-col justify-between rounded-[1.25rem] bg-white p-5"
                 >
-                  <span className="font-mono text-[13px] text-[#6b6b6b]">
+                  <span className="font-mono text-[13px] text-fg-muted">
                     {`//0${index + 1}`}
                   </span>
                   <div className="flex flex-col-reverse">
-                    <p className="mt-2 text-sm text-[#6b6b6b]">{stat.label}</p>
-                    <p className="text-[clamp(2rem,3.4vw,2.75rem)] font-medium leading-none tracking-[-0.04em] text-[#141414] tabular-nums">
+                    <p className="mt-2 text-sm text-fg-muted">{stat.label}</p>
+                    <p className="text-[clamp(2rem,3.4vw,2.75rem)] font-medium leading-none tracking-[-0.04em] text-fg tabular-nums">
                       {isLoading ? (
-                        <span className="inline-block h-9 w-20 animate-pulse rounded-md bg-[#efeeeb]" />
+                        <span className="inline-block h-9 w-20 animate-pulse rounded-md bg-hover" />
                       ) : (
                         stat.value
                       )}

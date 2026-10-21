@@ -31,7 +31,7 @@ export function WhatsAppButton({
             <button
                 onClick={handleClick}
                 className={cn(
-                    'inline-flex items-center justify-center rounded-full w-12 h-12 bg-[#25D366] hover:bg-[#1fb855] text-white transition-colors shadow-lg',
+                    'inline-flex items-center justify-center rounded-full w-12 h-12 bg-ink hover:bg-ink-2 text-white transition-colors shadow-lg',
                     className
                 )}
                 aria-label="Inquire via WhatsApp"
@@ -47,7 +47,7 @@ export function WhatsAppButton({
             <button
                 onClick={handleClick}
                 className={cn(
-                    'inline-flex items-center gap-2 px-4 py-2 bg-[#25D366] hover:bg-[#1fb855] text-white text-sm font-medium rounded-lg transition-colors',
+                    'inline-flex items-center gap-2 px-4 py-2 bg-ink hover:bg-ink-2 text-white text-sm font-medium rounded-lg transition-colors',
                     className
                 )}
                 type="button"
@@ -62,7 +62,7 @@ export function WhatsAppButton({
         <Button
             onClick={handleClick}
             className={cn(
-                'bg-[#25D366] hover:bg-[#1fb855] text-white font-semibold',
+                'bg-ink hover:bg-ink-2 text-white font-semibold',
                 className
             )}
         >

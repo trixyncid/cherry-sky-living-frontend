@@ -24,6 +24,8 @@ export type PropertyPaymentInput = {
   paymentDueDay?: number;
   lateFeePerDay?: number;
   renewalConfirmDaysBeforeEnd?: number;
+  /** null clears it. */
+  depositAmount?: number | null;
 };
 
 export async function createProperty(

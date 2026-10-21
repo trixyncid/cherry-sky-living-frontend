@@ -18,6 +18,7 @@ import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminPagination } from "@/features/admin/components/admin-pagination";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { AdminToolbar } from "@/features/admin/components/admin-toolbar";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { getStaffUserSortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
@@ -212,21 +213,21 @@ export function StaffList() {
           {isLoading ? (
             <SkeletonCards count={2} className="sm:grid-cols-2" />
           ) : visible.length === 0 ? (
-            <EmptyPanel icon="badge" title={tp("empty")} />
+            <EmptyPanel icon={adminPageIcons.staff} title={tp("empty")} />
           ) : (
             (["superadmin", "admin"] as const).map((role) => {
               const members = pageData.filter((u) => u.role === role);
               if (members.length === 0) return null;
               return (
                 <section key={role}>
-                  <h3 className="mb-3 flex items-center gap-2 text-[15px] font-medium text-[#141414]">
+                  <h3 className="mb-3 flex items-center gap-2 text-[15px] font-medium text-fg">
                     <Icon
                       name={role === "superadmin" ? "shield_person" : "badge"}
                       size={18}
-                      className="text-[#71130d]"
+                      className="text-brand"
                     />
                     {tp(`roles.${role}`)}
-                    <span className="rounded-full bg-white px-2 py-0.5 text-sm font-normal text-[#6b6b6b]">
+                    <span className="rounded-full bg-white px-2 py-0.5 text-sm font-normal text-fg-muted">
                       {members.length}
                     </span>
                   </h3>
@@ -239,7 +240,7 @@ export function StaffList() {
                           className={cn(
                             panel,
                             "flex flex-col gap-4 p-5",
-                            isSelf && "ring-2 ring-[#e8bfb9]",
+                            isSelf && "ring-2 ring-brand-line",
                           )}
                         >
                           <div className="flex items-start gap-3">
@@ -255,18 +256,18 @@ export function StaffList() {
                               </span>
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="flex items-center gap-2 truncate text-[15px] font-medium text-[#141414]">
+                              <p className="flex items-center gap-2 truncate text-[15px] font-medium text-fg">
                                 <span className="truncate">{user.name}</span>
                                 {isSelf ? (
-                                  <span className="shrink-0 rounded-full bg-[#f3dedb] px-2 py-0.5 text-[11px] font-semibold text-[#71130d]">
+                                  <span className="shrink-0 rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">
                                     {tp("you")}
                                   </span>
                                 ) : null}
                               </p>
-                              <p className="truncate text-sm text-[#6b6b6b]">
+                              <p className="truncate text-sm text-fg-muted">
                                 {user.email}
                               </p>
-                              <p className="mt-1 text-xs text-[#857f77]">
+                              <p className="mt-1 text-xs text-fg-muted">
                                 {user.isActive
                                   ? tp("statusActive")
                                   : tp("statusInactive")}{" "}
@@ -278,10 +279,10 @@ export function StaffList() {
                             </div>
                           </div>
                           {isSuperadmin ? (
-                            <div className="flex items-center gap-2 border-t border-[#f6f0ef] pt-3">
+                            <div className="flex items-center gap-2 border-t border-line pt-3">
                               <Link
                                 href={`${BASE}/${user.id}/edit`}
-                                className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#ece4e2] bg-white px-4 text-sm font-medium text-[#141414] hover:border-[#e8bfb9] hover:text-[#71130d]"
+                                className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-line bg-white px-4 text-sm font-medium text-fg hover:border-brand-line hover:text-brand"
                               >
                                 <Icon name="edit" size={16} />
                                 {t("editTitle")}
@@ -334,7 +335,7 @@ export function StaffList() {
         </div>
 
         {/* Who can do what */}
-        <aside className="h-fit rounded-[1.75rem] bg-[#1c0b0a] p-5 text-white lg:sticky lg:top-0">
+        <aside className="h-fit rounded-[1.75rem] bg-ink p-5 text-white lg:sticky lg:top-0">
           <p className="text-sm text-white/70">{to("rolesGuide")}</p>
           <ul className="mt-3 space-y-3">
             {(["superadmin", "admin"] as const).map((role) => (

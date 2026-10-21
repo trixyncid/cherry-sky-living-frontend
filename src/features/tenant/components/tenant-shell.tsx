@@ -1,5 +1,5 @@
-import { TenantShellProvider } from "@/features/tenant/components/tenant-shell-context";
 import { TenantMobileNav } from "@/features/tenant/components/tenant-mobile-nav";
+import { TenantShellProvider } from "@/features/tenant/components/tenant-shell-context";
 import { TenantTopNav } from "@/features/tenant/components/tenant-top-nav";
 import { SessionGuard } from "@/lib/auth/session-guard";
 import type { User } from "@/lib/types/auth";

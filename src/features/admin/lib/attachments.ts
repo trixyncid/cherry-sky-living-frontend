@@ -4,6 +4,8 @@ export type AdminAttachmentItem = {
   id: string;
   url: string;
   createdAt?: string;
+  /** Document type value (leases), for changing it after upload. */
+  kind?: string;
   kindLabel?: string;
   contentType?: string | null;
 };

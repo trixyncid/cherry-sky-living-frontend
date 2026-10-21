@@ -18,16 +18,16 @@ import { cn } from "@/lib/utils";
 export function PreviewShell({ children }: { children: ReactNode }) {
   const t = useTranslations("admin.form");
   return (
-    <section className="overflow-hidden rounded-[1.75rem] border border-[#efe7e5] bg-white">
-      <p className="flex items-center justify-between gap-2 border-b border-[#f6f0ef] px-5 py-3 text-sm">
-        <span className="flex items-center gap-2 font-medium text-[#141414]">
+    <section className="overflow-hidden rounded-[1.75rem] border border-line bg-white">
+      <p className="flex items-center justify-between gap-2 border-b border-line px-5 py-3 text-sm">
+        <span className="flex items-center gap-2 font-medium text-fg">
           <span className="relative flex size-2">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#34a853]/60 motion-reduce:animate-none" />
-            <span className="relative inline-flex size-2 rounded-full bg-[#34a853]" />
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-success/60 motion-reduce:animate-none" />
+            <span className="relative inline-flex size-2 rounded-full bg-success" />
           </span>
           {t("preview")}
         </span>
-        <span className="text-xs text-[#6b6b6b]">{t("previewHint")}</span>
+        <span className="text-xs text-fg-muted">{t("previewHint")}</span>
       </p>
       {children}
     </section>
@@ -62,7 +62,7 @@ export function PropertyPreview({
           fallbackLabel={t("photoLater")}
           className="aspect-[16/10] w-full"
         />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(28_11_10/0.85),transparent_60%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(11_11_13/0.85),transparent_60%)]" />
         {city.trim() ? (
           <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium">
             {city}
@@ -78,14 +78,14 @@ export function PropertyPreview({
         </div>
       </div>
       <dl className="grid grid-cols-2 gap-2 p-4 text-sm">
-        <div className="rounded-2xl bg-[#faf7f6] p-3">
-          <dt className="text-xs text-[#6b6b6b]">{t("rentDue")}</dt>
+        <div className="rounded-2xl bg-subtle p-3">
+          <dt className="text-xs text-fg-muted">{t("rentDue")}</dt>
           <dd className="font-medium">
             {dueDay ? t("dayOfMonth", { day: dueDay }) : "—"}
           </dd>
         </div>
-        <div className="rounded-2xl bg-[#faf7f6] p-3">
-          <dt className="text-xs text-[#6b6b6b]">{t("lateFee")}</dt>
+        <div className="rounded-2xl bg-subtle p-3">
+          <dt className="text-xs text-fg-muted">{t("lateFee")}</dt>
           <dd className="font-medium">
             {lateFee > 0 ? `${rupiah(lateFee)}${t("perDay")}` : "—"}
           </dd>
@@ -133,25 +133,25 @@ export function UnitTypePreview({
           {placeholder(name, t("roomTypeName"))}
         </p>
         {propertyName ? (
-          <p className="text-sm text-[#6b6b6b]">{propertyName}</p>
+          <p className="text-sm text-fg-muted">{propertyName}</p>
         ) : null}
-        <p className="line-clamp-3 text-sm text-[#3d3a36]">
+        <p className="line-clamp-3 text-sm text-fg-2">
           {description.trim() || t("descriptionHint")}
         </p>
-        <p className="rounded-2xl bg-[#faf7f6] px-3 py-2 text-sm">
+        <p className="rounded-2xl bg-subtle px-3 py-2 text-sm">
           {monthly ? (
             <>
               <span className="font-medium">{rupiah(monthly)}</span>
-              <span className="text-[#6b6b6b]">{t("perMonth")}</span>
+              <span className="text-fg-muted">{t("perMonth")}</span>
               {sqm > 0 ? (
-                <span className="text-[#6b6b6b]">
+                <span className="text-fg-muted">
                   {" "}
                   · {rupiah(Math.round(monthly / sqm))}/m²
                 </span>
               ) : null}
             </>
           ) : (
-            <span className="text-[#6b6b6b]">{t("priceAfter")}</span>
+            <span className="text-fg-muted">{t("priceAfter")}</span>
           )}
         </p>
       </div>
@@ -187,10 +187,10 @@ export function UnitPreview({
                   className={cn(
                     "h-4 w-5 rounded-[3px]",
                     i === floor && c === 1
-                      ? "bg-[#71130d] shadow-[0_0_8px_rgb(113_19_13/0.5)]"
+                      ? "bg-brand shadow-[0_0_8px_rgb(122_22_48/0.5)]"
                       : i === floor
-                        ? "bg-[#e8bfb9]"
-                        : "bg-[#f1ebea]",
+                        ? "bg-brand-soft"
+                        : "bg-hover",
                   )}
                 />
               ))}
@@ -201,22 +201,22 @@ export function UnitPreview({
           <p className="truncate text-2xl font-medium tracking-tight">
             {placeholder(name, t("roomNumber"))}
           </p>
-          <p className="text-sm text-[#6b6b6b]">
+          <p className="text-sm text-fg-muted">
             {floor !== null ? t("floorInferred", { floor }) : t("floorUnknown")}
           </p>
         </div>
       </div>
       <dl className="grid grid-cols-2 gap-2 px-4 pb-4 text-sm">
-        <div className="rounded-2xl bg-[#faf7f6] p-3">
-          <dt className="text-xs text-[#6b6b6b]">{t("building")}</dt>
+        <div className="rounded-2xl bg-subtle p-3">
+          <dt className="text-xs text-fg-muted">{t("building")}</dt>
           <dd className="truncate font-medium">{propertyName || "—"}</dd>
         </div>
-        <div className="rounded-2xl bg-[#faf7f6] p-3">
-          <dt className="text-xs text-[#6b6b6b]">{t("roomType")}</dt>
+        <div className="rounded-2xl bg-subtle p-3">
+          <dt className="text-xs text-fg-muted">{t("roomType")}</dt>
           <dd className="truncate font-medium">{unitTypeName || "—"}</dd>
         </div>
-        <div className="col-span-2 rounded-2xl bg-[#faf7f6] p-3">
-          <dt className="text-xs text-[#6b6b6b]">{t("capacity")}</dt>
+        <div className="col-span-2 rounded-2xl bg-subtle p-3">
+          <dt className="text-xs text-fg-muted">{t("capacity")}</dt>
           <dd className="font-medium">
             {Number(maxOccupancy) > 0
               ? t("people", { count: Number(maxOccupancy) })
@@ -249,14 +249,14 @@ export function PricingPreview({
     <PreviewShell>
       <div className="space-y-3 p-5">
         <div>
-          <p className="text-sm text-[#6b6b6b]">
+          <p className="text-sm text-fg-muted">
             {propertyName || t("building")}
           </p>
           <p className="text-lg font-medium tracking-tight">
             {unitTypeName || t("roomType")}
           </p>
         </div>
-        <div className="rounded-2xl bg-[#1c0b0a] p-4 text-white">
+        <div className="rounded-2xl bg-ink p-4 text-white">
           <p className="text-xs text-white/70">{t("monthly")}</p>
           <p className="text-2xl font-medium tabular-nums">
             {monthly > 0 ? `Rp ${formatIdrTable(monthly)}` : "—"}
@@ -267,7 +267,7 @@ export function PricingPreview({
           </p>
         </div>
         {saving !== null ? (
-          <p className="flex items-center gap-2 rounded-2xl bg-[#eef8ec] p-3 text-sm text-[#1f5a2a]">
+          <p className="flex items-center gap-2 rounded-2xl bg-success-soft p-3 text-sm text-success">
             <Icon name="savings" size={18} />
             {t("monthlySaves", {
               pct: saving,
@@ -276,7 +276,7 @@ export function PricingPreview({
           </p>
         ) : null}
         {dailyTooHigh ? (
-          <p className="flex items-start gap-2 rounded-2xl bg-[#f9e3c8]/70 p-3 text-sm text-[#8a5a2b]">
+          <p className="flex items-start gap-2 rounded-2xl bg-warning-soft/70 p-3 text-sm text-warning">
             <Icon name="lightbulb" size={18} className="mt-0.5 shrink-0" />
             {t("dailyCheaper")}
           </p>
@@ -307,7 +307,7 @@ export function LedgerPreview({
   return (
     <PreviewShell>
       <div className="p-5">
-        <p className="text-sm text-[#6b6b6b]">
+        <p className="text-sm text-fg-muted">
           {date ? formatDate(date, locale) : t("pickDate")}
         </p>
         <div className="mt-3 flex items-center gap-3">
@@ -315,8 +315,8 @@ export function LedgerPreview({
             className={cn(
               "flex size-11 shrink-0 items-center justify-center rounded-full",
               income
-                ? "bg-[#dff3d6] text-[#2f6d22]"
-                : "bg-[#fde2df] text-[#a1271b]",
+                ? "bg-success-soft text-success"
+                : "bg-danger-soft text-danger",
             )}
           >
             <Icon name={income ? "south_west" : "north_east"} size={20} />
@@ -325,7 +325,7 @@ export function LedgerPreview({
             <p className="truncate text-[15px] font-medium">
               {placeholder(description, t("description"))}
             </p>
-            <p className="truncate text-xs text-[#6b6b6b]">
+            <p className="truncate text-xs text-fg-muted">
               {propertyName || t("allProperties")} ·{" "}
               {categoryLabel || t("uncategorized")}
             </p>
@@ -334,7 +334,7 @@ export function LedgerPreview({
         <p
           className={cn(
             "mt-4 text-right text-3xl font-medium tracking-tight tabular-nums",
-            income ? "text-[#2f6d22]" : "text-[#a1271b]",
+            income ? "text-success" : "text-danger",
           )}
         >
           {income ? "+" : "−"} Rp {formatIdrTable(amount || 0)}
@@ -373,7 +373,7 @@ export function PersonPreview({
           <p className="truncate text-xl font-medium tracking-tight">
             {placeholder(name, t("fullName"))}
           </p>
-          <p className="truncate text-sm text-[#6b6b6b]">
+          <p className="truncate text-sm text-fg-muted">
             {email || phone || t("contact")}
           </p>
           {roleLabel ? (
@@ -381,8 +381,8 @@ export function PersonPreview({
               className={cn(
                 "mt-1.5 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
                 role === "superadmin"
-                  ? "bg-[#1c0b0a] text-white"
-                  : "bg-[#f3dedb] text-[#71130d]",
+                  ? "bg-ink text-white"
+                  : "bg-brand-soft text-brand",
               )}
             >
               {roleLabel}
@@ -396,8 +396,8 @@ export function PersonPreview({
             className={cn(
               "flex items-center gap-2 rounded-2xl p-3 text-sm",
               phoneOk
-                ? "bg-[#eef8ec] text-[#1f5a2a]"
-                : "bg-[#faf7f6] text-[#6b6b6b]",
+                ? "bg-success-soft text-success"
+                : "bg-subtle text-fg-muted",
             )}
           >
             <Icon name="whatsapp" size={18} />
@@ -405,7 +405,7 @@ export function PersonPreview({
           </p>
         ) : null}
         {roleHint ? (
-          <p className="rounded-2xl bg-[#faf7f6] p-3 text-sm text-[#3d3a36]">
+          <p className="rounded-2xl bg-subtle p-3 text-sm text-fg-2">
             {roleHint}
           </p>
         ) : null}

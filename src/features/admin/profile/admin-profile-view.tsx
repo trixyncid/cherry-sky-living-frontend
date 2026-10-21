@@ -40,8 +40,8 @@ const emptyPassword: AdminPasswordValues = {
 
 function roleBadgeClass(role: string) {
   return role === "superadmin"
-    ? "bg-ferrugem-soft/80 text-ferrugem ring-1 ring-white/60"
-    : "bg-white/45 text-[#51443c] ring-1 ring-white/50";
+    ? "bg-brand-soft text-brand ring-1 ring-brand/15"
+    : "bg-hover text-fg-2 ring-1 ring-line";
 }
 
 export function AdminProfileView() {
@@ -139,13 +139,13 @@ export function AdminProfileView() {
       )}
 
       {isLoading ? (
-        <p className="text-sm text-[#83746b]">{t("loading")}</p>
+        <p className="text-sm text-fg-muted">{t("loading")}</p>
       ) : profile ? (
         <div className="space-y-6">
           <section className="glass-panel rounded-[1.75rem] p-6">
             <div className="mb-6 flex items-center gap-5">
               <ProfileAvatarPlaceholder
-                className="size-20 ring-4 ring-[#f6f0ef]"
+                className="size-20 ring-4 ring-line"
                 iconSize={36}
                 label={profile.name}
               />
@@ -158,13 +158,13 @@ export function AdminProfileView() {
                 >
                   {ts(`roles.${profile.role}` as "roles.admin" | "roles.superadmin")}
                 </span>
-                <p className="mt-2 text-xs text-[#83746b]">
+                <p className="mt-2 text-xs text-fg-muted">
                   {tp("memberSince")}: {formatDate(profile.createdAt, locale)}
                 </p>
               </div>
             </div>
 
-            <h3 className="mb-4 text-sm font-semibold text-[#1a1c1a]">
+            <h3 className="mb-4 text-sm font-semibold text-fg">
               {tp("accountSection")}
             </h3>
 
@@ -194,10 +194,10 @@ export function AdminProfileView() {
                     disabled
                     className={cn(
                       adminInputClassName,
-                      "cursor-not-allowed bg-[#efeeeb] text-[#51443c]",
+                      "cursor-not-allowed bg-hover text-fg-2",
                     )}
                   />
-                  <p className="mt-1 text-xs text-[#83746b]">{tp("emailReadOnly")}</p>
+                  <p className="mt-1 text-xs text-fg-muted">{tp("emailReadOnly")}</p>
                 </AdminField>
               </div>
 
@@ -214,10 +214,10 @@ export function AdminProfileView() {
           </section>
 
           <section className="glass-panel rounded-[1.75rem] p-6">
-            <h3 className="mb-1 text-sm font-semibold text-[#1a1c1a]">
+            <h3 className="mb-1 text-sm font-semibold text-fg">
               {tp("passwordSection")}
             </h3>
-            <p className="mb-4 text-sm text-[#51443c]">{tp("passwordDescription")}</p>
+            <p className="mb-4 text-sm text-fg-2">{tp("passwordDescription")}</p>
 
             <form onSubmit={(e) => void handlePasswordSubmit(e)} className="space-y-4">
               {passwordError && <AdminAlert message={passwordError} />}
@@ -272,7 +272,7 @@ export function AdminProfileView() {
                 <button
                   type="submit"
                   disabled={passwordPending}
-                  className="glass-control rounded-xl px-5 py-2.5 text-sm font-semibold text-[#71130d] transition-colors hover:bg-white/80 disabled:opacity-50"
+                  className="glass-control rounded-xl px-5 py-2.5 text-sm font-semibold text-brand transition-colors hover:bg-hover disabled:opacity-50"
                 >
                   {passwordPending ? tp("updatingPassword") : tp("updatePassword")}
                 </button>
@@ -318,7 +318,7 @@ function PasswordInput({
       <button
         type="button"
         onClick={onToggle}
-        className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#71130d]"
+        className="absolute inset-y-0 right-0 flex items-center pr-3 text-fg-muted transition-colors hover:text-brand"
         aria-label={show ? hideLabel : showLabel}
       >
         <Icon

@@ -58,6 +58,8 @@ export interface Property {
   paymentDueDay?: number;
   lateFeePerDay?: number;
   renewalConfirmDaysBeforeEnd?: number;
+  /** Refundable deposit (Rp) shown on the website; null = not set. */
+  depositAmount?: number | null;
   propertyAttachments?: PropertyAttachment[];
   createdById: string;
   updatedById: string;
@@ -107,7 +109,9 @@ export interface UnitPricing {
 export interface UnitUserRef {
   id: string;
   name: string;
+  /** Phone-only tenants have a placeholder email; see `contactSummary`. */
   email: string;
+  phoneNumber?: string | null;
 }
 
 export interface TenantUser extends UnitUserRef {
@@ -175,9 +179,133 @@ export interface LeaseRenewal {
   updatedAt: string;
 }
 
+export type LeaseBillingCycle = "monthly" | "upfront";
+export type LeasePaymentMethod = "bank_transfer" | "cash";
+
+export type PettyCashEntryType =
+  | "top_up"
+  | "expense"
+  | "cash_in"
+  | "return_to_bank"
+  | "adjustment";
+
+/** Types a person records by hand (adjustments come from cash counts). */
+export type ManualPettyCashType = Exclude<PettyCashEntryType, "adjustment">;
+
+export interface PettyCashEntry {
+  id: string;
+  propertyId: string;
+  type: PettyCashEntryType;
+  /** Signed effect on the cash box: + money in, − money out. */
+  amount: number;
+  category: string | null;
+  description: string;
+  date: string;
+  leaseId: string | null;
+  invoiceId: string | null;
+  reversedAt: string | null;
+  voidReason: string | null;
+  /** Box balance after this entry (list responses only). */
+  balanceAfter?: number;
+  property?: { id: string; name: string };
+  invoice?: { id: string; sequence: number; leaseId: string } | null;
+  attachments?: LedgerEntryAttachment[];
+  createdBy?: UnitUserRef;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PettyCashSummary {
+  balances: {
+    propertyId: string;
+    propertyName: string;
+    balance: number;
+    lastCountedAt: string | null;
+  }[];
+  totalBalance: number;
+  moneyIn: number;
+  moneyOut: number;
+}
+export type LeaseFirstPeriodMode = "separate" | "merged";
+/** percent: off every bill · amount: Rupiah off the lease total. */
+export type LeaseDiscountType = "amount" | "percent";
+/** Same values as a lease used to have; now tracked per bill. */
+export type LeaseInvoiceStatus = LeaseStatus;
+
+/** One bill in a lease's payment schedule. */
+export interface LeaseInvoice {
+  id: string;
+  leaseId: string;
+  sequence: number;
+  periodStart: string;
+  /** Inclusive last day covered. */
+  periodEnd: string;
+  /** After discount. */
+  amount: number;
+  /** Taken off this bill by the lease discount. */
+  discount?: number;
+  dueDate: string;
+  status: LeaseInvoiceStatus;
+  paidAt: string | null;
+  /** Set once paid; cash → booked in the property's petty cash. */
+  paymentMethod?: LeasePaymentMethod | null;
+  proofAttachmentId: string | null;
+  proofAttachment?: LeaseAttachment | null;
+  lateFeePerDay: number;
+  lateFeeWaived: boolean;
+  lateFeeWaiveReason: string | null;
+  lateFeeCharged: number;
+  /** Last change (e.g. when a receipt was sent for review). */
+  updatedAt?: string;
+  /** Computed on read. */
+  daysLate: number;
+  /** Accrued while unpaid; the charged amount once paid. */
+  lateFeeAmount: number;
+}
+
+/**
+ * Where the tenant stands today: overdue · review (receipt to check) · due
+ * (due today) · current (paid so far, more bills to come) · paid (all bills)
+ * · upcoming (nothing due yet).
+ */
+export type LeaseBillingState =
+  | "overdue"
+  | "review"
+  | "due"
+  | "current"
+  | "paid"
+  | "upcoming";
+
+export interface LeaseBillingSummary {
+  state: LeaseBillingState;
+  invoiceCount: number;
+  paidCount: number;
+  paidAmount: number;
+  /** Bills due today or earlier that are not paid. */
+  outstandingAmount: number;
+  overdueCount: number;
+  lateFeeAccrued: number;
+  nextInvoice: {
+    id: string;
+    sequence: number;
+    amount: number;
+    dueDate: string;
+    status: LeaseInvoiceStatus;
+  } | null;
+}
+
 export interface Lease {
   id: string;
+  /** Mirrors the first (move-in) bill — drives occupancy. */
   status: LeaseStatus;
+  billingCycle?: LeaseBillingCycle;
+  firstPeriodMode?: LeaseFirstPeriodMode;
+  discountType?: LeaseDiscountType | null;
+  /** Rupiah for "amount", 1–100 for "percent". */
+  discountValue?: number;
+  discountNote?: string | null;
+  invoices?: LeaseInvoice[];
+  billing?: LeaseBillingSummary;
   startDate: string;
   endDate: string;
   amountDue: number;
@@ -251,7 +379,19 @@ export interface ApiDataResponse<T> {
 export interface AdminDashboardLeaseSummary {
   id: string;
   status: LeaseStatus;
+  /** For bill queue items: that bill's amount. */
   amountDue: number;
+  /** Set on payment queue items (overdue / awaiting review). */
+  invoice?: {
+    id: string;
+    sequence: number;
+    status: LeaseInvoiceStatus;
+    amount: number;
+    periodStart: string;
+    periodEnd: string;
+    dueDate: string;
+    lateFeeAmount: number;
+  };
   startDate: string;
   endDate: string;
   propertyId: string;

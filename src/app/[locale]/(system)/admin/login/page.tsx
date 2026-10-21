@@ -1,7 +1,7 @@
 import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AdminLoginForm } from "@/features/admin";
 import { requireGuest } from "@/lib/auth/guards";
-import { Skeleton } from "@/components/ui/skeleton";
 
 function LoginFormFallback() {
   return (

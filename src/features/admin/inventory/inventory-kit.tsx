@@ -67,7 +67,7 @@ export function Photo({
   return (
     <div
       className={cn(
-        "relative overflow-hidden bg-[linear-gradient(135deg,#f3dedb,#e8bfb9)]",
+        "relative overflow-hidden bg-[linear-gradient(135deg,var(--adm-brand-tint),var(--adm-brand-soft))]",
         className,
       )}
     >
@@ -80,7 +80,7 @@ export function Photo({
           className="object-cover"
         />
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-[#71130d]/70">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-brand/70">
           <Icon name="add_photo_alternate" size={28} />
           {fallbackLabel ? (
             <span className="text-xs font-medium">{fallbackLabel}</span>
@@ -105,13 +105,13 @@ export function VacancyMeter({
   return (
     <div
       className={cn(
-        "flex h-2 overflow-hidden rounded-full bg-[#dff3d6]",
+        "flex h-2 overflow-hidden rounded-full bg-success-soft",
         className,
       )}
       aria-hidden
     >
       <div
-        className="rounded-full bg-[#71130d] transition-[width] duration-700"
+        className="rounded-full bg-brand transition-[width] duration-700"
         style={{ width: `${occupiedPct}%` }}
       />
     </div>
@@ -136,9 +136,9 @@ export function IconAction({
   const cls = cn(
     "inline-flex size-10 shrink-0 items-center justify-center rounded-full transition-colors disabled:opacity-40",
     tone === "light" &&
-      "border border-[#ece4e2] bg-white text-[#3d3a36] hover:border-[#e8bfb9] hover:text-[#71130d]",
+      "border border-line bg-white text-fg-2 hover:border-brand-line hover:text-brand",
     tone === "danger" &&
-      "border border-[#ece4e2] bg-white text-[#a1271b] hover:border-[#f5c2bd] hover:bg-[#fdecea]",
+      "border border-line bg-white text-danger hover:border-danger-soft hover:bg-danger-soft",
     tone === "glass" &&
       "border border-white/25 bg-black/25 text-white backdrop-blur-md hover:bg-black/40",
     disabled && "pointer-events-none opacity-40",
@@ -181,12 +181,12 @@ export function EmptyPanel({
         "flex flex-col items-center gap-3 px-6 py-14 text-center",
       )}
     >
-      <span className="flex size-14 items-center justify-center rounded-full bg-[#f6f0ef] text-[#71130d]">
+      <span className="flex size-14 items-center justify-center rounded-full bg-hover text-brand">
         <Icon name={icon} size={26} />
       </span>
-      <p className="text-lg font-medium text-[#141414]">{title}</p>
+      <p className="text-lg font-medium text-fg">{title}</p>
       {hint ? (
-        <p className="max-w-sm text-[15px] text-[#6b6b6b]">{hint}</p>
+        <p className="max-w-sm text-[15px] text-fg-muted">{hint}</p>
       ) : null}
       {action}
     </div>

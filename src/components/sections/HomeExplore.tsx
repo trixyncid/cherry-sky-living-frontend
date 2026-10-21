@@ -29,10 +29,10 @@ export function HomeExplore() {
               <Reveal delay={index * 0.06} className="h-full">
                 <Link
                   href={link.href}
-                  className="group flex h-full min-h-[9rem] flex-col justify-between gap-6 rounded-[1.25rem] bg-white p-6 transition-colors hover:bg-[#71130d] hover:text-white"
+                  className="group flex h-full min-h-[9rem] flex-col justify-between gap-6 rounded-[1.25rem] bg-white p-6 transition-colors hover:bg-brand hover:text-white"
                 >
                   <span className="flex items-start justify-between">
-                    <span className="flex size-11 items-center justify-center rounded-full bg-[#f7f3f2] text-[#71130d]">
+                    <span className="flex size-11 items-center justify-center rounded-full bg-canvas text-brand">
                       <Icon name={link.icon} size={22} />
                     </span>
                     <Icon
@@ -45,7 +45,7 @@ export function HomeExplore() {
                     <span className="block text-xl font-medium tracking-tight">
                       {t(`${link.key}.title`)}
                     </span>
-                    <span className="mt-1 block text-base text-[#6b6b6b] group-hover:text-white/70">
+                    <span className="mt-1 block text-base text-fg-muted group-hover:text-white/70">
                       {t(`${link.key}.description`)}
                     </span>
                   </span>

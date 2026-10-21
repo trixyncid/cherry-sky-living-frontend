@@ -1,7 +1,7 @@
 "use client";
 
-import { useId } from "react";
 import { useTranslations } from "next-intl";
+import { useId } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { AdminSelect } from "@/features/admin/components/admin-field";
 import { PAGE_SIZE_OPTIONS } from "@/features/admin/crud/use-client-pagination";
@@ -31,9 +31,9 @@ export function AdminPagination({
   const pages = buildPageNumbers(page, totalPages);
 
   return (
-    <div className="flex flex-col gap-3 border-t border-white/40 bg-white/25 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 border-t border-line bg-panel px-6 py-3.5 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <div className="flex items-center gap-2 text-xs font-medium text-[#5f5e5e]">
+        <div className="flex items-center gap-2 text-xs font-medium text-fg-muted">
           <label htmlFor={pageSizeId}>{t("show")}</label>
           <AdminSelect
             id={pageSizeId}
@@ -51,7 +51,7 @@ export function AdminPagination({
           </AdminSelect>
           <span>{t("entries")}</span>
         </div>
-        <p className="text-xs font-medium text-[#5f5e5e]">
+        <p className="text-xs font-medium text-fg-muted">
           {t("showing", { start, end, total })}
         </p>
       </div>
@@ -60,7 +60,7 @@ export function AdminPagination({
           type="button"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          className="rounded-lg p-1 text-[#5f5e5e] transition-colors hover:bg-white/50 disabled:opacity-50"
+          className="rounded-lg p-1 text-fg-muted transition-colors hover:bg-hover disabled:opacity-50"
           aria-label={t("previous")}
         >
           <Icon name="chevron_left" size={20} />
@@ -69,7 +69,7 @@ export function AdminPagination({
           p === "ellipsis" ? (
             <span
               key={`ellipsis-${i}`}
-              className="flex size-8 items-center justify-center text-[#5f5e5e]"
+              className="flex size-8 items-center justify-center text-fg-muted"
             >
               …
             </span>
@@ -80,9 +80,7 @@ export function AdminPagination({
               onClick={() => onPageChange(p)}
               className={cn(
                 "flex size-8 items-center justify-center rounded-lg text-sm font-semibold transition-colors",
-                p === page
-                  ? "admin-btn-primary"
-                  : "text-[#1a1c1a] hover:bg-white/50",
+                p === page ? "bg-ink text-white" : "text-fg hover:bg-hover",
               )}
             >
               {p}
@@ -93,7 +91,7 @@ export function AdminPagination({
           type="button"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
-          className="rounded-lg p-1 text-[#1a1c1a] transition-colors hover:bg-white/50 disabled:opacity-50"
+          className="rounded-lg p-1 text-fg transition-colors hover:bg-hover disabled:opacity-50"
           aria-label={t("next")}
         >
           <Icon name="chevron_right" size={20} />

@@ -7,6 +7,8 @@ export interface User {
   email: string;
   name: string;
   phone?: string;
+  /** From the phone-number sign-in plugin (tenants). */
+  phoneNumber?: string | null;
   role: UserRole;
   isActive: boolean;
   avatar?: string;

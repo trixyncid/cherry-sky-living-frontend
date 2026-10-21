@@ -15,7 +15,9 @@ const optionalEmail = (emailInvalid: string) =>
     z.string().trim().email(emailInvalid).optional(),
   );
 
-const phoneField = (messages: Pick<UserFormMessages, "phoneRequired" | "phoneInvalid">) =>
+const phoneField = (
+  messages: Pick<UserFormMessages, "phoneRequired" | "phoneInvalid">,
+) =>
   z
     .string()
     .trim()

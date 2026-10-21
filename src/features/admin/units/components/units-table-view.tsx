@@ -73,9 +73,9 @@ export function UnitsTableView({
       }
     >
       {isLoading ? (
-        <p className="p-8 text-center text-sm text-[#83746b]">{t("loading")}</p>
+        <p className="p-8 text-center text-sm text-fg-muted">{t("loading")}</p>
       ) : units.length === 0 ? (
-        <p className="p-8 text-center text-sm text-[#83746b]">
+        <p className="p-8 text-center text-sm text-fg-muted">
           {emptyMessage ?? t("empty")}
         </p>
       ) : (
@@ -97,13 +97,13 @@ export function UnitsTableView({
               <AdminCrudTableCell className="font-semibold">
                 {unit.name}
               </AdminCrudTableCell>
-              <AdminCrudTableCell className="text-[#51443c]">
+              <AdminCrudTableCell className="text-fg-2">
                 {resolveUnitTypeNameForUnit(unit, lookups)}
               </AdminCrudTableCell>
               <AdminCrudTableCell>
                 {unit.maxOccupancy != null ? unit.maxOccupancy : "—"}
               </AdminCrudTableCell>
-              <AdminCrudTableCell className="text-[#51443c]">
+              <AdminCrudTableCell className="text-fg-2">
                 {resolveUnitTenantLabel(unit)}
               </AdminCrudTableCell>
               <AdminCrudTableCell>

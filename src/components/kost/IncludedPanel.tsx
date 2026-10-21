@@ -34,7 +34,7 @@ export function IncludedPanel({
       )}
     >
       <div className="p-6">
-        <p className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#047857]">
+        <p className="mb-4 flex items-center gap-2 text-sm font-semibold text-success">
           <Icon name="check_circle" size={18} />
           {t("included")}
         </p>
@@ -42,28 +42,28 @@ export function IncludedPanel({
           {INCLUDED.map((item) => (
             <li
               key={item.key}
-              className="flex items-center gap-2 text-[15px] text-[#141414]"
+              className="flex items-center gap-2 text-[15px] text-fg"
             >
-              <Icon name={item.icon} size={18} className="text-[#047857]" />
+              <Icon name={item.icon} size={18} className="text-success" />
               {t(item.key)}
             </li>
           ))}
         </ul>
       </div>
-      <div className="flex flex-col gap-3 border-t border-[#efeeeb] bg-[#faf9f7] p-6 sm:border-l sm:border-t-0">
-        <p className="flex items-center gap-2 text-sm font-semibold text-[#71130d]">
+      <div className="flex flex-col gap-3 border-t border-hover bg-subtle p-6 sm:border-l sm:border-t-0">
+        <p className="flex items-center gap-2 text-sm font-semibold text-brand">
           <Icon name="receipt_long" size={18} />
           {t("paidSeparately")}
         </p>
-        <p className="text-[15px] leading-relaxed text-[#3d3a36]">
+        <p className="text-[15px] leading-relaxed text-fg-2">
           {t("electricity")}
         </p>
-        <p className="text-[15px] leading-relaxed text-[#3d3a36]">
+        <p className="text-[15px] leading-relaxed text-fg-2">
           {deposit
             ? tDetail("depositFor", { amount: formatCurrency(deposit) })
             : t("deposit")}
         </p>
-        <p className="mt-auto border-t border-[#efeeeb] pt-3 text-[15px] font-semibold text-[#141414]">
+        <p className="mt-auto border-t border-hover pt-3 text-[15px] font-semibold text-fg">
           {t("noAgent")}
         </p>
       </div>

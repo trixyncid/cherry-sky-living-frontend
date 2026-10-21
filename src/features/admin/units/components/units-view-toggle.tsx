@@ -37,7 +37,7 @@ export function UnitsViewToggle({
             "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all",
             value === mode
               ? "admin-btn-primary shadow-sm"
-              : "text-[#51443c] hover:bg-white/50",
+              : "text-fg-2 hover:bg-white/50",
           )}
         >
           <Icon name={icon} size={18} />

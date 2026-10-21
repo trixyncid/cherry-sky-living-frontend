@@ -2,13 +2,14 @@
 
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
-import { Link } from "@/i18n/routing";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import {
   buildCreateLeaseHref,
   buildViewLeaseHref,
 } from "@/features/admin/units/lib/lease-links";
-import { cn } from "@/lib/utils";
+import { Link } from "@/i18n/routing";
 import type { Unit } from "@/lib/types/admin";
+import { cn } from "@/lib/utils";
 
 const UNITS_BASE = "/admin/units";
 
@@ -30,7 +31,7 @@ export function UnitRowActions({
   const lease = unit.activeLease ?? null;
 
   const actionClass = cn(
-    "inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors disabled:opacity-50",
+    "inline-flex size-8 items-center justify-center rounded-lg text-fg-2 transition-colors disabled:opacity-50",
     disabled && "pointer-events-none opacity-50",
   );
 
@@ -39,16 +40,16 @@ export function UnitRowActions({
       {lease ? (
         <Link
           href={buildViewLeaseHref(lease.id)}
-          className={cn(actionClass, "hover:bg-[#e6f4ea]/80 hover:text-[#137333]")}
+          className={cn(actionClass, "hover:bg-success-soft/80 hover:text-success")}
           aria-label={tp("viewLease")}
           title={tp("viewLease")}
         >
-          <Icon name="description" size={18} />
+          <Icon name={adminPageIcons.leases} size={18} />
         </Link>
       ) : (
         <Link
           href={buildCreateLeaseHref(unit.id, suggestedLeaseStartDate)}
-          className={cn(actionClass, "hover:bg-[#fef7e0]/80 hover:text-[#71130d]")}
+          className={cn(actionClass, "hover:bg-warning-soft/80 hover:text-brand")}
           aria-label={tp("createLease")}
           title={tp("createLease")}
         >
@@ -57,7 +58,7 @@ export function UnitRowActions({
       )}
       <Link
         href={`${UNITS_BASE}/${unit.id}/edit`}
-        className={cn(actionClass, "hover:bg-[#efeeeb] hover:text-[#71130d]")}
+        className={cn(actionClass, "hover:bg-hover hover:text-brand")}
         aria-label={tc("editTitle")}
         title={tc("editTitle")}
       >
@@ -69,7 +70,7 @@ export function UnitRowActions({
         onClick={onDelete}
         className={cn(
           actionClass,
-          "hover:bg-[#ffdad6]/60 hover:text-[#ba1a1a]",
+          "hover:bg-danger-soft/60 hover:text-danger",
         )}
         aria-label={tc("deleteConfirm")}
         title={tc("deleteConfirm")}

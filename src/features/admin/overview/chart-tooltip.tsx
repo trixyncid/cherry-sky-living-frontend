@@ -29,9 +29,9 @@ export function ChartTooltip({
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-xl border border-white/50 bg-white/95 px-3 py-2.5 shadow-[0_12px_40px_rgb(48_20_0/0.12)] backdrop-blur-md">
+    <div className="rounded-xl border border-white/50 bg-white/95 px-3 py-2.5 shadow-[0_12px_40px_rgb(11_11_13/0.12)] backdrop-blur-md">
       {label != null && label !== "" && (
-        <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#83746b]">
+        <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-fg-muted">
           {labelFormatter ? labelFormatter(label) : label}
         </p>
       )}
@@ -43,13 +43,13 @@ export function ChartTooltip({
           return (
             <li
               key={name}
-              className="flex items-center gap-2 text-sm text-[#1a1c1a]"
+              className="flex items-center gap-2 text-sm text-fg"
             >
               <span
                 className="size-2.5 shrink-0 rounded-full"
                 style={{ background: item.color ?? "var(--chart-1)" }}
               />
-              <span className="text-[#51443c]">{name}</span>
+              <span className="text-fg-2">{name}</span>
               <span className="ml-auto font-semibold tabular-nums">
                 {Number.isFinite(num) ? valueFormatter(num, name) : String(raw)}
               </span>

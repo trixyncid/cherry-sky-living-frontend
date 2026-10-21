@@ -1,7 +1,8 @@
+import { contactSummary } from "@/lib/phone";
 import type { Lease } from "@/lib/types/admin";
 
 export type LeaseInvoiceLine = {
-  key: "rent" | "late_fee";
+  key: "rent" | "discount" | "late_fee";
   label: string;
   description?: string;
   amount: number;
@@ -43,10 +44,9 @@ export type BuildLeaseInvoiceLabels = {
   rentLineLabel: string;
   rentLineDescription: string;
   lateFeeLineLabel: string;
-  lateFeeLineDescription: (args: {
-    days: number;
-    perDay: string;
-  }) => string;
+  /** Shown as a negative line when the lease has a discount. */
+  discountLineLabel?: string;
+  lateFeeLineDescription: (args: { days: number; perDay: string }) => string;
   statusPaid: string;
   statusUnpaid: string;
   statusWaitingForReview: string;
@@ -91,21 +91,33 @@ export function buildLeaseInvoice(
   const daysLate = tone === "paid" ? 0 : Math.max(0, lease.daysLate ?? 0);
   const totalAmount = rentAmount + lateFeeAmount;
 
-  const property =
-    lease.property ?? lease.unit?.property ?? undefined;
+  const property = lease.property ?? lease.unit?.property ?? undefined;
   const propertyName = property?.name?.trim() || "—";
   const propertyAddress = [property?.address, property?.city]
     .filter(Boolean)
     .join(", ");
 
+  // amountDue is after discount; show the full rent and the discount apart.
+  const discountAmount = (lease.invoices ?? []).reduce(
+    (sum, inv) => sum + (inv.discount ?? 0),
+    0,
+  );
   const lines: LeaseInvoiceLine[] = [
     {
       key: "rent",
       label: labels.rentLineLabel,
       description: labels.rentLineDescription,
-      amount: rentAmount,
+      amount: rentAmount + discountAmount,
     },
   ];
+  if (discountAmount > 0) {
+    lines.push({
+      key: "discount",
+      label: labels.discountLineLabel ?? "Discount",
+      description: lease.discountNote?.trim() || undefined,
+      amount: -discountAmount,
+    });
+  }
 
   if (lateFeeAmount > 0) {
     lines.push({
@@ -146,7 +158,8 @@ export function buildLeaseInvoice(
     brandEmail: labels.brandEmail,
     brandPhone: labels.brandPhone,
     tenantName: lease.user?.name?.trim() || "—",
-    tenantEmail: lease.user?.email?.trim() || "—",
+    // Phone and/or real email (never the phone-only placeholder address).
+    tenantEmail: contactSummary(lease.user) || "—",
     propertyName,
     propertyAddress: propertyAddress || "—",
     unitName: lease.unit?.name?.trim() || "—",

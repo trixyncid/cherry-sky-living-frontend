@@ -43,14 +43,14 @@ export function PrivacyHero() {
         <motion.p
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 text-lg font-semibold text-[#f5e4d4] lg:text-2xl"
+          className="mb-6 text-lg font-semibold text-brand-line lg:text-2xl"
         >
           {t("subtitle")}
         </motion.p>
         <motion.p
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mx-auto max-w-2xl text-base leading-relaxed text-[#f5f2ee] lg:text-lg"
+          className="mx-auto max-w-2xl text-base leading-relaxed text-panel lg:text-lg"
         >
           {t("description")}
         </motion.p>

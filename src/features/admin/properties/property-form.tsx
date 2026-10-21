@@ -16,13 +16,17 @@ import {
 } from "@/features/admin/components/admin-form-layout";
 import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
 import { PropertyPreview } from "@/features/admin/components/form-previews";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import {
   useProperty,
   usePropertyMutations,
 } from "@/features/admin/hooks/use-admin-queries";
+import { useAttachmentQueue } from "@/features/admin/hooks/use-attachment-queue";
+import { useLeaveGuard } from "@/features/admin/hooks/use-leave-guard";
 import { firstPhoto } from "@/features/admin/inventory/inventory-kit";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { formatIdrInput, parseIdrInput } from "@/features/admin/lib/format";
+import { stashPendingUploads } from "@/features/admin/lib/pending-uploads";
 import {
   showApiError,
   showApiSuccess,
@@ -45,16 +49,25 @@ type FormState = {
   paymentDueDay: string;
   lateFeePerDay: string;
   renewalConfirmDaysBeforeEnd: string;
+  /** Optional; blank = not shown on the website. */
+  depositAmount: string;
 };
 
 const emptyForm: FormState = {
   name: "",
   address: "",
   city: "",
-  paymentDueDay: "5",
-  lateFeePerDay: formatIdrInput(100000),
-  renewalConfirmDaysBeforeEnd: "5",
+  // Payment rules start blank: the owner sets them per property.
+  paymentDueDay: "",
+  lateFeePerDay: "",
+  renewalConfirmDaysBeforeEnd: "",
+  depositAmount: "",
 };
+
+/** Blank deposit = not set (null), not Rp 0. */
+function depositFromInput(value: string): number | null {
+  return value.trim() ? parseIdrInput(value) : null;
+}
 
 export function PropertyForm({ id }: { id?: string }) {
   const t = useTranslations("admin.crud");
@@ -68,7 +81,6 @@ export function PropertyForm({ id }: { id?: string }) {
   const mutations = usePropertyMutations();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
-  const [imageError, setImageError] = useState<string | null>(null);
 
   const attachments = property?.propertyAttachments ?? [];
 
@@ -78,6 +90,21 @@ export function PropertyForm({ id }: { id?: string }) {
       void qc.invalidateQueries({ queryKey: adminKeys.properties.detail(id) });
     }
   }
+
+  const queue = useAttachmentQueue({
+    upload: id ? (file) => uploadPropertyImage(id, file) : null,
+    handoffKey: id ? `property:${id}` : undefined,
+    onSettled: ({ succeeded, failed, firstError }) => {
+      if (succeeded > 0) {
+        invalidateProperty();
+        showApiSuccess(ta("uploadedCount", { count: succeeded }));
+      }
+      if (failed > 0) {
+        showApiError(firstError, ta("uploadFailedCount", { count: failed }));
+      }
+    },
+  });
+  useLeaveGuard(queue.hasUnsent, ta("leaveWarning"));
 
   useEffect(() => {
     if (property) {
@@ -90,6 +117,10 @@ export function PropertyForm({ id }: { id?: string }) {
         renewalConfirmDaysBeforeEnd: String(
           property.renewalConfirmDaysBeforeEnd ?? 5,
         ),
+        depositAmount:
+          property.depositAmount != null
+            ? formatIdrInput(property.depositAmount)
+            : "",
       });
     }
   }, [property]);
@@ -102,11 +133,22 @@ export function PropertyForm({ id }: { id?: string }) {
     form.paymentDueDay !== String(property.paymentDueDay ?? 5) ||
     parseIdrInput(form.lateFeePerDay) !== (property.lateFeePerDay ?? 100000) ||
     form.renewalConfirmDaysBeforeEnd !==
-      String(property.renewalConfirmDaysBeforeEnd ?? 5);
+      String(property.renewalConfirmDaysBeforeEnd ?? 5) ||
+    depositFromInput(form.depositAmount) !== (property.depositAmount ?? null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
+
+    // An empty late fee would otherwise parse as Rp 0.
+    if (
+      !form.paymentDueDay.trim() ||
+      !form.lateFeePerDay.trim() ||
+      !form.renewalConfirmDaysBeforeEnd.trim()
+    ) {
+      setFormError(tp("paymentRulesRequired"));
+      return;
+    }
 
     const parsed = propertyFormSchema.safeParse({
       name: form.name.trim(),
@@ -115,6 +157,7 @@ export function PropertyForm({ id }: { id?: string }) {
       paymentDueDay: Number(form.paymentDueDay),
       lateFeePerDay: parseIdrInput(form.lateFeePerDay),
       renewalConfirmDaysBeforeEnd: Number(form.renewalConfirmDaysBeforeEnd),
+      depositAmount: depositFromInput(form.depositAmount),
     });
 
     if (!parsed.success) {
@@ -131,7 +174,14 @@ export function PropertyForm({ id }: { id?: string }) {
         showApiSuccess(t("updated"));
       } else {
         const created = await mutations.create.mutateAsync(payload);
-        showApiSuccess(tp("createdStayToUpload"));
+        // Files picked before saving upload on the edit page.
+        const files = queue.takeAll();
+        stashPendingUploads(`property:${created.id}`, files);
+        showApiSuccess(
+          files.length > 0
+            ? ta("savedUploading", { count: files.length })
+            : tp("createdStayToUpload"),
+        );
         router.replace(`${BASE}/${created.id}/edit`);
         router.refresh();
       }
@@ -139,47 +189,6 @@ export function PropertyForm({ id }: { id?: string }) {
       const msg = getErrorMessage(err, t("saveFailed"));
       setFormError(msg);
       showApiError(err, t("saveFailed"));
-    }
-  }
-
-  async function handleImageUpload(files: File[]) {
-    if (!isEdit || !id) {
-      setImageError(tp("saveFirstToUpload"));
-      return;
-    }
-
-    setImageError(null);
-    const results = await Promise.allSettled(
-      files.map((file) => uploadPropertyImage(id, file)),
-    );
-    const succeeded = results.filter((result) => result.status === "fulfilled");
-    const failed = results.filter((result) => result.status === "rejected");
-
-    if (succeeded.length > 0) {
-      showApiSuccess(
-        succeeded.length === 1
-          ? tp("imageUploaded")
-          : tp("imagesUploaded", { count: succeeded.length }),
-      );
-      invalidateProperty();
-    }
-
-    if (failed.length > 0) {
-      const first = failed[0];
-      const reason = first && first.status === "rejected" ? first.reason : null;
-      const msg = getErrorMessage(reason, tp("imageUploadFailed"));
-      setImageError(
-        failed.length > 1
-          ? tp("imagesUploadPartial", {
-              failed: failed.length,
-              total: files.length,
-            })
-          : msg,
-      );
-      showApiError(reason, msg);
-      if (succeeded.length === 0) {
-        throw reason instanceof Error ? reason : new Error(msg);
-      }
     }
   }
 
@@ -200,7 +209,7 @@ export function PropertyForm({ id }: { id?: string }) {
     (isEdit && isLoading);
 
   if (isEdit && isLoading && !property) {
-    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
+    return <p className="text-sm text-fg-muted">{t("loading")}</p>;
   }
 
   const photoCount = attachments.length;
@@ -219,7 +228,7 @@ export function PropertyForm({ id }: { id?: string }) {
           <AdminFormError message={formError} />
 
           <AdminFormSection
-            icon="apartment"
+            icon={adminPageIcons.properties}
             title={tp("identityTitle")}
             hint={tp("identityHint")}
           >
@@ -285,13 +294,14 @@ export function PropertyForm({ id }: { id?: string }) {
                   min={1}
                   max={28}
                   required
+                  placeholder={tp("paymentDueDayPlaceholder")}
                   className={adminInputClassName}
                   value={form.paymentDueDay}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, paymentDueDay: e.target.value }))
                   }
                 />
-                <p className="mt-1 text-xs text-[#6b6b6b]">
+                <p className="mt-1 text-xs text-fg-muted">
                   {tp("paymentDueDayHint")}
                 </p>
               </AdminField>
@@ -303,12 +313,13 @@ export function PropertyForm({ id }: { id?: string }) {
                 <AdminCurrencyInput
                   id="prop-late-fee"
                   required
+                  placeholder={tp("lateFeePlaceholder")}
                   value={form.lateFeePerDay}
                   onValueChange={(lateFeePerDay) =>
                     setForm((f) => ({ ...f, lateFeePerDay }))
                   }
                 />
-                <p className="mt-1 text-xs text-[#6b6b6b]">
+                <p className="mt-1 text-xs text-fg-muted">
                   {tp("lateFeeHint")}
                 </p>
               </AdminField>
@@ -323,6 +334,7 @@ export function PropertyForm({ id }: { id?: string }) {
                   min={1}
                   max={28}
                   required
+                  placeholder={tp("renewalDaysPlaceholder")}
                   className={adminInputClassName}
                   value={form.renewalConfirmDaysBeforeEnd}
                   onChange={(e) =>
@@ -332,8 +344,21 @@ export function PropertyForm({ id }: { id?: string }) {
                     }))
                   }
                 />
-                <p className="mt-1 text-xs text-[#6b6b6b]">
+                <p className="mt-1 text-xs text-fg-muted">
                   {tp("renewalHint")}
+                </p>
+              </AdminField>
+              <AdminField label={tp("deposit")} htmlFor="prop-deposit">
+                <AdminCurrencyInput
+                  id="prop-deposit"
+                  placeholder={tp("depositPlaceholder")}
+                  value={form.depositAmount}
+                  onValueChange={(depositAmount) =>
+                    setForm((f) => ({ ...f, depositAmount }))
+                  }
+                />
+                <p className="mt-1 text-xs text-fg-muted">
+                  {tp("depositHint")}
                 </p>
               </AdminField>
             </div>
@@ -370,7 +395,7 @@ export function PropertyForm({ id }: { id?: string }) {
             hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
             headerExtra={
               isEdit && photoCount > 0 ? (
-                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#3d3a36]">
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-fg-2">
                   {ta("photoCount", { count: photoCount })}
                 </span>
               ) : null
@@ -378,12 +403,8 @@ export function PropertyForm({ id }: { id?: string }) {
           >
             <AdminImageGallery
               attachments={attachments}
-              onUpload={handleImageUpload}
+              queue={queue}
               onDelete={handleDeleteAttachment}
-              disabled={!isEdit}
-              disabledTitle={ta("lockedTitle")}
-              disabledHint={ta("lockedHint")}
-              error={imageError}
             />
           </AdminFormSection>
         </aside>

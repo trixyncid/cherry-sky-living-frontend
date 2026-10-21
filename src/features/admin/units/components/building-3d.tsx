@@ -262,10 +262,10 @@ export function Building3D({
   };
 
   const roundBtn =
-    "flex size-11 items-center justify-center rounded-full border border-[#ece4e2] bg-white/95 text-[#3d3a36] shadow-[0_8px_20px_-14px_rgb(28_11_10/0.4)] backdrop-blur transition-colors hover:text-[#71130d] active:scale-95";
+    "flex size-11 items-center justify-center rounded-full border border-line bg-white/95 text-fg-2 shadow-[0_8px_20px_-14px_rgb(11_11_13/0.4)] backdrop-blur transition-colors hover:text-brand active:scale-95";
 
   return (
-    <div className="relative overflow-hidden rounded-[1.5rem] bg-[radial-gradient(120%_90%_at_50%_10%,#ffffff_0%,#f6efed_55%,#efe5e2_100%)]">
+    <div className="relative overflow-hidden rounded-[1.5rem] bg-[radial-gradient(120%_90%_at_50%_10%,#ffffff_0%,#f5f5f6_55%,#ececee_100%)]">
       {/* Pointer-only shortcut: the floor picker and room tiles below are the keyboard path. */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard path is the floor picker + tiles */}
       <div
@@ -304,7 +304,7 @@ export function Building3D({
 
       {hover ? (
         <div
-          className="pointer-events-none absolute z-20 w-56 -translate-x-1/2 -translate-y-[calc(100%+14px)] rounded-2xl border border-[#ece4e2] bg-white/95 p-3 shadow-[0_18px_40px_-18px_rgb(28_11_10/0.45)] backdrop-blur"
+          className="pointer-events-none absolute z-20 w-56 -translate-x-1/2 -translate-y-[calc(100%+14px)] rounded-2xl border border-line bg-white/95 p-3 shadow-[0_18px_40px_-18px_rgb(11_11_13/0.45)] backdrop-blur"
           style={{ left: hover.x, top: hover.y }}
         >
           {renderTooltip(hover.unit)}
@@ -313,7 +313,7 @@ export function Building3D({
 
       {overlay}
 
-      <p className="pointer-events-none absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-white/85 px-3 py-1.5 text-xs text-[#6b6b6b] backdrop-blur">
+      <p className="pointer-events-none absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-white/85 px-3 py-1.5 text-xs text-fg-muted backdrop-blur">
         <Icon name="touch_app" size={14} />
         {selectedFloor === null ? t("dragHint") : t("tapRoomHint")}
       </p>

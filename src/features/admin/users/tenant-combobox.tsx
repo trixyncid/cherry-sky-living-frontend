@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,26 +14,23 @@ import {
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
 import { adminMenuItemClassName } from "@/features/admin/components/admin-menu";
-import { TenantQuickCreateDialog } from "@/features/admin/users/tenant-quick-create-dialog";
 import {
   useTenantUser,
   useTenantUsers,
 } from "@/features/admin/hooks/use-admin-queries";
+import { TenantQuickCreateDialog } from "@/features/admin/users/tenant-quick-create-dialog";
 import { useDebouncedValue } from "@/lib/hooks/use-debounced-value";
 import {
-  displayEmailOrEmpty,
+  contactSummary,
   isValidIndonesianPhone,
   looksLikeEmail,
 } from "@/lib/phone";
 import type { TenantUser } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
 
-function formatTenantLabel(
-  tenant: Pick<TenantUser, "name" | "email" | "phoneNumber">,
-) {
-  const email = displayEmailOrEmpty(tenant.email);
-  const secondary = tenant.phoneNumber || email || "—";
-  return `${tenant.name} (${secondary})`;
+/** The field shows just the name; contact details go on the option line. */
+function formatTenantLabel(tenant: Pick<TenantUser, "name">) {
+  return tenant.name;
 }
 
 type TenantComboboxProps = {
@@ -65,10 +62,11 @@ export function TenantCombobox({
   const [selectedTenant, setSelectedTenant] = useState<TenantUser | null>(null);
 
   const debouncedSearch = useDebouncedValue(search, 300);
-  const { data: tenants = [], isLoading, isFetching } = useTenantUsers(
-    debouncedSearch.trim() || undefined,
-    { enabled: open },
-  );
+  const {
+    data: tenants = [],
+    isLoading,
+    isFetching,
+  } = useTenantUsers(debouncedSearch.trim() || undefined, { enabled: open });
   const { data: resolvedTenant } = useTenantUser(value, !!value);
 
   const displayTenant = useMemo(() => {
@@ -151,7 +149,7 @@ export function TenantCombobox({
             className={cn(
               adminInputClassName,
               "relative flex h-11 cursor-pointer items-center pr-10 text-left",
-              !displayTenant && "text-[#6b6b6b]",
+              !displayTenant && "text-fg-muted",
             )}
           >
             <span className="truncate">
@@ -160,7 +158,7 @@ export function TenantCombobox({
                 : t("selectTenant")}
             </span>
             <span
-              className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-[#83746b]"
+              className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-fg-muted"
               aria-hidden
             >
               <Icon
@@ -176,7 +174,7 @@ export function TenantCombobox({
           className="w-[var(--radix-popover-trigger-width)] min-w-[18rem] p-0"
           align="start"
         >
-          <div className="border-b border-[#e8ddd4] bg-[#faf9f6] p-2">
+          <div className="border-b border-line bg-subtle p-2">
             <AdminSearchInput
               ref={searchRef}
               variant="menu"
@@ -212,11 +210,11 @@ export function TenantCombobox({
             className="max-h-72 overflow-y-auto p-1"
           >
             {showLoading ? (
-              <li className="px-3 py-6 text-center text-sm text-[#83746b]">
+              <li className="px-3 py-6 text-center text-sm text-fg-muted">
                 {t("loading")}
               </li>
             ) : tenants.length === 0 ? (
-              <li className="px-3 py-6 text-center text-sm text-[#83746b]">
+              <li className="px-3 py-6 text-center text-sm text-fg-muted">
                 {emptyMessage}
               </li>
             ) : (
@@ -244,12 +242,14 @@ export function TenantCombobox({
                         <span className="block truncate font-medium">
                           {tenant.name}
                         </span>
-                        <span className="block truncate text-xs text-[#83746b]">
-                          {tenant.email}
-                        </span>
+                        {contactSummary(tenant) ? (
+                          <span className="block truncate text-xs text-fg-muted">
+                            {contactSummary(tenant)}
+                          </span>
+                        ) : null}
                       </span>
                       {!tenant.isActive && (
-                        <span className="shrink-0 text-xs text-[#ba1a1a]">
+                        <span className="shrink-0 text-xs text-danger">
                           {tp("statusInactive")}
                         </span>
                       )}
@@ -257,7 +257,7 @@ export function TenantCombobox({
                         <Icon
                           name="check"
                           size={18}
-                          className="shrink-0 text-[#71130d]"
+                          className="shrink-0 text-brand"
                         />
                       )}
                     </button>
@@ -267,11 +267,11 @@ export function TenantCombobox({
             )}
           </ul>
 
-          <div className="border-t border-[#e8ddd4] bg-[#faf9f6] p-2">
+          <div className="border-t border-line bg-subtle p-2">
             <Button
               type="button"
               variant="ghost"
-              className="h-9 w-full justify-start gap-2 text-[#71130d] hover:bg-[#efe0d2] hover:text-[#71130d]"
+              className="h-9 w-full justify-start gap-2 text-brand hover:bg-hover hover:text-brand"
               onClick={openCreateDialog}
             >
               <Icon name="person_add" size={18} />

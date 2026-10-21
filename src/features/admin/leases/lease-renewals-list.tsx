@@ -14,7 +14,9 @@ import {
   type LeaseRenewalStatus,
   LeaseRenewalStatusBadge,
 } from "@/features/admin/components/status-badge";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
+import { useAdminPropertyFilter } from "@/features/admin/hooks/use-admin-property-filter";
 import { useLeases } from "@/features/admin/hooks/use-admin-queries";
 import {
   EmptyPanel,
@@ -81,7 +83,8 @@ export function LeaseRenewalsList() {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.leaseRenewals");
   const to = useTranslations("admin.pages.operations");
-  const [propertyFilter, setPropertyFilter] = useState("");
+  const { propertyId: propertyFilter, setPropertyId: setPropertyFilter } =
+    useAdminPropertyFilter();
   const [search, setSearch] = useState("");
   const [stage, setStage] = useState<StageFilter>("pending_confirmation");
   const {
@@ -162,9 +165,9 @@ export function LeaseRenewalsList() {
       {/* Pipeline stepper (also the filter) */}
       <section className={cn(panel, "mb-5 p-3 sm:p-4")}>
         <div className="flex items-stretch gap-2 overflow-x-auto pb-1">
-          <div className="flex min-w-[9.5rem] flex-col justify-center rounded-2xl bg-[#1c0b0a] px-4 py-3 text-white">
+          <div className="flex min-w-[9.5rem] flex-col justify-center rounded-2xl bg-ink px-4 py-3 text-white">
             <p className="flex items-center gap-2 text-sm text-white/70">
-              <Icon name="autorenew" size={16} />
+              <Icon name={adminPageIcons.leaseRenewals} size={16} />
               {tp("stats.requested")}
             </p>
             <p className="text-3xl font-medium tabular-nums">
@@ -178,7 +181,7 @@ export function LeaseRenewalsList() {
               <Fragment key={s.id}>
                 <span
                   aria-hidden
-                  className="flex shrink-0 items-center text-[#c9bdb9]"
+                  className="flex shrink-0 items-center text-fg-faint"
                 >
                   <Icon name="chevron_right" size={22} />
                 </span>
@@ -189,20 +192,20 @@ export function LeaseRenewalsList() {
                   className={cn(
                     "flex min-w-[11rem] flex-1 flex-col items-start rounded-2xl px-4 py-3 text-left transition-colors",
                     active
-                      ? "bg-[#71130d] text-white shadow-[0_14px_30px_-16px_rgb(113_19_13/0.8)]"
-                      : "bg-[#faf7f6] text-[#141414] hover:bg-[#f6f0ef]",
+                      ? "bg-brand text-white shadow-[0_14px_30px_-16px_rgb(122_22_48/0.8)]"
+                      : "bg-subtle text-fg hover:bg-hover",
                   )}
                 >
                   <span
                     className={cn(
                       "flex items-center gap-2 text-sm",
-                      active ? "text-white/80" : "text-[#6b6b6b]",
+                      active ? "text-white/80" : "text-fg-muted",
                     )}
                   >
                     <span
                       className={cn(
                         "flex size-6 items-center justify-center rounded-full text-xs font-semibold",
-                        active ? "bg-white/20" : "bg-white text-[#71130d]",
+                        active ? "bg-white/20" : "bg-white text-brand",
                       )}
                     >
                       {i + 1}
@@ -215,7 +218,7 @@ export function LeaseRenewalsList() {
                   <span
                     className={cn(
                       "text-xs",
-                      active ? "text-white/70" : "text-[#857f77]",
+                      active ? "text-white/70" : "text-fg-muted",
                     )}
                   >
                     {tp(s.hintKey)}
@@ -271,7 +274,7 @@ export function LeaseRenewalsList() {
       {isLoading ? (
         <SkeletonCards count={3} />
       ) : groups.length === 0 ? (
-        <EmptyPanel icon="event_available" title={tp("empty")} />
+        <EmptyPanel icon={adminPageIcons.leaseRenewals} title={tp("empty")} />
       ) : (
         <div className="space-y-6">
           {groups.map((g) => (
@@ -279,7 +282,7 @@ export function LeaseRenewalsList() {
               <h3
                 className={cn(
                   "mb-3 flex items-center gap-2 text-[15px] font-medium",
-                  g.key === "overdue" ? "text-[#a1271b]" : "text-[#141414]",
+                  g.key === "overdue" ? "text-danger" : "text-fg",
                 )}
               >
                 <Icon
@@ -293,11 +296,11 @@ export function LeaseRenewalsList() {
                   size={18}
                 />
                 {to(`bucket.${g.key}`)}
-                <span className="rounded-full bg-white px-2 py-0.5 text-sm font-normal text-[#6b6b6b]">
+                <span className="rounded-full bg-white px-2 py-0.5 text-sm font-normal text-fg-muted">
                   {g.rows.length}
                 </span>
               </h3>
-              <ol className="relative space-y-3 before:absolute before:bottom-4 before:left-[1.85rem] before:top-4 before:w-px before:bg-[#e3d6d3] sm:before:left-[2.35rem]">
+              <ol className="relative space-y-3 before:absolute before:bottom-4 before:left-[1.85rem] before:top-4 before:w-px before:bg-line sm:before:left-[2.35rem]">
                 {g.rows.map((lease) => (
                   <RenewalItem key={lease.id} lease={lease} />
                 ))}
@@ -325,15 +328,15 @@ function RenewalItem({ lease }: { lease: Lease }) {
     <li className="relative flex gap-3 sm:gap-4">
       {/* Date marker on the rail */}
       <div className="relative z-10 flex h-fit w-[3.7rem] shrink-0 flex-col items-center rounded-2xl bg-white py-2 text-center sm:w-[4.7rem]">
-        <span className="text-[11px] uppercase tracking-wide text-[#6b6b6b]">
+        <span className="text-[11px] uppercase tracking-wide text-fg-muted">
           {d
             ? new Intl.DateTimeFormat(locale, { month: "short" }).format(d)
             : "—"}
         </span>
-        <span className="text-2xl font-medium leading-none tabular-nums text-[#141414]">
+        <span className="text-2xl font-medium leading-none tabular-nums text-fg">
           {d ? d.getDate() : "?"}
         </span>
-        <span className="mt-0.5 text-[10px] text-[#857f77]">
+        <span className="mt-0.5 text-[10px] text-fg-muted">
           {to("deadlineShort")}
         </span>
       </div>
@@ -342,10 +345,8 @@ function RenewalItem({ lease }: { lease: Lease }) {
         <div className="flex flex-wrap items-start gap-3">
           <Avatar name={tenant} seed={lease.userId} />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[15px] font-medium text-[#141414]">
-              {tenant}
-            </p>
-            <p className="truncate text-xs text-[#6b6b6b]">
+            <p className="truncate text-[15px] font-medium text-fg">{tenant}</p>
+            <p className="truncate text-xs text-fg-muted">
               {lease.unit?.name ?? "—"} ·{" "}
               {resolveLeasePropertyName(lease, lookups)}
             </p>
@@ -355,8 +356,8 @@ function RenewalItem({ lease }: { lease: Lease }) {
             label={tp(`status.${status}`)}
           />
         </div>
-        <div className="flex flex-wrap items-center gap-2 text-sm text-[#3d3a36]">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#faf7f6] px-2.5 py-1 text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-fg-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-subtle px-2.5 py-1 text-xs">
             <Icon name="event_busy" size={14} />
             {to("leaseEnds", { date: end ? formatDate(end, locale) : "—" })}
           </span>
@@ -364,11 +365,11 @@ function RenewalItem({ lease }: { lease: Lease }) {
             <DueChip date={deadline} />
           ) : null}
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#f6f0ef] pt-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
           <AdminLeaseRenewalActions lease={lease} compact />
           <Link
             href={`/admin/leases/${lease.id}/edit`}
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-[#3d3a36] hover:bg-[#f6f0ef] hover:text-[#71130d]"
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-fg-2 hover:bg-hover hover:text-brand"
           >
             <Icon name="open_in_new" size={16} />
             {tp("viewLease")}

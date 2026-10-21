@@ -71,7 +71,10 @@ export function formatIdrCompact(amount: number): string {
     return `${(amount / 1_000_000_000).toFixed(1)}B`;
   }
   if (amount >= 1_000_000) {
-    return `${(amount / 1_000_000).toFixed(1)}M`;
+    const millions = new Intl.NumberFormat("id-ID", {
+      maximumFractionDigits: 1,
+    }).format(amount / 1_000_000);
+    return `${millions} juta`;
   }
   if (amount >= 1_000) {
     return `${(amount / 1_000).toFixed(0)}K`;

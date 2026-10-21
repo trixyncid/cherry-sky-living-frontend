@@ -1,13 +1,14 @@
 /**
- * Cherry Sky Living design tokens — aligned with DESIGN (1).md
+ * Cherry Sky Living design tokens — black (structure), burgundy (intent),
+ * white (surfaces). CSS source of truth: --adm-* tokens in app/globals.css.
  */
 
 export const colors = {
-  primary: "#71130d",
-  primaryContainer: "#8a1a12",
+  primary: "#7a1630",
+  primaryContainer: "#63112a",
   onPrimary: "#ffffff",
-  onPrimaryContainer: "#ffe3d1",
-  inversePrimary: "#f4bb92",
+  onPrimaryContainer: "#f6e7eb",
+  inversePrimary: "#e3899d",
 
   secondary: "#5f5e5e",
   secondaryContainer: "#e2dfde",
@@ -17,21 +18,21 @@ export const colors = {
   tertiaryContainer: "#596980",
   onTertiaryContainer: "#dbe9ff",
 
-  surface: "#faf9f6",
-  surfaceContainer: "#efeeeb",
-  surfaceContainerHighest: "#e3e2e0",
-  onSurface: "#1a1c1a",
-  onSurfaceVariant: "#51443c",
-  inverseSurface: "#2f312f",
-  inverseOnSurface: "#f2f1ee",
-  outline: "#83746b",
-  outlineVariant: "#d5c3b8",
+  surface: "#ffffff",
+  surfaceContainer: "#f2f2f4",
+  surfaceContainerHighest: "#e6e6e9",
+  onSurface: "#0f0f11",
+  onSurfaceVariant: "#3a3a40",
+  inverseSurface: "#0b0b0d",
+  inverseOnSurface: "#f5f5f6",
+  outline: "#66666e",
+  outlineVariant: "#d4d4d9",
 
-  background: "#faf9f6",
-  onBackground: "#1a1c1a",
+  background: "#ffffff",
+  onBackground: "#0f0f11",
   card: "#ffffff",
 
-  error: "#ba1a1a",
+  error: "#b42318",
   errorContainer: "#ffdad6",
   onErrorContainer: "#93000a",
 
@@ -112,9 +113,9 @@ export const borderRadius = {
 } as const;
 
 export const shadows = {
-  card: "0 4px 20px rgb(47 49 47 / 4%)",
-  cardHover: "0 8px 28px rgb(47 49 47 / 8%)",
-  modal: "0 16px 48px rgb(111 70 39 / 12%)",
+  card: "0 4px 20px rgb(11 11 13 / 5%)",
+  cardHover: "0 10px 30px rgb(11 11 13 / 10%)",
+  modal: "0 16px 48px rgb(11 11 13 / 14%)",
 } as const;
 
 export const animation = {

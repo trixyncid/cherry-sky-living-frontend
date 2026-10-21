@@ -1,3 +1,5 @@
+import type { AdminLookups } from "@/features/admin/hooks/use-admin-lookups";
+import { contactSummary } from "@/lib/phone";
 import type {
   Lease,
   Property,
@@ -5,7 +7,6 @@ import type {
   UnitPricing,
   UnitType,
 } from "@/lib/types/admin";
-import type { AdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 
 export const ADMIN_EMPTY = "—";
 
@@ -111,13 +112,18 @@ export function resolveUnitTypePropertyName(
 }
 
 export function resolveLeaseTenantLabel(lease: Lease): string {
-  return lease.user?.name ?? lease.user?.email ?? lease.userId;
+  return lease.user?.name || contactSummary(lease.user) || lease.userId;
 }
 
 export function resolveUnitTenantLabel(unit: Unit): string {
   const lease = unit.activeLease;
   if (!lease) return ADMIN_EMPTY;
-  return lease.user?.name ?? lease.user?.email ?? lease.userId ?? ADMIN_EMPTY;
+  return (
+    lease.user?.name ||
+    contactSummary(lease.user) ||
+    lease.userId ||
+    ADMIN_EMPTY
+  );
 }
 
 /** Backend computes endDate; derive from pricing when missing in list payloads. */

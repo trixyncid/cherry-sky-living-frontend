@@ -7,26 +7,27 @@ import { cn } from "@/lib/utils";
 
 /** Inline so these beat react-day-picker/style.css (imported after Tailwind). */
 const cherryRdpVars = {
-  "--rdp-accent-color": "#71130d",
-  "--rdp-accent-background-color": "#f3dedb",
-  "--rdp-today-color": "#71130d",
-  "--rdp-day-height": "2.75rem",
-  "--rdp-day-width": "2.75rem",
-  "--rdp-day_button-height": "2.5rem",
-  "--rdp-day_button-width": "2.5rem",
+  "--rdp-accent-color": "var(--adm-brand)",
+  "--rdp-accent-background-color": "var(--adm-brand-soft)",
+  "--rdp-today-color": "var(--adm-brand)",
+  // Fluid: 44px cells, shrinking on narrow phones so 7 columns always fit.
+  "--rdp-day-height": "min(2.75rem, calc((100vw - 2rem) / 7))",
+  "--rdp-day-width": "min(2.75rem, calc((100vw - 2rem) / 7))",
+  "--rdp-day_button-height": "min(2.5rem, calc((100vw - 2.75rem) / 7))",
+  "--rdp-day_button-width": "min(2.5rem, calc((100vw - 2.75rem) / 7))",
   "--rdp-day_button-border-radius": "9999px",
   "--rdp-day_button-border": "2px solid transparent",
   "--rdp-selected-border": "2px solid transparent",
-  "--rdp-range_middle-background-color": "#f3dedb",
-  "--rdp-range_middle-color": "#5c0f0a",
+  "--rdp-range_middle-background-color": "var(--adm-brand-soft)",
+  "--rdp-range_middle-color": "var(--adm-brand-deep)",
   "--rdp-range_start-color": "#ffffff",
   "--rdp-range_end-color": "#ffffff",
-  "--rdp-range_start-date-background-color": "#71130d",
-  "--rdp-range_end-date-background-color": "#71130d",
+  "--rdp-range_start-date-background-color": "var(--adm-brand)",
+  "--rdp-range_end-date-background-color": "var(--adm-brand)",
   "--rdp-range_start-background":
-    "linear-gradient(var(--rdp-gradient-direction), transparent 50%, #f3dedb 50%)",
+    "linear-gradient(var(--rdp-gradient-direction), transparent 50%, var(--adm-brand-soft) 50%)",
   "--rdp-range_end-background":
-    "linear-gradient(var(--rdp-gradient-direction), #f3dedb 50%, transparent 50%)",
+    "linear-gradient(var(--rdp-gradient-direction), var(--adm-brand-soft) 50%, transparent 50%)",
   "--rdp-nav_button-height": "2.25rem",
   "--rdp-nav_button-width": "2.25rem",
   "--rdp-nav-height": "2.75rem",
@@ -35,7 +36,7 @@ const cherryRdpVars = {
 
 const navButton =
   // Trailing ! beats react-day-picker/style.css, which loads after Tailwind.
-  "inline-flex size-9! items-center justify-center rounded-full! border! border-solid! border-[#e6dedb]! bg-white! text-[#71130d] transition-colors hover:border-[#c97f76]! hover:bg-[#fbf3f2]! focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#71130d]/20 disabled:opacity-35";
+  "inline-flex size-9! items-center justify-center rounded-full! border! border-solid! border-line! bg-white! text-brand transition-colors hover:border-brand-line! hover:bg-brand-tint! focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/20 disabled:opacity-35";
 
 /**
  * DayPicker renders a real <table> for the month grid — do not force flex on
@@ -56,7 +57,7 @@ function Calendar({
       {...props}
       style={{ ...cherryRdpVars, ...style }}
       className={cn(
-        "rdp-cherry bg-transparent p-3 text-[#141414] sm:p-4",
+        "rdp-cherry bg-transparent p-3 text-fg sm:p-4",
         "[&_.rdp-range_start]:font-semibold [&_.rdp-range_end]:font-semibold [&_.rdp-selected:not(.rdp-range_middle)]:font-semibold",
         "[&_.rdp-selected_.rdp-day_button]:border-transparent",
         "[&_.rdp-range_middle_.rdp-day_button]:rounded-none [&_.rdp-range_middle_.rdp-day_button]:bg-transparent [&_.rdp-range_middle_.rdp-day_button]:font-medium",
@@ -74,7 +75,7 @@ function Calendar({
           defaultClassNames.month_caption,
         ),
         caption_label: cn(
-          "text-base font-medium tracking-tight text-[#141414] capitalize",
+          "text-base font-medium tracking-tight text-fg capitalize",
           defaultClassNames.caption_label,
         ),
         nav: cn(
@@ -86,7 +87,7 @@ function Calendar({
         month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
         weekdays: defaultClassNames.weekdays,
         weekday: cn(
-          "h-9 w-11 select-none text-center text-xs font-medium text-[#6b6b6b]",
+          "h-9 w-[var(--rdp-day-width)] select-none text-center text-xs font-medium text-fg-muted",
           defaultClassNames.weekday,
         ),
         week: defaultClassNames.week,
@@ -95,16 +96,16 @@ function Calendar({
           defaultClassNames.day,
         ),
         day_button: cn(
-          "relative inline-flex size-10 items-center justify-center rounded-full text-[15px] tabular-nums text-[#141414] transition-colors",
-          "hover:bg-[#f6f0ef]",
-          "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#71130d]/25",
+          "relative inline-flex size-[var(--rdp-day_button-width)] items-center justify-center rounded-full text-[15px] tabular-nums text-fg transition-colors",
+          "hover:bg-hover",
+          "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/25",
           defaultClassNames.day_button,
         ),
         selected: cn(
-          "[&_.rdp-day_button]:shadow-[0_6px_14px_-6px_rgb(113_19_13/0.6)]",
+          "[&_.rdp-day_button]:shadow-[0_6px_14px_-6px_rgb(122_22_48/0.6)]",
           defaultClassNames.selected,
         ),
-        today: cn("font-semibold text-[#71130d]", defaultClassNames.today),
+        today: cn("font-semibold text-brand", defaultClassNames.today),
         outside: cn("text-[#a9a09b]", defaultClassNames.outside),
         disabled: cn(
           "cursor-not-allowed text-[#c9bfbb] [&_.rdp-day_button]:cursor-not-allowed [&_.rdp-day_button]:hover:bg-transparent",
@@ -125,7 +126,7 @@ function Calendar({
           return (
             <Icon
               className={cn(
-                "size-[18px] stroke-[2] text-[#71130d]",
+                "size-[18px] stroke-[2] text-brand",
                 chevronClassName,
               )}
               aria-hidden

@@ -60,11 +60,11 @@ function NavbarLink({ link, label, isActive, isSolid }: NavbarLinkProps) {
                 'px-3 py-2 text-[15px] font-medium transition-colors duration-200 xl:px-3.5',
                 isActive
                     ? isSolid
-                        ? 'text-[#71130d]'
-                        : 'text-white underline decoration-[#f3dedb] decoration-2 underline-offset-8'
+                        ? 'text-brand'
+                        : 'text-white underline decoration-brand-soft decoration-2 underline-offset-8'
                     : isSolid
-                      ? 'text-[#141414] hover:text-[#71130d]'
-                      : 'text-[#faf9f6]/80 hover:text-white',
+                      ? 'text-fg hover:text-brand'
+                      : 'text-subtle/80 hover:text-white',
             )}
         >
             {label}
@@ -100,7 +100,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             className={cn(
                 'fixed left-0 right-0 top-0 z-50 transition-all duration-300',
                 isSolid
-                    ? 'border-b border-[#e7e4df] bg-[#f7f3f2]/90 backdrop-blur-md'
+                    ? 'border-b border-line bg-canvas/90 backdrop-blur-md'
                     : 'border-b border-white/10 bg-transparent',
             )}
         >
@@ -143,7 +143,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                             className={cn(
                                 'hidden size-9 items-center justify-center rounded-full border transition-colors duration-300 xl:inline-flex',
                                 isSolid
-                                    ? 'border-[#e3e2e0] text-[#71130d] hover:border-[#d5c3b8] hover:bg-[#f5e4d4]/60'
+                                    ? 'border-line text-brand hover:border-line-strong hover:bg-brand-soft/60'
                                     : 'border-white/30 text-white hover:bg-white/15',
                             )}
                         >
@@ -164,8 +164,8 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                             className={cn(
                                 'rounded-xl p-2 transition-colors duration-300 lg:hidden',
                                 isSolid
-                                    ? 'text-[#1a1c1a] hover:bg-[#f5e4d4]/70 hover:text-[#71130d]'
-                                    : 'text-[#faf9f6] hover:bg-white/15 hover:text-white',
+                                    ? 'text-fg hover:bg-brand-soft/70 hover:text-brand'
+                                    : 'text-subtle hover:bg-white/15 hover:text-white',
                             )}
                             aria-label={t('common.openMenu')}
                         >

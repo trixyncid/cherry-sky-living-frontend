@@ -36,14 +36,14 @@ function MenuItem({ href, icon, label, onClick }: MenuItemProps) {
         <Link
             href={href}
             onClick={onClick}
-            className="group flex items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-[#faf9f6]"
+            className="group flex items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-subtle"
         >
             <Icon
                 name={icon}
                 size={24}
-                className="text-[#83746b] group-hover:text-[#71130d]"
+                className="text-fg-muted group-hover:text-brand"
             />
-            <span className="text-sm font-medium text-[#1a1c1a] group-hover:text-[#71130d]">
+            <span className="text-sm font-medium text-fg group-hover:text-brand">
                 {label}
             </span>
         </Link>
@@ -57,7 +57,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="left" className="glass-card w-[280px] p-0 text-[#1a1c1a] sm:w-[320px]">
+            <SheetContent side="left" className="glass-card w-[280px] p-0 text-fg sm:w-[320px]">
                 <SheetHeader className="p-6 pb-4">
                     <SheetTitle className="flex items-center text-left">
                         <BrandMark variant="nav" tone="onLight" className="h-8 w-[10.5rem]" />
@@ -69,14 +69,14 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
                     <Link
                         href={CHECK_AVAILABILITY_HREF}
                         onClick={handleClose}
-                        className="mb-5 flex h-12 items-center justify-center gap-2 rounded-full bg-[#71130d] text-sm font-semibold text-white transition-colors hover:bg-[#8a1a12]"
+                        className="mb-5 flex h-12 items-center justify-center gap-2 rounded-full bg-brand text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
                     >
                         {t('nav.checkAvailability')}
                         <Icon name="arrow_forward" size={16} />
                     </Link>
 
                     {/* Main Navigation */}
-                    <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-[#83746b]">
+                    <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-fg-muted">
                         {t('nav.explore')}
                     </p>
                     <div className="space-y-1 mb-6">
@@ -107,7 +107,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
 
                     {/* Account Section */}
                     <div className="space-y-1">
-                        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-[#83746b]">
+                        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-fg-muted">
                             {t('common.accountSection')}
                         </p>
                         <MenuItem
@@ -129,7 +129,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
 
                     {/* Language Switcher */}
                     <div className="pt-4">
-                        <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-[#83746b]">
+                        <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-fg-muted">
                             {t('common.language')}
                         </p>
                         <LanguageSwitcher variant="sidebar" />

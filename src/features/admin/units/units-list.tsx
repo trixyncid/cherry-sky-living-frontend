@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
 import { AdminDateRangePicker } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
@@ -12,6 +12,7 @@ import {
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
+import { useAdminPropertyFilter } from "@/features/admin/hooks/use-admin-property-filter";
 import {
   useUnitMutations,
   useUnits,
@@ -44,14 +45,9 @@ export function UnitsList() {
   const tAvail = useTranslations("admin.pages.units.availability");
   const locale = useLocale();
 
-  // Links like ?propertyId=… (from a property card) open that building.
-  const [propertyFilter, setPropertyFilter] = useState("");
-  useEffect(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get(
-      "propertyId",
-    );
-    if (fromUrl) setPropertyFilter(fromUrl);
-  }, []);
+  // Shared admin-wide filter; ?propertyId=… links open that building.
+  const { propertyId: propertyFilter, setPropertyId: setPropertyFilter } =
+    useAdminPropertyFilter();
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<UnitsViewMode>("map");
   const [draftStartDate, setDraftStartDate] = useState("");
@@ -194,7 +190,7 @@ export function UnitsList() {
       />
 
       {dateError ? (
-        <p className="-mt-2 mb-4 text-sm text-[#a1271b]">{dateError}</p>
+        <p className="-mt-2 mb-4 text-sm text-danger">{dateError}</p>
       ) : null}
 
       {error && (
@@ -205,11 +201,11 @@ export function UnitsList() {
 
       {viewMode === "map" ? (
         allUnitsQuery.isLoading || isLoading ? (
-          <p className="glass-panel rounded-2xl p-10 text-center text-sm text-[#83746b]">
+          <p className="glass-panel rounded-2xl p-10 text-center text-sm text-fg-muted">
             {t("loading")}
           </p>
         ) : buildingUnits.length === 0 ? (
-          <p className="glass-panel rounded-2xl border-dashed p-10 text-center text-sm text-[#83746b]">
+          <p className="glass-panel rounded-2xl border-dashed p-10 text-center text-sm text-fg-muted">
             {emptyMessage}
           </p>
         ) : (

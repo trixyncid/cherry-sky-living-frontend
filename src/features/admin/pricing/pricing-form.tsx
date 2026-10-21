@@ -15,6 +15,7 @@ import {
 } from "@/features/admin/components/admin-form-layout";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { PricingPreview } from "@/features/admin/components/form-previews";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import {
   useUnitPricing,
   useUnitPricingMutations,
@@ -185,7 +186,7 @@ export function PricingForm({ id }: { id?: string }) {
     (isEdit && (isLoading || siblingLoading));
 
   if (isEdit && isLoading && !pricing) {
-    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
+    return <p className="text-sm text-fg-muted">{t("loading")}</p>;
   }
 
   return (
@@ -216,7 +217,7 @@ export function PricingForm({ id }: { id?: string }) {
         <AdminFormError message={formError} />
 
         <AdminFormSection
-          icon="apartment"
+          icon={adminPageIcons.properties}
           title={tp("assignmentTitle")}
           hint={tp("assignmentHint")}
         >
@@ -298,7 +299,7 @@ export function PricingForm({ id }: { id?: string }) {
                   setForm((f) => ({ ...f, monthlyPrice }))
                 }
               />
-              <p className="mt-1 text-xs text-[#6b6b6b]">
+              <p className="mt-1 text-xs text-fg-muted">
                 {tp("monthlyPriceHint")}
               </p>
             </AdminField>
@@ -311,7 +312,7 @@ export function PricingForm({ id }: { id?: string }) {
                   setForm((f) => ({ ...f, dailyPrice }))
                 }
               />
-              <p className="mt-1 text-xs text-[#6b6b6b]">
+              <p className="mt-1 text-xs text-fg-muted">
                 {tp("dailyPriceHint")}
               </p>
             </AdminField>

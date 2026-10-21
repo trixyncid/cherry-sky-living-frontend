@@ -19,10 +19,13 @@ import {
 import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { UnitTypePreview } from "@/features/admin/components/form-previews";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import {
   useUnitType,
   useUnitTypeMutations,
 } from "@/features/admin/hooks/use-admin-queries";
+import { useAttachmentQueue } from "@/features/admin/hooks/use-attachment-queue";
+import { useLeaveGuard } from "@/features/admin/hooks/use-leave-guard";
 import {
   firstPhoto,
   monthlyOf,
@@ -33,6 +36,7 @@ import {
   writeStoredPropertyId,
 } from "@/features/admin/lib/admin-property-scope";
 import { getErrorMessage } from "@/features/admin/lib/errors";
+import { stashPendingUploads } from "@/features/admin/lib/pending-uploads";
 import {
   showApiError,
   showApiSuccess,
@@ -90,10 +94,24 @@ export function UnitTypeForm({ id }: { id?: string }) {
   const mutations = useUnitTypeMutations();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
-  const [imageError, setImageError] = useState<string | null>(null);
   const createPrefillDone = useRef(false);
 
   const attachments = unitType?.unitTypeAttachments ?? [];
+
+  const queue = useAttachmentQueue({
+    upload: id ? (file) => uploadUnitTypeImage(id, file) : null,
+    handoffKey: id ? `unitType:${id}` : undefined,
+    onSettled: ({ succeeded, failed, firstError }) => {
+      if (succeeded > 0) {
+        invalidateUnitType();
+        showApiSuccess(ta("uploadedCount", { count: succeeded }));
+      }
+      if (failed > 0) {
+        showApiError(firstError, ta("uploadFailedCount", { count: failed }));
+      }
+    },
+  });
+  useLeaveGuard(queue.hasUnsent, ta("leaveWarning"));
 
   function invalidateUnitType() {
     void qc.invalidateQueries({ queryKey: adminKeys.unitTypes.all() });
@@ -170,7 +188,14 @@ export function UnitTypeForm({ id }: { id?: string }) {
           size,
         });
         writeStoredPropertyId(form.propertyId);
-        showApiSuccess(tp("createdStayToUpload"));
+        // Files picked before saving upload on the edit page.
+        const files = queue.takeAll();
+        stashPendingUploads(`unitType:${created.id}`, files);
+        showApiSuccess(
+          files.length > 0
+            ? ta("savedUploading", { count: files.length })
+            : tp("createdStayToUpload"),
+        );
         router.replace(`${BASE}/${created.id}/edit`);
         router.refresh();
       }
@@ -178,47 +203,6 @@ export function UnitTypeForm({ id }: { id?: string }) {
       const msg = getErrorMessage(err, t("saveFailed"));
       setFormError(msg);
       showApiError(err, t("saveFailed"));
-    }
-  }
-
-  async function handleImageUpload(files: File[]) {
-    if (!isEdit || !id) {
-      setImageError(tp("saveFirstToUpload"));
-      return;
-    }
-
-    setImageError(null);
-    const results = await Promise.allSettled(
-      files.map((file) => uploadUnitTypeImage(id, file)),
-    );
-    const succeeded = results.filter((result) => result.status === "fulfilled");
-    const failed = results.filter((result) => result.status === "rejected");
-
-    if (succeeded.length > 0) {
-      showApiSuccess(
-        succeeded.length === 1
-          ? tp("imageUploaded")
-          : tp("imagesUploaded", { count: succeeded.length }),
-      );
-      invalidateUnitType();
-    }
-
-    if (failed.length > 0) {
-      const first = failed[0];
-      const reason = first && first.status === "rejected" ? first.reason : null;
-      const msg = getErrorMessage(reason, tp("imageUploadFailed"));
-      setImageError(
-        failed.length > 1
-          ? tp("imagesUploadPartial", {
-              failed: failed.length,
-              total: files.length,
-            })
-          : msg,
-      );
-      showApiError(reason, msg);
-      if (succeeded.length === 0) {
-        throw reason instanceof Error ? reason : new Error(msg);
-      }
     }
   }
 
@@ -239,7 +223,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
     (isEdit && isLoading);
 
   if (isEdit && isLoading && !unitType) {
-    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
+    return <p className="text-sm text-fg-muted">{t("loading")}</p>;
   }
 
   const photoCount = attachments.length;
@@ -258,7 +242,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
           <AdminFormError message={formError} />
 
           <AdminFormSection
-            icon="king_bed"
+            icon={adminPageIcons.unitTypes}
             title={tp("identityTitle")}
             hint={tp("identityHint")}
           >
@@ -309,7 +293,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
                     setForm((f) => ({ ...f, description: e.target.value }))
                   }
                 />
-                <p className="mt-1 text-xs text-[#6b6b6b]">
+                <p className="mt-1 text-xs text-fg-muted">
                   {tp("descriptionHint")}
                 </p>
               </AdminField>
@@ -363,7 +347,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
             hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
             headerExtra={
               isEdit && photoCount > 0 ? (
-                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#3d3a36]">
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-fg-2">
                   {ta("photoCount", { count: photoCount })}
                 </span>
               ) : null
@@ -371,12 +355,8 @@ export function UnitTypeForm({ id }: { id?: string }) {
           >
             <AdminImageGallery
               attachments={attachments}
-              onUpload={handleImageUpload}
+              queue={queue}
               onDelete={handleDeleteAttachment}
-              disabled={!isEdit}
-              disabledTitle={ta("lockedTitle")}
-              disabledHint={ta("lockedHint")}
-              error={imageError}
             />
           </AdminFormSection>
         </aside>

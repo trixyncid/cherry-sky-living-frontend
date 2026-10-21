@@ -32,7 +32,7 @@ export function AdminAttachmentsList({
 
   if (attachments.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-[#e3e2e0] bg-[#faf9f6]/80 px-4 py-6 text-center text-sm text-[#83746b]">
+      <p className="rounded-xl border border-dashed border-line bg-subtle/80 px-4 py-6 text-center text-sm text-fg-muted">
         {t("empty")}
       </p>
     );
@@ -44,13 +44,13 @@ export function AdminAttachmentsList({
         {attachments.map((item) => (
           <li
             key={item.id}
-            className="flex gap-3 rounded-xl border border-[#e3e2e0]/80 bg-white/90 p-3 shadow-sm"
+            className="flex gap-3 rounded-xl border border-line/80 bg-white/90 p-3 shadow-sm"
           >
             <a
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-[#efeeeb]"
+              className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-hover"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -60,16 +60,16 @@ export function AdminAttachmentsList({
               />
             </a>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-[#1a1c1a]">
+              <p className="truncate text-sm font-semibold text-fg">
                 {attachmentDisplayName(item.url)}
               </p>
               {item.kindLabel ? (
-                <p className="mt-0.5 text-xs font-medium text-[#71130d]">
+                <p className="mt-0.5 text-xs font-medium text-brand">
                   {item.kindLabel}
                 </p>
               ) : null}
               {item.createdAt ? (
-                <p className="mt-0.5 text-xs text-[#83746b]">
+                <p className="mt-0.5 text-xs text-fg-muted">
                   {formatDate(item.createdAt)}
                 </p>
               ) : null}
@@ -78,7 +78,7 @@ export function AdminAttachmentsList({
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#71130d] hover:text-[#8a1a12]"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-brand hover:text-brand-hover"
                 >
                   <Icon name="open_in_new" size={14} />
                   {t("view")}
@@ -87,7 +87,7 @@ export function AdminAttachmentsList({
                   type="button"
                   disabled={deletePending}
                   onClick={() => setDeleteTarget(item)}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#ba1a1a] hover:text-[#93000a] disabled:opacity-50"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-danger hover:text-danger disabled:opacity-50"
                 >
                   <Icon name="delete" size={14} />
                   {t("remove")}

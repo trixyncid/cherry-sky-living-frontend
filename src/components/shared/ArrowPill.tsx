@@ -16,16 +16,16 @@ type Tone = "dark" | "light" | "outline";
 
 const TONES: Record<Tone, { pill: string; badge: string }> = {
   dark: {
-    pill: "bg-[#71130d] text-white hover:bg-[#8a1a12]",
-    badge: "bg-white text-[#71130d]",
+    pill: "bg-brand text-white hover:bg-brand-hover",
+    badge: "bg-white text-brand",
   },
   light: {
-    pill: "bg-white text-[#141414] hover:bg-[#f7efee]",
-    badge: "bg-[#71130d] text-white",
+    pill: "bg-white text-fg hover:bg-brand-tint",
+    badge: "bg-brand text-white",
   },
   outline: {
-    pill: "border border-[#d9d6d0] bg-transparent text-[#141414] hover:border-[#71130d]",
-    badge: "bg-[#71130d] text-white",
+    pill: "border border-line-strong bg-transparent text-fg hover:border-brand",
+    badge: "bg-brand text-white",
   },
 };
 
@@ -40,7 +40,7 @@ interface BaseProps {
 
 const pillClass = (tone: Tone, className?: string) =>
   cn(
-    "group inline-flex h-12 items-center gap-3 rounded-full pl-5 pr-1.5 text-[15px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#71130d] focus-visible:ring-offset-2",
+    "group inline-flex h-12 items-center gap-3 rounded-full pl-5 pr-1.5 text-[15px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
     TONES[tone].pill,
     className,
   );
@@ -143,11 +143,11 @@ export function Eyebrow({
     <p
       className={cn(
         "inline-flex items-center gap-2 text-sm font-semibold",
-        tone === "dark" ? "text-white" : "text-[#141414]",
+        tone === "dark" ? "text-white" : "text-fg",
         className,
       )}
     >
-      <span aria-hidden className="size-1.5 rounded-full bg-[#71130d]" />
+      <span aria-hidden className="size-1.5 rounded-full bg-brand" />
       {children}
     </p>
   );

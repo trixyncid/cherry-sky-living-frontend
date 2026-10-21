@@ -83,7 +83,7 @@ export function StaffResetPasswordDialog({
                 {tp("resetDescription", { name: user?.name ?? "" })}
               </DialogDescription>
             </DialogHeader>
-            {error && <p className="text-sm text-[#ba1a1a]">{error}</p>}
+            {error && <p className="text-sm text-danger">{error}</p>}
             <DialogFooter>
               <Button
                 type="button"
@@ -108,11 +108,11 @@ export function StaffResetPasswordDialog({
               <DialogTitle>{tp("resetResultTitle")}</DialogTitle>
               <DialogDescription>{tp("resetResultDescription")}</DialogDescription>
             </DialogHeader>
-            <div className="rounded-xl border border-[#e3e2e0] bg-[#faf9f6] p-4">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#83746b]">
+            <div className="rounded-xl border border-line bg-subtle p-4">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-fg-muted">
                 {tp("temporaryPassword")}
               </p>
-              <p className="font-mono text-lg font-semibold tracking-wide text-[#1a1c1a]">
+              <p className="font-mono text-lg font-semibold tracking-wide text-fg">
                 {temporaryPassword}
               </p>
             </div>

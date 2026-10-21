@@ -60,16 +60,16 @@ export function Footer({ cta }: FooterProps) {
   ];
 
   return (
-    <footer className="relative w-full overflow-hidden bg-[#1c0b0a] text-white">
+    <footer className="relative w-full overflow-hidden bg-ink text-white">
       <Image
         src={FOOTER_PHOTO}
         alt=""
         fill
         sizes="100vw"
-        className="object-cover object-bottom opacity-70"
+        className="object-cover object-bottom opacity-70 saturate-[0.55]"
       />
       {/* Dark at the top (where the CTA sits), photo shows through below */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,#1c0b0a_0%,rgb(28_11_10/0.75)_35%,rgb(28_11_10/0.55)_65%,rgb(28_11_10/0.85)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,#0b0b0d_0%,rgb(11_11_13/0.75)_35%,rgb(11_11_13/0.55)_65%,rgb(11_11_13/0.85)_100%)]" />
 
       <div className="relative mx-auto w-full max-w-[90rem] px-5 sm:px-8">
         {cta ? <div className="pt-14 lg:pt-20">{cta}</div> : null}
@@ -89,7 +89,7 @@ export function Footer({ cta }: FooterProps) {
                   onClick={() => track("click_call", { location: "footer" })}
                   className="hover:text-white"
                 >
-                  {siteConfig.phone}
+                  {siteConfig.phoneDisplay}
                 </a>
                 {" · "}
                 <a

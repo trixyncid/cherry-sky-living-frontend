@@ -21,9 +21,11 @@ import {
   usePropertyToolbarFilter,
 } from "@/features/admin/components/admin-toolbar";
 import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { getTenantUserSortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
+import { useAdminPropertyFilter } from "@/features/admin/hooks/use-admin-property-filter";
 import {
   useLeases,
   useTenantUserMutations,
@@ -53,7 +55,7 @@ import {
 import { TenantResetPasswordDialog } from "@/features/admin/users/tenant-reset-password-dialog";
 import { Link } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
-import { displayEmailOrEmpty } from "@/lib/phone";
+import { displayEmailOrEmpty, formatPhoneDisplay } from "@/lib/phone";
 import type { Lease, TenantUser } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
 
@@ -101,7 +103,8 @@ export function UsersList() {
     [data, currentLease],
   );
 
-  const [propertyFilter, setPropertyFilter] = useState("");
+  const { propertyId: propertyFilter, setPropertyId: setPropertyFilter } =
+    useAdminPropertyFilter();
   const tt = useTranslations("admin.toolbar");
   const propertyToolbar = usePropertyToolbarFilter(propertyFilter, (id) => {
     setPropertyFilter(id);
@@ -223,7 +226,7 @@ export function UsersList() {
       {isLoading ? (
         <SkeletonCards count={3} className="sm:grid-cols-2 xl:grid-cols-3" />
       ) : visible.length === 0 ? (
-        <EmptyPanel icon="group" title={tp("empty")} />
+        <EmptyPanel icon={adminPageIcons.users} title={tp("empty")} />
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -251,21 +254,21 @@ export function UsersList() {
                     <div className="min-w-0 flex-1">
                       <Link
                         href={`${BASE}/${user.id}`}
-                        className="block truncate text-lg font-medium tracking-tight text-[#141414] hover:text-[#71130d]"
+                        className="block truncate text-lg font-medium tracking-tight text-fg hover:text-brand"
                       >
                         {user.name}
                       </Link>
-                      <p className="truncate text-sm text-[#6b6b6b]">
-                        {user.phoneNumber ?? email ?? "—"}
+                      <p className="truncate text-sm text-fg-muted">
+                        {formatPhoneDisplay(user.phoneNumber) || email || "—"}
                       </p>
                       {user.phoneNumber && email ? (
-                        <p className="truncate text-xs text-[#857f77]">
+                        <p className="truncate text-xs text-fg-muted">
                           {email}
                         </p>
                       ) : null}
                     </div>
                     {!user.isActive ? (
-                      <span className="shrink-0 rounded-full bg-[#efeeeb] px-2.5 py-1 text-xs font-medium text-[#6b6b6b]">
+                      <span className="shrink-0 rounded-full bg-hover px-2.5 py-1 text-xs font-medium text-fg-muted">
                         {tp("statusInactive")}
                       </span>
                     ) : null}
@@ -274,17 +277,17 @@ export function UsersList() {
                   {lease ? (
                     <Link
                       href={`/admin/leases/${lease.id}/edit`}
-                      className="flex items-center gap-3 rounded-2xl bg-[#faf7f6] p-3 transition-colors hover:bg-[#f6f0ef]"
+                      className="flex items-center gap-3 rounded-2xl bg-subtle p-3 transition-colors hover:bg-hover"
                     >
-                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#71130d]">
-                        <Icon name="bed" size={20} />
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-brand">
+                        <Icon name={adminPageIcons.units} size={20} />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[15px] font-medium text-[#141414]">
+                        <span className="block truncate text-[15px] font-medium text-fg">
                           {lease.unit?.name ?? "—"} ·{" "}
                           {resolveLeasePropertyName(lease, lookups)}
                         </span>
-                        <span className="block truncate text-xs text-[#6b6b6b]">
+                        <span className="block truncate text-xs text-fg-muted">
                           {to("until", {
                             date: end ? formatDate(end, locale) : "—",
                           })}
@@ -293,8 +296,8 @@ export function UsersList() {
                       <LeaseStatusBadge status={lease.status} />
                     </Link>
                   ) : (
-                    <p className="flex items-center gap-2 rounded-2xl border border-dashed border-[#e3d6d3] p-3 text-sm text-[#6b6b6b]">
-                      <Icon name="door_open" size={18} />
+                    <p className="flex items-center gap-2 rounded-2xl border border-dashed border-line p-3 text-sm text-fg-muted">
+                      <Icon name={adminPageIcons.units} size={18} />
                       {to("noRoom")}
                     </p>
                   )}
@@ -309,7 +312,7 @@ export function UsersList() {
                     />
                     <Link
                       href={`${BASE}/${user.id}`}
-                      className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#ece4e2] bg-white px-4 text-sm font-medium text-[#141414] hover:border-[#e8bfb9] hover:text-[#71130d]"
+                      className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-line bg-white px-4 text-sm font-medium text-fg hover:border-brand-line hover:text-brand"
                     >
                       {to("profile")}
                     </Link>
@@ -325,7 +328,7 @@ export function UsersList() {
                       onClick={() => setToggleUser(user)}
                     />
                   </div>
-                  <p className="-mt-1 text-xs text-[#857f77]">
+                  <p className="-mt-1 text-xs text-fg-muted">
                     {to("joined", { date: formatDate(user.createdAt, locale) })}
                   </p>
                 </article>

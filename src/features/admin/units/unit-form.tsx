@@ -15,6 +15,7 @@ import {
 } from "@/features/admin/components/admin-form-layout";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { UnitPreview } from "@/features/admin/components/form-previews";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import {
   useUnit,
@@ -143,7 +144,7 @@ export function UnitForm({ id }: { id?: string }) {
     (isEdit && isLoading);
 
   if (isEdit && isLoading && !unit) {
-    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
+    return <p className="text-sm text-fg-muted">{t("loading")}</p>;
   }
 
   return (
@@ -172,7 +173,7 @@ export function UnitForm({ id }: { id?: string }) {
         <AdminFormError message={formError} />
 
         <AdminFormSection
-          icon="meeting_room"
+          icon={adminPageIcons.units}
           title={tp("identityTitle")}
           hint={tp("identityHint")}
         >
@@ -254,7 +255,7 @@ export function UnitForm({ id }: { id?: string }) {
                   setForm((f) => ({ ...f, maxOccupancy: e.target.value }))
                 }
               />
-              <p className="mt-1 text-xs text-[#6b6b6b]">
+              <p className="mt-1 text-xs text-fg-muted">
                 {tp("occupancyHint")}
               </p>
             </AdminField>
@@ -269,7 +270,7 @@ export function UnitForm({ id }: { id?: string }) {
                   <option value="vacant">{tp("status.vacant")}</option>
                   <option value="occupied">{tp("status.occupied")}</option>
                 </AdminSelect>
-                <p className="mt-1 text-xs text-[#6b6b6b]">
+                <p className="mt-1 text-xs text-fg-muted">
                   {tp("statusHint")}
                 </p>
               </AdminField>

@@ -107,13 +107,13 @@ export function HomeResidences({
           titleAccent={t("titleAccent")}
           aside={
             <>
-              <p className="text-base leading-relaxed text-[#6b6b6b]">
+              <p className="text-base leading-relaxed text-fg-muted">
                 {t("description")}
               </p>
               <div className="flex items-center justify-between gap-4">
                 <Link
                   href="/search-kosts"
-                  className="group inline-flex items-center gap-1.5 text-[15px] font-semibold text-[#141414]"
+                  className="group inline-flex items-center gap-1.5 text-[15px] font-semibold text-fg"
                 >
                   {t("browseAll")}
                   <Icon
@@ -127,7 +127,7 @@ export function HomeResidences({
                     type="button"
                     onClick={() => scrollBy(-1)}
                     aria-label={t("prev")}
-                    className="flex size-10 items-center justify-center rounded-full bg-white text-[#141414] transition-colors hover:bg-[#71130d] hover:text-white"
+                    className="flex size-10 items-center justify-center rounded-full bg-white text-fg transition-colors hover:bg-brand hover:text-white"
                   >
                     <Icon name="arrow_back" size={18} />
                   </button>
@@ -135,7 +135,7 @@ export function HomeResidences({
                     type="button"
                     onClick={() => scrollBy(1)}
                     aria-label={t("next")}
-                    className="flex size-10 items-center justify-center rounded-full bg-white text-[#141414] transition-colors hover:bg-[#71130d] hover:text-white"
+                    className="flex size-10 items-center justify-center rounded-full bg-white text-fg transition-colors hover:bg-brand hover:text-white"
                   >
                     <Icon name="arrow_forward" size={18} />
                   </button>
@@ -174,7 +174,7 @@ export function HomeResidences({
                 availableCount={roomType.availableCount}
                 totalCount={roomType.totalCount}
                 monthlyPrice={monthlyPrice(roomType)}
-                pricings={roomType.pricings ?? []}
+                deposit={kost.deposit}
                 whatsappNumber={
                   kost.whatsappNumber || getContactWhatsAppNumber()
                 }
@@ -187,10 +187,8 @@ export function HomeResidences({
         <div className="mx-auto mt-6 w-full max-w-[90rem] px-5 sm:px-8">
           <div className="flex flex-col items-start gap-4 rounded-[1.25rem] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-lg font-semibold text-[#141414]">
-                {t("emptyTitle")}
-              </p>
-              <p className="mt-1 text-base text-[#6b6b6b]">
+              <p className="text-lg font-semibold text-fg">{t("emptyTitle")}</p>
+              <p className="mt-1 text-base text-fg-muted">
                 {t("emptyDescription")}
               </p>
             </div>
@@ -200,7 +198,7 @@ export function HomeResidences({
               trigger={
                 <button
                   type="button"
-                  className="inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-[#71130d] px-6 text-[15px] font-semibold text-white"
+                  className="inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-brand px-6 text-[15px] font-semibold text-white"
                 >
                   <Icon name="notifications" size={18} />
                   {t("emptyCta")}

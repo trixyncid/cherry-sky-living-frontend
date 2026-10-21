@@ -15,6 +15,8 @@ export interface PublicSearchProperty {
   name: string;
   address: string;
   city: string;
+  /** Refundable deposit (Rp); null when not set. */
+  depositAmount?: number | null;
   propertyAttachments?: PublicAttachment[];
   primaryImageUrl?: string | null;
 }
@@ -90,13 +92,16 @@ function buildQueryString(params: PublicSearchParams): string {
   if (params.status) search.set("status", params.status);
   if (params.startDate) search.set("startDate", params.startDate);
   if (params.endDate) search.set("endDate", params.endDate);
-  if (params.minPrice !== undefined) search.set("minPrice", String(params.minPrice));
-  if (params.maxPrice !== undefined) search.set("maxPrice", String(params.maxPrice));
+  if (params.minPrice !== undefined)
+    search.set("minPrice", String(params.minPrice));
+  if (params.maxPrice !== undefined)
+    search.set("maxPrice", String(params.maxPrice));
   if (params.durationDays !== undefined) {
     search.set("durationDays", String(params.durationDays));
   }
   if (params.page !== undefined) search.set("page", String(params.page));
-  if (params.pageSize !== undefined) search.set("pageSize", String(params.pageSize));
+  if (params.pageSize !== undefined)
+    search.set("pageSize", String(params.pageSize));
   if (params.sortBy) search.set("sortBy", params.sortBy);
 
   const qs = search.toString();

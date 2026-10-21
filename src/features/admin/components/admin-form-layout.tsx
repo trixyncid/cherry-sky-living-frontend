@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
+import { useCurrentPageIcon } from "@/features/admin/lib/nav-state";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +39,7 @@ export function AdminDetailPage({
   aside?: React.ReactNode;
 }) {
   const t = useTranslations("admin.form");
+  const pageIcon = useCurrentPageIcon();
   const twoCol = Boolean(aside);
 
   return (
@@ -53,16 +55,22 @@ export function AdminDetailPage({
           href={backHref}
           aria-label={backLabel}
           title={backLabel}
-          className="mt-1 flex size-11 shrink-0 items-center justify-center rounded-full border border-[#ece4e2] bg-white text-[#3d3a36] transition-colors hover:border-[#e8bfb9] hover:text-[#71130d]"
+          className="mt-1 flex size-11 shrink-0 items-center justify-center rounded-full border border-line bg-white text-fg-2 transition-colors hover:border-brand-line hover:text-brand"
         >
           <Icon name="arrow_back" size={20} />
         </Link>
         <div className="min-w-0 flex-1">
           <nav
             aria-label={t("breadcrumb")}
-            className="flex flex-wrap items-center gap-1.5 text-sm text-[#6b6b6b]"
+            className="flex flex-wrap items-center gap-1.5 text-sm text-fg-muted"
           >
-            <Link href={backHref} className="hover:text-[#71130d]">
+            <Link
+              href={backHref}
+              className="inline-flex items-center gap-1.5 hover:text-brand"
+            >
+              {pageIcon ? (
+                <Icon name={pageIcon} size={16} className="text-brand" />
+              ) : null}
               {section ?? backLabel}
             </Link>
             {mode ? (
@@ -71,9 +79,9 @@ export function AdminDetailPage({
                 <span
                   className={cn(
                     "rounded-full px-2.5 py-0.5 text-xs font-medium",
-                    mode === "create" && "bg-[#dff3d6] text-[#2f6d22]",
-                    mode === "edit" && "bg-[#f3dedb] text-[#71130d]",
-                    mode === "view" && "bg-[#f6f0ef] text-[#3d3a36]",
+                    mode === "create" && "bg-success-soft text-success",
+                    mode === "edit" && "bg-brand-soft text-brand",
+                    mode === "view" && "bg-hover text-fg-2",
                   )}
                 >
                   {t(`mode.${mode}`)}
@@ -81,11 +89,11 @@ export function AdminDetailPage({
               </>
             ) : null}
           </nav>
-          <h1 className="mt-1 truncate text-[clamp(1.6rem,2.4vw,2.1rem)] font-medium tracking-[-0.03em] text-[#141414]">
+          <h1 className="mt-1 truncate text-[clamp(1.5rem,2.2vw,1.875rem)] font-semibold tracking-[-0.025em] text-fg">
             {title}
           </h1>
           {description ? (
-            <p className="mt-1 max-w-2xl text-[15px] text-[#6b6b6b]">
+            <p className="mt-1 max-w-2xl text-[15px] text-fg-muted">
               {description}
             </p>
           ) : null}
@@ -127,7 +135,7 @@ export function AdminFormSection({
     <section
       data-form-section
       className={cn(
-        "rounded-[1.75rem] border border-[#efe7e5] bg-white p-5 sm:p-6",
+        "rounded-[1.75rem] border border-line bg-white p-5 sm:p-6",
         className,
       )}
     >
@@ -135,17 +143,17 @@ export function AdminFormSection({
         <div className="flex min-w-0 gap-3">
           <span
             aria-hidden
-            className="form-step-num mt-0.5 hidden size-8 shrink-0 items-center justify-center rounded-full bg-[#71130d] text-sm font-semibold text-white"
+            className="form-step-num mt-0.5 hidden size-8 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white"
           />
-          <span className="form-step-icon mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f6f0ef] text-[#71130d]">
+          <span className="form-step-icon mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-hover text-brand">
             <Icon name={icon} size={18} />
           </span>
           <div className="min-w-0">
-            <h2 className="flex items-center gap-2 text-lg font-medium tracking-tight text-[#141414]">
+            <h2 className="flex items-center gap-2 text-lg font-medium tracking-tight text-fg">
               {title}
             </h2>
             {hint ? (
-              <p className="mt-0.5 text-sm leading-relaxed text-[#6b6b6b]">
+              <p className="mt-0.5 text-sm leading-relaxed text-fg-muted">
                 {hint}
               </p>
             ) : null}
@@ -186,10 +194,10 @@ export function AdminFormActions({
     // phones for the tab bar, pb-12 on desktop) — subtract it so the bar
     // lands just above the tab bar / near the bottom edge.
     <div className="sticky bottom-[calc(max(0.75rem,env(safe-area-inset-bottom))+5.25rem-8rem)] z-20 lg:bottom-[-2rem]">
-      <div className="flex flex-col gap-2 rounded-[1.5rem] border border-[#ece4e2] bg-white/95 p-2.5 sm:gap-3 sm:p-3 shadow-[0_18px_40px_-20px_rgb(28_11_10/0.35)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:pl-5">
+      <div className="flex flex-col gap-2 rounded-[1.5rem] border border-line bg-white/95 p-2.5 sm:gap-3 sm:p-3 shadow-[0_18px_40px_-20px_rgb(11_11_13/0.35)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:pl-5">
         <p
           className={cn(
-            "items-center gap-2 text-sm text-[#6b6b6b]",
+            "items-center gap-2 text-sm text-fg-muted",
             // Phones: only surface unsaved changes, keep the bar compact.
             dirty ? "flex" : "hidden sm:flex",
           )}
@@ -202,12 +210,12 @@ export function AdminFormActions({
             </>
           ) : dirty ? (
             <>
-              <span className="size-2 rounded-full bg-[#c98a4b]" />
+              <span className="size-2 rounded-full bg-warning" />
               {t("unsaved")}
             </>
           ) : (
             <>
-              <Icon name="cloud_done" size={16} className="text-[#2f6d22]" />
+              <Icon name="cloud_done" size={16} className="text-success" />
               {t("saved")}
             </>
           )}
@@ -216,7 +224,7 @@ export function AdminFormActions({
           <Link
             href={cancelHref}
             className={cn(
-              "inline-flex h-11 flex-1 items-center justify-center whitespace-nowrap rounded-full border border-[#ece4e2] bg-white px-4 text-sm font-medium sm:px-5 sm:text-[15px] text-[#3d3a36] transition-colors hover:border-[#e8bfb9] hover:text-[#71130d] sm:flex-none",
+              "inline-flex h-11 flex-1 items-center justify-center whitespace-nowrap rounded-full border border-line bg-white px-4 text-sm font-medium sm:px-5 sm:text-[15px] text-fg-2 transition-colors hover:border-brand-line hover:text-brand sm:flex-none",
               pending && "pointer-events-none opacity-50",
             )}
           >
@@ -225,7 +233,7 @@ export function AdminFormActions({
           <button
             type="submit"
             disabled={pending || submitDisabled}
-            className="inline-flex h-11 min-w-0 flex-[2] items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#71130d] px-4 text-sm font-medium sm:px-6 sm:text-[15px] text-white shadow-[0_10px_24px_-12px_rgb(113_19_13/0.8)] transition-colors hover:bg-[#8a1a12] disabled:cursor-not-allowed disabled:bg-[#c9b8b4] disabled:shadow-none sm:flex-none"
+            className="inline-flex h-11 min-w-0 flex-[2] items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand px-4 text-sm font-medium sm:px-6 sm:text-[15px] text-white shadow-[0_10px_24px_-12px_rgb(122_22_48/0.8)] transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-line-strong disabled:shadow-none sm:flex-none"
           >
             {pending ? (
               <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />

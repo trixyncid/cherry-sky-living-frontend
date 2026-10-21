@@ -1,10 +1,11 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 import { formatDate, formatIdrTable } from "@/features/admin/lib/format";
+import { tenantPaymentView } from "@/features/tenant/lib/payment-view";
+import type { Lease, LeaseInvoice } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
-import type { Lease } from "@/lib/types/admin";
 
 type PaymentTone = "due" | "review" | "paid";
 
@@ -17,11 +18,12 @@ function toneForStatus(status: Lease["status"]): PaymentTone {
 export function TenantLeasePaymentSummary({ lease }: { lease: Lease }) {
   const tp = useTranslations("tenant.pages.leases.payment");
 
-  const tone = toneForStatus(lease.status);
-  const rentDue = lease.amountDue ?? 0;
-  const lateFee = tone === "paid" ? 0 : Math.max(0, lease.lateFeeAmount ?? 0);
+  const view = tenantPaymentView(lease);
+  const tone = toneForStatus(view.status);
+  const rentDue = view.amount;
+  const lateFee = view.lateFee;
   const totalDue = rentDue + lateFee;
-  const daysLate = tone === "paid" ? 0 : Math.max(0, lease.daysLate ?? 0);
+  const daysLate = view.daysLate;
   const isOverdue = tone !== "paid" && daysLate > 0;
   const monthlyRate = lease.unitPricing?.price ?? null;
   const showRateNote =
@@ -111,7 +113,7 @@ export function TenantLeasePaymentSummary({ lease }: { lease: Lease }) {
             </div>
           </div>
 
-          {lease.paymentDueDate != null && tone !== "paid" && (
+          {view.dueDate != null && tone !== "paid" && (
             <div
               className={cn(
                 "rounded-2xl border px-3.5 py-2.5 text-right",
@@ -129,7 +131,7 @@ export function TenantLeasePaymentSummary({ lease }: { lease: Lease }) {
                   isOverdue ? "text-[#ba1a1a]" : "text-[#141414]",
                 )}
               >
-                {formatDate(lease.paymentDueDate)}
+                {formatDate(view.dueDate)}
               </p>
               {isOverdue && (
                 <p className="mt-1 text-[11px] font-semibold text-[#ba1a1a]">
@@ -208,6 +210,19 @@ export function TenantLeasePaymentSummary({ lease }: { lease: Lease }) {
           />
         </dl>
 
+        {view.next ? (
+          <p className="mt-4 rounded-xl border border-[#d5c3b8]/45 bg-white/45 px-3.5 py-2.5 text-xs leading-relaxed text-[#3d3a36]">
+            {tp("nextBill", {
+              amount: formatIdrTable(view.next.amount),
+              date: formatDate(view.next.dueDate),
+            })}
+          </p>
+        ) : null}
+
+        {(lease.invoices?.length ?? 0) > 1 ? (
+          <BillSchedule invoices={lease.invoices ?? []} />
+        ) : null}
+
         {showRateNote && (
           <p className="mt-4 rounded-xl border border-[#d5c3b8]/45 bg-white/45 px-3.5 py-2.5 text-xs leading-relaxed text-[#3d3a36]">
             {tp("monthlyRateNote", {
@@ -243,7 +258,9 @@ function BreakdownRow({
           {label}
         </dt>
         {hint ? (
-          <p className="mt-0.5 text-xs leading-relaxed text-[#6b6b6b]">{hint}</p>
+          <p className="mt-0.5 text-xs leading-relaxed text-[#6b6b6b]">
+            {hint}
+          </p>
         ) : null}
       </div>
       <dd
@@ -255,6 +272,80 @@ function BreakdownRow({
       >
         {amount}
       </dd>
+    </div>
+  );
+}
+
+const billStatusClass: Record<LeaseInvoice["status"], string> = {
+  paid: "bg-[#dff3d6] text-[#2f6d22]",
+  unpaid: "bg-[#fde2df] text-[#a1271b]",
+  waiting_for_review: "bg-[#f9e3c8] text-[#8a5a2b]",
+};
+
+/** Every bill of a monthly lease, so tenants see which months are paid. */
+function BillSchedule({ invoices }: { invoices: LeaseInvoice[] }) {
+  const tp = useTranslations("tenant.pages.leases.payment");
+  const locale = useLocale();
+  const statusLabel = {
+    paid: tp("statusPaid"),
+    unpaid: tp("statusUnpaid"),
+    waiting_for_review: tp("statusReview"),
+  } as const;
+
+  return (
+    <div className="mt-5">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6b6b6b]">
+        {tp("scheduleTitle")}
+      </p>
+      <ol className="mt-2 divide-y divide-[#d5c3b8]/45 rounded-2xl border border-[#d5c3b8]/55 bg-white/60">
+        {invoices.map((inv) => (
+          <li
+            key={inv.id}
+            className="flex items-start justify-between gap-3 px-3.5 py-3"
+          >
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-[#141414]">
+                {tp("billLabel", { n: inv.sequence })}
+                <span className="ml-2 font-normal text-[#6b6b6b]">
+                  {formatDate(inv.periodStart, locale)} –{" "}
+                  {formatDate(inv.periodEnd, locale)}
+                </span>
+              </p>
+              <p className="mt-0.5 text-xs text-[#6b6b6b]">
+                {inv.status === "paid" && inv.paidAt
+                  ? tp("paidOn", { date: formatDate(inv.paidAt, locale) })
+                  : tp("dueOn", { date: formatDate(inv.dueDate, locale) })}
+                {inv.discount
+                  ? ` · ${tp("discount", { amount: formatIdrTable(inv.discount) })}`
+                  : ""}
+                {inv.lateFeeWaived
+                  ? ` · ${tp("feeWaived")}`
+                  : inv.lateFeeAmount > 0
+                    ? ` · ${tp("lateFee", { amount: formatIdrTable(inv.lateFeeAmount) })}`
+                    : ""}
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-col items-end gap-1">
+              {inv.discount ? (
+                <span className="text-xs tabular-nums text-[#6b6b6b] line-through">
+                  {formatIdrTable(inv.amount + inv.discount)}
+                </span>
+              ) : null}
+              <span className="text-sm font-semibold tabular-nums text-[#141414]">
+                {formatIdrTable(inv.amount)}
+              </span>
+              <span
+                className={cn(
+                  "rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                  billStatusClass[inv.status],
+                )}
+              >
+                {statusLabel[inv.status]}
+              </span>
+            </div>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }

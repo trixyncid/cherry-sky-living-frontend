@@ -1,7 +1,7 @@
 /**
- * Hero room finder (§5.2) — segmented Residence | Move-in | Budget bar with
- * menus, quick toggles, and a submit button that previews the live number
- * of matching room types before the visitor leaves the page.
+ * Hero room finder (§5.2) — the hero's primary action: a white search card
+ * (Residence | Move-in | Budget) with menus, quick toggles, and a burgundy
+ * submit button that previews the live number of matching room types.
  * Matching is computed from the property data already on the page;
  * the rooms page then applies the same filters server-side.
  */
@@ -93,20 +93,20 @@ function Segment({
         <button
           type="button"
           className={cn(
-            "flex min-w-0 flex-1 items-center gap-2.5 rounded-full px-4 py-2 text-left sm:px-3.5 transition-colors hover:bg-white/10 focus-visible:bg-white/10 focus-visible:outline-none data-[state=open]:bg-white/15",
+            "flex min-w-0 flex-1 items-center gap-2.5 rounded-full px-4 py-2 text-left transition-colors hover:bg-hover focus-visible:bg-hover focus-visible:outline-none data-[state=open]:bg-hover sm:px-3.5",
             className,
           )}
         >
-          <Icon name={icon} size={20} className="shrink-0 text-white/65" />
+          <Icon name={icon} size={20} className="shrink-0 text-brand" />
           <span className="min-w-0">
-            <span className="block text-xs text-white/60">{label}</span>
-            <span className="block truncate text-[15px] font-medium text-white">
+            <span className="block text-xs text-fg-muted">{label}</span>
+            <span className="block truncate text-[15px] font-semibold text-fg">
               {value}
             </span>
           </span>
           {/* Wrapper carries the breakpoint: the icon font's CSS sets display. */}
           <span className="ml-auto shrink-0 sm:hidden">
-            <Icon name="expand_more" size={18} className="text-white/50" />
+            <Icon name="expand_more" size={18} className="text-fg-faint" />
           </span>
         </button>
       </PopoverTrigger>
@@ -138,9 +138,7 @@ function Option({
       aria-pressed={selected}
       className={cn(
         "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[15px] transition-colors disabled:cursor-not-allowed disabled:opacity-40",
-        selected
-          ? "bg-[#71130d] text-white"
-          : "text-[#141414] hover:bg-[#f6f0ef]",
+        selected ? "bg-brand text-white" : "text-fg hover:bg-hover",
       )}
     >
       <span className="flex-1">{label}</span>
@@ -148,7 +146,7 @@ function Option({
         <span
           className={cn(
             "text-xs",
-            selected ? "text-white/75" : "text-[#6b6b6b]",
+            selected ? "text-white/75" : "text-fg-muted",
           )}
         >
           {meta}
@@ -252,7 +250,7 @@ export function HeroRoomFinder({ kosts = [] }: { kosts?: Kost[] }) {
       className={cn(
         "inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm transition-colors",
         on
-          ? "border-white bg-white text-[#141414]"
+          ? "border-white bg-white text-fg"
           : "border-white/20 bg-white/[0.06] text-white/85 hover:bg-white/10",
       )}
     >
@@ -265,9 +263,9 @@ export function HeroRoomFinder({ kosts = [] }: { kosts?: Kost[] }) {
     <form
       onSubmit={submit}
       aria-label={t("finder.ariaFinder")}
-      className="w-full max-w-[50rem]"
+      className="w-full"
     >
-      <div className="flex flex-col gap-1 rounded-[1.75rem] border border-white/20 bg-white/[0.12] p-1.5 backdrop-blur-md sm:flex-row sm:items-center sm:rounded-full">
+      <div className="flex flex-col gap-1 rounded-[1.75rem] bg-white p-1.5 shadow-[0_24px_60px_-24px_rgb(0_0_0/0.8)] sm:flex-row sm:items-center sm:rounded-full">
         <Segment
           icon="apartment"
           label={t("finder.residence")}
@@ -301,10 +299,7 @@ export function HeroRoomFinder({ kosts = [] }: { kosts?: Kost[] }) {
             </>
           )}
         </Segment>
-        <span
-          aria-hidden
-          className="mx-1 hidden h-8 w-px bg-white/15 sm:block"
-        />
+        <span aria-hidden className="mx-1 hidden h-8 w-px bg-line sm:block" />
         <Segment icon="event" label={t("finder.moveIn")} value={moveInLabel}>
           {(close) => (
             <>
@@ -325,7 +320,7 @@ export function HeroRoomFinder({ kosts = [] }: { kosts?: Kost[] }) {
                   }
                 />
               ))}
-              <label className="mt-1 block border-t border-[#efeeeb] px-3 pb-1 pt-3 text-xs text-[#6b6b6b]">
+              <label className="mt-1 block border-t border-hover px-3 pb-1 pt-3 text-xs text-fg-muted">
                 {t("finder.pickDate")}
                 <input
                   type="date"
@@ -337,16 +332,13 @@ export function HeroRoomFinder({ kosts = [] }: { kosts?: Kost[] }) {
                       close();
                     }
                   }}
-                  className="mt-1.5 block h-11 w-full rounded-xl border border-[#cfc5c1] bg-white px-3 text-base sm:text-[15px] text-[#141414] focus:border-[#71130d] focus:outline-none"
+                  className="mt-1.5 block h-11 w-full rounded-xl border border-line-strong bg-white px-3 text-base sm:text-[15px] text-fg focus:border-brand focus:outline-none"
                 />
               </label>
             </>
           )}
         </Segment>
-        <span
-          aria-hidden
-          className="mx-1 hidden h-8 w-px bg-white/15 sm:block"
-        />
+        <span aria-hidden className="mx-1 hidden h-8 w-px bg-line sm:block" />
         <Segment icon="payments" label={t("finder.budget")} value={bandLabel}>
           {(close) =>
             BANDS.map((b) => {
@@ -374,7 +366,7 @@ export function HeroRoomFinder({ kosts = [] }: { kosts?: Kost[] }) {
         <button
           type="submit"
           disabled={current.length === 0}
-          className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-[#71130d] px-5 text-[15px] font-medium text-white transition-colors hover:bg-[#8a1a12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:cursor-not-allowed disabled:bg-white/20 disabled:text-white/70"
+          className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-brand px-5 text-[15px] font-semibold text-white transition-colors hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-line-strong disabled:text-fg-muted"
         >
           <Icon name="search" size={18} />
           <span className="whitespace-nowrap tabular-nums">
@@ -385,7 +377,7 @@ export function HeroRoomFinder({ kosts = [] }: { kosts?: Kost[] }) {
         </button>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         {toggle(
           availableOnly,
           () => setAvailableOnly((v) => !v),

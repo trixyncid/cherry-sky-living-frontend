@@ -3,15 +3,12 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { PropertyFilter } from "@/features/admin/components/property-filter";
 import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
+import { useAdminPropertyFilter } from "@/features/admin/hooks/use-admin-property-filter";
 import {
   useAdminDashboard,
   useLeases,
@@ -20,6 +17,7 @@ import { formatDate, formatIdrCompact } from "@/features/admin/lib/format";
 import { buildViewLeaseHref } from "@/features/admin/units/lib/lease-links";
 import { Link } from "@/i18n/routing";
 import { useKosts } from "@/lib/hooks/use-kost-data";
+import { contactSummary } from "@/lib/phone";
 import type {
   AdminDashboardLeaseSummary,
   LeaseStatus,
@@ -36,34 +34,6 @@ import {
   Thumb,
 } from "./dashboard-widgets";
 import { useIsClient } from "./use-is-client";
-
-const quickActions = [
-  {
-    href: "/admin/properties/new",
-    icon: "add_home",
-    labelKey: "quickActions.addProperty" as const,
-  },
-  {
-    href: "/admin/unit-types/new",
-    icon: "category",
-    labelKey: "quickActions.addUnitType" as const,
-  },
-  {
-    href: "/admin/units/new",
-    icon: "bed",
-    labelKey: "quickActions.addUnit" as const,
-  },
-  {
-    href: "/admin/leases/new",
-    icon: "post_add",
-    labelKey: "quickActions.newLease" as const,
-  },
-  {
-    href: "/admin/pricing/new",
-    icon: "sell",
-    labelKey: "quickActions.setPricing" as const,
-  },
-];
 
 const LEASE_COLUMNS = [
   "colLease",
@@ -99,13 +69,15 @@ function monthLabelFor(locale: string) {
 export function OverviewView() {
   const t = useTranslations("admin.pages.overview");
   const td = useTranslations("admin.pages.overview.dash");
+  const tb = useTranslations("admin.pages.leases.billing");
   const tc = useTranslations("admin.crud");
   const tRoot = useTranslations();
   const locale = useLocale();
   const { user } = useAdminShell();
   const isClient = useIsClient();
 
-  const [propertyFilter, setPropertyFilter] = useState("");
+  const { propertyId: propertyFilter, setPropertyId: setPropertyFilter } =
+    useAdminPropertyFilter();
   const [series, setSeries] = useState<"income" | "expense">("income");
   const [gaugeFor, setGaugeFor] = useState("all");
   const [queueTab, setQueueTab] = useState<QueueTab>("all");
@@ -197,10 +169,15 @@ export function OverviewView() {
     : " ";
 
   const queueDetail = (kind: QueueKind, lease: AdminDashboardLeaseSummary) => {
+    const bill = lease.invoice
+      ? `${tb("billLabel", { n: lease.invoice.sequence })} · `
+      : "";
     if (kind === "review")
-      return td("dueAmount", { amount: formatIdrCompact(lease.amountDue) });
+      return (
+        bill + td("dueAmount", { amount: formatIdrCompact(lease.amountDue) })
+      );
     if (kind === "unpaidOverdue")
-      return td("daysLate", { days: lease.daysLate ?? 0 });
+      return bill + td("daysLate", { days: lease.daysLate ?? 0 });
     if (kind === "renewal" && lease.leaseRenewal?.confirmationDeadline)
       return td("deadline", {
         date: formatDate(lease.leaseRenewal.confirmationDeadline, locale),
@@ -209,17 +186,17 @@ export function OverviewView() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {dashboard.error ? <AdminAlert message={tc("loadFailed")} /> : null}
 
       {/* Greeting + controls */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm text-[#6b6b6b]" suppressHydrationWarning>
+          <p className="text-sm text-fg-muted" suppressHydrationWarning>
             {todayLabel}
           </p>
           <h1
-            className="text-[clamp(1.5rem,2vw,1.85rem)] font-medium tracking-[-0.03em] text-[#141414]"
+            className="text-[clamp(1.5rem,2vw,1.875rem)] font-semibold tracking-[-0.025em] text-fg"
             suppressHydrationWarning
           >
             {td("greeting", {
@@ -230,41 +207,16 @@ export function OverviewView() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <PropertyFilter value={propertyFilter} onChange={setPropertyFilter} />
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                className="hidden h-11 items-center gap-2 rounded-full bg-[#71130d] px-5 text-[15px] font-medium text-white transition-colors hover:bg-[#8a1a12] lg:inline-flex"
-              >
-                <Icon name="add" size={18} />
-                {t("board.newItem")}
-              </button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              className="glass-overlay w-64 rounded-2xl p-2"
-            >
-              {quickActions.map((a) => (
-                <Link
-                  key={a.href}
-                  href={a.href}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] text-[#141414] hover:bg-[#f6f0ef]"
-                >
-                  <Icon name={a.icon} size={18} />
-                  {t(a.labelKey)}
-                </Link>
-              ))}
-            </PopoverContent>
-          </Popover>
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 xl:grid xl:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="flex flex-col gap-4 xl:grid xl:grid-cols-[minmax(0,1fr)_23rem]">
         {/* ——— Left column ——— */}
         <div className="contents xl:flex xl:min-w-0 xl:flex-col xl:gap-4">
           <div className="order-1 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 xl:order-none">
             <KpiCard
-              icon="pie_chart"
+              icon={adminPageIcons.units}
+              tone="brand"
               label={td("occupancy")}
               value={`${Math.round(occupiedPct)}%`}
               loading={loading}
@@ -278,7 +230,7 @@ export function OverviewView() {
               })}
             />
             <KpiCard
-              icon="monitoring"
+              icon={adminPageIcons.bookkeeping}
               label={td("netMonth")}
               value={compact(collections?.monthNet ?? 0)}
               loading={loading}
@@ -308,7 +260,7 @@ export function OverviewView() {
               }}
             />
             <KpiCard
-              icon="description"
+              icon={adminPageIcons.leases}
               label={td("activeLeases")}
               value={String(leaseStats?.activePaid ?? 0)}
               loading={loading}
@@ -324,20 +276,20 @@ export function OverviewView() {
           <div className="order-4 grid gap-4 lg:grid-cols-2 xl:order-none">
             <section className={cn(card, "flex flex-col gap-5")}>
               <div className="flex items-start justify-between gap-3">
-                <h2 className="text-xl font-medium tracking-tight text-[#141414]">
+                <h2 className="text-lg font-semibold tracking-tight text-fg">
                   {td("collections")}
                 </h2>
-                <span className="rounded-full bg-[#f6f0ef] px-3 py-1.5 text-xs text-[#6b6b6b]">
+                <span className="rounded-full bg-hover px-3 py-1.5 text-xs text-fg-muted">
                   {td("last6")}
                 </span>
               </div>
               <div>
-                <p className="text-sm text-[#6b6b6b]">{td("collectedOf")}</p>
-                <p className="mt-1 text-[clamp(1.6rem,2.2vw,2rem)] font-medium tracking-[-0.03em] text-[#141414] tabular-nums">
+                <p className="text-sm text-fg-muted">{td("collectedOf")}</p>
+                <p className="mt-1 text-[clamp(1.6rem,2.2vw,2rem)] font-medium tracking-[-0.03em] text-fg tabular-nums">
                   {loading
                     ? "…"
                     : formatIdrCompact(collections?.monthIncome ?? 0)}
-                  <span className="ml-1.5 text-base font-normal tracking-normal text-[#6b6b6b]">
+                  <span className="ml-1.5 text-base font-normal tracking-normal text-fg-muted">
                     {td("contracted", {
                       amount: formatIdrCompact(
                         collections?.contractedActiveValue ?? 0,
@@ -355,7 +307,7 @@ export function OverviewView() {
 
             <section className={cn(card, "flex flex-col gap-5")}>
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <h2 className="text-xl font-medium tracking-tight text-[#141414]">
+                <h2 className="text-lg font-semibold tracking-tight text-fg">
                   {td("occupancyTarget")}
                 </h2>
                 {gaugeOptions.length > 2 ? (
@@ -367,17 +319,17 @@ export function OverviewView() {
                   />
                 ) : null}
               </div>
-              <div className="flex gap-5 text-sm text-[#3d3a36]">
+              <div className="flex gap-5 text-sm text-fg-2">
                 <span className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full bg-[#71130d]" />
+                  <span className="size-2.5 rounded-full bg-brand" />
                   {td("occupied")}
                 </span>
                 <span className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full bg-[#f1ebea] ring-1 ring-[#e6dedc]" />
+                  <span className="size-2.5 rounded-full bg-hover ring-1 ring-line" />
                   {td("vacant")}
                 </span>
               </div>
-              <div className="flex flex-1 items-end rounded-2xl bg-[#faf7f6] px-4 pt-6 pb-4">
+              <div className="flex flex-1 items-end rounded-xl bg-subtle px-4 pt-6 pb-4">
                 <OccupancyGauge
                   percent={loading ? 0 : gaugePct}
                   caption={td("occupiedLabel")}
@@ -391,7 +343,7 @@ export function OverviewView() {
             className={cn(card, "order-5 flex flex-col gap-4 xl:order-none")}
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-xl font-medium tracking-tight text-[#141414]">
+              <h2 className="text-lg font-semibold tracking-tight text-fg">
                 {td("leases")}
               </h2>
               <Segmented
@@ -406,19 +358,17 @@ export function OverviewView() {
                 ]}
               />
             </div>
-            <ul className="flex flex-col divide-y divide-[#f1ebea] md:hidden">
+            <ul className="flex flex-col divide-y divide-line md:hidden">
               {leasesQuery.isLoading ? (
-                <li className="py-6 text-sm text-[#6b6b6b]">{t("loading")}</li>
+                <li className="py-6 text-sm text-fg-muted">{t("loading")}</li>
               ) : leases.length === 0 ? (
-                <li className="py-6 text-sm text-[#6b6b6b]">
-                  {td("noLeases")}
-                </li>
+                <li className="py-6 text-sm text-fg-muted">{td("noLeases")}</li>
               ) : (
                 leases.map((lease) => (
                   <li key={lease.id}>
                     <Link
                       href={buildViewLeaseHref(lease.id)}
-                      className="flex items-center gap-3 py-3 active:bg-[#faf7f6]"
+                      className="flex items-center gap-3 py-3 active:bg-subtle"
                     >
                       <Thumb
                         src={thumbFor(lease.propertyId)}
@@ -426,10 +376,12 @@ export function OverviewView() {
                         className="size-12"
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[15px] font-medium text-[#141414]">
-                          {lease.user?.name ?? lease.user?.email ?? "—"}
+                        <span className="block truncate text-[15px] font-medium text-fg">
+                          {lease.user?.name ||
+                            contactSummary(lease.user) ||
+                            "—"}
                         </span>
-                        <span className="block truncate text-xs text-[#6b6b6b]">
+                        <span className="block truncate text-xs text-fg-muted">
                           {lease.unit?.name ?? "—"} ·{" "}
                           {lease.property?.name ??
                             lease.unit?.property?.name ??
@@ -438,7 +390,7 @@ export function OverviewView() {
                         </span>
                       </span>
                       <span className="flex shrink-0 flex-col items-end gap-1">
-                        <span className="text-[15px] font-medium tabular-nums text-[#141414]">
+                        <span className="text-[15px] font-medium tabular-nums text-fg">
                           {formatIdrCompact(lease.amountDue)}
                         </span>
                         <LeaseStatusBadge status={lease.status} />
@@ -448,9 +400,9 @@ export function OverviewView() {
                 ))
               )}
             </ul>
-            <div className="hidden overflow-x-auto rounded-2xl border border-[#f1ebea] md:block">
+            <div className="hidden overflow-x-auto rounded-xl border border-line md:block">
               <table className="w-full min-w-[48rem] text-left">
-                <thead className="bg-[#faf7f6] text-[13px] text-[#6b6b6b]">
+                <thead className="bg-subtle text-xs font-medium uppercase tracking-wide text-fg-muted">
                   <tr>
                     {LEASE_COLUMNS.map((k) => (
                       <th key={k} scope="col" className="px-4 py-3 font-medium">
@@ -464,7 +416,7 @@ export function OverviewView() {
                     <tr>
                       <td
                         colSpan={LEASE_COLUMNS.length}
-                        className="px-4 py-8 text-sm text-[#6b6b6b]"
+                        className="px-4 py-8 text-sm text-fg-muted"
                       >
                         {t("loading")}
                       </td>
@@ -473,7 +425,7 @@ export function OverviewView() {
                     <tr>
                       <td
                         colSpan={LEASE_COLUMNS.length}
-                        className="px-4 py-8 text-sm text-[#6b6b6b]"
+                        className="px-4 py-8 text-sm text-fg-muted"
                       >
                         {td("noLeases")}
                       </td>
@@ -482,15 +434,15 @@ export function OverviewView() {
                     leases.map((lease) => (
                       <tr
                         key={lease.id}
-                        className="border-t border-[#f1ebea] text-[15px] text-[#141414] hover:bg-[#fcf9f8]"
+                        className="border-t border-line text-sm text-fg transition-colors hover:bg-subtle"
                       >
-                        <td className="px-4 py-3 font-mono text-sm text-[#6b6b6b]">
+                        <td className="px-4 py-3 font-mono text-sm text-fg-muted">
                           #{lease.id.slice(-6).toUpperCase()}
                         </td>
                         <td className="px-4 py-3">
                           <Link
                             href={buildViewLeaseHref(lease.id)}
-                            className="flex items-center gap-3 hover:text-[#71130d]"
+                            className="flex items-center gap-3 hover:text-brand"
                           >
                             <Thumb
                               src={thumbFor(lease.propertyId)}
@@ -501,7 +453,7 @@ export function OverviewView() {
                               <span className="block truncate font-medium">
                                 {lease.unit?.name ?? "—"}
                               </span>
-                              <span className="block truncate text-xs text-[#6b6b6b]">
+                              <span className="block truncate text-xs text-fg-muted">
                                 {lease.property?.name ??
                                   lease.unit?.property?.name ??
                                   ""}
@@ -510,9 +462,11 @@ export function OverviewView() {
                           </Link>
                         </td>
                         <td className="px-4 py-3">
-                          {lease.user?.name ?? lease.user?.email ?? "—"}
+                          {lease.user?.name ||
+                            contactSummary(lease.user) ||
+                            "—"}
                         </td>
-                        <td className="px-4 py-3 text-[#3d3a36]">
+                        <td className="px-4 py-3 text-fg-2">
                           {lease.unitPricing?.durationDays
                             ? getDurationLabel(
                                 lease.unitPricing.durationDays,
@@ -523,7 +477,7 @@ export function OverviewView() {
                         <td className="px-4 py-3 tabular-nums">
                           {formatIdrCompact(lease.amountDue)}
                         </td>
-                        <td className="px-4 py-3 text-[#3d3a36]">
+                        <td className="px-4 py-3 text-fg-2">
                           {formatDate(lease.startDate, locale)}
                         </td>
                         <td className="px-4 py-3">
@@ -540,9 +494,13 @@ export function OverviewView() {
 
         {/* ——— Right column ——— */}
         <div className="contents xl:flex xl:min-w-0 xl:flex-col xl:gap-4">
-          <section className="order-3 rounded-[1.75rem] bg-[#1c0b0a] p-5 text-white sm:p-6 xl:order-none">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-xl font-medium tracking-tight">
+          <section className="relative order-3 overflow-hidden rounded-2xl bg-ink p-5 text-white shadow-[0_20px_40px_-24px_rgb(11_11_13/0.6)] sm:p-6 xl:order-none">
+            <span
+              className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-brand/35 blur-3xl"
+              aria-hidden
+            />
+            <div className="relative flex items-center justify-between gap-3">
+              <h2 className="relative text-lg font-semibold tracking-tight">
                 {td("cashflow")}
               </h2>
               <Segmented
@@ -556,7 +514,7 @@ export function OverviewView() {
                 ]}
               />
             </div>
-            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+            <div className="relative mt-5 rounded-xl border border-white/10 bg-white/[0.03] p-3">
               {months.length > 0 ? (
                 <CashflowChart
                   months={months}
@@ -580,7 +538,7 @@ export function OverviewView() {
             )}
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-xl font-medium tracking-tight text-[#141414]">
+              <h2 className="text-lg font-semibold tracking-tight text-fg">
                 {td("attention")}
               </h2>
               <Segmented
@@ -595,18 +553,18 @@ export function OverviewView() {
               />
             </div>
             {loading ? (
-              <p className="py-6 text-sm text-[#6b6b6b]">{t("loading")}</p>
+              <p className="py-6 text-sm text-fg-muted">{t("loading")}</p>
             ) : visibleQueue.length === 0 ? (
-              <p className="flex items-center gap-2 rounded-2xl bg-[#faf7f6] p-5 text-[15px] text-[#3d3a36]">
-                <Icon name="task_alt" size={20} className="text-[#2f6d22]" />
+              <p className="flex items-center gap-2 rounded-xl bg-success-soft p-4 text-sm text-success">
+                <Icon name="task_alt" size={20} className="text-success" />
                 {td("nothing")}
               </p>
             ) : (
               <ul className="flex flex-col gap-3">
                 {visibleQueue.map(({ kind, lease }) => (
                   <li
-                    key={`${kind}-${lease.id}`}
-                    className="rounded-2xl border border-[#f1ebea] p-3"
+                    key={`${kind}-${lease.invoice?.id ?? lease.id}`}
+                    className="rounded-xl border border-line p-3 transition-colors hover:border-line-strong"
                   >
                     <div className="flex items-start gap-3">
                       <Thumb
@@ -615,10 +573,12 @@ export function OverviewView() {
                         className="size-14"
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[15px] font-medium text-[#141414]">
-                          {lease.user?.name ?? lease.user?.email ?? "—"}
+                        <p className="truncate text-[15px] font-medium text-fg">
+                          {lease.user?.name ||
+                            contactSummary(lease.user) ||
+                            "—"}
                         </p>
-                        <p className="truncate text-xs text-[#6b6b6b]">
+                        <p className="truncate text-xs text-fg-muted">
                           {lease.unit?.name ?? "—"}
                           {lease.property?.name
                             ? ` · ${lease.property.name}`
@@ -628,8 +588,8 @@ export function OverviewView() {
                           className={cn(
                             "mt-1.5 inline-block rounded-md border px-2 py-0.5 text-[11px] font-semibold",
                             kind === "unpaidOverdue"
-                              ? "border-[#f5c2bd] bg-[#fde2df] text-[#a1271b]"
-                              : "border-[#e8bfb9] bg-[#fbf3f2] text-[#71130d]",
+                              ? "border-danger-soft bg-danger-soft text-danger"
+                              : "border-brand-line bg-brand-tint text-brand",
                           )}
                         >
                           {t(`queues.kinds.${kind}`)}
@@ -638,7 +598,7 @@ export function OverviewView() {
                     </div>
                     <Link
                       href={buildViewLeaseHref(lease.id)}
-                      className="mt-3 flex items-center justify-between rounded-xl bg-[#faf7f6] px-3 py-2.5 text-sm text-[#3d3a36] transition-colors hover:bg-[#f6f0ef] hover:text-[#71130d]"
+                      className="mt-3 flex items-center justify-between rounded-lg bg-subtle px-3 py-2 text-sm text-fg-2 transition-colors hover:bg-brand-tint hover:text-brand"
                     >
                       {queueDetail(kind, lease)}
                       <Icon name="north_east" size={16} />
@@ -649,7 +609,7 @@ export function OverviewView() {
             )}
             <Link
               href="/admin/leases"
-              className="mx-auto mt-auto inline-flex h-11 items-center gap-2 rounded-full bg-[#71130d] px-6 text-[15px] font-medium text-white shadow-[0_14px_30px_-14px_rgb(113_19_13/0.7)] transition-colors hover:bg-[#8a1a12]"
+              className="mt-auto inline-flex h-10 items-center justify-center gap-2 rounded-full border border-line-strong bg-panel px-5 text-sm font-medium text-fg transition-colors hover:border-fg hover:bg-hover"
             >
               {td("viewAllLeases")}
               <Icon name="north_east" size={16} />

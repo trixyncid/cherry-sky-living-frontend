@@ -28,7 +28,7 @@ export function ContactView() {
       key: "whatsapp",
       icon: "whatsapp",
       title: t("hero.whatsapp"),
-      value: siteConfig.whatsappNumber,
+      value: siteConfig.phoneDisplay,
       sub: t("page.whatsappSub"),
       href: generateWhatsAppURL(
         siteConfig.whatsappNumber,
@@ -42,7 +42,7 @@ export function ContactView() {
       key: "call",
       icon: "call",
       title: t("hero.call"),
-      value: siteConfig.phone,
+      value: siteConfig.phoneDisplay,
       sub: t("page.callSub"),
       href: `tel:${siteConfig.phone.replace(/[^\d+]/g, "")}`,
       onClick: () => track("click_call", { location: "contact_channel" }),
@@ -82,9 +82,7 @@ export function ContactView() {
                   <span
                     className={cn(
                       "flex size-11 items-center justify-center rounded-full",
-                      c.featured
-                        ? "bg-[#25D366] text-white"
-                        : "bg-[#f7f3f2] text-[#71130d]",
+                      c.featured ? "bg-ink text-white" : "bg-canvas text-brand",
                     )}
                   >
                     <Icon name={c.icon} size={22} />
@@ -93,7 +91,7 @@ export function ContactView() {
                     <p
                       className={cn(
                         "text-sm",
-                        c.featured ? "text-white/65" : "text-[#6b6b6b]",
+                        c.featured ? "text-white/65" : "text-fg-muted",
                       )}
                     >
                       {c.title}
@@ -104,7 +102,7 @@ export function ContactView() {
                     <p
                       className={cn(
                         "mt-1 text-sm",
-                        c.featured ? "text-white/65" : "text-[#6b6b6b]",
+                        c.featured ? "text-white/65" : "text-fg-muted",
                       )}
                     >
                       {c.sub}
@@ -115,9 +113,9 @@ export function ContactView() {
               const box = cn(
                 "flex h-full min-h-[12rem] flex-col justify-between gap-6 rounded-[1.25rem] p-6 transition-colors",
                 c.featured
-                  ? "bg-[#71130d] text-white hover:bg-[#8a1a12]"
-                  : "bg-white text-[#141414]",
-                c.href && !c.featured && "hover:bg-[#fbfaf8]",
+                  ? "bg-brand text-white hover:bg-brand-hover"
+                  : "bg-white text-fg",
+                c.href && !c.featured && "hover:bg-subtle",
               );
               return (
                 <li key={c.key}>
@@ -146,15 +144,15 @@ export function ContactView() {
       <section className="w-full px-5 py-16 sm:px-8 lg:py-20">
         <div className="mx-auto grid w-full max-w-[90rem] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
           <Reveal className="rounded-[1.25rem] bg-white p-6 sm:p-8 lg:self-start">
-            <h2 className="text-2xl font-medium tracking-tight text-[#141414]">
+            <h2 className="text-2xl font-medium tracking-tight text-fg">
               {t("page.formTitle")}
             </h2>
-            <p className="mt-2 text-base text-[#6b6b6b]">{t("page.formSub")}</p>
+            <p className="mt-2 text-base text-fg-muted">{t("page.formSub")}</p>
             <LeadForm type="inquiry" kosts={kosts} className="relative mt-6" />
           </Reveal>
 
           <div className="flex flex-col gap-4">
-            <h2 className="text-2xl font-medium tracking-tight text-[#141414]">
+            <h2 className="text-2xl font-medium tracking-tight text-fg">
               {t("page.visitTitle")}
             </h2>
             {isLoading
@@ -181,16 +179,16 @@ export function ContactView() {
                       />
                       <div className="flex flex-wrap items-center justify-between gap-3 p-5">
                         <div>
-                          <p className="text-lg font-semibold tracking-tight text-[#141414]">
+                          <p className="text-lg font-semibold tracking-tight text-fg">
                             {kost.name}
                           </p>
-                          <p className="text-base text-[#3d3a36]">{address}</p>
+                          <p className="text-base text-fg-2">{address}</p>
                         </div>
                         <a
                           href={directionsUrl(kost.name, address)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex h-10 items-center gap-1.5 rounded-full bg-[#71130d] px-4 text-sm font-semibold text-white hover:bg-[#8a1a12]"
+                          className="inline-flex h-10 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-hover"
                         >
                           <Icon name="near_me" size={16} />
                           {t("map.directionsButton")}

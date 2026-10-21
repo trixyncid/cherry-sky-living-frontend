@@ -28,7 +28,7 @@ export function HomeJourney() {
     <section
       id="how-it-works"
       aria-labelledby="journey-heading"
-      className="w-full bg-[#1c0b0a] px-5 py-14 text-white sm:px-8 lg:py-16"
+      className="w-full bg-ink px-5 py-14 text-white sm:px-8 lg:py-16"
     >
       <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 lg:gap-12">
         <HomeSectionHeading
@@ -80,7 +80,7 @@ export function HomeJourney() {
         <div className="flex flex-col items-center gap-3 text-center">
           <SurveyScheduleDialog
             triggerLabel={tCta("schedule")}
-            className="mt-0 h-12 rounded-full bg-white px-6 text-[15px] text-[#141414] hover:bg-[#f2f0ec]"
+            className="mt-0 h-12 rounded-full bg-white px-6 text-[15px] text-fg hover:bg-hover"
           />
           <p className="text-sm text-white/55">{t("hours")}</p>
         </div>

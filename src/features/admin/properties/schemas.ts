@@ -8,6 +8,8 @@ export const propertyFormSchema = z.object({
   paymentDueDay: z.number().int().min(1).max(28),
   lateFeePerDay: z.number().int().min(0),
   renewalConfirmDaysBeforeEnd: z.number().int().min(1).max(28),
+  /** Refundable deposit (Rp); null = not set, hidden on the website. */
+  depositAmount: z.number().int().min(0).nullable(),
 });
 
 export type PropertyFormValues = z.infer<typeof propertyFormSchema>;

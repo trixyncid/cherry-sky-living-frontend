@@ -34,6 +34,8 @@ export interface PublicProperty {
   name: string;
   address: string;
   city: string;
+  /** Refundable deposit (Rp); null when the owner hasn't set one. */
+  depositAmount?: number | null;
   propertyAttachments?: PublicAttachment[];
   unitTypes: PublicUnitType[];
 }

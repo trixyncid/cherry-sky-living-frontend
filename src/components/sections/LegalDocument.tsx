@@ -70,7 +70,7 @@ export function LegalDocument({
             aria-label={tLegal("onThisPage")}
             className="lg:sticky lg:top-24 lg:self-start"
           >
-            <p className="mb-3 text-sm font-semibold text-[#141414]">
+            <p className="mb-3 text-sm font-semibold text-fg">
               {tLegal("onThisPage")}
             </p>
             <ol className="flex gap-1 overflow-x-auto pb-1 [scrollbar-width:none] lg:flex-col lg:overflow-visible [&::-webkit-scrollbar]:hidden">
@@ -82,11 +82,11 @@ export function LegalDocument({
                     className={cn(
                       "flex items-start gap-3 rounded-xl px-3 py-2 text-[15px] transition-colors",
                       active === key
-                        ? "bg-white font-semibold text-[#141414]"
-                        : "text-[#6b6b6b] hover:text-[#141414]",
+                        ? "bg-white font-semibold text-fg"
+                        : "text-fg-muted hover:text-fg",
                     )}
                   >
-                    <span className="tabular-nums text-[#857f77]">
+                    <span className="tabular-nums text-fg-muted">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span className="whitespace-nowrap lg:whitespace-normal">
@@ -104,18 +104,18 @@ export function LegalDocument({
                 key={key}
                 id={key}
                 aria-labelledby={`${key}-title`}
-                className="scroll-mt-24 border-b border-[#e7e4df] py-8 first:pt-0 last:border-b-0"
+                className="scroll-mt-24 border-b border-line py-8 first:pt-0 last:border-b-0"
               >
-                <span className="text-sm font-semibold tabular-nums text-[#71130d]">
+                <span className="text-sm font-semibold tabular-nums text-brand">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h2
                   id={`${key}-title`}
-                  className="mt-2 text-2xl font-medium tracking-tight text-[#141414]"
+                  className="mt-2 text-2xl font-medium tracking-tight text-fg"
                 >
                   {stripNumber(section.title)}
                 </h2>
-                <p className="mt-4 text-[17px] leading-[1.75] text-[#3d3a36]">
+                <p className="mt-4 text-[17px] leading-[1.75] text-fg-2">
                   {section.content}
                 </p>
                 {section.items?.length ? (
@@ -123,11 +123,11 @@ export function LegalDocument({
                     {section.items.map((item) => (
                       <li
                         key={item}
-                        className="flex items-start gap-3 text-[17px] leading-[1.7] text-[#3d3a36]"
+                        className="flex items-start gap-3 text-[17px] leading-[1.7] text-fg-2"
                       >
                         <span
                           aria-hidden
-                          className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-[#71130d]"
+                          className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-brand"
                         />
                         {item}
                       </li>
@@ -137,7 +137,7 @@ export function LegalDocument({
               </section>
             ))}
 
-            <div className="mt-10 flex flex-col items-start gap-4 rounded-[1.25rem] bg-[#71130d] p-6 text-white sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-10 flex flex-col items-start gap-4 rounded-[1.25rem] bg-brand p-6 text-white sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-lg font-semibold">{tLegal("questions")}</p>
                 <p className="mt-1 text-base text-white/65">
@@ -154,7 +154,7 @@ export function LegalDocument({
                 onClick={() =>
                   track("click_whatsapp", { location: `legal_${namespace}` })
                 }
-                className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-white px-5 text-[15px] font-semibold text-[#141414]"
+                className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-white px-5 text-[15px] font-semibold text-fg"
               >
                 <Icon name="whatsapp" size={16} className="text-[#25D366]" />
                 WhatsApp
@@ -163,7 +163,7 @@ export function LegalDocument({
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-[#3d3a36] hover:text-[#141414]"
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-fg-2 hover:text-fg"
             >
               <Icon name="arrow_upward" size={16} />
               {tLegal("backToTop")}

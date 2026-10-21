@@ -48,11 +48,11 @@ export function HomeSectionHeading({
           id={id}
           className={cn(
             "max-w-3xl text-[clamp(1.65rem,2.4vw,2.2rem)] font-medium leading-[1.12] tracking-[-0.025em]",
-            dark ? "text-white" : "text-[#141414]",
+            dark ? "text-white" : "text-fg",
           )}
         >
           {titleLead}{" "}
-          <span className={dark ? "text-white/45" : "text-[#857f77]"}>
+          <span className={dark ? "text-white/45" : "text-fg-muted"}>
             {titleAccent}
           </span>
         </Heading>

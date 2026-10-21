@@ -67,23 +67,23 @@ export function HomeOverview({
         {/* Left: copy + CTA */}
         <div className="flex flex-col justify-between gap-10">
           <div>
-            <span className="inline-flex rounded-full border border-[#dedad4] bg-white px-4 py-2 text-[15px] text-[#141414]">
+            <span className="inline-flex rounded-full border border-line-strong bg-white px-4 py-2 text-[15px] text-fg">
               {t("pill")}
             </span>
             <h2
               id="overview-heading"
-              className="mt-5 text-[clamp(1.75rem,2.4vw,2.2rem)] font-medium leading-[1.1] tracking-[-0.03em] text-[#141414]"
+              className="mt-5 text-[clamp(1.75rem,2.4vw,2.2rem)] font-medium leading-[1.1] tracking-[-0.03em] text-fg"
             >
               {t("titleLead")}{" "}
-              <span className="text-[#857f77]">{t("titleAccent")}</span>
+              <span className="text-fg-muted">{t("titleAccent")}</span>
             </h2>
-            <p className="mt-5 max-w-md text-base leading-relaxed text-[#3d3a36]">
+            <p className="mt-5 max-w-md text-base leading-relaxed text-fg-2">
               {tIntro("story")}
             </p>
           </div>
           <Link
             href={CHECK_AVAILABILITY_HREF}
-            className="inline-flex h-12 items-center gap-2.5 self-start rounded-full bg-[#71130d] px-7 text-[15px] font-medium text-white shadow-[0_18px_36px_-18px_rgb(20_16_14/0.6)] transition-colors hover:bg-[#8a1a12]"
+            className="inline-flex h-12 items-center gap-2.5 self-start rounded-full bg-brand px-7 text-[15px] font-medium text-white shadow-[0_18px_36px_-18px_rgb(11_11_13/0.6)] transition-colors hover:bg-brand-hover"
           >
             <Icon name="arrow_forward" size={18} />
             {t("cta")}
@@ -91,9 +91,9 @@ export function HomeOverview({
         </div>
 
         {/* Centre: residence photo card */}
-        <Reveal className="relative min-h-[26rem] overflow-hidden rounded-[1.75rem] bg-[#1d1b19] lg:mt-10 lg:min-h-[32rem]">
+        <Reveal className="relative min-h-[26rem] overflow-hidden rounded-[1.75rem] bg-ink-2 lg:mt-10 lg:min-h-[32rem]">
           {isLoading ? (
-            <div className="absolute inset-0 animate-pulse bg-[#2a2724]" />
+            <div className="absolute inset-0 animate-pulse bg-ink-3" />
           ) : (
             <Image
               key={kost?.id}
@@ -143,8 +143,8 @@ export function HomeOverview({
                     className={cn(
                       "h-9 rounded-full px-4 text-sm font-medium transition-colors",
                       i === active
-                        ? "bg-[#71130d] text-white"
-                        : "text-[#3d3a36] hover:text-[#141414]",
+                        ? "bg-brand text-white"
+                        : "text-fg-2 hover:text-fg",
                     )}
                   >
                     {k.name}
@@ -156,12 +156,12 @@ export function HomeOverview({
               {specs.map((spec) => (
                 <div
                   key={spec.label}
-                  className="flex items-baseline justify-between gap-4 border-b border-[#dedad4] py-4"
+                  className="flex items-baseline justify-between gap-4 border-b border-line-strong py-4"
                 >
-                  <dt className="text-base text-[#6b6b6b]">{spec.label}</dt>
-                  <dd className="text-right text-lg font-semibold tracking-tight text-[#141414]">
+                  <dt className="text-base text-fg-muted">{spec.label}</dt>
+                  <dd className="text-right text-lg font-semibold tracking-tight text-fg">
                     {isLoading ? (
-                      <span className="inline-block h-5 w-24 animate-pulse rounded bg-[#e7e4df]" />
+                      <span className="inline-block h-5 w-24 animate-pulse rounded bg-line" />
                     ) : (
                       spec.value
                     )}
@@ -173,30 +173,30 @@ export function HomeOverview({
 
           <Reveal
             delay={0.1}
-            className="flex min-h-[14rem] flex-col justify-between rounded-[1.75rem] bg-white p-6 shadow-[0_24px_50px_-34px_rgb(20_16_14/0.3)]"
+            className="flex min-h-[14rem] flex-col justify-between rounded-[1.75rem] bg-white p-6 shadow-[0_24px_50px_-34px_rgb(11_11_13/0.3)]"
           >
             <div>
               <div className="flex items-center gap-3">
-                <span className="flex size-12 items-center justify-center rounded-full bg-[#f7f3f2]">
+                <span className="flex size-12 items-center justify-center rounded-full bg-canvas">
                   <BrandMark tone="onLight" className="size-9" />
                 </span>
-                <span className="text-sm font-semibold text-[#71130d]">
+                <span className="text-sm font-semibold text-brand">
                   {t("promiseLabel")}
                 </span>
               </div>
-              <blockquote className="mt-4 text-base leading-relaxed text-[#3d3a36]">
+              <blockquote className="mt-4 text-base leading-relaxed text-fg-2">
                 {t("promise")}
               </blockquote>
-              <p className="mt-3 text-sm font-medium text-[#141414]">
+              <p className="mt-3 text-sm font-medium text-fg">
                 {t("promiseBy")}
               </p>
             </div>
             <a
               href="#how-it-works"
-              className="mt-6 flex items-center justify-between text-[15px] text-[#3d3a36] hover:text-[#141414]"
+              className="mt-6 flex items-center justify-between text-[15px] text-fg-2 hover:text-fg"
             >
               {t("promiseLink")}
-              <span className="flex size-9 items-center justify-center rounded-full bg-[#f7f3f2]">
+              <span className="flex size-9 items-center justify-center rounded-full bg-canvas">
                 <Icon name="north_east" size={16} />
               </span>
             </a>

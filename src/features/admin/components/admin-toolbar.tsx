@@ -84,14 +84,14 @@ export function AdminToolbar({
 
   return (
     <div className={cn("mb-5 space-y-3", className)}>
-      <div className="flex flex-col gap-2.5 rounded-[1.5rem] border border-[#efe7e5] bg-white p-2.5 sm:p-3 lg:flex-row lg:items-center">
+      <div className="flex flex-col gap-2.5 rounded-[1.5rem] border border-line bg-white p-2.5 sm:p-3 lg:flex-row lg:items-center">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           {search ? (
             <div className="relative min-w-0 flex-1">
               <Icon
                 name="search"
                 size={20}
-                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5c5653]"
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-fg-muted"
               />
               <input
                 ref={inputRef}
@@ -100,7 +100,7 @@ export function AdminToolbar({
                 onChange={(e) => search.onChange(e.target.value)}
                 placeholder={search.placeholder}
                 aria-label={search.placeholder}
-                className="h-11 w-full rounded-xl border border-transparent bg-[#f6f1f0] pl-11 pr-20 text-base text-[#141414] outline-none transition-[border-color,background-color,box-shadow] placeholder:text-[#6b6b6b] hover:bg-[#f2ecea] focus:border-[#71130d] focus:bg-white focus:ring-[3px] focus:ring-[#71130d]/14 sm:text-[15px] [&::-webkit-search-cancel-button]:hidden"
+                className="h-11 w-full rounded-xl border border-transparent bg-hover pl-11 pr-20 text-base text-fg outline-none transition-[border-color,background-color,box-shadow] placeholder:text-fg-muted hover:bg-hover focus:border-brand focus:bg-white focus:ring-[3px] focus:ring-brand/14 sm:text-[15px] [&::-webkit-search-cancel-button]:hidden"
               />
               {searching ? (
                 <button
@@ -110,12 +110,12 @@ export function AdminToolbar({
                     inputRef.current?.focus();
                   }}
                   aria-label={t("clearSearch")}
-                  className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-[#5c5653] hover:bg-[#ece4e2] hover:text-[#141414]"
+                  className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-fg-muted hover:bg-line hover:text-fg"
                 >
                   <Icon name="close" size={18} />
                 </button>
               ) : (
-                <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-[#e3d9d6] bg-white px-1.5 py-0.5 text-[11px] font-medium text-[#6b6b6b] lg:block">
+                <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-line bg-white px-1.5 py-0.5 text-[11px] font-medium text-fg-muted lg:block">
                   /
                 </kbd>
               )}
@@ -131,8 +131,8 @@ export function AdminToolbar({
               className={cn(
                 "relative inline-flex h-11 shrink-0 items-center gap-2 rounded-xl px-3.5 text-[15px] font-medium transition-colors lg:hidden",
                 active.length > 0
-                  ? "bg-[#71130d] text-white"
-                  : "border border-[#e3d9d6] bg-white text-[#141414]",
+                  ? "bg-brand text-white"
+                  : "border border-line bg-white text-fg",
                 !search && "flex-1 justify-center",
               )}
             >
@@ -141,7 +141,7 @@ export function AdminToolbar({
                 {t("filters")}
               </span>
               {active.length > 0 ? (
-                <span className="flex size-5 items-center justify-center rounded-full bg-white text-xs font-semibold text-[#71130d]">
+                <span className="flex size-5 items-center justify-center rounded-full bg-white text-xs font-semibold text-brand">
                   {active.length}
                 </span>
               ) : null}
@@ -161,7 +161,7 @@ export function AdminToolbar({
         ) : null}
 
         {trailing ? (
-          <div className="flex shrink-0 items-center justify-between gap-2 lg:justify-end lg:border-l lg:border-[#f1ebea] lg:pl-3">
+          <div className="flex shrink-0 items-center justify-between gap-2 lg:justify-end lg:border-l lg:border-line lg:pl-3">
             {trailing}
           </div>
         ) : null}
@@ -172,7 +172,7 @@ export function AdminToolbar({
         <div className="flex flex-wrap items-center gap-2 px-1 text-sm">
           {resultCount !== undefined ? (
             <span
-              className="mr-1 font-medium text-[#141414]"
+              className="mr-1 font-medium text-fg"
               aria-live="polite"
             >
               {t("results", { count: resultCount })}
@@ -198,7 +198,7 @@ export function AdminToolbar({
             <button
               type="button"
               onClick={clearAll}
-              className="rounded-full px-2.5 py-1 font-medium text-[#71130d] hover:bg-[#f3dedb]"
+              className="rounded-full px-2.5 py-1 font-medium text-brand hover:bg-brand-soft"
             >
               {t("clearAll")}
             </button>
@@ -209,30 +209,30 @@ export function AdminToolbar({
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent
           side="bottom"
-          className="max-h-[88dvh] gap-0 overflow-y-auto rounded-t-[1.75rem] border-[#ece4e2] bg-white px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3"
+          className="max-h-[88dvh] gap-0 overflow-y-auto rounded-t-[1.75rem] border-line bg-white px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3"
         >
           <span
-            className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-[#e6dedb]"
+            className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line"
             aria-hidden
           />
-          <SheetTitle className="text-xl font-medium tracking-tight text-[#141414]">
+          <SheetTitle className="text-xl font-medium tracking-tight text-fg">
             {t("filters")}
           </SheetTitle>
-          <SheetDescription className="mb-4 text-sm text-[#6b6b6b]">
+          <SheetDescription className="mb-4 text-sm text-fg-muted">
             {t("sheetHint")}
           </SheetDescription>
           <div className="space-y-4">
             {filters.map((f) => (
               <div key={f.key} className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-[#141414]">
+                  <p className="text-sm font-medium text-fg">
                     {f.label}
                   </p>
                   {f.active && f.onClear ? (
                     <button
                       type="button"
                       onClick={f.onClear}
-                      className="text-sm font-medium text-[#71130d]"
+                      className="text-sm font-medium text-brand"
                     >
                       {t("reset")}
                     </button>
@@ -249,7 +249,7 @@ export function AdminToolbar({
                 onClick={() => {
                   for (const f of active) f.onClear?.();
                 }}
-                className="inline-flex h-12 flex-1 items-center justify-center rounded-full border border-[#ece4e2] text-[15px] font-medium text-[#3d3a36]"
+                className="inline-flex h-12 flex-1 items-center justify-center rounded-full border border-line text-[15px] font-medium text-fg-2"
               >
                 {t("clearAll")}
               </button>
@@ -257,7 +257,7 @@ export function AdminToolbar({
             <button
               type="button"
               onClick={() => setSheetOpen(false)}
-              className="inline-flex h-12 flex-[2] items-center justify-center rounded-full bg-[#71130d] text-[15px] font-medium text-white"
+              className="inline-flex h-12 flex-[2] items-center justify-center rounded-full bg-brand text-[15px] font-medium text-white"
             >
               {resultCount !== undefined
                 ? t("showResults", { count: resultCount })
@@ -282,9 +282,9 @@ function Chip({
   clearLabel: string;
 }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-[#e8bfb9] bg-[#fbf3f2] py-1 pl-3 pr-1 text-[#5c0f0a]">
+    <span className="inline-flex items-center gap-1 rounded-full border border-brand-line bg-brand-tint py-1 pl-3 pr-1 text-brand-deep">
       {prefix && prefix !== label ? (
-        <span className="text-[#71130d]/70">{prefix}:</span>
+        <span className="text-brand/70">{prefix}:</span>
       ) : null}
       <span className="max-w-48 truncate font-medium">{label}</span>
       {onClear ? (
@@ -292,7 +292,7 @@ function Chip({
           type="button"
           onClick={onClear}
           aria-label={`${clearLabel} ${label}`}
-          className="flex size-6 items-center justify-center rounded-full hover:bg-[#f3dedb]"
+          className="flex size-6 items-center justify-center rounded-full hover:bg-brand-soft"
         >
           <Icon name="close" size={14} />
         </button>

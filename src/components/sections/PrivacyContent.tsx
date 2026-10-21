@@ -133,7 +133,7 @@ export function PrivacyContent() {
   };
 
   return (
-    <section className="w-full bg-[#faf9f6] px-6 py-24 lg:px-10">
+    <section className="w-full bg-subtle px-6 py-24 lg:px-10">
       <div className="max-w-3xl mx-auto">
         {/* Table of Contents */}
         <motion.div
@@ -142,7 +142,7 @@ export function PrivacyContent() {
           viewport={{ once: true }}
           className="glass-card mb-16 rounded-[1.5rem] p-6"
         >
-          <h2 className="mb-4 flex items-center gap-2 font-bold text-[#1a1c1a]">
+          <h2 className="mb-4 flex items-center gap-2 font-bold text-fg">
             <Icon name="list" size={20} />
             Table of Contents
           </h2>
@@ -151,7 +151,7 @@ export function PrivacyContent() {
               <a
                 key={section.key}
                 href={`#section-${index}`}
-                className="flex items-center gap-2 text-sm font-medium text-[#71130d] transition-colors hover:text-[#8a1a12]"
+                className="flex items-center gap-2 text-sm font-medium text-brand transition-colors hover:text-brand-hover"
               >
                 <Icon name="arrow_forward" size={14} />
                 {section.title}
@@ -184,7 +184,7 @@ export function PrivacyContent() {
                 className="glass-card w-full rounded-[1.25rem] p-6 text-left transition-all duration-300 hover:-translate-y-0.5"
               >
                 <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-lg font-bold text-[#1a1c1a]">
+                  <h3 className="text-lg font-bold text-fg">
                     {section.title}
                   </h3>
                   <Icon
@@ -209,8 +209,8 @@ export function PrivacyContent() {
                 transition={{ duration: 0.3 }}
                 className="overflow-hidden"
               >
-                <div className="space-y-4 border-x border-b border-[#e3e2e0] bg-white/70 p-6">
-                  <p className="text-base leading-relaxed text-[#51443c]">
+                <div className="space-y-4 border-x border-b border-line bg-white/70 p-6">
+                  <p className="text-base leading-relaxed text-fg-2">
                     {section.content}
                   </p>
 
@@ -219,7 +219,7 @@ export function PrivacyContent() {
                       {section.items.map((item, idx) => (
                         <li
                           key={idx}
-                          className="flex items-start gap-3 text-sm text-[#51443c]"
+                          className="flex items-start gap-3 text-sm text-fg-2"
                         >
                           <Icon
                             name="check_circle"
@@ -248,13 +248,13 @@ export function PrivacyContent() {
             <Icon
               name="info"
               size={24}
-              className="mt-1 shrink-0 text-[#71130d]"
+              className="mt-1 shrink-0 text-brand"
             />
             <div>
-              <h3 className="mb-2 font-bold text-[#1a1c1a]">
+              <h3 className="mb-2 font-bold text-fg">
                 Important Notice
               </h3>
-              <p className="text-sm text-[#51443c]">
+              <p className="text-sm text-fg-2">
                 We may update this Privacy Policy periodically. Your continued
                 use of our services following notifications of changes
                 constitutes your acceptance of the updated policy. We recommend
@@ -271,10 +271,10 @@ export function PrivacyContent() {
           viewport={{ once: true }}
           className="glass-card mt-8 rounded-[1.5rem] p-6 text-center"
         >
-          <p className="text-sm text-[#51443c]">
+          <p className="text-sm text-fg-2">
             <strong>{t("lastUpdated")}</strong>
           </p>
-          <p className="mt-2 text-xs text-[#83746b]">
+          <p className="mt-2 text-xs text-fg-muted">
             For data subject access requests or privacy concerns, contact our
             privacy team
           </p>

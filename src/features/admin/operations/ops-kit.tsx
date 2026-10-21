@@ -12,12 +12,12 @@ import { cn } from "@/lib/utils";
 import { generateWhatsAppURL } from "@/lib/utils/format";
 
 const AVATAR_TONES = [
-  "bg-[#f3dedb] text-[#71130d]",
-  "bg-[#dff3d6] text-[#2f6d22]",
-  "bg-[#f9e3c8] text-[#8a5a2b]",
-  "bg-[#e3e6f3] text-[#3a4a7a]",
-  "bg-[#efe3f3] text-[#6b3a7a]",
-  "bg-[#1c0b0a] text-[#f3dedb]",
+  "bg-brand-soft text-brand",
+  "bg-success-soft text-success",
+  "bg-warning-soft text-warning",
+  "bg-hover text-fg-2",
+  "bg-brand-soft text-brand",
+  "bg-ink text-brand-soft",
 ];
 
 /** Stable tone per person so avatars are recognisable between visits. */
@@ -43,7 +43,7 @@ export function Avatar({
       aria-hidden
       className={cn(
         "flex shrink-0 items-center justify-center rounded-full font-semibold",
-        muted ? "bg-[#efeeeb] text-[#857f77]" : toneFor(seed ?? name),
+        muted ? "bg-hover text-fg-muted" : toneFor(seed ?? name),
         className ?? "size-10 text-sm",
       )}
     >
@@ -72,7 +72,7 @@ export function WhatsAppButton({
       aria-label={label}
       title={label}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#25D366] font-medium text-white transition-opacity hover:opacity-90",
+        "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#15803d] font-medium text-white transition-opacity hover:opacity-90",
         compact ? "size-10" : "h-10 px-4 text-sm",
       )}
     >
@@ -114,10 +114,10 @@ export function DueChip({
       className={cn(
         "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium",
         days < 0
-          ? "bg-[#fde2df] text-[#a1271b]"
+          ? "bg-danger-soft text-danger"
           : days <= warnWithin
-            ? "bg-[#f9e3c8] text-[#8a5a2b]"
-            : "bg-[#f6f0ef] text-[#3d3a36]",
+            ? "bg-warning-soft text-warning"
+            : "bg-hover text-fg-2",
         className,
       )}
     >
@@ -145,13 +145,13 @@ export function TermProgress({
   return (
     <div
       className={cn(
-        "h-1.5 overflow-hidden rounded-full bg-[#f1ebea]",
+        "h-1.5 overflow-hidden rounded-full bg-hover",
         className,
       )}
       aria-hidden
     >
       <div
-        className="h-full rounded-full bg-[linear-gradient(90deg,#e8bfb9,#71130d)]"
+        className="h-full rounded-full bg-[linear-gradient(90deg,var(--adm-brand-line),var(--adm-brand))]"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -163,7 +163,7 @@ export function StatusDot({ active }: { active: boolean }) {
     <span
       className={cn(
         "size-2.5 shrink-0 rounded-full ring-2 ring-white",
-        active ? "bg-[#34a853]" : "bg-[#c9c2bd]",
+        active ? "bg-success" : "bg-fg-faint",
       )}
     />
   );

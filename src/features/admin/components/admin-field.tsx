@@ -43,10 +43,10 @@ export function AdminField({
 
 // 16px on phones so iOS Safari doesn't zoom on focus; 15px from sm up.
 const adminControlBase =
-  "glass-control w-full rounded-xl text-base text-[#141414] transition-[border-color,box-shadow] focus:outline-none sm:text-[15px]";
+  "glass-control w-full rounded-xl text-base text-fg transition-[border-color,box-shadow] focus:outline-none sm:text-[15px]";
 
 /** Readable placeholder (≈5.3:1 on white). */
-const placeholderTone = "placeholder:text-[#6b6b6b]";
+const placeholderTone = "placeholder:text-fg-muted";
 
 export const adminInputClassName = cn(
   adminControlBase,
@@ -66,9 +66,9 @@ export const adminSearchInputClassName = cn(
 );
 
 export const adminMenuSearchClassName = cn(
-  "h-11 w-full rounded-lg border border-[#d9cfcb] bg-white pl-10 pr-4 text-base text-[#141414] sm:text-[15px]",
-  "placeholder:text-[#6b6b6b] outline-none",
-  "focus:border-[#71130d] focus:ring-[3px] focus:ring-[#71130d]/15",
+  "h-11 w-full rounded-lg border border-line-strong bg-white pl-10 pr-4 text-base text-fg sm:text-[15px]",
+  "placeholder:text-fg-muted outline-none",
+  "focus:border-brand focus:ring-[3px] focus:ring-brand/15",
 );
 
 export const adminTextareaClassName = cn(
@@ -161,7 +161,7 @@ export function AdminFileInput({
         type="button"
         disabled={disabled}
         onClick={() => inputRef.current?.click()}
-        className="shrink-0 rounded-lg border border-white/60 bg-white/70 px-3 py-1.5 text-sm font-semibold text-[#51443c] transition-colors hover:bg-white disabled:cursor-not-allowed"
+        className="shrink-0 rounded-lg border border-white/60 bg-white/70 px-3 py-1.5 text-sm font-semibold text-fg-2 transition-colors hover:bg-white disabled:cursor-not-allowed"
       >
         {t("chooseFile")}
       </button>
@@ -169,8 +169,8 @@ export function AdminFileInput({
         className={cn(
           "min-w-0 flex-1 truncate text-sm",
           (multiple ? selectedCount > 0 : !!file)
-            ? "font-medium text-[#1a1c1a]"
-            : "text-[#83746b]",
+            ? "font-medium text-fg"
+            : "text-fg-muted",
         )}
       >
         {label}
@@ -180,7 +180,7 @@ export function AdminFileInput({
           type="button"
           disabled={disabled}
           onClick={handleClear}
-          className="shrink-0 rounded-lg p-1.5 text-[#83746b] transition-colors hover:bg-[#efeeeb] hover:text-[#51443c] disabled:cursor-not-allowed"
+          className="shrink-0 rounded-lg p-1.5 text-fg-muted transition-colors hover:bg-hover hover:text-fg-2 disabled:cursor-not-allowed"
           aria-label={t("clearFile")}
         >
           <Icon name="close" size={18} />
@@ -319,7 +319,7 @@ export function AdminSelect({
             adminSelectClassName,
             "flex items-center opacity-60",
             isSm ? "h-8 rounded-lg pl-2.5 pr-7 text-xs" : "pr-10",
-            isPlaceholder && "text-[#6b6b6b]",
+            isPlaceholder && "text-fg-muted",
             selectClassName,
           )}
         >
@@ -327,7 +327,7 @@ export function AdminSelect({
         </div>
         <span
           className={cn(
-            "pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center text-[#5c5653]",
+            "pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center text-fg-muted",
             isSm ? "w-7" : "w-9",
           )}
           aria-hidden
@@ -355,7 +355,7 @@ export function AdminSelect({
               adminSelectClassName,
               "relative flex items-center text-left",
               isSm && "h-8 rounded-lg pl-2.5 pr-7 text-xs font-semibold",
-              isPlaceholder && "text-[#6b6b6b]",
+              isPlaceholder && "text-fg-muted",
               selectClassName,
             )}
           >
@@ -364,7 +364,7 @@ export function AdminSelect({
             </span>
             <span
               className={cn(
-                "pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center text-[#5c5653]",
+                "pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center text-fg-muted",
                 isSm ? "w-7" : "w-9",
               )}
               aria-hidden
@@ -413,7 +413,7 @@ export function AdminSelect({
                       }),
                       isSm && "px-2.5 py-1.5 text-xs font-semibold",
                       option.disabled && "cursor-not-allowed opacity-50",
-                      option.value === "" && !isSelected && "text-[#3d3a36]",
+                      option.value === "" && !isSelected && "text-fg-2",
                     )}
                   >
                     <span className="min-w-0 flex-1 truncate">{option.label}</span>
@@ -421,7 +421,7 @@ export function AdminSelect({
                       <Icon
                         name="check"
                         size={checkSize}
-                        className="shrink-0 text-[#71130d]"
+                        className="shrink-0 text-brand"
                       />
                     )}
                   </button>
@@ -505,7 +505,7 @@ export const AdminSearchInput = React.forwardRef<
       <Icon
         name="search"
         size={20}
-        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5c5653]"
+        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-fg-muted"
       />
       <input
         ref={ref}
@@ -587,7 +587,7 @@ export function AdminPasswordInput({
       <button
         type="button"
         onClick={() => setVisible((current) => !current)}
-        className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5c5653] transition-colors hover:text-[#71130d]"
+        className="absolute inset-y-0 right-0 flex items-center pr-3 text-fg-muted transition-colors hover:text-brand"
         aria-label={visible ? hideLabel : showLabel}
       >
         <Icon name={visible ? "visibility_off" : "visibility"} size={20} />

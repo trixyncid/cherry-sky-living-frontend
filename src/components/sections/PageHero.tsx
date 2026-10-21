@@ -37,7 +37,7 @@ export function PageHero({
   return (
     <section
       className={cn(
-        "relative w-full overflow-hidden bg-[#1c0b0a] text-white",
+        "relative w-full overflow-hidden bg-ink text-white",
         className,
       )}
     >
@@ -50,8 +50,8 @@ export function PageHero({
         sizes="100vw"
         className="object-cover object-center"
       />
-      <div className="pointer-events-none absolute inset-0 bg-[#4a100c]/45 mix-blend-multiply" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgb(28_11_10/0.9)_0%,rgb(28_11_10/0.72)_45%,rgb(28_11_10/0.92)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-brand-deep/45 mix-blend-multiply" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgb(11_11_13/0.9)_0%,rgb(11_11_13/0.72)_45%,rgb(11_11_13/0.92)_100%)]" />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-y-0 left-[22%] hidden w-px bg-white/10 lg:block"
@@ -65,8 +65,8 @@ export function PageHero({
         <p className="inline-flex items-center gap-2.5 rounded-full border border-white/12 bg-white/[0.08] px-4 py-2 text-[15px] backdrop-blur-md">
           {live ? (
             <span className="relative flex size-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34d399]/70 motion-reduce:animate-none" />
-              <span className="relative inline-flex size-2 rounded-full bg-[#34d399]" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success/70 motion-reduce:animate-none" />
+              <span className="relative inline-flex size-2 rounded-full bg-success" />
             </span>
           ) : null}
           {eyebrow}

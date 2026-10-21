@@ -114,11 +114,11 @@ export function SelectMenu({
   }
 
   const triggerClassName = cn(
-    "relative flex h-[3.25rem] w-full items-center rounded-xl border border-[#cfc5c1] bg-white px-4 pr-10 text-left text-base text-[#141414] transition-colors",
-    "hover:border-[#b9a8a3] focus:border-[#71130d] focus:outline-none focus:ring-[3px] focus:ring-[#71130d]/15",
-    "disabled:cursor-not-allowed disabled:bg-[#f5f3f0] disabled:text-[#83746b] disabled:hover:border-[#e3e2e0]",
-    open && "border-[#71130d] ring-[3px] ring-[#71130d]/15",
-    isPlaceholder && "text-[#6b6b6b]",
+    "relative flex h-[3.25rem] w-full items-center rounded-xl border border-line-strong bg-white px-4 pr-10 text-left text-base text-fg transition-colors",
+    "hover:border-line-strong focus:border-brand focus:outline-none focus:ring-[3px] focus:ring-brand/15",
+    "disabled:cursor-not-allowed disabled:bg-subtle disabled:text-fg-muted disabled:hover:border-line",
+    open && "border-brand ring-[3px] ring-brand/15",
+    isPlaceholder && "text-fg-muted",
     className,
   );
 
@@ -129,7 +129,7 @@ export function SelectMenu({
           <span className="truncate">{selectedLabel || placeholder}</span>
         </div>
         <span
-          className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-[#83746b]"
+          className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-fg-muted"
           aria-hidden
         >
           <Icon name="expand_more" size={20} />
@@ -157,7 +157,7 @@ export function SelectMenu({
               {selectedLabel || placeholder}
             </span>
             <span
-              className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-[#83746b]"
+              className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-fg-muted"
               aria-hidden
             >
               <Icon
@@ -170,7 +170,7 @@ export function SelectMenu({
         </PopoverTrigger>
         <PopoverContent
           className={cn(
-            "z-[90] w-[var(--radix-popover-trigger-width)] min-w-[12rem] overflow-hidden rounded-xl border border-[#e3e2e0] bg-white p-0 shadow-[0_18px_40px_-24px_rgba(81,68,60,0.45)]",
+            "z-[90] w-[var(--radix-popover-trigger-width)] min-w-[12rem] overflow-hidden rounded-xl border border-line bg-white p-0 shadow-[0_18px_40px_-24px_rgba(11,11,13,0.45)]",
             contentClassName,
           )}
           align="start"
@@ -185,7 +185,7 @@ export function SelectMenu({
             onWheel={(event) => event.stopPropagation()}
           >
             {options.length === 0 ? (
-              <li className="px-3 py-2.5 text-sm text-[#83746b]">
+              <li className="px-3 py-2.5 text-sm text-fg-muted">
                 {placeholder}
               </li>
             ) : (
@@ -206,10 +206,10 @@ export function SelectMenu({
                       onClick={() => handleSelect(option.value)}
                       className={cn(
                         "flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
-                        isActive && "bg-[#f5ebe3]",
+                        isActive && "bg-subtle",
                         isSelected
-                          ? "font-semibold text-[#71130d]"
-                          : "text-[#1a1c1a]",
+                          ? "font-semibold text-brand"
+                          : "text-fg",
                         option.disabled && "cursor-not-allowed opacity-50",
                       )}
                     >
@@ -220,7 +220,7 @@ export function SelectMenu({
                         <Icon
                           name="check"
                           size={18}
-                          className="shrink-0 text-[#71130d]"
+                          className="shrink-0 text-brand"
                         />
                       ) : null}
                     </button>

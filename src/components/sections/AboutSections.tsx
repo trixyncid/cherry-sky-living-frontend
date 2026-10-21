@@ -64,7 +64,7 @@ export function AboutHeroSection({ kosts = [] }: { kosts?: Kost[] }) {
             <Reveal
               key={`${photo.src}-${i}`}
               delay={i * 0.08}
-              className="relative h-[16rem] overflow-hidden rounded-[1.25rem] bg-[#e7e4df] lg:h-[22rem]"
+              className="relative h-[16rem] overflow-hidden rounded-[1.25rem] bg-line lg:h-[22rem]"
             >
               <Image
                 src={photo.src}
@@ -110,10 +110,10 @@ export function AboutStorySection() {
         </Reveal>
         <div className="flex flex-col gap-8">
           <Eyebrow>{t("page.storyEyebrow")}</Eyebrow>
-          <h2 className="text-[clamp(1.75rem,3.1vw,2.6rem)] font-medium leading-[1.12] tracking-[-0.025em] text-[#141414]">
+          <h2 className="text-[clamp(1.75rem,3.1vw,2.6rem)] font-medium leading-[1.12] tracking-[-0.025em] text-fg">
             {t("mission.storyTitle")}
           </h2>
-          <p className="text-lg leading-relaxed text-[#3d3a36]">
+          <p className="text-lg leading-relaxed text-fg-2">
             {t("mission.storyDescription")}
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -123,14 +123,14 @@ export function AboutStorySection() {
                 delay={i * 0.08}
                 className="flex flex-col gap-6 rounded-[1.25rem] bg-white p-6"
               >
-                <span className="font-mono text-[13px] text-[#6b6b6b]">
+                <span className="font-mono text-[13px] text-fg-muted">
                   {`//${card.label}`}
                 </span>
                 <div>
-                  <h3 className="text-xl font-medium tracking-tight text-[#141414]">
+                  <h3 className="text-xl font-medium tracking-tight text-fg">
                     {card.title}
                   </h3>
-                  <p className="mt-2 text-base leading-relaxed text-[#6b6b6b]">
+                  <p className="mt-2 text-base leading-relaxed text-fg-muted">
                     {card.body}
                   </p>
                 </div>
@@ -161,7 +161,7 @@ export function AboutValuesSection() {
           titleLead={t("page.valuesLead")}
           titleAccent={t("page.valuesAccent")}
           aside={
-            <p className="text-base leading-relaxed text-[#6b6b6b]">
+            <p className="text-base leading-relaxed text-fg-muted">
               {t("values.description")}
             </p>
           }
@@ -171,23 +171,23 @@ export function AboutValuesSection() {
             <li key={value.key}>
               <Reveal
                 delay={i * 0.06}
-                className="flex h-full items-start gap-5 rounded-[1.25rem] bg-[#f7f3f2] p-6 lg:p-8"
+                className="flex h-full items-start gap-5 rounded-[1.25rem] bg-canvas p-6 lg:p-8"
               >
-                <span className="text-sm font-semibold tabular-nums text-[#6b6b6b]">
+                <span className="text-sm font-semibold tabular-nums text-fg-muted">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div className="flex-1">
-                  <h3 className="text-2xl font-medium tracking-tight text-[#141414]">
+                  <h3 className="text-2xl font-medium tracking-tight text-fg">
                     {t(`values.${value.key}.title`)}
                   </h3>
-                  <p className="mt-2 text-base leading-relaxed text-[#6b6b6b]">
+                  <p className="mt-2 text-base leading-relaxed text-fg-muted">
                     {t(`values.${value.key}.description`)}
                   </p>
                 </div>
                 <Icon
                   name={value.icon}
                   size={40}
-                  className="text-[#71130d] [font-variation-settings:'wght'_200]"
+                  className="text-brand [font-variation-settings:'wght'_200]"
                 />
               </Reveal>
             </li>
@@ -239,16 +239,16 @@ export function AboutNumbersSection({
               delay={i * 0.06}
               className="flex min-h-[11rem] flex-col justify-between rounded-[1.25rem] bg-white p-6"
             >
-              <span className="font-mono text-[13px] text-[#6b6b6b]">{`//0${i + 1}`}</span>
+              <span className="font-mono text-[13px] text-fg-muted">{`//0${i + 1}`}</span>
               <div>
-                <p className="text-[clamp(2.25rem,4vw,3.25rem)] font-medium leading-none tracking-[-0.04em] text-[#141414] tabular-nums">
+                <p className="text-[clamp(2.25rem,4vw,3.25rem)] font-medium leading-none tracking-[-0.04em] text-fg tabular-nums">
                   {isLoading ? (
-                    <span className="inline-block h-10 w-20 animate-pulse rounded-md bg-[#efeeeb]" />
+                    <span className="inline-block h-10 w-20 animate-pulse rounded-md bg-hover" />
                   ) : (
                     stat.value
                   )}
                 </p>
-                <p className="mt-2 text-sm text-[#6b6b6b]">{stat.label}</p>
+                <p className="mt-2 text-sm text-fg-muted">{stat.label}</p>
               </div>
             </Reveal>
           ))}

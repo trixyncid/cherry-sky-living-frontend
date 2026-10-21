@@ -48,3 +48,37 @@ export function displayEmailOrEmpty(email: string | null | undefined): string {
 export function looksLikeEmail(identifier: string): boolean {
   return identifier.trim().includes("@");
 }
+
+/** "+6281234567890" → "+62 812-3456-7890" (falls back to the raw value). */
+export function formatPhoneDisplay(phone: string | null | undefined): string {
+  if (!phone) return "";
+  const normalized = normalizeIndonesianPhone(phone);
+  if (!normalized) return phone.trim();
+  const rest = normalized.slice(3);
+  const groups = [rest.slice(0, 3), rest.slice(3, 7), rest.slice(7)].filter(
+    Boolean,
+  );
+  return `+62 ${groups.join("-")}`;
+}
+
+type ContactSource = {
+  email?: string | null;
+  phoneNumber?: string | null;
+  phone?: string | null;
+};
+
+/**
+ * The contact details a person actually has: phone and/or real email.
+ * Placeholder emails of phone-only tenants are left out.
+ */
+export function contactParts(user: ContactSource | null | undefined): string[] {
+  if (!user) return [];
+  const phone = formatPhoneDisplay(user.phoneNumber ?? user.phone);
+  const email = displayEmailOrEmpty(user.email);
+  return [phone, email].filter(Boolean);
+}
+
+/** Contact details on one line ("+62 812-3456-7890 · budi@mail.com"). */
+export function contactSummary(user: ContactSource | null | undefined): string {
+  return contactParts(user).join(" · ");
+}

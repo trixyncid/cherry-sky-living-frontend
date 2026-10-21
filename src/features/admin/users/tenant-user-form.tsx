@@ -124,7 +124,7 @@ export function TenantUserForm() {
                   setForm((f) => ({ ...f, phoneNumber: e.target.value }))
                 }
               />
-              <p className="mt-1 text-xs text-[#6b6b6b]">{tp("phoneHint")}</p>
+              <p className="mt-1 text-xs text-fg-muted">{tp("phoneHint")}</p>
             </AdminField>
             <AdminField label={tp("emailOptional")} htmlFor="tenant-email">
               <input
@@ -137,7 +137,7 @@ export function TenantUserForm() {
                   setForm((f) => ({ ...f, email: e.target.value }))
                 }
               />
-              <p className="mt-1 text-xs text-[#6b6b6b]">
+              <p className="mt-1 text-xs text-fg-muted">
                 {tp("emailOptionalHint")}
               </p>
             </AdminField>

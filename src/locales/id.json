@@ -71,7 +71,8 @@
             "liveReply": "Dibalas langsung via WhatsApp",
             "cornerLeft": "Dua hunian di Medan, dikelola langsung oleh pemilik",
             "cornerRight": "Sewa bulanan mulai",
-            "seeRooms": "Lihat kamar tersedia"
+            "seeRooms": "Lihat kamar tersedia",
+            "waitlistOpen": "Daftar tunggu dibuka"
         },
         "finder": {
             "residence": "Hunian",
@@ -137,7 +138,7 @@
             },
             "titleLead": "Dari pesan pertama",
             "titleAccent": "hingga kunci di tangan.",
-            "hours": "Survei Sen–Sab · 08:00–18:00 WIB",
+            "hours": "Survei Sen–Sab · 08:00–17:00 WIB",
             "choose": {
                 "title": "Pilih kamar",
                 "description": "Lihat ketersediaan langsung dan harga bulanan. Setiap kamar menampilkan apa saja yang sudah termasuk."
@@ -146,7 +147,7 @@
         "cta": {
             "eyebrow": "Siap berkunjung?",
             "title": "Lihat kamar sebelum memutuskan",
-            "description": "Survey tersedia Senin–Sabtu, 08.00–18.00 WIB. Pilih waktu dan kami temui Anda di lokasi.",
+            "description": "Survey tersedia Senin–Sabtu, 08.00–17.00 WIB. Pilih waktu dan kami temui Anda di lokasi.",
             "schedule": "Jadwalkan survey",
             "whatsapp": "Hubungi kami",
             "liveTitle": "{count, plural, =0 {Jadilah yang pertama untuk kamar berikutnya.} other {# kamar tersedia hari ini.}}",
@@ -173,7 +174,7 @@
             "items": {
                 "visit": {
                     "q": "Bisakah saya melihat kamar sebelum menyewa?",
-                    "a": "Bisa — kami punya sistem survey terlebih dahulu. Survey hanya bisa dilakukan Senin–Sabtu, 08.00–18.00 WIB. Mohon isi jadwal survey agar admin standby di lokasi.",
+                    "a": "Bisa — kami punya sistem survey terlebih dahulu. Survey hanya bisa dilakukan Senin–Sabtu, 08.00–17.00 WIB. Mohon isi jadwal survey agar admin standby di lokasi.",
                     "cta": "Jadwalkan survey"
                 },
                 "deposit": {
@@ -231,11 +232,11 @@
             },
             "surveyDialog": {
                 "title": "Jadwalkan survey kamar",
-                "description": "Survey tersedia Senin–Sabtu, 08.00–18.00 WIB. Lengkapi data di bawah ini dan WhatsApp akan terbuka dengan pesan untuk tim kami.",
+                "description": "Survey tersedia Senin–Sabtu, 08.00–17.00 WIB. Lengkapi data di bawah ini dan WhatsApp akan terbuka dengan pesan untuk tim kami.",
                 "name": "Nama",
                 "namePlaceholder": "Nama lengkap Anda",
                 "phone": "No. telepon",
-                "phonePlaceholder": "contoh: 08116359119",
+                "phonePlaceholder": "contoh: 081269175252",
                 "surveyDate": "Tanggal survey",
                 "surveyDatePlaceholder": "Pilih tanggal",
                 "surveyTime": "Jam survey",
@@ -252,7 +253,7 @@
                 "required": "Field ini wajib diisi",
                 "invalidPhone": "Masukkan nomor telepon yang valid",
                 "invalidDate": "Pilih tanggal Senin–Sabtu mulai hari ini",
-                "message": "Yth. Cherry Sky Living,\n\nSaya ingin menjadwalkan survey kamar.\n\nNama: {name}\nNo. telepon: {phone}\nTanggal & jam survey: {surveyDay}, {surveyTime} WIB\nTipe kamar yang ingin dilihat: {roomType}\nProperti: {property}\n\nMohon konfirmasi agar admin standby di lokasi. Terima kasih."
+                "message": "Halo kak 👋 Saya {name}, mau survey kamar dong.\n\n📅 {surveyDay}, jam {surveyTime} WIB\n🏠 {roomType} di {property}\n📱 {phone}\n\nBisa dibantu konfirmasi ya kak? Makasih banyak 🙏"
             },
             "cardTitle": "Bicara dengan pemilik",
             "cardSub": "Dibalas langsung via WhatsApp"
@@ -335,20 +336,22 @@
             "directions": "Petunjuk arah",
             "loadMap": "Tampilkan peta",
             "mapHint": "Peta baru dimuat saat Anda membukanya agar halaman tetap cepat.",
-            "askAvailability": "Tanyakan ketersediaan"
+            "askAvailability": "Tanyakan ketersediaan",
+            "deposit": "Deposit (dikembalikan)"
         },
         "floating": {
             "seeRooms": "Lihat kamar",
             "whatsapp": "WhatsApp",
             "chatLabel": "Chat dengan kami via WhatsApp",
-            "call": "Telepon kami"
+            "call": "Telepon kami",
+            "bookViewing": "Jadwalkan survei"
         },
         "continuation": {
             "lead": "Baik Anda baru mulai kuliah, memulai pekerjaan baru, atau sekadar ingin tempat tinggal yang lebih tenang,",
             "accent": "kami membantu Anda menemukan kamar berperabot yang sesuai anggaran, rutinitas, dan cara hidup Anda.",
-            "iconRooms": "Lihat kamar tersedia",
-            "iconChat": "Chat dengan kami via WhatsApp",
-            "iconLocation": "Lihat lokasi hunian",
+            "iconRooms": "Lihat kamar",
+            "iconChat": "Chat via WhatsApp",
+            "iconLocation": "Lihat lokasi",
             "photoRoom": "Kamar berperabot di {name}",
             "photoHouse": "Hunian {name}"
         },
@@ -480,7 +483,7 @@
             "email": "Email",
             "emailPlaceholder": "nama@email.com",
             "phone": "Nomor Telepon",
-            "phonePlaceholder": "+62 811-6359-119",
+            "phonePlaceholder": "+62 812-6917-5252",
             "password": "Kata Sandi",
             "passwordPlaceholder": "Minimal 6 karakter",
             "confirmPassword": "Konfirmasi Kata Sandi",
@@ -590,7 +593,8 @@
         "emptyTitle": "Tidak ada kamar yang cocok dengan filter ini",
         "emptyDescription": "Coba anggaran lebih luas atau hunian lain, atau masuk daftar tunggu dan kami kabari saat ada yang cocok.",
         "emptyWaitlist": "Masuk daftar tunggu",
-        "resultsHint": "Harga per bulan. Setiap kamar menampilkan apa saja yang termasuk."
+        "resultsHint": "Harga per bulan. Setiap kamar menampilkan apa saja yang termasuk.",
+        "duration1": "Harian"
     },
     "property": {
         "flagship": "Properti Unggulan",
@@ -658,29 +662,45 @@
         "about": "Dua hunian terawat di Medan untuk mahasiswa dan profesional: kamar berperabot, keamanan 24/7, dan tim yang mendampingi dari kunjungan hingga serah terima kunci."
     },
     "whatsapp": {
-        "inquiry": "Yth. Cherry Sky Living,\n\nSaya ingin meminta informasi lebih lanjut mengenai {propertyName}. Terima kasih.",
-        "roomInquiry": "Yth. Cherry Sky Living,\n\nSaya ingin menanyakan ketersediaan {roomType} di {propertyName}. Mohon informasi mengenai langkah selanjutnya. Terima kasih.",
-        "generalInquiry": "Yth. Cherry Sky Living,\n\nSaya ingin menanyakan ketersediaan kamar dan informasi sewa. Mohon informasi lebih lanjut. Terima kasih.",
-        "visitSchedule": "Yth. Cherry Sky Living,\n\nSaya ingin menjadwalkan kunjungan ke {propertyName}. Mohon informasi mengenai waktu yang tersedia. Terima kasih.",
+        "inquiry": "Halo kak 👋 Saya lagi lihat-lihat {propertyName} nih. Boleh minta info lebih lanjut? Makasih 🙏",
+        "roomInquiry": "Halo kak 👋 Kamar {roomType} di {propertyName} masih ada? Kalau mau sewa, langkah selanjutnya gimana ya? Makasih 🙏",
+        "generalInquiry": "Halo kak 👋 Saya lagi cari kamar kos nih. Boleh info kamar yang masih kosong dan harganya? Makasih 🙏",
+        "visitSchedule": "Halo kak 👋 Saya mau main ke {propertyName} buat lihat kamar. Kira-kira kapan bisanya ya? Makasih 🙏",
         "inquiryDialog": {
             "title": "Tanyakan via WhatsApp",
-            "description": "Mohon lengkapi data di bawah ini. WhatsApp akan terbuka dengan pesan pertanyaan yang sudah disiapkan untuk tim kami. Tidak ada pertanyaan yang dicatat di situs ini.",
+            "description": "Mohon lengkapi data di bawah ini. WhatsApp akan terbuka dengan pesan pertanyaan yang sudah disiapkan untuk tim kami, dan kami menyimpan salinan permintaan Anda agar bisa menindaklanjutinya.",
             "name": "Nama lengkap",
             "namePlaceholder": "Nama lengkap Anda",
             "phone": "Nomor telepon",
-            "phonePlaceholder": "contoh: 08116359119",
-            "duration": "Durasi sewa yang diinginkan",
-            "durationPlaceholder": "Pilih durasi",
+            "phonePlaceholder": "contoh: 081269175252",
+            "visitDate": "Tanggal kunjungan",
+            "visitDatePlaceholder": "Pilih tanggal",
+            "visitTime": "Jam kunjungan",
+            "visitTimePlaceholder": "Pilih jam",
+            "visitHint": "Kunjungan Senin–Sabtu, 08:00–17:00 WIB. Tim kami akan mengonfirmasi lewat WhatsApp.",
             "checkInDate": "Tanggal mulai sewa",
             "checkInDatePlaceholder": "Pilih tanggal mulai sewa",
             "depositNote": "Mohon diperhatikan: deposit sebesar {amount} diperlukan untuk melanjutkan perjanjian sewa. Rincian pembayaran akan dikonfirmasi oleh tim kami setelah syarat dan ketentuan disepakati.",
             "submit": "Lanjutkan ke WhatsApp",
             "required": "Field ini wajib diisi",
             "invalidPhone": "Masukkan nomor telepon yang valid",
-            "bookingMessage": "Yth. Cherry Sky Living,\n\nSaya ingin menanyakan ketersediaan {roomType} di {propertyName}.\n\nRincian pertanyaan:\nNama lengkap: {name}\nNomor telepon: {phone}\nDurasi sewa yang diinginkan: {duration}\nTanggal mulai sewa: {checkInDate}\nDeposit tercatat: {deposit}\n\nMohon informasi lebih lanjut mengenai unit tersebut. Terima kasih."
+            "invalidVisitDate": "Pilih hari Senin–Sabtu mulai hari ini",
+            "bookingMessage": "Halo kak 👋 Saya {name}, tertarik sama kamar {roomType} di {propertyName}.\n\n📅 Mau survey: {visitDay}, jam {visitTime} WIB\n🔑 Rencana mulai sewa: {checkInDate}\n📱 No. HP: {phone}\n\n{hasDeposit, select, yes {Saya sudah baca info deposit {deposit} juga. } other {}}Ditunggu kabarnya ya kak, makasih 🙏"
         },
-        "roomViewing": "Yth. Cherry Sky Living,\n\nSaya ingin menjadwalkan kunjungan untuk {roomType} di {propertyName}. Mohon informasi mengenai waktu yang tersedia. Terima kasih.",
-        "waitlist": "Yth. Cherry Sky Living,\n\nSaya ingin masuk daftar tunggu untuk {roomType} di {propertyName}. Mohon kabari saya jika ada kamar yang tersedia. Terima kasih."
+        "roomViewing": "Halo kak 👋 Saya mau lihat kamar {roomType} di {propertyName}. Kapan ada waktu kosong ya? Makasih 🙏",
+        "waitlist": "Halo kak 👋 Kamar {roomType} di {propertyName} lagi penuh ya? Kabari saya kalau ada yang kosong dong. Makasih 🙏",
+        "forgotPassword": "Halo kak 👋 Saya tidak bisa masuk ke portal penyewa. Bisa dibantu reset kata sandinya? Makasih 🙏",
+        "leadForm": {
+            "greeting": "Halo kak 👋 Saya {name}.",
+            "inquiryDefault": "Saya mau tanya-tanya soal kamar kos.",
+            "waitlistDefault": "Kabari saya ya kak kalau kamar {room} di {property} ada yang kosong.",
+            "room": "🛏️ Kamar: {value}",
+            "property": "🏠 Hunian: {value}",
+            "moveIn": "🔑 Rencana masuk: {value}",
+            "budget": "💰 Budget: {value} / bulan",
+            "phone": "📱 No. HP: {value}",
+            "closing": "Makasih 🙏"
+        }
     },
     "roomDetail": {
         "title": "Detail Kamar",
@@ -699,7 +719,8 @@
         "share": "Bagikan",
         "backToHome": "Kembali ke Beranda",
         "viewOnMap": "Lihat di Peta",
-        "verified": "Terverifikasi"
+        "verified": "Terverifikasi",
+        "depositLabel": "Deposit (dikembalikan)"
     },
     "common": {
         "brand": {
@@ -723,7 +744,20 @@
         "loginShell": {
             "backToWebsite": "Kembali ke situs",
             "adminHeadline": "Semua kamar, sewa, dan pembayaran dalam satu tempat.",
-            "tenantHeadline": "Sewa, perpanjangan, dan pembayaran Anda dalam satu tempat."
+            "tenantHeadline": "Kamar, tagihan, dan perpanjangan Anda dalam satu tempat.",
+            "welcome": "Selamat datang kembali",
+            "adminEyebrow": "Admin Suite",
+            "tenantEyebrow": "Portal Penyewa",
+            "adminPoint1": "Setujui pembayaran sewa dengan sekali tap",
+            "adminPoint2": "Tangani permintaan perpanjangan tepat waktu",
+            "adminPoint3": "Pantau buku bank dan kas kecil",
+            "tenantPoint1": "Lihat setiap tagihan bulanan dan jatuh temponya",
+            "tenantPoint2": "Kirim bukti bayar langsung dari HP",
+            "tenantPoint3": "Perpanjang sewa tanpa ribet",
+            "adminForgot": "Lupa kata sandi? Minta pemilik atau super admin untuk meresetnya.",
+            "tenantForgot": "Lupa kata sandi atau tidak bisa masuk?",
+            "tenantForgotAction": "Chat kami di WhatsApp",
+            "rights": "© {year} Cherry Sky Living"
         }
     },
     "about": {
@@ -841,8 +875,8 @@
             "weekendClosed": "Minggu: Tutup",
             "addressSkykost": "SKYKOST: Jl. Gaharu Gg. Amat Lama No. 12, Medan",
             "addressCherry": "CHERRY KOST: Jl. Setia Budi No. 45, Medan",
-            "phonePrimary": "+62 811-6359-119",
-            "phoneSecondary": "+62 811-6359-119",
+            "phonePrimary": "+62 812-6917-5252",
+            "phoneSecondary": "+62 812-6917-5252",
             "emailPrimary": "info@cherryskykost.com",
             "emailSecondary": "support@cherryskykost.com",
             "viewMap": "Lihat Peta",
@@ -863,7 +897,7 @@
             "subjectPlaceholder": "Pertanyaan Anda tentang apa?",
             "sendViaWhatsApp": "Kirim via WhatsApp",
             "sendViaEmail": "Kirim via Email",
-            "whatsappMessage": "Yth. Cherry Sky Living,\n\nSaya ingin menanyakan informasi mengenai properti Anda.\n\nNama: {name}\nEmail: {email}\nTelepon: {phone}\nSubjek: {subject}\n\nPesan:\n{message}\n\nTerima kasih.",
+            "whatsappMessage": "Halo kak 👋 Saya {name}, mau tanya-tanya soal {subject}.\n\n{message}\n\n📱 {phone}\n✉️ {email}\n\nMakasih ya kak 🙏",
             "sending": "Mengirim...",
             "sent": "Pesan terkirim berhasil!",
             "error": "Gagal mengirim pesan. Silakan coba lagi.",
@@ -951,7 +985,7 @@
                 "content": "Jika Anda memiliki pertanyaan mengenai Syarat dan Ketentuan ini, silakan hubungi kami di:",
                 "items": [
                     "Email: legal@cherryskykost.com",
-                    "Telepon: +62 811-6359-119",
+                    "Telepon: +62 812-6917-5252",
                     "Alamat: Jl. Gaharu Gg. Amat Lama No. 12, Medan"
                 ]
             }
@@ -1054,7 +1088,7 @@
                 "content": "Jika Anda memiliki pertanyaan tentang Kebijakan Privasi ini atau praktik privasi kami, silakan hubungi kami di:",
                 "items": [
                     "Email: privacy@cherryskykost.com",
-                    "Telepon: +62 811-6359-119",
+                    "Telepon: +62 812-6917-5252",
                     "Alamat: Jl. Gaharu Gg. Amat Lama No. 12, Medan"
                 ]
             }
@@ -1111,13 +1145,17 @@
             "pricing": "Harga",
             "bookkeeping": "Buku kas",
             "signOut": "Keluar",
+            "collapseSidebar": "Ciutkan menu samping",
+            "expandSidebar": "Lebarkan menu samping",
             "groups": {
                 "main": "Utama",
                 "inventory": "Inventaris",
                 "operations": "Operasional",
                 "finance": "Keuangan"
             },
-            "shortcuts": "Pintasan"
+            "shortcuts": "Pintasan",
+            "pettyCash": "Kas kecil",
+            "toProcess": "{count} perlu diproses"
         },
         "header": {
             "notifications": "Notifikasi",
@@ -1256,17 +1294,28 @@
             "dropActive": "Lepaskan untuk menambahkan",
             "addMore": "Tambah foto",
             "addMoreHint": "Letakkan atau klik",
-            "queuedBadge": "Dipilih",
-            "queueHint": "{count} file siap. Periksa dulu, lalu klik Unggah.",
-            "uploadSelected": "Unggah {count} file",
-            "clearQueue": "Hapus pilihan",
             "removeFromQueue": "Hapus dari pilihan",
             "uploading": "Mengunggah…",
-            "lockedTitle": "Foto terbuka setelah Anda menyimpan",
-            "lockedHint": "Simpan detail terlebih dahulu. Anda tetap di halaman ini untuk langsung menambah foto.",
             "invalidType": "Hanya gambar JPEG, PNG, WebP, dan GIF yang dapat diunggah.",
             "invalidTypeWithPdf": "Hanya file JPEG, PNG, WebP, GIF, atau PDF yang dapat diunggah.",
-            "tooLarge": "Setiap file harus 5 MB atau lebih kecil."
+            "tooLarge": "Setiap file harus 5 MB atau lebih kecil.",
+            "pendingBadge": "Diunggah saat simpan",
+            "failedBadge": "Gagal diunggah",
+            "retry": "Coba lagi",
+            "deferredHint": "{count} file akan diunggah saat Anda menyimpan.",
+            "takePhoto": "Ambil foto",
+            "fileKind": "Jenis file",
+            "leaveWarning": "Ada file yang belum diunggah. Tetap tinggalkan halaman ini?",
+            "savedUploading": "Tersimpan. Mengunggah {count} file…",
+            "uploadedCount": "{count} file berhasil diunggah.",
+            "uploadFailedCount": "{count} file gagal diunggah. Tekan Coba lagi pada file tersebut.",
+            "chooseKindBadge": "Pilih jenis",
+            "whatIsThis": "File apa ini?",
+            "changeKind": "Ubah jenis",
+            "saving": "Menyimpan…",
+            "kindRequired": "Pilih jenis untuk setiap file sebelum menyimpan.",
+            "kindUpdated": "Jenis dokumen diperbarui.",
+            "kindUpdateFailed": "Gagal mengubah jenis dokumen."
         },
         "pages": {
             "overview": {
@@ -1470,21 +1519,16 @@
                 "identityTitle": "Detail properti",
                 "identityHint": "Nama dan lokasi yang ditampilkan kepada penyewa di listing publik.",
                 "photosTitle": "Foto listing",
-                "photosHint": "Foto ini tampil di listing publik. Pilih atau letakkan file, lalu klik Unggah — tidak memakai Simpan detail.",
-                "photosHintCreate": "Foto dapat ditambahkan setelah properti tersimpan. Simpan detail, lalu Anda tetap di sini untuk mengunggahnya.",
-                "createdStayToUpload": "Properti tersimpan. Anda dapat menambahkan foto listing sekarang.",
+                "photosHint": "Foto langsung diunggah saat ditambahkan dan tampil di listing publik.",
+                "photosHintCreate": "Tambahkan foto sekarang — foto diunggah saat properti dibuat.",
+                "createdStayToUpload": "Properti dibuat.",
                 "saveDetails": "Simpan detail",
-                "saveAndAddPhotos": "Simpan lalu tambah foto",
+                "saveAndAddPhotos": "Buat properti",
                 "image": "Gambar properti",
                 "imageHint": "Opsional. Unggah gambar untuk properti ini.",
-                "imageUploaded": "Foto berhasil diunggah.",
-                "imagesUploaded": "{count} foto berhasil diunggah.",
-                "imagesUploadPartial": "{failed} dari {total} foto gagal diunggah.",
                 "uploadImage": "Unggah gambar",
                 "uploadingImage": "Mengunggah…",
-                "saveFirstToUpload": "Simpan properti ini terlebih dahulu, lalu unggah gambarnya.",
                 "imageRequired": "Pilih file gambar terlebih dahulu.",
-                "imageUploadFailed": "Gagal mengunggah gambar properti.",
                 "paymentRulesTitle": "Aturan pembayaran & perpanjangan",
                 "paymentRulesHint": "Berlaku untuk sewa baru di properti ini. Sewa yang sudah ada tetap memakai nilai tersimpan.",
                 "paymentDueDay": "Tanggal jatuh tempo",
@@ -1492,7 +1536,14 @@
                 "lateFeePerDay": "Denda per hari",
                 "lateFeeHint": "Dikenakan setiap hari keterlambatan pada sewa baru.",
                 "renewalConfirmDays": "Pengingat perpanjangan",
-                "renewalHint": "Berapa hari sebelum sewa berakhir untuk meminta konfirmasi perpanjangan."
+                "renewalHint": "Berapa hari sebelum sewa berakhir untuk meminta konfirmasi perpanjangan.",
+                "paymentDueDayPlaceholder": "mis. 5",
+                "lateFeePlaceholder": "mis. Rp. 100.000",
+                "renewalDaysPlaceholder": "mis. 5",
+                "paymentRulesRequired": "Isi tanggal jatuh tempo, denda per hari, dan pengingat perpanjangan. Isi 0 jika tanpa denda.",
+                "deposit": "Deposit",
+                "depositPlaceholder": "mis. Rp. 300.000",
+                "depositHint": "Deposit (dapat dikembalikan) yang tampil di website. Kosongkan untuk menyembunyikan."
             },
             "unitTypes": {
                 "title": "Tipe unit",
@@ -1505,23 +1556,18 @@
                 "identityTitle": "Detail tipe unit",
                 "identityHint": "Nama, properti, dan deskripsi yang ditampilkan di listing publik. Setiap tipe milik satu properti.",
                 "photosTitle": "Foto kamar",
-                "photosHint": "Foto ini tampil di listing publik. Pilih atau letakkan file, lalu klik Unggah — tidak memakai Simpan detail.",
-                "photosHintCreate": "Foto dapat ditambahkan setelah tipe unit tersimpan. Simpan detail, lalu Anda tetap di sini untuk mengunggahnya.",
-                "createdStayToUpload": "Tipe unit tersimpan. Anda dapat menambahkan foto kamar sekarang.",
+                "photosHint": "Foto langsung diunggah saat ditambahkan dan tampil di listing publik.",
+                "photosHintCreate": "Tambahkan foto sekarang — foto diunggah saat tipe kamar dibuat.",
+                "createdStayToUpload": "Tipe kamar dibuat.",
                 "saveDetails": "Simpan detail",
-                "saveAndAddPhotos": "Simpan lalu tambah foto",
+                "saveAndAddPhotos": "Buat tipe kamar",
                 "descriptionPlaceholder": "mis. Studio luas dengan tempat tidur queen, kamar mandi dalam, AC, dan lemari. Cocok untuk satu penghuni.",
                 "descriptionHint": "Ditampilkan di halaman properti publik. Jelaskan tata ruang, fasilitas, dan siapa yang cocok untuk kamar ini.",
                 "image": "Gambar tipe unit",
                 "imageHint": "Opsional. Unggah gambar untuk tipe unit ini.",
-                "imageUploaded": "Foto berhasil diunggah.",
-                "imagesUploaded": "{count} foto berhasil diunggah.",
-                "imagesUploadPartial": "{failed} dari {total} foto gagal diunggah.",
                 "uploadImage": "Unggah gambar",
                 "uploadingImage": "Mengunggah…",
-                "saveFirstToUpload": "Simpan tipe unit ini terlebih dahulu, lalu unggah gambarnya.",
-                "imageRequired": "Pilih file gambar terlebih dahulu.",
-                "imageUploadFailed": "Gagal mengunggah gambar tipe unit."
+                "imageRequired": "Pilih file gambar terlebih dahulu."
             },
             "units": {
                 "title": "Unit",
@@ -1554,6 +1600,8 @@
                 "leaseStart": "Mulai sewa",
                 "leaseEnd": "Akhir sewa",
                 "tenant": "Penghuni",
+                "closeDetails": "Tutup detail kamar",
+                "noLeaseHint": "Kamar ini siap dihuni. Buat sewa untuk mengisinya.",
                 "status": {
                     "vacant": "Kosong",
                     "occupied": "Terisi"
@@ -1744,15 +1792,11 @@
                 "termsTitle": "Syarat sewa",
                 "termsHint": "Tanggal, harga, dan status pembayaran.",
                 "photosTitle": "Dokumen",
-                "photosHint": "Pilih jenis dokumen, lalu tambah file dan klik Unggah. Tidak memakai Simpan detail.",
-                "photosHintCreate": "Simpan sewa terlebih dahulu. Anda tetap di sini untuk menambah dokumen perjanjian, uang muka, atau pembayaran.",
-                "createdStayToUpload": "Sewa tersimpan. Anda dapat menambahkan dokumen sekarang.",
+                "photosHint": "File langsung diunggah saat ditambahkan. Pilih jenis tiap file sebelum diunggah.",
+                "photosHintCreate": "Tambahkan perjanjian atau bukti DP sekarang — diunggah saat sewa dibuat. Bukti bayar sewa dicatat di tagihan pada Jadwal pembayaran.",
+                "createdStayToUpload": "Sewa dibuat.",
                 "saveDetails": "Simpan detail",
-                "saveAndAddPhotos": "Simpan lalu tambah dokumen",
-                "saveFirstToUpload": "Simpan sewa ini terlebih dahulu, lalu unggah dokumennya.",
-                "imagesUploaded": "{count} file berhasil diunggah.",
-                "imagesUploadPartial": "{failed} dari {total} file gagal diunggah.",
-                "attachmentKindHint": "Berlaku untuk file yang Anda unggah berikutnya.",
+                "saveAndAddPhotos": "Buat sewa",
                 "unitPrefillHint": "Membuat sewa untuk {unit} di {property}. Pilih penyewa dan paket harga di bawah.",
                 "addNewTenant": "Tambah penyewa baru",
                 "noTenantsMatch": "Tidak ada penyewa yang cocok dengan pencarian.",
@@ -1776,8 +1820,6 @@
                 "uploadImage": "Unggah file",
                 "uploadingImage": "Mengunggah…",
                 "imageRequired": "Pilih file terlebih dahulu.",
-                "imageUploaded": "File berhasil diunggah.",
-                "imageUploadFailed": "Gagal mengunggah file.",
                 "endDate": "Tanggal berakhir",
                 "leasePeriod": "Periode sewa",
                 "leasePeriodPlaceholder": "Pilih tanggal mulai dan berakhir",
@@ -1815,7 +1857,6 @@
                 "fullMonths": "Bulan penuh",
                 "monthlySubtotal": "Sewa bulan penuh",
                 "calculationFormula": "Ringkasan perhitungan",
-                "attachmentKind": "Jenis dokumen",
                 "kindAgreement": "Perjanjian",
                 "kindDownpayment": "Uang muka",
                 "kindPayment": "Pembayaran",
@@ -1855,7 +1896,7 @@
                     "totalDue": "Total yang harus dibayar",
                     "totalPaid": "Total dibayar",
                     "notes": "Catatan",
-                    "thankYou": "Terima kasih telah tinggal di Cherry Sky Living.",
+                    "thankYou": "Terima kasih telah tinggal bersama kami.",
                     "rentLine": "Sewa periode ini",
                     "rentLineDescription": "Jumlah yang ditagih untuk periode sewa ini.",
                     "lateFeeLine": "Denda keterlambatan",
@@ -1866,7 +1907,13 @@
                     "notePaid": "Invoice ini berstatus lunas. Tidak ada pembayaran lanjutan untuk periode sewa ini.",
                     "noteDue": "Mohon lunasi total sebelum tanggal jatuh tempo. Hubungi kantor jika membutuhkan instruksi pembayaran.",
                     "noteReview": "Pembayaran telah dikirim dan menunggu konfirmasi kantor. Total mencakup denda yang terakumulasi sampai dikonfirmasi.",
-                    "noteOverdue": "Invoice ini terlambat {days} hari. Total sudah termasuk denda yang terakumulasi."
+                    "noteOverdue": "Invoice ini terlambat {days} hari. Total sudah termasuk denda yang terakumulasi.",
+                    "discountLine": "Diskon",
+                    "subtotal": "Subtotal",
+                    "amountPaid": "Telah dibayar",
+                    "balanceDue": "Sisa tagihan",
+                    "overdueStamp": "Terlambat",
+                    "total": "Total"
                 },
                 "stats": {
                     "totalBadge": "Total",
@@ -1875,6 +1922,107 @@
                     "activeLeases": "Perjanjian Sewa Aktif",
                     "expiring": "Berakhir dalam 30 hari",
                     "collected": "Terkumpul bulan ini"
+                },
+                "billing": {
+                    "sectionTitle": "Jadwal pembayaran",
+                    "sectionHint": "Semua tagihan sewa ini. Centang tagihan yang dibayar penyewa untuk mencatat pembayaran — satu bukti transfer bisa untuk beberapa bulan.",
+                    "cycleLabel": "Bagaimana penyewa akan membayar?",
+                    "cycleMonthly": "Bulanan",
+                    "cycleMonthlyHint": "Satu tagihan per bulan, jatuh tempo tanggal {day}.",
+                    "cycleUpfront": "Di muka",
+                    "cycleUpfrontHint": "Satu tagihan untuk seluruh masa sewa.",
+                    "firstMonthLabel": "Bulan masuk",
+                    "firstSeparate": "Tagihan pertama terpisah",
+                    "firstSeparateHint": "{days} hari dengan tarif harian, ditagih tersendiri.",
+                    "firstMerged": "Gabung ke bulan berikutnya",
+                    "firstMergedHint": "Tambahkan {days} hari tersebut ke tagihan bulan penuh pertama.",
+                    "previewTitle": "Tagihan yang akan dibuat",
+                    "previewEmpty": "Pilih tanggal dan harga untuk melihat tagihan.",
+                    "billLabel": "Tagihan {n}",
+                    "dueOn": "Jatuh tempo {date}",
+                    "paidOn": "Dibayar {date}",
+                    "total": "Total",
+                    "summaryPaid": "{paid} dari {total} lunas",
+                    "outstanding": "Harus dibayar",
+                    "lateFees": "Denda",
+                    "nextDue": "Tagihan berikutnya",
+                    "nothingDue": "Tidak ada tagihan",
+                    "state": {
+                        "overdue": "Terlambat",
+                        "review": "Bukti perlu dicek",
+                        "due": "Jatuh tempo hari ini",
+                        "current": "Lancar",
+                        "paid": "Lunas semua",
+                        "upcoming": "Belum jatuh tempo"
+                    },
+                    "daysLate": "Terlambat {count} hari",
+                    "lateFee": "Denda {amount}",
+                    "feeWaived": "Denda dihapus",
+                    "receipt": "Bukti",
+                    "selectBill": "Pilih tagihan {n}",
+                    "selectAllDue": "Pilih semua yang jatuh tempo",
+                    "clearSelection": "Hapus pilihan",
+                    "recordPaymentFor": "Catat pembayaran · {count} tagihan",
+                    "actions": "Aksi untuk tagihan {n}",
+                    "markReview": "Bukti diterima, cek nanti",
+                    "markUnpaid": "Tandai belum bayar",
+                    "waiveFee": "Hapus denda",
+                    "unwaiveFee": "Kenakan denda lagi",
+                    "switchTitle": "Ubah ke {cycle}?",
+                    "switchBody": "Tagihan yang sudah lunas tetap. Tagihan yang belum dibayar diganti dengan jadwal {cycle} yang baru.",
+                    "switchConfirm": "Ubah cara bayar",
+                    "updated": "Jadwal pembayaran diperbarui",
+                    "empty": "Sewa ini belum punya tagihan.",
+                    "dialog": {
+                        "title": "Catat pembayaran",
+                        "description": "Konfirmasi tagihan yang dipilih sebagai lunas. Sewa dan denda dicatat ke Buku kas.",
+                        "rent": "Sewa",
+                        "lateFees": "Denda",
+                        "total": "Total diterima",
+                        "receiptLabel": "Bukti transfer",
+                        "receiptUpload": "Unggah foto atau PDF",
+                        "receiptExisting": "Atau pakai bukti yang sudah ada di sewa ini",
+                        "receiptNone": "Pilih bukti",
+                        "receiptRequired": "Tambahkan bukti transfer untuk mengonfirmasi pembayaran.",
+                        "waive": "Hapus denda untuk tagihan ini",
+                        "waiveReason": "Alasan (opsional)",
+                        "confirm": "Konfirmasi pembayaran",
+                        "confirming": "Mengonfirmasi…",
+                        "success": "{count} tagihan ditandai lunas",
+                        "method": "Cara bayar",
+                        "methodBank": "Transfer bank",
+                        "methodCash": "Tunai",
+                        "methodCashHint": "Masuk ke kas kecil {property}, bukan ke buku bank.",
+                        "receiptOptional": "Bukti (opsional)",
+                        "paidCash": "Tunai"
+                    },
+                    "waiveDialog": {
+                        "title": "Hapus denda tagihan {n}?",
+                        "body": "Penyewa tidak dikenakan denda untuk tagihan ini. Jika sudah lunas, denda dihapus dari Buku kas.",
+                        "reason": "Alasan (opsional)",
+                        "confirm": "Hapus denda"
+                    },
+                    "recordPayment": "Catat pembayaran"
+                },
+                "discount": {
+                    "label": "Diskon",
+                    "optional": "Opsional",
+                    "none": "Tidak ada",
+                    "amount": "Rupiah",
+                    "percent": "Persen",
+                    "amountLabel": "Jumlah diskon",
+                    "percentLabel": "Diskon (%)",
+                    "noteLabel": "Alasan (opsional)",
+                    "notePlaceholder": "mis. Promo early-bird",
+                    "amountHint": "Dipotong dari total sewa, mulai dari tagihan pertama.",
+                    "percentHint": "Dipotong dari setiap tagihan.",
+                    "totalOff": "Hemat {amount} untuk sewa ini.",
+                    "unpaidOnly": "Hanya tagihan yang belum dibayar yang berubah.",
+                    "receiptLine": "Diskon −{amount}",
+                    "summaryAmount": "Diskon: {amount} dari total sewa",
+                    "summaryPercent": "Diskon: {value}% dari setiap tagihan",
+                    "errorValue": "Isi jumlah diskon, atau pilih Tidak ada.",
+                    "errorPercent": "Diskon persen tidak boleh lebih dari 100%."
                 }
             },
             "leaseRenewals": {
@@ -1973,16 +2121,11 @@
                 "detailsTitle": "Detail entri",
                 "detailsHint": "Jenis, jumlah, dan kapan terjadi.",
                 "photosTitle": "Kwitansi",
-                "photosHint": "Pilih atau letakkan file, lalu klik Unggah — tidak memakai Simpan detail.",
-                "photosHintCreate": "Simpan entri terlebih dahulu. Anda tetap di sini untuk menambah foto kwitansi.",
-                "createdStayToUpload": "Entri tersimpan. Anda dapat menambahkan kwitansi sekarang.",
+                "photosHint": "Bukti langsung diunggah saat ditambahkan.",
+                "photosHintCreate": "Tambahkan atau foto bukti sekarang — diunggah saat entri disimpan.",
+                "createdStayToUpload": "Entri disimpan.",
                 "saveDetails": "Simpan detail",
-                "saveAndAddPhotos": "Simpan lalu tambah kwitansi",
-                "saveFirstToUpload": "Simpan entri ini terlebih dahulu, lalu unggah kwitansi.",
-                "imageUploaded": "Kwitansi berhasil diunggah.",
-                "imagesUploaded": "{count} kwitansi berhasil diunggah.",
-                "imagesUploadPartial": "{failed} dari {total} kwitansi gagal diunggah.",
-                "imageUploadFailed": "Gagal mengunggah kwitansi.",
+                "saveAndAddPhotos": "Simpan entri",
                 "entryType": "Jenis",
                 "typeIncome": "Pemasukan",
                 "typeExpense": "Pengeluaran",
@@ -2134,6 +2277,101 @@
                 "whereTo": "Ke mana uang keluar",
                 "journal": "Jurnal",
                 "entriesCount": "{count} transaksi"
+            },
+            "pettyCash": {
+                "title": "Kas kecil",
+                "description": "Uang tunai yang disimpan di tiap properti, terpisah dari buku bank. Isi ulang, catat pengeluaran tunai dengan bukti, dan hitung secara rutin.",
+                "balance": "Uang di kas",
+                "totalBalance": "Total kas kecil",
+                "lastCounted": "Terakhir dihitung {date}",
+                "neverCounted": "Belum pernah dihitung",
+                "lowBalance": "Hampir habis",
+                "negative": "Di bawah nol — hitung uangnya",
+                "moneyIn": "Uang masuk",
+                "moneyOut": "Uang keluar",
+                "periodHint": "Untuk tanggal yang dipilih",
+                "actions": {
+                    "expense": "Pengeluaran kas",
+                    "top_up": "Isi kas",
+                    "cash_in": "Kas masuk",
+                    "return_to_bank": "Setor ke bank",
+                    "count": "Hitung kas"
+                },
+                "types": {
+                    "top_up": "Isi kas",
+                    "expense": "Pengeluaran",
+                    "cash_in": "Kas masuk",
+                    "return_to_bank": "Setor ke bank",
+                    "adjustment": "Hitung kas"
+                },
+                "typeHints": {
+                    "top_up": "Uang tunai ditambahkan ke kas, mis. diambil dari bank.",
+                    "expense": "Uang tunai dibelanjakan — tambahkan foto bukti.",
+                    "cash_in": "Uang tunai diterima, mis. penyewa membayar tunai.",
+                    "return_to_bank": "Uang diambil dari kas dan disetor ke bank."
+                },
+                "columns": {
+                    "date": "Tanggal",
+                    "entry": "Catatan",
+                    "amount": "Jumlah",
+                    "balance": "Saldo"
+                },
+                "fromBill": "Tagihan {n}, dibayar tunai",
+                "voided": "Dibatalkan",
+                "voidReason": "Alasan: {reason}",
+                "showVoided": "Tampilkan yang dibatalkan",
+                "empty": "Belum ada pergerakan kas.",
+                "emptyHint": "Mulai dengan mencatat jumlah uang di kas sebagai isi kas.",
+                "filterType": "Jenis",
+                "allTypes": "Semua jenis",
+                "edit": "Ubah",
+                "void": "Batalkan",
+                "receipt": "Bukti",
+                "voidDialog": {
+                    "title": "Batalkan catatan ini?",
+                    "body": "Catatan tetap ada di riwayat (dicoret) dan tidak dihitung lagi di saldo.",
+                    "reason": "Alasan (opsional)",
+                    "confirm": "Batalkan catatan",
+                    "done": "Catatan dibatalkan"
+                },
+                "countDialog": {
+                    "title": "Hitung kas",
+                    "description": "Hitung uang di kas dan masukkan totalnya. Selisih dengan buku akan dicatat agar saldo sesuai dengan uang yang ada.",
+                    "counted": "Uang terhitung",
+                    "book": "Saldo buku",
+                    "difference": "Selisih",
+                    "matches": "Sesuai dengan buku",
+                    "over": "Lebih {amount} dari buku",
+                    "short": "Kurang {amount}",
+                    "note": "Catatan (opsional)",
+                    "confirm": "Simpan hitungan",
+                    "done": "Hitungan kas disimpan"
+                },
+                "form": {
+                    "newDescription": "Catat pergerakan uang tunai untuk kas kecil satu properti.",
+                    "editDescription": "Perbarui catatan kas ini.",
+                    "detailsTitle": "Catatan kas",
+                    "detailsHint": "Kas properti mana, berapa, dan untuk apa.",
+                    "entryType": "Jenis",
+                    "amount": "Jumlah",
+                    "category": "Kategori",
+                    "categoryNone": "Tanpa kategori",
+                    "descriptionPlaceholder": "mis. Lampu untuk lorong",
+                    "date": "Tanggal",
+                    "amountRequired": "Masukkan jumlah di atas nol.",
+                    "propertyRequired": "Pilih kas properti yang mana.",
+                    "receiptsTitle": "Bukti",
+                    "receiptsHint": "Bukti langsung diunggah saat ditambahkan.",
+                    "receiptsHintCreate": "Tambahkan atau foto bukti sekarang — diunggah saat disimpan.",
+                    "save": "Simpan catatan",
+                    "saveChanges": "Simpan perubahan",
+                    "created": "Catatan kas disimpan.",
+                    "balanceNow": "Uang di kas sekarang: {amount}",
+                    "balanceAfter": "Setelah catatan ini: {amount}",
+                    "lockedBill": "Catatan ini berasal dari tagihan yang dibayar tunai. Ubah dari jadwal pembayaran sewa.",
+                    "lockedCount": "Hitungan kas tidak bisa diubah. Batalkan lalu hitung ulang.",
+                    "voidedNotice": "Catatan ini dibatalkan dan tidak dihitung lagi."
+                }
             }
         },
         "mobile": {
@@ -2153,7 +2391,8 @@
                 "addUnit": "Tambah unit",
                 "setPricing": "Atur harga",
                 "addUnitType": "Tambah tipe kamar",
-                "addProperty": "Tambah properti"
+                "addProperty": "Tambah properti",
+                "cashExpense": "Pengeluaran kas"
             }
         },
         "form": {
@@ -2228,6 +2467,22 @@
             "active": "Aktif",
             "inactive": "Nonaktif",
             "vacantBetween": "Kosong antara"
+        },
+        "notifications": {
+            "title": "Notifikasi",
+            "buttonLabelCount": "{count} hal perlu ditindaklanjuti",
+            "toDo": "{count} tugas",
+            "emptyTitle": "Semua sudah beres",
+            "emptyHint": "Pembayaran yang perlu disetujui dan permintaan perpanjangan akan muncul di sini.",
+            "viewAll": "Lihat semua",
+            "groups": {
+                "payments": "Pembayaran perlu disetujui",
+                "renewals": "Permintaan perpanjangan",
+                "renewalLeases": "Perpanjangan perlu diselesaikan"
+            },
+            "paymentDetail": "Tagihan {n} · {amount} · bukti dikirim",
+            "renewalDetail": "Ingin memperpanjang — setujui atau tolak",
+            "renewalLeaseDetail": "Disetujui — buat sewa baru"
         }
     },
     "tenant": {
@@ -2271,8 +2526,8 @@
                     "description": "Email, nomor telepon, atau kata sandi tidak valid."
                 },
                 "forbidden": {
-                    "title": "Portal salah",
-                    "description": "Gunakan login admin untuk masuk."
+                    "title": "Tidak bisa masuk di sini",
+                    "description": "Akun ini tidak dapat menggunakan portal penyewa. Hubungi kantor properti jika butuh bantuan."
                 },
                 "deactivated": {
                     "title": "Akun dinonaktifkan",
@@ -2356,7 +2611,18 @@
                     "lateFeeLineHintNone": "Belum ada denda — bayar pada atau sebelum tanggal jatuh tempo.",
                     "totalLine": "Total yang harus dibayar",
                     "paidTotalLine": "Total dibayar",
-                    "monthlyRateNote": "Tarif paket bulanan unit ini {rate}. Sewa yang ditagih di atas bisa berbeda untuk periode pendek atau prorata."
+                    "monthlyRateNote": "Tarif paket bulanan unit ini {rate}. Sewa yang ditagih di atas bisa berbeda untuk periode pendek atau prorata.",
+                    "scheduleTitle": "Jadwal pembayaran",
+                    "billLabel": "Tagihan {n}",
+                    "dueOn": "Jatuh tempo {date}",
+                    "paidOn": "Dibayar {date}",
+                    "statusPaid": "Lunas",
+                    "statusUnpaid": "Belum bayar",
+                    "statusReview": "Sedang dicek",
+                    "feeWaived": "denda dihapus",
+                    "lateFee": "denda Rp {amount}",
+                    "nextBill": "Pembayaran berikutnya: Rp {amount}, jatuh tempo {date}.",
+                    "discount": "Diskon −{amount}"
                 },
                 "renewal": {
                     "promptTitle": "Apakah Anda ingin memperpanjang sewa?",
@@ -2489,7 +2755,8 @@
                 "past": "Selesai"
             },
             "noLease": "Anda belum memiliki sewa",
-            "noLeaseHint": "Setelah pengelola menyiapkan sewa Anda, kamar, pembayaran, dan dokumen akan muncul di sini."
+            "noLeaseHint": "Setelah pengelola menyiapkan sewa Anda, kamar, pembayaran, dan dokumen akan muncul di sini.",
+            "nextBill": "Pembayaran berikutnya {amount}, jatuh tempo {date}."
         },
         "mobile": {
             "home": "Beranda",
@@ -2512,11 +2779,11 @@
         "budgetPlaceholder": "mis. 2000000",
         "message": "Pesan",
         "messagePlaceholder": "Ada yang perlu kami ketahui?",
-        "consent": "Dengan mengirim, Anda setuju kami menghubungi Anda via WhatsApp terkait kamar.",
+        "consent": "Tombol ini membuka WhatsApp dengan pesan Anda yang sudah siap — pesan baru terkirim setelah Anda menekan kirim di WhatsApp.",
         "privacy": "Kebijakan privasi",
         "submit": {
-            "inquiry": "Kirim pertanyaan",
-            "waitlist": "Masuk daftar tunggu"
+            "inquiry": "Kirim via WhatsApp",
+            "waitlist": "Daftar tunggu via WhatsApp"
         },
         "sending": "Mengirim…",
         "errors": {
@@ -2526,10 +2793,10 @@
             "rateLimited": "Terlalu banyak percobaan. Coba lagi beberapa menit lagi, atau hubungi kami via WhatsApp."
         },
         "success": {
-            "title": "Terima kasih, {name}! Permintaan Anda sudah kami terima.",
-            "body": "Kami akan membalas via WhatsApp pada jam kunjungan ({hours}).",
-            "bodyWithTime": "Kami akan membalas via WhatsApp dalam {time}.",
-            "openWhatsApp": "Buka WhatsApp sekarang",
+            "title": "WhatsApp sudah terbuka, {name}!",
+            "body": "Tekan kirim di WhatsApp, kami akan membalas pada jam kunjungan ({hours}).",
+            "bodyWithTime": "Tekan kirim di WhatsApp, kami akan membalas dalam {time}.",
+            "openWhatsApp": "WhatsApp tidak terbuka? Ketuk di sini",
             "another": "Kirim lagi"
         },
         "waitlist": {

@@ -199,7 +199,7 @@ export const skyKost: Kost = {
     rating: 4.5,
     reviewCount: 28,
     isFeatured: true,
-    whatsappNumber: '08116359119',
+    whatsappNumber: '081269175252',
     phone: '061-12345678',
     rules: [
         'Jam berkunjung: 08.00 - 21.00',
@@ -357,7 +357,7 @@ export const cherryKost: Kost = {
     rating: 4.8,
     reviewCount: 42,
     isFeatured: true,
-    whatsappNumber: '08116359119',
+    whatsappNumber: '081269175252',
     phone: '061-98765432',
     rules: [
         'Jam berkunjung: 07.00 - 22.00',

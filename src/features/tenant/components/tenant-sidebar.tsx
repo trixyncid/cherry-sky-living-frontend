@@ -1,20 +1,21 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+
+import { useState } from "react";
 import { Icon } from "@/components/shared/Icon";
-import { SignOutDialog } from "@/components/shared/sign-out-dialog";
 import { ProfileAvatarPlaceholder } from "@/components/shared/profile-avatar-placeholder";
-import { Link, usePathname, useRouter } from "@/i18n/routing";
-import { tenantNavItems } from "@/features/tenant/constants/nav-items";
+import { SignOutDialog } from "@/components/shared/sign-out-dialog";
 import { useTenantShell } from "@/features/tenant/components/tenant-shell-context";
+import { tenantNavItems } from "@/features/tenant/constants/nav-items";
+import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { signOutClient } from "@/lib/auth/sign-out-client";
+import { contactSummary } from "@/lib/phone";
 import { cn } from "@/lib/utils";
 
 function resolveActiveNavHref(pathname: string): string | null {
   const matches = tenantNavItems.filter(
-    (item) =>
-      pathname === item.href || pathname.startsWith(`${item.href}/`),
+    (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
   );
   if (matches.length === 0) return null;
   return matches.reduce((best, item) =>
@@ -131,9 +132,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             <p className="truncate text-sm font-semibold text-[#1a1c1a]">
               {user.name}
             </p>
-            <p className="truncate text-xs text-[#83746b]">{user.email}</p>
+            <p className="truncate text-xs text-[#83746b]">
+              {contactSummary(user)}
+            </p>
           </div>
-          <Icon name="chevron_right" size={20} className="shrink-0 text-[#83746b]" />
+          <Icon
+            name="chevron_right"
+            size={20}
+            className="shrink-0 text-[#83746b]"
+          />
         </Link>
 
         <button

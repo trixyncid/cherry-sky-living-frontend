@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/dialog";
 import { useTenantUserMutations } from "@/features/admin/hooks/use-admin-queries";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import {
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
 import type { TenantUser } from "@/lib/types/admin";
 
 interface TenantResetPasswordDialogProps {
@@ -31,7 +34,9 @@ export function TenantResetPasswordDialog({
   const tp = useTranslations("admin.pages.users");
   const mutations = useTenantUserMutations();
   const [phase, setPhase] = useState<"confirm" | "result">("confirm");
-  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null);
+  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -87,9 +92,7 @@ export function TenantResetPasswordDialog({
                 {tp("resetDescription", { name: user?.name ?? "" })}
               </DialogDescription>
             </DialogHeader>
-            {error && (
-              <p className="text-sm text-[#ba1a1a]">{error}</p>
-            )}
+            {error && <p className="text-sm text-danger">{error}</p>}
             <DialogFooter>
               <Button
                 type="button"
@@ -112,18 +115,24 @@ export function TenantResetPasswordDialog({
           <>
             <DialogHeader>
               <DialogTitle>{tp("resetResultTitle")}</DialogTitle>
-              <DialogDescription>{tp("resetResultDescription")}</DialogDescription>
+              <DialogDescription>
+                {tp("resetResultDescription")}
+              </DialogDescription>
             </DialogHeader>
-            <div className="rounded-xl border border-[#e3e2e0] bg-[#faf9f6] p-4">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#83746b]">
+            <div className="rounded-xl border border-line bg-subtle p-4">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-fg-muted">
                 {tp("temporaryPassword")}
               </p>
-              <p className="font-mono text-lg font-semibold tracking-wide text-[#1a1c1a]">
+              <p className="font-mono text-lg font-semibold tracking-wide text-fg">
                 {temporaryPassword}
               </p>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => void handleCopy()}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void handleCopy()}
+              >
                 {copied ? tp("copied") : tp("copyPassword")}
               </Button>
               <Button type="button" onClick={handleClose}>

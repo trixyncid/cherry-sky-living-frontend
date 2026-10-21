@@ -36,13 +36,13 @@ const PARAPET_H = 5;
 const FENCE_H = 7;
 
 /* Materials */
-const WALL_LIGHT = "#f4ece1";
-const WALL_SHADE = "#dfd2c1";
-const CORNICE = "#cdbea9";
-const ROOF = "#e9e0d3";
-const RAIL = "#8c8273";
-const CORRIDOR_WALL = "#efe7dc";
-const CORE_WALL = "#e8dfd2";
+const WALL_LIGHT = "#f4f4f5";
+const WALL_SHADE = "#dcdce0";
+const CORNICE = "#c4c4ca";
+const ROOF = "#e7e7ea";
+const RAIL = "#7a7a82";
+const CORRIDOR_WALL = "#eeeef0";
+const CORE_WALL = "#e6e6e9";
 const CORRIDOR = 7;
 
 const GLASS: Record<RoomVisual, { glass: string; glow?: string }> = {
@@ -51,7 +51,7 @@ const GLASS: Record<RoomVisual, { glass: string; glow?: string }> = {
     glow: "0 0 5px rgb(79 174 99 / 0.75)",
   },
   occupied: {
-    glass: "linear-gradient(180deg,#f2a184 0%,#b4463c 55%,#7a160f 100%)",
+    glass: "linear-gradient(180deg,#d97a91 0%,#7a1630 55%,#45091c 100%)",
     glow: "0 0 5px rgb(230 120 95 / 0.55)",
   },
   ghost: { glass: "linear-gradient(180deg,#ece7e3,#cfc7c1)" },
@@ -59,7 +59,7 @@ const GLASS: Record<RoomVisual, { glass: string; glow?: string }> = {
 
 const PLAN: Record<RoomVisual, { top: string; ink: string }> = {
   vacant: { top: "#cfeccf", ink: "#1f5a2a" },
-  occupied: { top: "#b4463c", ink: "#ffffff" },
+  occupied: { top: "#7a1630", ink: "#ffffff" },
   ghost: { top: "#f2edeb", ink: "#a39b95" },
 };
 
@@ -203,9 +203,9 @@ const Room = memo(function Room({
               ...sideWall(side, ROOM_H),
               background: street ? facadeBackground(side) : CORRIDOR_WALL,
               boxShadow: active
-                ? "inset 0 0 0 1.5px #141414"
+                ? "inset 0 0 0 1.5px #0f0f11"
                 : preview
-                  ? "inset 0 0 0 30px rgb(113 19 13 / 0.12), inset 0 -1.5px 0 #71130d, inset 0 1.5px 0 #71130d"
+                  ? "inset 0 0 0 30px rgb(122 22 48 / 0.12), inset 0 -1.5px 0 #7a1630, inset 0 1.5px 0 #7a1630"
                   : undefined,
             }}
           >
@@ -214,7 +214,7 @@ const Room = memo(function Room({
                 {/* Window: arched on the top floor, like the reference crown. */}
                 <div
                   className={cn(
-                    "absolute left-[26%] right-[26%] top-[15%] border-[1.5px] border-[#fbf8f3]",
+                    "absolute left-[26%] right-[26%] top-[15%] border-[1.5px] border-subtle",
                     topFloor ? "rounded-t-full" : "rounded-[1px]",
                     isCorner ? "bottom-[22%]" : "bottom-[12%]",
                     pulse &&
@@ -226,7 +226,7 @@ const Room = memo(function Room({
                 {/* Balcony: slab + railing (plain windows on corners). */}
                 {!isCorner ? (
                   <div
-                    className="absolute bottom-[8%] left-[16%] right-[16%] h-[24%] border-b-2 border-t border-b-[#cdbea9]"
+                    className="absolute bottom-[8%] left-[16%] right-[16%] h-[24%] border-b-2 border-t border-b-line-strong"
                     style={{
                       borderTopColor: RAIL,
                       background: `repeating-linear-gradient(90deg, ${RAIL} 0 0.8px, transparent 0.8px 2.6px)`,
@@ -235,7 +235,7 @@ const Room = memo(function Room({
                 ) : null}
                 {plaque !== null && !plan ? (
                   <span
-                    className="absolute left-[6%] top-[14%] rounded-[2px] bg-[#1c0b0a] px-[2px] text-[6px] font-semibold leading-[8px] text-white"
+                    className="absolute left-[6%] top-[14%] rounded-[2px] bg-ink px-[2px] text-[6px] font-semibold leading-[8px] text-white"
                     style={{ transform: mirrored ? "scaleX(-1)" : undefined }}
                   >
                     {plaque}
@@ -245,9 +245,9 @@ const Room = memo(function Room({
             ) : (
               <>
                 {/* Corridor side: door + small status window. */}
-                <div className="absolute bottom-0 left-[16%] h-[62%] w-[26%] rounded-t-[2px] bg-[#a3876c]" />
+                <div className="absolute bottom-0 left-[16%] h-[62%] w-[26%] rounded-t-[2px] bg-fg-muted" />
                 <div
-                  className="absolute right-[18%] top-[22%] h-[28%] w-[32%] rounded-[1px] border border-[#fbf8f3]"
+                  className="absolute right-[18%] top-[22%] h-[28%] w-[32%] rounded-[1px] border border-subtle"
                   style={{ background: glass.glass }}
                 />
               </>
@@ -266,9 +266,9 @@ const Room = memo(function Room({
           background: plan ? PLAN[visual].top : ROOF,
           transform: `translateZ(${ROOM_H}px)`,
           boxShadow: active
-            ? "inset 0 0 0 2px #141414"
+            ? "inset 0 0 0 2px #0f0f11"
             : focus
-              ? "inset 0 0 0 2px #71130d, 0 0 12px rgb(113 19 13 / 0.45)"
+              ? "inset 0 0 0 2px #7a1630, 0 0 12px rgb(122 22 48 / 0.45)"
               : plan
                 ? "inset 0 0 0 0.5px rgb(0 0 0 / 0.15)"
                 : "inset 0 0 0 0.5px rgb(0 0 0 / 0.06)",
@@ -278,7 +278,7 @@ const Room = memo(function Room({
           <span
             className="select-none text-[8px] font-semibold leading-none tabular-nums"
             style={{
-              color: plan ? PLAN[visual].ink : "#8c8273",
+              color: plan ? PLAN[visual].ink : "#7a7a82",
               transform: "rotate(var(--counter))",
             }}
           >
@@ -340,7 +340,7 @@ const Core = memo(function Core({
       className={fade}
       style={{
         ...wallStyle(o, x, y, len, ROOM_H),
-        background: `linear-gradient(90deg, transparent 0 calc(50% - 4px), #b59a7f calc(50% - 4px) calc(50% + 4px), transparent calc(50% + 4px)) bottom / 100% 62% no-repeat, ${CORE_WALL}`,
+        background: `linear-gradient(90deg, transparent 0 calc(50% - 4px), #a1a1aa calc(50% - 4px) calc(50% + 4px), transparent calc(50% + 4px)) bottom / 100% 62% no-repeat, ${CORE_WALL}`,
         pointerEvents: "none",
       }}
     />
@@ -358,7 +358,7 @@ const Core = memo(function Core({
           height: ih,
           transform: "translateZ(0.5px)",
           background:
-            "repeating-linear-gradient(0deg, #e9e0d3 0 5px, #e2d8c9 5px 6px), #e9e0d3",
+            "repeating-linear-gradient(0deg, #e7e7ea 0 5px, #dedee2 5px 6px), #e7e7ea",
           pointerEvents: "none",
         }}
       />
@@ -381,22 +381,22 @@ const Core = memo(function Core({
               transform: `translateZ(${ROOM_H}px)`,
               pointerEvents: "none",
               background: plan
-                ? "linear-gradient(90deg, transparent 0 62%, rgb(0 0 0 / 0.05) 62%), repeating-linear-gradient(90deg, #ddd2c3 0 3px, #cfc2b0 3px 4px)"
+                ? "linear-gradient(90deg, transparent 0 62%, rgb(0 0 0 / 0.05) 62%), repeating-linear-gradient(90deg, #dcdce0 0 3px, #cdcdd2 3px 4px)"
                 : rooftop
                   ? "radial-gradient(circle at 22% 30%, #9cc48c 0 7%, transparent 7.5%), radial-gradient(circle at 78% 70%, #9cc48c 0 9%, transparent 9.5%), radial-gradient(circle at 70% 24%, #b2d3a3 0 5%, transparent 5.5%), repeating-linear-gradient(90deg, transparent 0 9px, rgb(140 130 115 / 0.35) 9px 10px), #cfe3c2"
                   : ROOF,
-              boxShadow: "inset 0 0 0 1.5px #d8cbb8",
+              boxShadow: "inset 0 0 0 1.5px #d4d4d9",
             }}
           >
             {plan ? (
               <span
-                className="flex select-none items-center gap-1 rounded-full bg-white/85 px-1.5 py-0.5 text-[7px] font-semibold uppercase tracking-wide text-[#6b6b6b]"
+                className="flex select-none items-center gap-1 rounded-full bg-white/85 px-1.5 py-0.5 text-[7px] font-semibold uppercase tracking-wide text-fg-muted"
                 style={{ transform: "rotate(var(--counter))" }}
               >
                 {label}
               </span>
             ) : rooftop ? (
-              <span className="size-[30%] max-h-6 max-w-6 rounded-[3px] border border-[#d8cbb8] bg-[#efe7dc] shadow-[0_2px_0_#cdbea9]" />
+              <span className="size-[30%] max-h-6 max-w-6 rounded-[3px] border border-line-strong bg-hover shadow-[0_2px_0_#c4c4ca]" />
             ) : null}
           </div>
         </>
@@ -448,14 +448,14 @@ const Podium = memo(function Podium({
                 top: room.y * CELL,
                 background: [
                   `linear-gradient(180deg, ${CORNICE} 0 3px, transparent 3px)`,
-                  "linear-gradient(90deg, #faf6f0 0 3px, transparent 3px calc(100% - 3px), #faf6f0 calc(100% - 3px))",
-                  side === "s" || side === "w" ? "#ebe1d3" : "#d6c8b5",
+                  "linear-gradient(90deg, #fafafa 0 3px, transparent 3px calc(100% - 3px), #fafafa calc(100% - 3px))",
+                  side === "s" || side === "w" ? "#ececee" : "#d4d4d9",
                 ].join(","),
                 pointerEvents: "none",
               }}
             >
               <div
-                className="absolute bottom-0 left-[22%] right-[22%] top-[24%] rounded-t-full border-[1.5px] border-b-0 border-[#faf6f0]"
+                className="absolute bottom-0 left-[22%] right-[22%] top-[24%] rounded-t-full border-[1.5px] border-b-0 border-subtle"
                 style={{
                   background: entrance
                     ? "linear-gradient(180deg,#f7d9a6,#c98a4b)"
@@ -498,7 +498,7 @@ function Crown({
         pointerEvents: "none",
       }}
     >
-      <div className="absolute bottom-[14%] left-[32%] right-[32%] top-[30%] rounded-t-full border border-[#fbf8f3] bg-[linear-gradient(180deg,#9fb3c4,#5d7183)]" />
+      <div className="absolute bottom-[14%] left-[32%] right-[32%] top-[30%] rounded-t-full border border-subtle bg-[linear-gradient(180deg,#9fb3c4,#5d7183)]" />
     </div>
   );
 }
@@ -585,14 +585,14 @@ export const World = memo(function World({
           height: D + PLOT_PAD * 2,
           transform: "translateZ(-1px)",
           background:
-            "linear-gradient(#e6ddd0,#e6ddd0) padding-box, linear-gradient(135deg,#c9dcbf,#b5cfa8) border-box",
+            "linear-gradient(#e6e6e9,#e6e6e9) padding-box, linear-gradient(135deg,#c9dcbf,#b5cfa8) border-box",
           border: "6px solid transparent",
           boxShadow: "0 40px 70px -24px rgb(28 11 10 / 0.3)",
         }}
       />
       {/* Entrance path */}
       <div
-        className="absolute bg-[#d6cab9]"
+        className="absolute bg-line-strong"
         style={{
           left: Math.floor(layout.cols / 2) * CELL + CELL * 0.2,
           top: D,
@@ -643,7 +643,7 @@ export const World = memo(function World({
       {courtyard ? (
         // Ground-floor lobby fills the middle at street level.
         <div
-          className="absolute bg-[#e2d8c9]"
+          className="absolute bg-line"
           style={{
             left: CELL,
             top: CELL,

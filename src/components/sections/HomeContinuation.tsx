@@ -1,7 +1,7 @@
 /**
- * Hero continuation — same dark navy as the hero's fade-out. A two-tone
- * statement whose muted half lights up on scroll, three round shortcut
- * buttons, two real room photos, and the owner-managed facts strip.
+ * Hero continuation — same black as the hero. A two-tone statement whose
+ * muted half lights up on scroll, three labelled next-step buttons, two real
+ * room photos, and the owner-managed facts strip.
  */
 
 "use client";
@@ -27,7 +27,7 @@ import { generateWhatsAppURL } from "@/lib/utils/format";
 const FALLBACK_PHOTO_A = "/assets/cherry-kost.jpeg";
 const FALLBACK_PHOTO_B = "/assets/skykost.jpeg";
 
-/** Muted (≥4.5:1 on the navy) → white as the statement scrolls into view. */
+/** Muted grey (≥4.5:1 on black) → white as the statement scrolls into view. */
 function Word({
   word,
   index,
@@ -43,7 +43,7 @@ function Word({
   const color = useTransform(
     progress,
     [start, start + 1 / total],
-    ["#b39a97", "#ffffff"],
+    ["#8a8a93", "#ffffff"],
   );
   return (
     <motion.span style={{ color }} className="inline">
@@ -68,7 +68,7 @@ function Statement({ lead, accent }: { lead: string; accent: string }) {
     >
       {lead}{" "}
       {reduceMotion ? (
-        <span className="text-[#e5d6d4]">{accent}</span>
+        <span className="text-brand-line">{accent}</span>
       ) : (
         words.map((word, i) => (
           <Word
@@ -118,24 +118,20 @@ export function HomeContinuation({ kosts = [] }: { kosts?: Kost[] }) {
   const facts = tTrust.raw("facts") as string[];
 
   const shortcut =
-    "flex size-14 items-center justify-center rounded-full bg-white/[0.08] text-white transition-colors hover:bg-white hover:text-[#1c0b0a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
+    "inline-flex h-12 items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-5 text-[15px] font-medium text-white transition-colors hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
 
   return (
     <section
       aria-label={t("lead")}
-      className="w-full bg-[#1c0b0a] px-5 pb-12 pt-8 text-white sm:px-8 lg:pb-16 lg:pt-10"
+      className="w-full bg-ink px-5 pb-12 pt-8 text-white sm:px-8 lg:pb-16 lg:pt-10"
     >
       <div className="mx-auto grid w-full max-w-[90rem] gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] lg:gap-14">
         <div className="flex flex-col justify-between gap-10">
           <Statement lead={t("lead")} accent={t("accent")} />
-          <div className="flex gap-3">
-            <Link
-              href="/search-kosts"
-              aria-label={t("iconRooms")}
-              title={t("iconRooms")}
-              className={shortcut}
-            >
-              <Icon name="bed" size={24} />
+          <div className="flex flex-wrap gap-3">
+            <Link href="/search-kosts" className={shortcut}>
+              <Icon name="bed" size={20} />
+              {t("iconRooms")}
             </Link>
             <a
               href={generateWhatsAppURL(
@@ -147,19 +143,14 @@ export function HomeContinuation({ kosts = [] }: { kosts?: Kost[] }) {
               onClick={() =>
                 track("click_whatsapp", { location: "home_continuation" })
               }
-              aria-label={t("iconChat")}
-              title={t("iconChat")}
               className={shortcut}
             >
-              <Icon name="forum" size={24} />
+              <Icon name="whatsapp" size={20} className="text-[#25d366]" />
+              {t("iconChat")}
             </a>
-            <Link
-              href="/location"
-              aria-label={t("iconLocation")}
-              title={t("iconLocation")}
-              className={shortcut}
-            >
-              <Icon name="my_location" size={24} />
+            <Link href="/location" className={shortcut}>
+              <Icon name="my_location" size={20} />
+              {t("iconLocation")}
             </Link>
           </div>
         </div>
@@ -186,7 +177,7 @@ export function HomeContinuation({ kosts = [] }: { kosts?: Kost[] }) {
       {/* Owner-managed + true facts marquee */}
       <div className="mx-auto mt-12 flex w-full max-w-[90rem] flex-col gap-4 border-t border-white/10 pt-6 lg:flex-row lg:items-center lg:gap-8">
         <div className="flex shrink-0 items-center gap-3 lg:border-r lg:border-white/10 lg:pr-8">
-          <span className="flex size-10 items-center justify-center rounded-full bg-white/[0.08] text-[#f3dedb]">
+          <span className="flex size-10 items-center justify-center rounded-full bg-white/[0.08] text-brand-soft">
             <Icon name="verified_user" size={20} />
           </span>
           <div>

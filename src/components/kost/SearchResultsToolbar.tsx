@@ -8,6 +8,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
+import { SelectMenu } from "@/components/shared/select-menu";
 import { listPublicProperties } from "@/lib/api/public/properties";
 import {
   hasCustomPriceRange,
@@ -153,8 +154,8 @@ export function SearchResultsToolbar({
             className={cn(
               "inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-colors",
               availabilityOn
-                ? "bg-[#71130d] text-white"
-                : "border border-[#dedad4] bg-white text-[#3d3a36] hover:border-[#141414]",
+                ? "bg-brand text-white"
+                : "border border-line-strong bg-white text-fg-2 hover:border-fg",
             )}
           >
             {t("filterAvailable")}
@@ -166,8 +167,8 @@ export function SearchResultsToolbar({
             className={cn(
               "inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-colors",
               monthlyOn
-                ? "bg-[#71130d] text-white"
-                : "border border-[#dedad4] bg-white text-[#3d3a36] hover:border-[#141414]",
+                ? "bg-brand text-white"
+                : "border border-line-strong bg-white text-fg-2 hover:border-fg",
             )}
           >
             {t("filterMonthly")}
@@ -179,45 +180,45 @@ export function SearchResultsToolbar({
             <button
               type="button"
               onClick={onReset}
-              className="text-sm font-semibold text-[#141414] underline-offset-4 hover:underline"
+              className="text-sm font-semibold text-fg underline-offset-4 hover:underline"
             >
               {t("clearAll")}
             </button>
           ) : null}
-          <label className="flex items-center gap-2 text-sm font-semibold text-[#6b6b6b]">
+          <div className="flex items-center gap-2 text-sm font-semibold text-fg-muted">
             <Icon name="sort" size={16} />
             <span className="hidden sm:inline">{t("sortLabel")}</span>
-            <select
+            <SelectMenu
+              aria-label={t("sortLabel")}
               value={filters.sortBy ?? "property-asc"}
-              onChange={(e) => {
+              onChange={(value) =>
                 patch({
-                  sortBy: e.target.value as NonNullable<SearchFilters["sortBy"]>,
-                });
-              }}
-              className="h-10 rounded-full border border-[#cfc5c1] bg-white px-3 text-base sm:text-sm font-semibold text-[#141414] focus:border-[#141414] focus:outline-none"
-            >
-              {SORT_OPTIONS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {t(option.labelKey)}
-                </option>
-              ))}
-            </select>
-          </label>
+                  sortBy: value as NonNullable<SearchFilters["sortBy"]>,
+                })
+              }
+              options={SORT_OPTIONS.map((option) => ({
+                value: option.id,
+                label: t(option.labelKey),
+              }))}
+              className="h-10 w-44 rounded-full pl-4 text-sm font-semibold"
+              contentClassName="min-w-[13rem]"
+            />
+          </div>
         </div>
       </div>
 
       {hasChips ? (
-        <div className="flex flex-wrap items-center gap-2 border-t border-[#efeeeb] pt-3">
+        <div className="flex flex-wrap items-center gap-2 border-t border-hover pt-3">
           {chips.map((chip) => (
             <button
               key={chip.id}
               type="button"
               onClick={() => patch(chip.clear)}
-              className="inline-flex h-9 items-center gap-1 rounded-full bg-[#f7f3f2] pl-3.5 pr-2 text-sm font-medium text-[#141414] transition-colors hover:bg-[#e7e4df]"
+              className="inline-flex h-9 items-center gap-1 rounded-full bg-canvas pl-3.5 pr-2 text-sm font-medium text-fg transition-colors hover:bg-line"
               aria-label={t("removeFilter", { label: chip.label })}
             >
               {chip.label}
-              <Icon name="close" size={16} className="text-[#6b6b6b]" />
+              <Icon name="close" size={16} className="text-fg-muted" />
             </button>
           ))}
         </div>

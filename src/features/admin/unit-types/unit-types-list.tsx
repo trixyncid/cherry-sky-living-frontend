@@ -10,10 +10,11 @@ import {
   AdminToolbar,
   usePropertyToolbarFilter,
 } from "@/features/admin/components/admin-toolbar";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
-import { useAdminPropertyScope } from "@/features/admin/hooks/use-admin-property-scope";
+import { useAdminPropertyFilter } from "@/features/admin/hooks/use-admin-property-filter";
 import {
   useUnitTypeMutations,
   useUnitTypes,
@@ -65,8 +66,9 @@ export function UnitTypesList() {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.unitTypes");
   const ti = useTranslations("admin.pages.inventory");
-  const { propertyId, setPropertyId, ready, isAll, isScoped } =
-    useAdminPropertyScope();
+  const { propertyId, setPropertyId, ready } = useAdminPropertyFilter();
+  const isAll = ready && propertyId === "";
+  const isScoped = ready && propertyId !== "";
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"catalog" | "compare">("catalog");
   const [vacancy, setVacancy] = useState<"" | "vacant" | "full">("");
@@ -217,7 +219,7 @@ export function UnitTypesList() {
         <SkeletonCards count={3} className="sm:grid-cols-2 xl:grid-cols-3" />
       ) : rows.length === 0 ? (
         <EmptyPanel
-          icon="category"
+          icon={adminPageIcons.unitTypes}
           title={isAll ? tp("emptyInventory") : tp("emptyScoped")}
           action={
             <Link
@@ -234,10 +236,14 @@ export function UnitTypesList() {
           {groups.map(([property, list]) => (
             <section key={property}>
               {isAll || groups.length > 1 ? (
-                <h3 className="mb-3 flex items-center gap-2 text-lg font-medium text-[#141414]">
-                  <Icon name="apartment" size={20} className="text-[#71130d]" />
+                <h3 className="mb-3 flex items-center gap-2 text-lg font-medium text-fg">
+                  <Icon
+                    name={adminPageIcons.properties}
+                    size={20}
+                    className="text-brand"
+                  />
                   {property}
-                  <span className="rounded-full bg-white px-2.5 py-0.5 text-sm font-normal text-[#6b6b6b]">
+                  <span className="rounded-full bg-white px-2.5 py-0.5 text-sm font-normal text-fg-muted">
                     {ti("typesCount", { count: list.length })}
                   </span>
                 </h3>
@@ -259,7 +265,7 @@ export function UnitTypesList() {
         <section className={cn(panel, "overflow-hidden")}>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[52rem] text-left">
-              <thead className="bg-[#faf7f6] text-[13px] text-[#6b6b6b]">
+              <thead className="bg-subtle text-[13px] text-fg-muted">
                 <tr>
                   <th scope="col" className="px-5 py-3 font-medium">
                     {ti("roomType")}
@@ -288,7 +294,7 @@ export function UnitTypesList() {
                 {rows.map((row) => (
                   <tr
                     key={row.type.id}
-                    className="border-t border-[#f1ebea] text-[15px] text-[#141414] hover:bg-[#fcf9f8]"
+                    className="border-t border-line text-[15px] text-fg hover:bg-subtle"
                   >
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
@@ -302,7 +308,7 @@ export function UnitTypesList() {
                           <p className="truncate font-medium">
                             {row.type.name}
                           </p>
-                          <p className="truncate text-xs text-[#6b6b6b]">
+                          <p className="truncate text-xs text-fg-muted">
                             {row.property}
                           </p>
                         </div>
@@ -330,9 +336,9 @@ export function UnitTypesList() {
                           <span className="w-20 shrink-0 font-medium tabular-nums">
                             {rupiah(row.monthly)}
                           </span>
-                          <span className="h-2 flex-1 overflow-hidden rounded-full bg-[#f6f0ef]">
+                          <span className="h-2 flex-1 overflow-hidden rounded-full bg-hover">
                             <span
-                              className="block h-full rounded-full bg-[linear-gradient(90deg,#e8bfb9,#71130d)]"
+                              className="block h-full rounded-full bg-[linear-gradient(90deg,var(--adm-brand-line),var(--adm-brand))]"
                               style={{
                                 width: `${(row.monthly / maxMonthly) * 100}%`,
                               }}
@@ -346,7 +352,7 @@ export function UnitTypesList() {
                     <td className="px-4 py-3 tabular-nums">
                       {row.daily !== null ? rupiah(row.daily) : "—"}
                     </td>
-                    <td className="px-4 py-3 tabular-nums text-[#3d3a36]">
+                    <td className="px-4 py-3 tabular-nums text-fg-2">
                       {row.perSqm !== null ? rupiah(row.perSqm) : "—"}
                     </td>
                     <td className="px-5 py-3">
@@ -396,9 +402,9 @@ function NoPrice({ row }: { row: Row }) {
   return (
     <Link
       href={pricingHref(row)}
-      className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[#c97f76] px-3 py-1 text-sm text-[#71130d] hover:bg-[#fbf3f2]"
+      className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-brand-line px-3 py-1 text-sm text-brand hover:bg-brand-tint"
     >
-      <Icon name="sell" size={15} />
+      <Icon name={adminPageIcons.pricing} size={15} />
       {ti("setPrice")}
     </Link>
   );
@@ -431,7 +437,7 @@ function TypeCard({
         />
         <div className="absolute left-3 top-3 flex gap-2">
           {type.size != null ? (
-            <span className="flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-[#141414]">
+            <span className="flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-fg">
               <Icon name="square_foot" size={14} />
               {type.size} m²
             </span>
@@ -446,7 +452,7 @@ function TypeCard({
         <span
           className={cn(
             "absolute right-3 top-3 rounded-full px-2.5 py-1 text-xs font-semibold",
-            full ? "bg-[#71130d] text-white" : "bg-[#dff3d6] text-[#1f5a2a]",
+            full ? "bg-brand text-white" : "bg-success-soft text-success",
           )}
         >
           {full ? ti("full") : ti("vacantCount", { count: row.vacant })}
@@ -455,33 +461,33 @@ function TypeCard({
 
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div>
-          <h4 className="text-lg font-medium tracking-tight text-[#141414]">
+          <h4 className="text-lg font-medium tracking-tight text-fg">
             {type.name}
           </h4>
           {type.description ? (
-            <p className="mt-0.5 line-clamp-2 text-sm text-[#6b6b6b]">
+            <p className="mt-0.5 line-clamp-2 text-sm text-fg-muted">
               {type.description}
             </p>
           ) : null}
         </div>
 
         <div>
-          <p className="mb-1.5 text-xs text-[#6b6b6b]">
+          <p className="mb-1.5 text-xs text-fg-muted">
             {ti("roomsVacant", { vacant: row.vacant, total: row.total })}
           </p>
           <VacancyMeter vacant={row.vacant} total={row.total} />
         </div>
 
-        <div className="flex items-end justify-between gap-2 rounded-2xl bg-[#faf7f6] px-4 py-3">
+        <div className="flex items-end justify-between gap-2 rounded-2xl bg-subtle px-4 py-3">
           {row.monthly !== null ? (
             <div>
-              <p className="text-xl font-medium text-[#141414] tabular-nums">
+              <p className="text-xl font-medium text-fg tabular-nums">
                 {rupiah(row.monthly)}
-                <span className="text-sm font-normal text-[#6b6b6b]">
+                <span className="text-sm font-normal text-fg-muted">
                   {ti("perMonth")}
                 </span>
               </p>
-              <p className="text-xs text-[#6b6b6b] tabular-nums">
+              <p className="text-xs text-fg-muted tabular-nums">
                 {row.daily !== null
                   ? `${rupiah(row.daily)}${ti("perDay")}`
                   : ti("noDaily")}
@@ -492,15 +498,13 @@ function TypeCard({
             </div>
           ) : (
             <div>
-              <p className="text-sm font-medium text-[#a1271b]">
-                {ti("noPrice")}
-              </p>
-              <p className="text-xs text-[#6b6b6b]">{ti("missingHint")}</p>
+              <p className="text-sm font-medium text-danger">{ti("noPrice")}</p>
+              <p className="text-xs text-fg-muted">{ti("missingHint")}</p>
             </div>
           )}
           <Link
             href={pricingHref(row)}
-            className="shrink-0 text-sm font-medium text-[#71130d] underline-offset-4 hover:underline"
+            className="shrink-0 text-sm font-medium text-brand underline-offset-4 hover:underline"
           >
             {row.monthly !== null ? ti("editPrice") : ti("setPrice")}
           </Link>
@@ -509,9 +513,9 @@ function TypeCard({
         <div className="mt-auto flex items-center gap-2 pt-1">
           <Link
             href={`/admin/units?propertyId=${encodeURIComponent(type.propertyId)}`}
-            className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-full border border-[#ece4e2] bg-white px-4 text-sm font-medium text-[#141414] transition-colors hover:border-[#e8bfb9] hover:text-[#71130d]"
+            className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-sm font-medium text-fg transition-colors hover:border-brand-line hover:text-brand"
           >
-            <Icon name="apartment" size={17} />
+            <Icon name={adminPageIcons.properties} size={17} />
             {ti("viewRooms")}
           </Link>
           <IconAction

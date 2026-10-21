@@ -56,13 +56,13 @@ export function HeroQuickSearch({ kosts = [] }: { kosts?: Kost[] }) {
   };
 
   const fieldLabel =
-    "mb-1.5 block px-1 text-[13px] font-semibold text-[#6b6b6b]";
+    "mb-1.5 block px-1 text-[13px] font-semibold text-fg-muted";
 
   return (
     <form
       onSubmit={handleSubmit}
       aria-label={t("searchTitle")}
-      className="grid gap-3 rounded-[1.25rem] bg-white p-3 shadow-[0_24px_60px_-34px_rgb(20_16_14/0.45)] sm:grid-cols-2 sm:p-4 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-end"
+      className="grid gap-3 rounded-[1.25rem] bg-white p-3 shadow-[0_24px_60px_-34px_rgb(11_11_13/0.45)] sm:grid-cols-2 sm:p-4 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-end"
     >
       <div>
         <label htmlFor="hero-search-property" className={fieldLabel}>

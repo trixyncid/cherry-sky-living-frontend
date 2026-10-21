@@ -47,8 +47,8 @@ export function AdminStatCard({
             className={cn(
               "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold backdrop-blur-sm",
               trend.positive
-                ? "bg-emerald-500/15 text-emerald-800"
-                : "bg-red-500/15 text-[#ba1a1a]",
+                ? "bg-success-soft text-success"
+                : "bg-danger-soft text-danger",
             )}
           >
             {trend.positive ? "↑" : "↓"} {trend.value}
@@ -66,16 +66,16 @@ export function AdminStatCard({
         )}
       </div>
       <div className="mt-4">
-        <p className="text-3xl font-bold tracking-tight text-[#1a1c1a] sm:text-4xl">
+        <p className="text-3xl font-bold tracking-tight text-fg sm:text-4xl">
           {valuePrefix && (
-            <span className="mr-1 text-base font-medium text-[#5f5e5e]">
+            <span className="mr-1 text-base font-medium text-fg-muted">
               {valuePrefix}{" "}
             </span>
           )}
           {value}
         </p>
-        <p className="mt-1 text-sm font-medium text-[#51443c]">{label}</p>
-        {hint && <p className="mt-0.5 text-xs text-[#83746b]">{hint}</p>}
+        <p className="mt-1 text-sm font-medium text-fg-2">{label}</p>
+        {hint && <p className="mt-0.5 text-xs text-fg-muted">{hint}</p>}
       </div>
     </>
   );
@@ -83,14 +83,14 @@ export function AdminStatCard({
   const cardClass = cn(
     "glass-panel group relative overflow-hidden rounded-2xl p-5 transition-all duration-300",
     href &&
-      "hover:-translate-y-0.5 hover:border-white/80 hover:shadow-[0_16px_40px_-16px_rgba(90,36,48,0.24)]",
+      "hover:-translate-y-0.5 hover:border-white/80 hover:shadow-[0_16px_40px_-16px_rgba(11,11,13,0.24)]",
     className,
   );
 
   if (href) {
     return (
       <Link href={href} className={cardClass}>
-        <div className="absolute -right-8 -top-8 size-28 rounded-full bg-ferrugem/10 blur-2xl transition-transform duration-500 group-hover:scale-125" />
+        <div className="absolute -right-8 -top-8 size-28 rounded-full bg-brand/10 blur-2xl transition-transform duration-500 group-hover:scale-125" />
         {content}
       </Link>
     );
@@ -99,7 +99,7 @@ export function AdminStatCard({
   return (
     <article className={cardClass}>
       <div
-        className="absolute -right-8 -top-8 size-28 rounded-full bg-maroon/8 blur-2xl"
+        className="absolute -right-8 -top-8 size-28 rounded-full bg-brand-deep/8 blur-2xl"
         aria-hidden
       />
       {content}

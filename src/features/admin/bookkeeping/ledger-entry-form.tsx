@@ -19,16 +19,20 @@ import {
 import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { LedgerPreview } from "@/features/admin/components/form-previews";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import {
   useLedgerEntry,
   useLedgerEntryMutations,
 } from "@/features/admin/hooks/use-admin-queries";
+import { useAttachmentQueue } from "@/features/admin/hooks/use-attachment-queue";
+import { useLeaveGuard } from "@/features/admin/hooks/use-leave-guard";
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import {
   formatIdrInput,
   parseIdrInput,
   toDateInputValue,
 } from "@/features/admin/lib/format";
+import { stashPendingUploads } from "@/features/admin/lib/pending-uploads";
 import {
   showApiError,
   showApiSuccess,
@@ -79,9 +83,23 @@ export function LedgerEntryForm({ id }: { id?: string }) {
   const mutations = useLedgerEntryMutations();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
-  const [imageError, setImageError] = useState<string | null>(null);
 
   const attachments = entry?.attachments ?? [];
+
+  const queue = useAttachmentQueue({
+    upload: id ? (file) => uploadLedgerEntryImage(id, file) : null,
+    handoffKey: id ? `ledgerEntry:${id}` : undefined,
+    onSettled: ({ succeeded, failed, firstError }) => {
+      if (succeeded > 0) {
+        invalidateEntry();
+        showApiSuccess(ta("uploadedCount", { count: succeeded }));
+      }
+      if (failed > 0) {
+        showApiError(firstError, ta("uploadFailedCount", { count: failed }));
+      }
+    },
+  });
+  useLeaveGuard(queue.hasUnsent, ta("leaveWarning"));
 
   // "+ Income" / "+ Expense" buttons preselect the entry type.
   useEffect(() => {
@@ -133,47 +151,6 @@ export function LedgerEntryForm({ id }: { id?: string }) {
     }
   }
 
-  async function handleImageUpload(files: File[]) {
-    if (!isEdit || !id) {
-      setImageError(tp("saveFirstToUpload"));
-      return;
-    }
-
-    setImageError(null);
-    const results = await Promise.allSettled(
-      files.map((file) => uploadLedgerEntryImage(id, file)),
-    );
-    const succeeded = results.filter((result) => result.status === "fulfilled");
-    const failed = results.filter((result) => result.status === "rejected");
-
-    if (succeeded.length > 0) {
-      showApiSuccess(
-        succeeded.length === 1
-          ? tp("imageUploaded")
-          : tp("imagesUploaded", { count: succeeded.length }),
-      );
-      invalidateEntry();
-    }
-
-    if (failed.length > 0) {
-      const first = failed[0];
-      const reason = first && first.status === "rejected" ? first.reason : null;
-      const msg = getErrorMessage(reason, tp("imageUploadFailed"));
-      setImageError(
-        failed.length > 1
-          ? tp("imagesUploadPartial", {
-              failed: failed.length,
-              total: files.length,
-            })
-          : msg,
-      );
-      showApiError(reason, msg);
-      if (succeeded.length === 0) {
-        throw reason instanceof Error ? reason : new Error(msg);
-      }
-    }
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
@@ -200,7 +177,14 @@ export function LedgerEntryForm({ id }: { id?: string }) {
         showApiSuccess(t("updated"));
       } else {
         const created = await mutations.create.mutateAsync(payload);
-        showApiSuccess(tp("createdStayToUpload"));
+        // Files picked before saving upload on the edit page.
+        const files = queue.takeAll();
+        stashPendingUploads(`ledgerEntry:${created.id}`, files);
+        showApiSuccess(
+          files.length > 0
+            ? ta("savedUploading", { count: files.length })
+            : tp("createdStayToUpload"),
+        );
         router.replace(`${BASE}/${created.id}/edit`);
         router.refresh();
       }
@@ -217,7 +201,7 @@ export function LedgerEntryForm({ id }: { id?: string }) {
     (isEdit && isLoading);
 
   if (isEdit && isLoading && !entry) {
-    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
+    return <p className="text-sm text-fg-muted">{t("loading")}</p>;
   }
 
   const photoCount = attachments.length;
@@ -240,7 +224,7 @@ export function LedgerEntryForm({ id }: { id?: string }) {
           <AdminFormError message={formError} />
 
           <AdminFormSection
-            icon="receipt_long"
+            icon={adminPageIcons.bookkeeping}
             title={tp("detailsTitle")}
             hint={tp("detailsHint")}
           >
@@ -372,7 +356,7 @@ export function LedgerEntryForm({ id }: { id?: string }) {
             hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
             headerExtra={
               isEdit && photoCount > 0 ? (
-                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#3d3a36]">
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-fg-2">
                   {ta("photoCount", { count: photoCount })}
                 </span>
               ) : null
@@ -380,12 +364,9 @@ export function LedgerEntryForm({ id }: { id?: string }) {
           >
             <AdminImageGallery
               attachments={attachments}
-              onUpload={handleImageUpload}
+              queue={queue}
               onDelete={handleDeleteAttachment}
-              disabled={!isEdit}
-              disabledTitle={ta("lockedTitle")}
-              disabledHint={ta("lockedHint")}
-              error={imageError}
+              camera
             />
           </AdminFormSection>
         </aside>

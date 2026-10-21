@@ -23,28 +23,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { formatDate } from "@/features/admin/lib/format";
+import { getLeadSource, track } from "@/lib/analytics";
+import { createLead } from "@/lib/api/public/leads";
 import { listPublicProperties } from "@/lib/api/public/properties";
+import {
+  isViewingDayClosed,
+  VIEWING_TIMES,
+  viewingDateTime,
+} from "@/lib/constants/booking";
 import { getContactWhatsAppNumber } from "@/lib/contact";
 import { parseDateOnly } from "@/lib/date-input";
 import { publicKeys } from "@/lib/query/keys";
-import { getLeadSource, track } from "@/lib/analytics";
-import { createLead } from "@/lib/api/public/leads";
 import { cn } from "@/lib/utils";
 import { generateWhatsAppURL } from "@/lib/utils/format";
-
-const SURVEY_TIMES = [
-  "08:00",
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
-] as const;
 
 interface FormState {
   name: string;
@@ -65,7 +56,7 @@ interface FormErrors {
 }
 
 const inputClassName =
-  "h-[3.25rem] w-full rounded-xl border border-[#cfc5c1] bg-white px-4 text-[#1a1c1a] transition-colors placeholder:text-[#6b6b6b] focus:border-[#8a1a12]/60 focus:outline-none focus:ring-2 focus:ring-[#8a1a12]/15";
+  "h-[3.25rem] w-full rounded-xl border border-line-strong bg-white px-4 text-fg transition-colors placeholder:text-fg-muted focus:border-brand-hover/60 focus:outline-none focus:ring-2 focus:ring-brand-hover/15";
 
 const inputErrorClassName =
   "border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/15";
@@ -86,9 +77,7 @@ function startOfToday(): Date {
 }
 
 /** Surveys are Monday–Saturday only. */
-function isSurveyDateDisabled(date: Date): boolean {
-  return date.getDay() === 0;
-}
+const isSurveyDateDisabled = isViewingDayClosed;
 
 interface SurveyScheduleDialogProps {
   triggerLabel: string;
@@ -139,7 +128,7 @@ export function SurveyScheduleDialog({
 
   const timeOptions = useMemo(
     () =>
-      SURVEY_TIMES.map((time) => ({
+      VIEWING_TIMES.map((time) => ({
         value: time,
         label: time,
       })),
@@ -258,21 +247,25 @@ export function SurveyScheduleDialog({
       "_blank",
       "noopener,noreferrer",
     );
-    const timeMatch = /^(\d{1,2}):(\d{2})/.exec(form.surveyTime);
     createLead({
       type: "viewing",
       name: form.name.trim(),
       phone: form.phone.trim(),
       propertyId: form.propertyId || undefined,
       unitTypeId: form.unitTypeId || undefined,
-      preferredDate: timeMatch
-        ? `${form.surveyDate}T${timeMatch[1].padStart(2, "0")}:${timeMatch[2]}:00+07:00`
-        : form.surveyDate || undefined,
+      preferredDate: form.surveyDate
+        ? viewingDateTime(form.surveyDate, form.surveyTime)
+        : undefined,
       viewingMode: "in_person",
       pagePath: window.location.pathname,
       source: getLeadSource(),
     })
-      .then(() => track("submit_viewing", { property: propertyLabel, room: unitTypeLabel }))
+      .then(() =>
+        track("submit_viewing", {
+          property: propertyLabel,
+          room: unitTypeLabel,
+        }),
+      )
       .catch(() => {
         // WhatsApp already carries the request; saving is best-effort.
       });
@@ -294,11 +287,11 @@ export function SurveyScheduleDialog({
         <button
           type="button"
           className={cn(
-            "mt-4 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1fb855]",
+            "mt-4 inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-ink-2",
             className,
           )}
         >
-          <Icon name="whatsapp" size={16} />
+          <Icon name="event_available" size={18} />
           {triggerLabel}
         </button>
       </DialogTrigger>
@@ -313,7 +306,7 @@ export function SurveyScheduleDialog({
           <div>
             <label
               htmlFor="survey-name"
-              className="mb-2 block text-sm font-semibold text-[#1a1c1a]"
+              className="mb-2 block text-sm font-semibold text-fg"
             >
               {t("name")}
               <RequiredMark className="ml-0.5" />
@@ -335,7 +328,7 @@ export function SurveyScheduleDialog({
           <div>
             <label
               htmlFor="survey-phone"
-              className="mb-2 block text-sm font-semibold text-[#1a1c1a]"
+              className="mb-2 block text-sm font-semibold text-fg"
             >
               {t("phone")}
               <RequiredMark className="ml-0.5" />
@@ -360,7 +353,7 @@ export function SurveyScheduleDialog({
           <div>
             <label
               htmlFor="survey-property"
-              className="mb-2 block text-sm font-semibold text-[#1a1c1a]"
+              className="mb-2 block text-sm font-semibold text-fg"
             >
               {t("property")}
               <RequiredMark className="ml-0.5" />
@@ -387,7 +380,7 @@ export function SurveyScheduleDialog({
           <div>
             <label
               htmlFor="survey-unit-type"
-              className="mb-2 block text-sm font-semibold text-[#1a1c1a]"
+              className="mb-2 block text-sm font-semibold text-fg"
             >
               {t("unit")}
               <RequiredMark className="ml-0.5" />
@@ -411,7 +404,7 @@ export function SurveyScheduleDialog({
             <div>
               <label
                 htmlFor="survey-date"
-                className="mb-2 block text-sm font-semibold text-[#1a1c1a]"
+                className="mb-2 block text-sm font-semibold text-fg"
               >
                 {t("surveyDate")}
                 <RequiredMark className="ml-0.5" />
@@ -425,9 +418,9 @@ export function SurveyScheduleDialog({
                 placeholder={t("surveyDatePlaceholder")}
                 popoverClassName="z-[90]"
                 className={cn(
-                  "h-[3.25rem] min-h-[3.25rem] gap-2.5 rounded-xl border-[#e3e2e0] bg-white px-3 py-0 shadow-none hover:border-[#c4b0a4] hover:shadow-none focus:border-[#8a1a12]/60 focus:bg-white focus:ring-[#8a1a12]/15",
-                  "[&>span:first-child]:size-6 [&>span:first-child]:rounded-lg [&>span:first-child]:bg-[#71130d]/10",
-                  !form.surveyDate && "text-[#6b6b6b]",
+                  "h-[3.25rem] min-h-[3.25rem] gap-2.5 rounded-xl border-line bg-white px-3 py-0 shadow-none hover:border-line-strong hover:shadow-none focus:border-brand-hover/60 focus:bg-white focus:ring-brand-hover/15",
+                  "[&>span:first-child]:size-6 [&>span:first-child]:rounded-lg [&>span:first-child]:bg-brand/10",
+                  !form.surveyDate && "text-fg-muted",
                   errors.surveyDate && inputErrorClassName,
                 )}
               />
@@ -439,7 +432,7 @@ export function SurveyScheduleDialog({
             <div>
               <label
                 htmlFor="survey-time"
-                className="mb-2 block text-sm font-semibold text-[#1a1c1a]"
+                className="mb-2 block text-sm font-semibold text-fg"
               >
                 {t("surveyTime")}
                 <RequiredMark className="ml-0.5" />
@@ -462,7 +455,7 @@ export function SurveyScheduleDialog({
           <DialogFooter className="pt-2">
             <Button
               type="submit"
-              className="w-full bg-[#25D366] font-semibold text-white hover:bg-[#1fb855] sm:w-auto"
+              className="w-full bg-ink font-semibold text-white hover:bg-ink-2 sm:w-auto"
             >
               <Icon name="whatsapp" size={18} className="mr-2" />
               {t("submit")}

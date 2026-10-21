@@ -7,7 +7,7 @@ import { useIsClient } from "./use-is-client";
 function ChartSkeleton() {
   return (
     <div className="flex h-[220px] items-center justify-center">
-      <div className="h-full w-full animate-pulse rounded-2xl bg-[#e9e8e5]/70" />
+      <div className="h-full w-full animate-pulse rounded-2xl bg-line/70" />
     </div>
   );
 }
@@ -34,7 +34,7 @@ export function ChartPanel({
     body = <ChartSkeleton />;
   } else if (empty) {
     body = (
-      <div className="flex h-[220px] items-center justify-center rounded-2xl bg-white/35 px-6 text-center text-sm text-[#83746b]">
+      <div className="flex h-[220px] items-center justify-center rounded-2xl bg-white/35 px-6 text-center text-sm text-fg-muted">
         {children}
       </div>
     );
@@ -53,9 +53,9 @@ export function ChartPanel({
       )}
     >
       <div className="mb-4">
-        <h3 className="font-semibold tracking-tight text-[#1a1c1a]">{title}</h3>
+        <h3 className="font-semibold tracking-tight text-fg">{title}</h3>
         {subtitle && (
-          <p className="mt-0.5 text-xs text-[#83746b]">{subtitle}</p>
+          <p className="mt-0.5 text-xs text-fg-muted">{subtitle}</p>
         )}
       </div>
       {body}

@@ -32,7 +32,9 @@ export const tenantLoginSchema = z
 
 export type TenantLoginValues = z.infer<typeof tenantLoginSchema>;
 
-export function resolveTenantLoginIdentifier(identifier: string):
+export function resolveTenantLoginIdentifier(
+  identifier: string,
+):
   | { kind: "email"; email: string }
   | { kind: "phone"; phoneNumber: string }
   | null {

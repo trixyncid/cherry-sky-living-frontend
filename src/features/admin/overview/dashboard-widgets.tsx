@@ -1,7 +1,7 @@
 /**
- * Dashboard widgets in the reference layout, using the brand palette:
- * cherry #71130d (primary), blush #e8bfb9 (secondary), deep wine #1c0b0a
- * (dark card), cherry-white canvas. All values come from live data.
+ * Dashboard widgets using the admin palette (--adm-* tokens): burgundy
+ * (intent), black (feature card), white surfaces. All values come from
+ * live data.
  */
 
 "use client";
@@ -9,9 +9,11 @@
 import Image from "next/image";
 import { useId, useMemo } from "react";
 import { Icon } from "@/components/shared/Icon";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { cn } from "@/lib/utils";
 
-export const card = "rounded-[1.75rem] bg-white p-4 sm:p-6";
+export const card =
+  "rounded-2xl border border-line bg-panel p-4 shadow-[0_1px_2px_rgb(11_11_13/0.04)] sm:p-6";
 
 /* ——— Segmented toggle (Weekly | Monthly style) ——— */
 export function Segmented<T extends string>({
@@ -33,9 +35,7 @@ export function Segmented<T extends string>({
       aria-label={label}
       className={cn(
         "inline-flex max-w-full shrink-0 overflow-x-auto rounded-full p-1",
-        tone === "dark"
-          ? "bg-white/10"
-          : "border border-[#ddd3cf] bg-[#efe8e6]",
+        tone === "dark" ? "bg-white/10" : "border border-line bg-hover",
       )}
     >
       {options.map((o) => (
@@ -49,11 +49,11 @@ export function Segmented<T extends string>({
             "h-9 shrink-0 whitespace-nowrap rounded-full px-4 text-sm transition-colors",
             value === o.id
               ? tone === "dark"
-                ? "bg-white text-[#1c0b0a] shadow-sm"
-                : "bg-white font-medium text-[#141414] shadow-[0_1px_3px_rgb(28_11_10/0.18)]"
+                ? "bg-white text-ink shadow-sm"
+                : "bg-white font-medium text-fg shadow-[0_1px_3px_rgb(11_11_13/0.18)]"
               : tone === "dark"
                 ? "text-white/70 hover:text-white"
-                : "text-[#3d3a36] hover:text-[#141414]",
+                : "text-fg-2 hover:text-fg",
           )}
         >
           {o.label}
@@ -71,6 +71,7 @@ export function KpiCard({
   badge,
   note,
   loading,
+  tone = "default",
 }: {
   icon: string;
   label: string;
@@ -78,30 +79,74 @@ export function KpiCard({
   badge?: { text: string; tone: "up" | "down" | "neutral" };
   note?: string;
   loading?: boolean;
+  /** "brand" = burgundy feature card (use once per row). */
+  tone?: "default" | "brand";
 }) {
+  const brand = tone === "brand";
   return (
-    <section className={cn(card, "flex flex-col gap-4")}>
-      <p className="flex items-center gap-2.5 text-[15px] text-[#3d3a36]">
-        <span className="flex size-9 items-center justify-center rounded-full bg-[#f6f0ef] text-[#71130d]">
+    <section
+      className={cn(
+        card,
+        "relative flex flex-col gap-3 overflow-hidden",
+        brand && "border-brand bg-brand text-white",
+      )}
+    >
+      {brand ? (
+        <span
+          className="pointer-events-none absolute -right-12 -top-12 size-40 rounded-full bg-white/10 blur-2xl"
+          aria-hidden
+        />
+      ) : null}
+      <p
+        className={cn(
+          "relative flex items-center justify-between gap-2 text-sm font-medium",
+          brand ? "text-white/80" : "text-fg-2",
+        )}
+      >
+        {label}
+        <span
+          className={cn(
+            "flex size-8 items-center justify-center rounded-lg",
+            brand ? "bg-white/15 text-white" : "bg-brand-soft text-brand",
+          )}
+        >
           <Icon name={icon} size={18} />
         </span>
-        {label}
       </p>
-      <p className="text-[clamp(1.6rem,2.2vw,2rem)] font-medium tracking-[-0.03em] text-[#141414] tabular-nums">
+      <p
+        className={cn(
+          "relative text-[clamp(1.6rem,2.2vw,2rem)] font-semibold leading-tight tracking-[-0.03em] tabular-nums",
+          brand ? "text-white" : "text-fg",
+        )}
+      >
         {loading ? (
-          <span className="inline-block h-8 w-24 animate-pulse rounded-lg bg-[#f6f0ef]" />
+          <span
+            className={cn(
+              "inline-block h-8 w-24 animate-pulse rounded-lg",
+              brand ? "bg-white/20" : "bg-hover",
+            )}
+          />
         ) : (
           value
         )}
       </p>
-      <p className="flex flex-wrap items-center gap-2 text-xs text-[#6b6b6b]">
+      <p
+        className={cn(
+          "relative flex flex-wrap items-center gap-2 text-xs",
+          brand ? "text-white/70" : "text-fg-muted",
+        )}
+      >
         {badge ? (
           <span
             className={cn(
               "inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 font-semibold",
-              badge.tone === "up" && "bg-[#dff3d6] text-[#2f6d22]",
-              badge.tone === "down" && "bg-[#fde2df] text-[#a1271b]",
-              badge.tone === "neutral" && "bg-[#f6f0ef] text-[#71130d]",
+              brand
+                ? "bg-white/15 text-white"
+                : badge.tone === "up"
+                  ? "bg-success-soft text-success"
+                  : badge.tone === "down"
+                    ? "bg-danger-soft text-danger"
+                    : "bg-hover text-fg-2",
             )}
           >
             {badge.tone === "up" ? (
@@ -119,7 +164,7 @@ export function KpiCard({
   );
 }
 
-/* ——— Cashflow: glowing line chart on deep wine ——— */
+/* ——— Cashflow: glowing burgundy line chart on black ——— */
 function smoothPath(points: [number, number][]): string {
   const first = points[0];
   if (!first || points.length < 2) return "";
@@ -181,12 +226,12 @@ export function CashflowChart({
     >
       <defs>
         <linearGradient id={`line-${id}`} x1="0" x2="1" y1="0" y2="0">
-          <stop offset="0%" stopColor="#e8bfb9" />
-          <stop offset="100%" stopColor="#d9534a" />
+          <stop offset="0%" stopColor="var(--adm-brand-bright)" />
+          <stop offset="100%" stopColor="#c4486a" />
         </linearGradient>
         <linearGradient id={`area-${id}`} x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#d9534a" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#d9534a" stopOpacity="0" />
+          <stop offset="0%" stopColor="#c4486a" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#c4486a" stopOpacity="0" />
         </linearGradient>
         <filter id={`glow-${id}`} x="-20%" y="-50%" width="140%" height="200%">
           <feGaussianBlur stdDeviation="6" />
@@ -216,7 +261,7 @@ export function CashflowChart({
       <path
         d={line}
         fill="none"
-        stroke="#d9534a"
+        stroke="#c4486a"
         strokeWidth="10"
         opacity="0.45"
         filter={`url(#glow-${id})`}
@@ -241,8 +286,8 @@ export function CashflowChart({
             cx={last[0]}
             cy={last[1]}
             r="7"
-            fill="#1c0b0a"
-            stroke="#f3dedb"
+            fill="var(--adm-ink)"
+            stroke="var(--adm-brand-soft)"
             strokeWidth="3"
           />
           <text
@@ -258,7 +303,7 @@ export function CashflowChart({
             x={last[0] - 8}
             y={last[1] - 12}
             textAnchor="end"
-            fill="#f3dedb"
+            fill="var(--adm-brand-soft)"
             fontSize="18"
             fontWeight="600"
           >
@@ -283,7 +328,7 @@ export function CashflowChart({
   );
 }
 
-/* ——— Collections bars: current month cherry, previous blush, rest hatched ——— */
+/* ——— Collections bars: current month burgundy, previous rose, rest hatched ——— */
 export function CollectionBars({
   months,
   monthLabel,
@@ -295,7 +340,7 @@ export function CollectionBars({
 }) {
   const max = Math.max(1, ...months.map((m) => m.income));
   return (
-    <div className="rounded-2xl bg-[#faf7f6] p-4">
+    <div className="rounded-xl bg-subtle p-4">
       <div className="flex h-36 items-end gap-3">
         {months.map((m, i) => {
           const isLast = i === months.length - 1;
@@ -308,19 +353,19 @@ export function CollectionBars({
               <div
                 title={`${monthLabel(m.month)}: ${formatValue(m.income)}`}
                 className={cn(
-                  "w-full rounded-xl transition-[height] duration-700",
-                  isLast && "bg-[#71130d]",
-                  isPrev && "bg-[#e8bfb9]",
+                  "w-full rounded-lg transition-[height] duration-700",
+                  isLast && "bg-brand",
+                  isPrev && "bg-brand-soft",
                   !isLast &&
                     !isPrev &&
-                    "bg-[repeating-linear-gradient(135deg,#ece3e1_0_2px,transparent_2px_7px)] ring-1 ring-inset ring-[#ece3e1]",
+                    "bg-[repeating-linear-gradient(135deg,var(--adm-line)_0_2px,transparent_2px_7px)] ring-1 ring-inset ring-line",
                 )}
                 style={{ height: `${Math.max(6, (m.income / max) * 100)}%` }}
               />
               <span
                 className={cn(
                   "text-center text-xs",
-                  isLast ? "font-semibold text-[#141414]" : "text-[#857f77]",
+                  isLast ? "font-semibold text-fg" : "text-fg-muted",
                 )}
               >
                 {monthLabel(m.month)}
@@ -370,11 +415,11 @@ export function OccupancyGauge({
     [],
   );
 
-  // Blush → cherry across the filled segments.
+  // Rose → burgundy across the filled segments.
   const colorAt = (i: number) => {
     const t = filled <= 1 ? 1 : i / (filled - 1);
-    const a = [232, 191, 185];
-    const b = [113, 19, 13];
+    const a = [232, 203, 211];
+    const b = [122, 22, 48];
     const c = a.map((v, k) => Math.round(v + ((b[k] ?? v) - v) * t));
     return `rgb(${c[0]} ${c[1]} ${c[2]})`;
   };
@@ -392,17 +437,17 @@ export function OccupancyGauge({
             // biome-ignore lint/suspicious/noArrayIndexKey: fixed segment order
             key={i}
             d={d}
-            fill={i < filled ? colorAt(i) : "#f1ebea"}
-            stroke={i < filled ? "none" : "#e6dedc"}
+            fill={i < filled ? colorAt(i) : "var(--adm-hover)"}
+            stroke={i < filled ? "none" : "var(--adm-line)"}
             strokeWidth="1"
           />
         ))}
       </svg>
       <div className="absolute inset-x-0 bottom-0 text-center">
-        <p className="text-[2.25rem] font-medium leading-none tracking-[-0.04em] text-[#141414] tabular-nums">
+        <p className="text-[2.25rem] font-semibold leading-none tracking-[-0.04em] text-fg tabular-nums">
           {Math.round(percent)}%
         </p>
-        <p className="mt-1 text-sm text-[#6b6b6b]">{caption}</p>
+        <p className="mt-1 text-sm text-fg-muted">{caption}</p>
       </div>
     </div>
   );
@@ -421,15 +466,15 @@ export function Thumb({
   return (
     <span
       className={cn(
-        "relative block shrink-0 overflow-hidden rounded-xl bg-[#f1ebea]",
+        "relative block shrink-0 overflow-hidden rounded-xl bg-hover",
         className,
       )}
     >
       {src ? (
         <Image src={src} alt={alt} fill sizes="80px" className="object-cover" />
       ) : (
-        <span className="flex h-full w-full items-center justify-center text-[#857f77]">
-          <Icon name="apartment" size={18} />
+        <span className="flex h-full w-full items-center justify-center text-fg-muted">
+          <Icon name={adminPageIcons.properties} size={18} />
         </span>
       )}
     </span>

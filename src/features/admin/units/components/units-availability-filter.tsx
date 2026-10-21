@@ -54,8 +54,8 @@ export function UnitsAvailabilityFilter({
           className={cn(
             "inline-flex h-10 items-center gap-1.5 rounded-xl border px-3 text-sm font-medium transition-colors",
             expanded || activeRange
-              ? "border-ferrugem/35 bg-ferrugem-soft/55 text-ferrugem backdrop-blur-md"
-              : "glass-control text-[#51443c] hover:bg-white/80",
+              ? "border-brand/35 bg-brand-soft/55 text-brand backdrop-blur-md"
+              : "glass-control text-fg-2 hover:bg-white/80",
           )}
         >
           <Icon name="event_available" size={18} />
@@ -63,7 +63,7 @@ export function UnitsAvailabilityFilter({
         </button>
 
         {activeRange && (
-          <div className="inline-flex max-w-full items-center gap-2 rounded-xl border border-emerald-200/80 bg-emerald-50/80 px-3 py-1.5 text-sm text-emerald-800">
+          <div className="inline-flex max-w-full items-center gap-2 rounded-xl border border-success/20 bg-success-soft px-3 py-1.5 text-sm text-success">
             <Icon name="check_circle" size={16} className="shrink-0" />
             <span className="truncate">
               {tp("active", {
@@ -74,7 +74,7 @@ export function UnitsAvailabilityFilter({
             <button
               type="button"
               onClick={onClear}
-              className="shrink-0 rounded-md p-0.5 text-emerald-700 transition-colors hover:bg-emerald-100"
+              className="shrink-0 rounded-md p-0.5 text-success transition-colors hover:bg-success/10"
               aria-label={tp("clear")}
             >
               <Icon name="close" size={16} />
@@ -85,10 +85,10 @@ export function UnitsAvailabilityFilter({
 
       {expanded && (
         <div className="glass-panel rounded-2xl p-5">
-          <p className="mb-1 text-sm font-medium text-[#51443c]">
+          <p className="mb-1 text-sm font-medium text-fg-2">
             {tp("filters")}
           </p>
-          <p className="mb-4 text-xs text-[#83746b]">{tp("hint")}</p>
+          <p className="mb-4 text-xs text-fg-muted">{tp("hint")}</p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <AdminField
               label={tp("dateRange")}
@@ -118,7 +118,7 @@ export function UnitsAvailabilityFilter({
                 <button
                   type="button"
                   onClick={onClear}
-                  className="glass-control flex h-10 items-center justify-center rounded-xl px-4 text-sm font-medium text-[#51443c] transition-colors hover:bg-white/80"
+                  className="glass-control flex h-10 items-center justify-center rounded-xl px-4 text-sm font-medium text-fg-2 transition-colors hover:bg-white/80"
                 >
                   {tp("clear")}
                 </button>
@@ -126,7 +126,7 @@ export function UnitsAvailabilityFilter({
             </div>
           </div>
           {dateError && (
-            <p className="mt-3 text-sm text-[#ba1a1a]">{dateError}</p>
+            <p className="mt-3 text-sm text-danger">{dateError}</p>
           )}
         </div>
       )}

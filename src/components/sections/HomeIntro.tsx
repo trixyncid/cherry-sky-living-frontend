@@ -25,8 +25,8 @@ export function HomeIntro() {
   const t = useTranslations("home.intro");
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#faf9f6] px-6 py-20 lg:px-10">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#f3eee8] to-transparent" />
+    <section className="relative w-full overflow-hidden bg-subtle px-6 py-20 lg:px-10">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-subtle to-transparent" />
 
       <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-14">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end lg:gap-14">
@@ -34,7 +34,7 @@ export function HomeIntro() {
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="max-w-xl text-3xl font-semibold tracking-tight text-[#1a1c1a] md:text-5xl md:leading-[1.08]"
+            className="max-w-xl text-3xl font-semibold tracking-tight text-fg md:text-5xl md:leading-[1.08]"
           >
             {t("title")}
           </motion.h2>
@@ -43,7 +43,7 @@ export function HomeIntro() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.08 }}
-            className="max-w-md text-sm leading-relaxed text-[#83746b] md:text-base"
+            className="max-w-md text-sm leading-relaxed text-fg-muted md:text-base"
           >
             {t("description")}
           </motion.p>
@@ -78,21 +78,21 @@ export function HomeIntro() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.12 }}
-            className="flex flex-col justify-center border-t border-[#e3e2e0] pt-8 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0"
+            className="flex flex-col justify-center border-t border-line pt-8 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#83746b]">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fg-muted">
               {t("storyEyebrow")}
             </p>
-            <p className="mt-4 text-sm leading-relaxed text-[#51443c] md:text-[15px]">
+            <p className="mt-4 text-sm leading-relaxed text-fg-2 md:text-[15px]">
               {t("story")}
             </p>
             <ul className="mt-8 space-y-4">
               {STORY_POINTS.map((point) => (
                 <li
                   key={point.key}
-                  className="flex items-start gap-3 text-sm leading-snug text-[#1a1c1a]"
+                  className="flex items-start gap-3 text-sm leading-snug text-fg"
                 >
-                  <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#f5e4d4] text-[#71130d]">
+                  <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand">
                     <Icon name={point.icon} size={16} />
                   </span>
                   <span className="pt-1.5">{t(`points.${point.key}`)}</span>

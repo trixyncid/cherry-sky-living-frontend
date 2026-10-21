@@ -32,7 +32,7 @@ export function ContactInfo() {
       icon: "call",
       title: t("phone"),
       items: [t("phonePrimary")],
-      href: "tel:+628116359119",
+      href: "tel:+6281269175252",
     },
     {
       id: "email",
@@ -52,30 +52,30 @@ export function ContactInfo() {
   return (
     <div>
       <div className="mb-6">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#83746b]">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-fg-muted">
           {t("subtitle")}
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-[#1a1c1a] md:text-3xl">
+        <h2 className="text-2xl font-semibold tracking-tight text-fg md:text-3xl">
           {t("title")}
         </h2>
       </div>
 
-      <div className="overflow-hidden rounded-[1.5rem] border border-[#e3e2e0] divide-y divide-[#e3e2e0]">
+      <div className="overflow-hidden rounded-[1.5rem] border border-line divide-y divide-line">
         {contactDetails.map((detail, index) => {
           const content = (
             <>
-              <div className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#f5e4d4] text-[#71130d]">
+              <div className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
                 <Icon name={detail.icon} size={20} />
               </div>
               <div className="min-w-0">
-                <h3 className="mb-1 text-sm font-semibold text-[#1a1c1a]">
+                <h3 className="mb-1 text-sm font-semibold text-fg">
                   {detail.title}
                 </h3>
                 <div className="space-y-1">
                   {detail.items.map((line) => (
                     <p
                       key={line}
-                      className="text-sm leading-relaxed text-[#83746b]"
+                      className="text-sm leading-relaxed text-fg-muted"
                     >
                       {line}
                     </p>
@@ -96,12 +96,12 @@ export function ContactInfo() {
               {detail.href ? (
                 <a
                   href={detail.href}
-                  className="flex gap-4 bg-[#faf9f6] p-5 transition-colors hover:bg-white"
+                  className="flex gap-4 bg-subtle p-5 transition-colors hover:bg-white"
                 >
                   {content}
                 </a>
               ) : (
-                <div className="flex gap-4 bg-[#faf9f6] p-5">{content}</div>
+                <div className="flex gap-4 bg-subtle p-5">{content}</div>
               )}
             </motion.div>
           );

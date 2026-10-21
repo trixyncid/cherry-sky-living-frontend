@@ -51,7 +51,12 @@ export function PropertyImageCarousel({
   };
 
   return (
-    <div className={cn("relative h-56 w-full overflow-hidden bg-[#f5e4d4]", className)}>
+    <div
+      className={cn(
+        "relative h-56 w-full overflow-hidden bg-brand-soft",
+        className,
+      )}
+    >
       {current ? (
         <Link href={href} className="absolute inset-0 block" tabIndex={-1}>
           <AnimatePresence initial={false} custom={direction}>
@@ -91,7 +96,7 @@ export function PropertyImageCarousel({
         </Link>
       ) : (
         <div className="flex h-full items-center justify-center">
-          <Icon name="image" size={48} className="text-[#c4b5a8]" />
+          <Icon name="image" size={48} className="text-fg-faint" />
         </div>
       )}
 
@@ -101,7 +106,7 @@ export function PropertyImageCarousel({
             type="button"
             onClick={(e) => goTo(index - 1, e)}
             aria-label="Previous image"
-            className="absolute left-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#1a130f]/55 text-white backdrop-blur-sm transition-opacity hover:bg-[#1a130f]/75 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+            className="absolute left-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-ink/55 text-white backdrop-blur-sm transition-opacity hover:bg-ink/75 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
           >
             <Icon name="chevron_left" size={20} />
           </button>
@@ -109,7 +114,7 @@ export function PropertyImageCarousel({
             type="button"
             onClick={(e) => goTo(index + 1, e)}
             aria-label="Next image"
-            className="absolute right-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#1a130f]/55 text-white backdrop-blur-sm transition-opacity hover:bg-[#1a130f]/75 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+            className="absolute right-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-ink/55 text-white backdrop-blur-sm transition-opacity hover:bg-ink/75 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
           >
             <Icon name="chevron_right" size={20} />
           </button>

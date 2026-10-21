@@ -34,10 +34,10 @@ export function MobileTabBar({
       aria-label={label}
       className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden"
     >
-      <ul className="pointer-events-auto mx-auto flex max-w-md items-center justify-between gap-1 rounded-[1.75rem] border border-[#ece4e2] bg-white/95 p-1.5 shadow-[0_18px_40px_-16px_rgb(28_11_10/0.35)] backdrop-blur-md">
+      <ul className="pointer-events-auto mx-auto flex max-w-md items-center justify-between gap-1 rounded-[1.75rem] border border-line bg-white/95 p-1.5 shadow-[0_18px_40px_-16px_rgb(11_11_13/0.35)] backdrop-blur-md">
         {tabs.map((tab) => {
           const content = tab.primary ? (
-            <span className="flex size-12 items-center justify-center rounded-full bg-[#71130d] text-white shadow-[0_10px_22px_-8px_rgb(113_19_13/0.8)] transition-transform active:scale-95">
+            <span className="flex size-12 items-center justify-center rounded-full bg-brand text-white shadow-[0_10px_22px_-8px_rgb(122_22_48/0.8)] transition-transform active:scale-95">
               <Icon name={tab.icon} size={26} />
             </span>
           ) : (
@@ -45,8 +45,8 @@ export function MobileTabBar({
               className={cn(
                 "relative flex h-12 flex-col items-center justify-center gap-0.5 rounded-2xl px-1 text-[11px] font-medium transition-colors",
                 tab.active
-                  ? "bg-[#f3dedb] text-[#71130d]"
-                  : "text-[#5c5653] active:bg-[#f6f0ef]",
+                  ? "bg-brand-soft text-brand"
+                  : "text-fg-muted active:bg-hover",
               )}
             >
               <Icon name={tab.icon} size={22} filled={tab.active} />
@@ -54,7 +54,7 @@ export function MobileTabBar({
                 {tab.label}
               </span>
               {tab.badge && tab.badge > 0 ? (
-                <span className="absolute right-[18%] top-1 flex min-w-4 items-center justify-center rounded-full bg-[#71130d] px-1 text-[10px] font-semibold leading-4 text-white ring-2 ring-white">
+                <span className="absolute right-[18%] top-1 flex min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold leading-4 text-white ring-2 ring-white">
                   {tab.badge > 9 ? "9+" : tab.badge}
                 </span>
               ) : null}
@@ -71,7 +71,7 @@ export function MobileTabBar({
                   href={tab.href}
                   aria-current={tab.active ? "page" : undefined}
                   aria-label={tab.primary ? tab.label : undefined}
-                  className="block focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#71130d]/25 rounded-2xl"
+                  className="block focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/25 rounded-2xl"
                 >
                   {content}
                 </Link>
@@ -81,7 +81,7 @@ export function MobileTabBar({
                   onClick={tab.onClick}
                   aria-label={tab.primary ? tab.label : undefined}
                   aria-haspopup="dialog"
-                  className="block w-full rounded-2xl focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#71130d]/25"
+                  className="block w-full rounded-2xl focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/25"
                 >
                   {content}
                 </button>

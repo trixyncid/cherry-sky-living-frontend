@@ -48,7 +48,7 @@ function PropertyCard({ kost, index }: { kost: Kost; index: number }) {
   return (
     <Reveal delay={index * 0.1} className="h-full">
       <article className="group flex h-full flex-col rounded-[1.25rem] bg-white p-2">
-        <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-[#efeeeb]">
+        <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-hover">
           {kost.thumbnail ? (
             <Image
               src={kost.thumbnail}
@@ -59,15 +59,15 @@ function PropertyCard({ kost, index }: { kost: Kost; index: number }) {
             />
           ) : null}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
-          <span className="absolute left-5 top-5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-1.5 text-xs font-semibold text-[#141414]">
+          <span className="absolute left-5 top-5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-1.5 text-xs font-semibold text-fg">
             <span
               className={cn(
                 "size-1.5 rounded-full",
                 isOpen
-                  ? "bg-[#059669]"
+                  ? "bg-success"
                   : hasInventory
-                    ? "bg-[#ba1a1a]"
-                    : "bg-[#d97706]",
+                    ? "bg-danger"
+                    : "bg-warning",
               )}
             />
             {isOpen
@@ -90,11 +90,11 @@ function PropertyCard({ kost, index }: { kost: Kost; index: number }) {
         </div>
 
         <div className="flex flex-1 flex-col gap-5 px-4 pb-4 pt-5 sm:px-5">
-          <p className="flex items-start gap-2 text-base leading-relaxed text-[#6b6b6b]">
+          <p className="flex items-start gap-2 text-base leading-relaxed text-fg-muted">
             <Icon
               name="location_on"
               size={18}
-              className="mt-0.5 shrink-0 text-[#71130d]"
+              className="mt-0.5 shrink-0 text-brand"
             />
             {kost.location.address}
           </p>
@@ -103,26 +103,35 @@ function PropertyCard({ kost, index }: { kost: Kost; index: number }) {
           {hasInventory || min > 0 ? (
             <div>
               <div className="mb-2 flex items-baseline justify-between text-sm">
-                <span className="text-[#6b6b6b]">{t("monthlyRent")}</span>
-                <span className="font-semibold tabular-nums text-[#141414]">
+                <span className="text-fg-muted">{t("monthlyRent")}</span>
+                <span className="font-semibold tabular-nums text-fg">
                   {priceLabel}
                 </span>
               </div>
               <div
                 aria-hidden
-                className="h-1.5 overflow-hidden rounded-full bg-[#efeeeb]"
+                className="h-1.5 overflow-hidden rounded-full bg-hover"
               >
                 <div
-                  className="h-full rounded-full bg-[#059669] transition-[width] duration-1000"
+                  className="h-full rounded-full bg-success transition-[width] duration-1000"
                   style={{ width: `${Math.max(openShare, isOpen ? 4 : 0)}%` }}
                 />
               </div>
             </div>
           ) : null}
 
+          {kost.deposit ? (
+            <p className="-mt-2 flex items-baseline justify-between text-sm">
+              <span className="text-fg-muted">{t("deposit")}</span>
+              <span className="font-semibold tabular-nums text-fg">
+                {formatCurrency(kost.deposit)}
+              </span>
+            </p>
+          ) : null}
+
           {roomTypes.length > 0 ? (
             <div>
-              <p className="mb-3 text-sm font-semibold text-[#141414]">
+              <p className="mb-3 text-sm font-semibold text-fg">
                 {t("roomTypes")}
               </p>
               <ul className="flex flex-wrap gap-2">
@@ -133,15 +142,15 @@ function PropertyCard({ kost, index }: { kost: Kost; index: number }) {
                       className={cn(
                         "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                         rt.availableCount > 0
-                          ? "border-[#dedad4] text-[#141414] hover:border-[#141414]"
-                          : "border-[#efeeeb] bg-[#f7f3f2] text-[#6b6b6b]",
+                          ? "border-line-strong text-fg hover:border-fg"
+                          : "border-hover bg-canvas text-fg-muted",
                       )}
                     >
                       {rt.name}
                       {rt.availableCount === 0 ? (
                         <span>· {tStatus("full")}</span>
                       ) : rt.price > 0 ? (
-                        <span className="text-[#6b6b6b]">
+                        <span className="text-fg-muted">
                           {formatCurrency(rt.price, { compact: true })}
                         </span>
                       ) : null}
@@ -152,10 +161,10 @@ function PropertyCard({ kost, index }: { kost: Kost; index: number }) {
             </div>
           ) : null}
 
-          <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-[#efeeeb] pt-4">
+          <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-hover pt-4">
             <Link
               href={`/kosts/${kost.id}`}
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-[#71130d] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#8a1a12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#71130d] focus-visible:ring-offset-2"
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
               {t("viewRooms")}
               <Icon name="arrow_forward" size={16} />
@@ -170,7 +179,7 @@ function PropertyCard({ kost, index }: { kost: Kost; index: number }) {
               }
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-11 items-center gap-2 rounded-full border border-[#dedad4] px-5 text-sm font-semibold text-[#141414] transition-colors hover:border-[#141414]"
+              className="inline-flex h-11 items-center gap-2 rounded-full border border-line-strong px-5 text-sm font-semibold text-fg transition-colors hover:border-fg"
             >
               <Icon name="whatsapp" size={16} className="text-[#25D366]" />
               {t("requestVisit")}
@@ -179,7 +188,7 @@ function PropertyCard({ kost, index }: { kost: Kost; index: number }) {
               href={mapsSearchUrl(kost)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-11 items-center gap-1.5 px-2 text-sm font-semibold text-[#6b6b6b] transition-colors hover:text-[#71130d]"
+              className="inline-flex h-11 items-center gap-1.5 px-2 text-sm font-semibold text-fg-muted transition-colors hover:text-brand"
             >
               <Icon name="near_me" size={16} />
               {t("directions")}
@@ -211,7 +220,7 @@ export function HomeProperties({
       aria-labelledby="houses-heading"
       className={cn(
         "relative w-full overflow-hidden px-5 py-14 sm:px-8 lg:py-20",
-        asPage ? "pt-12 lg:pt-16" : "border-t border-[#e7e4df]",
+        asPage ? "pt-12 lg:pt-16" : "border-t border-line",
       )}
     >
       <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-8 lg:gap-12">
@@ -222,7 +231,7 @@ export function HomeProperties({
             titleLead={t("titleLead")}
             titleAccent={t("titleAccent")}
             aside={
-              <p className="text-base leading-relaxed text-[#6b6b6b]">
+              <p className="text-base leading-relaxed text-fg-muted">
                 {t("description")}
               </p>
             }
@@ -237,11 +246,11 @@ export function HomeProperties({
                   aria-hidden
                   className="overflow-hidden rounded-[1.25rem] bg-white p-2"
                 >
-                  <div className="aspect-[16/10] animate-pulse bg-[#efeeeb]" />
+                  <div className="aspect-[16/10] animate-pulse bg-hover" />
                   <div className="flex flex-col gap-3 p-8">
-                    <div className="h-4 w-2/3 animate-pulse rounded bg-[#efeeeb]" />
-                    <div className="h-2 w-full animate-pulse rounded bg-[#efeeeb]" />
-                    <div className="h-8 w-1/2 animate-pulse rounded bg-[#efeeeb]" />
+                    <div className="h-4 w-2/3 animate-pulse rounded bg-hover" />
+                    <div className="h-2 w-full animate-pulse rounded bg-hover" />
+                    <div className="h-8 w-1/2 animate-pulse rounded bg-hover" />
                   </div>
                 </div>
               ))

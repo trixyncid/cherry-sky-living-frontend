@@ -6,6 +6,7 @@ import { Icon } from "@/components/shared/Icon";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminToolbar } from "@/features/admin/components/admin-toolbar";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import {
@@ -138,10 +139,10 @@ export function PropertiesList() {
       />
 
       {/* Portfolio band */}
-      <section className="relative mb-5 overflow-hidden rounded-[1.75rem] bg-[#1c0b0a] p-5 text-white sm:p-6">
+      <section className="relative mb-5 overflow-hidden rounded-[1.75rem] bg-ink p-5 text-white sm:p-6">
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-[#71130d]/50 blur-3xl"
+          className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-brand/50 blur-3xl"
         />
         <div className="relative grid grid-cols-2 gap-4 lg:grid-cols-[auto_1fr_1fr_1fr] lg:items-center lg:gap-8">
           <div className="col-span-2 flex items-center gap-4 lg:col-span-1">
@@ -205,15 +206,15 @@ export function PropertiesList() {
           ))}
           <Link
             href={`${BASE}/new`}
-            className="group flex min-h-64 flex-col items-center justify-center gap-3 rounded-[1.75rem] border-2 border-dashed border-[#e3d6d3] p-8 text-center transition-colors hover:border-[#c97f76] hover:bg-white/60"
+            className="group flex min-h-64 flex-col items-center justify-center gap-3 rounded-[1.75rem] border-2 border-dashed border-line p-8 text-center transition-colors hover:border-brand-line hover:bg-white/60"
           >
-            <span className="flex size-14 items-center justify-center rounded-full bg-white text-[#71130d] shadow-sm transition-transform group-hover:scale-105">
+            <span className="flex size-14 items-center justify-center rounded-full bg-white text-brand shadow-sm transition-transform group-hover:scale-105">
               <Icon name="add_home" size={26} />
             </span>
-            <span className="text-lg font-medium text-[#141414]">
+            <span className="text-lg font-medium text-fg">
               {ti("addProperty")}
             </span>
-            <span className="max-w-xs text-[15px] text-[#6b6b6b]">
+            <span className="max-w-xs text-[15px] text-fg-muted">
               {ti("addPropertyHint")}
             </span>
           </Link>
@@ -266,10 +267,10 @@ function PropertyCard({
           fallbackLabel={ti("noPhoto")}
           className="aspect-[16/9] w-full transition-transform duration-700 group-hover:scale-[1.02]"
         />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(28_11_10/0.85),rgb(28_11_10/0.1)_55%,transparent)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(11_11_13/0.85),rgb(11_11_13/0.1)_55%,transparent)]" />
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
           {property.city ? (
-            <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-[#141414]">
+            <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-fg">
               {property.city}
             </span>
           ) : null}
@@ -307,12 +308,12 @@ function PropertyCard({
       <div className="flex flex-1 flex-col gap-4 p-5">
         <div>
           <div className="mb-2 flex items-baseline justify-between gap-3">
-            <p className="text-sm text-[#6b6b6b]">
+            <p className="text-sm text-fg-muted">
               {ti("roomsVacant", { vacant: s.vacant, total: s.total })}
             </p>
-            <p className="text-sm font-medium text-[#141414] tabular-nums">
+            <p className="text-sm font-medium text-fg tabular-nums">
               {s.total > 0 ? Math.round((s.occupied / s.total) * 100) : 0}%{" "}
-              <span className="font-normal text-[#6b6b6b]">
+              <span className="font-normal text-fg-muted">
                 {ti("occupancy").toLowerCase()}
               </span>
             </p>
@@ -330,18 +331,18 @@ function PropertyCard({
           />
         </dl>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#faf7f6] px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-subtle px-4 py-3">
           <div>
-            <p className="text-xs text-[#6b6b6b]">{ti("rentRoll")}</p>
-            <p className="text-lg font-medium text-[#141414] tabular-nums">
+            <p className="text-xs text-fg-muted">{ti("rentRoll")}</p>
+            <p className="text-lg font-medium text-fg tabular-nums">
               {rupiah(s.rentRoll)}
-              <span className="ml-1 text-sm font-normal text-[#6b6b6b]">
+              <span className="ml-1 text-sm font-normal text-fg-muted">
                 / {rupiah(s.potential)}
               </span>
             </p>
           </div>
           {s.fromMonthly !== null ? (
-            <p className="rounded-full bg-white px-3 py-1.5 text-sm text-[#3d3a36]">
+            <p className="rounded-full bg-white px-3 py-1.5 text-sm text-fg-2">
               {ti("from", { price: rupiah(s.fromMonthly) })}
               {ti("perMonth")}
             </p>
@@ -351,16 +352,16 @@ function PropertyCard({
         <div className="mt-auto grid grid-cols-2 gap-2">
           <Link
             href={`/admin/units${scoped}`}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#71130d] px-4 text-[15px] font-medium text-white transition-colors hover:bg-[#8a1a12]"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand px-4 text-[15px] font-medium text-white transition-colors hover:bg-brand-hover"
           >
-            <Icon name="apartment" size={18} />
+            <Icon name={adminPageIcons.properties} size={18} />
             {ti("openBuilding")}
           </Link>
           <Link
             href={`/admin/unit-types${scoped}`}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#ece4e2] bg-white px-4 text-[15px] font-medium text-[#141414] transition-colors hover:border-[#e8bfb9] hover:text-[#71130d]"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-[15px] font-medium text-fg transition-colors hover:border-brand-line hover:text-brand"
           >
-            <Icon name="category" size={18} />
+            <Icon name={adminPageIcons.unitTypes} size={18} />
             {ti("roomTypes")}
           </Link>
         </div>
@@ -382,7 +383,7 @@ function MiniStat({
     <div
       className={cn(
         "rounded-2xl px-3 py-2.5",
-        tone === "green" ? "bg-[#eef8ec] text-[#1f5a2a]" : "bg-[#f6f0ef]",
+        tone === "green" ? "bg-success-soft text-success" : "bg-hover",
       )}
     >
       <dt className="text-xs opacity-80">{label}</dt>
@@ -441,8 +442,8 @@ function OccupancyRing({ percent }: { percent: number }) {
       />
       <defs>
         <linearGradient id="ring" x1="0" x2="1">
-          <stop offset="0%" stopColor="#e8bfb9" />
-          <stop offset="100%" stopColor="#d9534a" />
+          <stop offset="0%" stopColor="var(--adm-brand-line)" />
+          <stop offset="100%" stopColor="var(--adm-brand)" />
         </linearGradient>
       </defs>
     </svg>

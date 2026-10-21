@@ -30,7 +30,7 @@ export function AdminRowActions({
       <Link
         href={editHref}
         className={cn(
-          "inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#efeeeb] hover:text-[#71130d]",
+          "inline-flex size-8 items-center justify-center rounded-lg text-fg-2 transition-colors hover:bg-hover hover:text-brand",
           disabled && "pointer-events-none opacity-50",
         )}
         aria-label={t("editTitle")}
@@ -41,7 +41,7 @@ export function AdminRowActions({
         type="button"
         disabled={disabled}
         onClick={onDelete}
-        className="inline-flex size-8 items-center justify-center rounded-lg text-[#51443c] transition-colors hover:bg-[#ffdad6]/60 hover:text-[#ba1a1a] disabled:opacity-50"
+        className="inline-flex size-8 items-center justify-center rounded-lg text-fg-2 transition-colors hover:bg-danger-soft/60 hover:text-danger disabled:opacity-50"
         aria-label={t("deleteConfirm")}
       >
         <Icon name="delete" size={18} />

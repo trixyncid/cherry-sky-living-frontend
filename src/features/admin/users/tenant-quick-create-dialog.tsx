@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,11 +17,12 @@ import {
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
 import { useTenantUserMutations } from "@/features/admin/hooks/use-admin-queries";
-import {
-  createTenantUserSchema,
-} from "@/features/admin/users/schemas";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import {
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
+import { createTenantUserSchema } from "@/features/admin/users/schemas";
 import { ApiError } from "@/lib/api/errors";
 import type { TenantUser } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
@@ -113,7 +114,7 @@ export function TenantQuickCreateDialog({
 
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
           {formError && (
-            <p className="rounded-lg border border-[#ba1a1a]/20 bg-[#fff5f5] px-3 py-2 text-sm text-[#ba1a1a]">
+            <p className="rounded-lg border border-danger/20 bg-danger-soft px-3 py-2 text-sm text-danger">
               {formError}
             </p>
           )}
@@ -125,9 +126,7 @@ export function TenantQuickCreateDialog({
               autoComplete="name"
               className={adminInputClassName}
               value={form.name}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, name: e.target.value }))
-              }
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             />
           </AdminField>
 
@@ -160,7 +159,11 @@ export function TenantQuickCreateDialog({
             />
           </AdminField>
 
-          <AdminField label={tp("password")} htmlFor="quick-tenant-password" required>
+          <AdminField
+            label={tp("password")}
+            htmlFor="quick-tenant-password"
+            required
+          >
             <div className="relative">
               <input
                 id="quick-tenant-password"
@@ -176,7 +179,7 @@ export function TenantQuickCreateDialog({
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#71130d]"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-fg-muted transition-colors hover:text-brand"
                 aria-label={
                   showPassword ? tp("hidePassword") : tp("showPassword")
                 }
@@ -187,7 +190,7 @@ export function TenantQuickCreateDialog({
                 />
               </button>
             </div>
-            <p className="mt-1 text-xs text-[#83746b]">{tp("passwordHint")}</p>
+            <p className="mt-1 text-xs text-fg-muted">{tp("passwordHint")}</p>
           </AdminField>
 
           <DialogFooter>

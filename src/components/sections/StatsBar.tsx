@@ -56,7 +56,7 @@ export function StatsBar() {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-8 border-y border-[#e3e2e0] py-10 md:grid-cols-4 md:gap-6">
+    <div className="grid grid-cols-2 gap-8 border-y border-line py-10 md:grid-cols-4 md:gap-6">
       {stats.map((stat, index) => (
         <motion.div
           key={stat.label}
@@ -66,10 +66,10 @@ export function StatsBar() {
           transition={{ delay: index * 0.08 }}
           className="text-center md:text-left"
         >
-          <p className="text-3xl font-bold tracking-tight text-[#1a1c1a] lg:text-4xl">
+          <p className="text-3xl font-bold tracking-tight text-fg lg:text-4xl">
             <AnimatedCounter end={stat.value} suffix={stat.suffix} />
           </p>
-          <p className="mt-2 text-sm text-[#83746b]">{stat.label}</p>
+          <p className="mt-2 text-sm text-fg-muted">{stat.label}</p>
         </motion.div>
       ))}
     </div>

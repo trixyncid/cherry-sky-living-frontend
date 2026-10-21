@@ -35,14 +35,14 @@ export function AboutValues() {
   const t = useTranslations("about.values");
 
   return (
-    <section className="w-full bg-[#faf9f6] px-6 py-20 lg:px-10">
+    <section className="w-full bg-subtle px-6 py-20 lg:px-10">
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 max-w-2xl">
           <motion.p
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#83746b]"
+            className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-fg-muted"
           >
             {t("subtitle")}
           </motion.p>
@@ -50,7 +50,7 @@ export function AboutValues() {
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl font-semibold tracking-tight text-[#1a1c1a] md:text-4xl"
+            className="text-3xl font-semibold tracking-tight text-fg md:text-4xl"
           >
             {t("title")}
           </motion.h2>
@@ -58,13 +58,13 @@ export function AboutValues() {
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mt-3 text-sm leading-relaxed text-[#83746b] md:text-base"
+            className="mt-3 text-sm leading-relaxed text-fg-muted md:text-base"
           >
             {t("description")}
           </motion.p>
         </div>
 
-        <div className="grid gap-px overflow-hidden rounded-[1.5rem] border border-[#e3e2e0] bg-[#e3e2e0] sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-px overflow-hidden rounded-[1.5rem] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
           {VALUES.map((value, index) => (
             <motion.div
               key={value.titleKey}
@@ -72,15 +72,15 @@ export function AboutValues() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.06 }}
-              className="bg-[#faf9f6] px-6 py-8 transition-colors hover:bg-white"
+              className="bg-subtle px-6 py-8 transition-colors hover:bg-white"
             >
-              <div className="mb-5 flex size-11 items-center justify-center rounded-xl bg-[#f5e4d4] text-[#71130d]">
+              <div className="mb-5 flex size-11 items-center justify-center rounded-xl bg-brand-soft text-brand">
                 <Icon name={value.icon} size={22} />
               </div>
-              <h3 className="mb-2 text-base font-semibold text-[#1a1c1a]">
+              <h3 className="mb-2 text-base font-semibold text-fg">
                 {t(value.titleKey)}
               </h3>
-              <p className="text-sm leading-relaxed text-[#83746b]">
+              <p className="text-sm leading-relaxed text-fg-muted">
                 {t(value.descKey)}
               </p>
             </motion.div>

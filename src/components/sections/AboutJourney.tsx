@@ -18,18 +18,18 @@ export function AboutJourney() {
   const t = useTranslations("about.journey");
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#f3eee8] px-6 py-20 lg:px-10">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_90%_0%,rgb(164_74_50/0.08),transparent_55%)]" />
+    <section className="relative w-full overflow-hidden bg-subtle px-6 py-20 lg:px-10">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_90%_0%,rgb(122_22_48/0.08),transparent_55%)]" />
 
       <div className="relative mx-auto w-full max-w-7xl">
         <div className="mb-12 max-w-2xl">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#83746b]">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-fg-muted">
             {t("eyebrow")}
           </p>
-          <h2 className="mb-3 text-3xl font-semibold tracking-tight text-[#1a1c1a] md:text-4xl">
+          <h2 className="mb-3 text-3xl font-semibold tracking-tight text-fg md:text-4xl">
             {t("title")}
           </h2>
-          <p className="text-sm leading-relaxed text-[#83746b] md:text-base">
+          <p className="text-sm leading-relaxed text-fg-muted md:text-base">
             {t("description")}
           </p>
         </div>
@@ -47,21 +47,21 @@ export function AboutJourney() {
               {index < STEPS.length - 1 ? (
                 <span
                   aria-hidden
-                  className="absolute left-[2.25rem] top-6 hidden h-px w-[calc(100%-1rem)] bg-[#d5c3b8]/80 md:block"
+                  className="absolute left-[2.25rem] top-6 hidden h-px w-[calc(100%-1rem)] bg-line-strong/80 md:block"
                 />
               ) : null}
               <div className="relative mb-5 flex items-center gap-4">
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#71130d] text-white">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand text-white">
                   <Icon name={step.icon} size={22} />
                 </span>
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#83746b]">
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-fg-muted">
                   {t("step", { n: index + 1 })}
                 </span>
               </div>
-              <h3 className="mb-2 text-lg font-semibold tracking-tight text-[#1a1c1a]">
+              <h3 className="mb-2 text-lg font-semibold tracking-tight text-fg">
                 {t(`${step.key}.title`)}
               </h3>
-              <p className="text-sm leading-relaxed text-[#83746b]">
+              <p className="text-sm leading-relaxed text-fg-muted">
                 {t(`${step.key}.description`)}
               </p>
             </motion.li>

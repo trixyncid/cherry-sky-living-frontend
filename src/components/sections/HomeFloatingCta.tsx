@@ -1,6 +1,7 @@
 /**
- * Floating WhatsApp bubble (desktop) — appears once the hero scrolls away.
- * Mobile has no sticky bar; contact lives in each page's CTAs and footer.
+ * Always-reachable contact (§5.15) — appears once the hero scrolls away:
+ * a small floating WhatsApp bubble on every screen size (no sticky bottom
+ * bar on phones or tablets).
  */
 
 "use client";
@@ -55,7 +56,7 @@ export function HomeFloatingCta({
   return (
     <AnimatePresence>
       {visible ? (
-        // Desktop bubble only
+        // WhatsApp bubble (all screen sizes; no bottom bar on phones)
         <motion.a
           key="bubble"
           {...motionProps}
@@ -66,7 +67,7 @@ export function HomeFloatingCta({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={t("chatLabel")}
-          className="group fixed bottom-6 right-6 z-40 hidden h-14 items-center gap-0 overflow-hidden rounded-full bg-[#25D366] pl-4 pr-4 text-white shadow-[0_16px_40px_-12px_rgb(37_211_102/0.6)] transition-[gap,padding] duration-300 hover:gap-2 hover:pr-6 md:inline-flex"
+          className="group fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 inline-flex h-12 items-center gap-0 overflow-hidden rounded-full bg-ink px-3.5 text-white shadow-[0_16px_40px_-12px_rgb(37_211_102/0.6)] transition-[gap,padding] duration-300 hover:gap-2 hover:pr-6 md:bottom-6 md:right-6 md:h-14 md:px-4"
         >
           <Icon name="whatsapp" size={24} />
           <span className="max-w-0 whitespace-nowrap text-sm font-semibold opacity-0 transition-all duration-300 group-hover:max-w-48 group-hover:opacity-100">

@@ -13,7 +13,6 @@ import { WhatsAppInquiryDialog } from "@/components/kost/WhatsAppInquiryDialog";
 import { LeadDialog } from "@/components/leads/LeadDialog";
 import { Icon } from "@/components/shared/Icon";
 import { Link } from "@/i18n/routing";
-import type { RoomTypePricing } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/utils/format";
 
@@ -27,8 +26,9 @@ export interface RoomTileProps {
   availableCount: number;
   totalCount: number;
   monthlyPrice: number;
-  pricings: RoomTypePricing[];
   whatsappNumber: string;
+  /** The property's refundable deposit (Rp), when set. */
+  deposit?: number;
   tags?: string[];
   /** Fixed width for carousels; omit to fill a grid cell. */
   width?: "carousel" | "fill";
@@ -44,8 +44,8 @@ export function RoomTile({
   availableCount,
   totalCount,
   monthlyPrice,
-  pricings,
   whatsappNumber,
+  deposit,
   tags = [],
   width = "fill",
 }: RoomTileProps) {
@@ -56,11 +56,11 @@ export function RoomTile({
   return (
     <article
       className={cn(
-        "group relative flex flex-col rounded-[1.25rem] bg-white p-2 transition-shadow duration-300 hover:shadow-[0_24px_50px_-30px_rgb(20_16_14/0.35)]",
+        "group relative flex flex-col rounded-[1.25rem] bg-white p-2 transition-shadow duration-300 hover:shadow-[0_24px_50px_-30px_rgb(11_11_13/0.35)]",
         width === "carousel" && "w-[18rem] shrink-0 snap-start sm:w-[20rem]",
       )}
     >
-      <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-[#efeeeb]">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-hover">
         {image ? (
           <Image
             src={image}
@@ -71,14 +71,14 @@ export function RoomTile({
           />
         ) : (
           <div className="flex h-full items-center justify-center">
-            <Icon name="image" size={36} className="text-[#c9c5be]" />
+            <Icon name="image" size={36} className="text-fg-faint" />
           </div>
         )}
-        <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-[#141414]">
+        <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-fg">
           <span
             className={cn(
               "size-1.5 rounded-full",
-              isOpen ? "bg-[#059669]" : "bg-[#ba1a1a]",
+              isOpen ? "bg-success" : "bg-danger",
             )}
           />
           {isOpen
@@ -89,11 +89,11 @@ export function RoomTile({
 
       <div className="flex flex-1 flex-col gap-3 px-3 pb-3 pt-4">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="text-[17px] font-semibold tracking-tight text-[#141414]">
+          <h3 className="text-[17px] font-semibold tracking-tight text-fg">
             {/* Stretched link: whole card opens the room; CTA stays clickable */}
             <Link
               href={href}
-              className="outline-none after:absolute after:inset-0 after:rounded-[1.25rem] focus-visible:after:ring-2 focus-visible:after:ring-[#71130d]"
+              className="outline-none after:absolute after:inset-0 after:rounded-[1.25rem] focus-visible:after:ring-2 focus-visible:after:ring-brand"
               aria-label={t("viewRoom", { name: `${name}, ${propertyName}` })}
             >
               {name}
@@ -104,7 +104,7 @@ export function RoomTile({
               {tags.map((tag) => (
                 <li
                   key={tag}
-                  className="rounded-full border border-[#dedad4] px-2.5 py-1 text-xs text-[#6b6b6b]"
+                  className="rounded-full border border-line-strong px-2.5 py-1 text-xs text-fg-muted"
                 >
                   {tag}
                 </li>
@@ -112,7 +112,7 @@ export function RoomTile({
             </ul>
           ) : null}
         </div>
-        <p className="text-sm text-[#6b6b6b]">
+        <p className="text-sm text-fg-muted">
           {propertyName}
           {city ? ` • ${city}` : ""}
           {totalCount > 0
@@ -120,17 +120,17 @@ export function RoomTile({
             : ""}
         </p>
 
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-[#efeeeb] pt-3">
-          <p className="whitespace-nowrap text-[17px] font-semibold tracking-tight text-[#141414] tabular-nums">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-hover pt-3">
+          <p className="whitespace-nowrap text-[17px] font-semibold tracking-tight text-fg tabular-nums">
             {monthlyPrice > 0 ? (
               <>
                 {formatCurrency(monthlyPrice)}
-                <span className="ml-0.5 text-xs font-normal text-[#6b6b6b]">
+                <span className="ml-0.5 text-xs font-normal text-fg-muted">
                   {t("perMonth")}
                 </span>
               </>
             ) : (
-              <span className="text-sm font-normal text-[#6b6b6b]">
+              <span className="text-sm font-normal text-fg-muted">
                 {t("noPrice")}
               </span>
             )}
@@ -139,13 +139,14 @@ export function RoomTile({
             {isOpen ? (
               <WhatsAppInquiryDialog
                 phoneNumber={whatsappNumber}
+                deposit={deposit}
                 propertyName={propertyName}
                 roomName={name}
-                pricings={pricings}
-                fallbackPrice={monthlyPrice}
+                propertyId={propertyId}
+                unitTypeId={roomTypeId}
                 variant="compact"
                 label={t("bookViewing")}
-                className="h-10 whitespace-nowrap rounded-full bg-[#71130d] px-4 font-semibold hover:bg-[#8a1a12]"
+                className="h-10 whitespace-nowrap rounded-full bg-brand px-4 font-semibold hover:bg-brand-hover"
               />
             ) : (
               <LeadDialog
@@ -157,7 +158,7 @@ export function RoomTile({
                 trigger={
                   <button
                     type="button"
-                    className="inline-flex h-10 items-center gap-1.5 rounded-full border border-[#dedad4] px-4 text-sm font-semibold text-[#141414] transition-colors hover:border-[#141414]"
+                    className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line-strong px-4 text-sm font-semibold text-fg transition-colors hover:border-fg"
                   >
                     <Icon name="notifications" size={15} />
                     {t("joinWaitlist")}

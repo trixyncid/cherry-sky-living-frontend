@@ -111,7 +111,7 @@ export function SearchKostsView({
       >
         <div className="mx-auto w-full max-w-[90rem]">
           {/* Sticky toolbar: filters, count and view stay reachable */}
-          <div className="sticky top-16 z-30 -mx-5 bg-[#f7f3f2]/95 px-5 pb-3 pt-3 backdrop-blur-md sm:-mx-8 sm:px-8">
+          <div className="sticky top-16 z-30 -mx-5 bg-canvas/95 px-5 pb-3 pt-3 backdrop-blur-md sm:-mx-8 sm:px-8">
             <SearchResultsToolbar
               filters={filters}
               onFiltersChange={commitFilters}
@@ -121,7 +121,7 @@ export function SearchKostsView({
               <h2
                 id="results-heading"
                 aria-live="polite"
-                className="text-[15px] text-[#3d3a36]"
+                className="text-[15px] text-fg-2"
               >
                 {t("unitTypeResultsCount", {
                   count: resultCount,
@@ -129,7 +129,7 @@ export function SearchKostsView({
                   units: unitTotal,
                 })}
                 {isFetching && !isLoading ? (
-                  <span className="ml-2 font-medium text-[#71130d]">
+                  <span className="ml-2 font-medium text-brand">
                     {t("updating")}
                   </span>
                 ) : null}
@@ -147,8 +147,8 @@ export function SearchKostsView({
                     className={cn(
                       "inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-sm font-semibold transition-colors",
                       view === option
-                        ? "bg-[#71130d] text-white"
-                        : "text-[#3d3a36] hover:text-[#141414]",
+                        ? "bg-brand text-white"
+                        : "text-fg-2 hover:text-fg",
                     )}
                   >
                     <Icon
@@ -182,7 +182,7 @@ export function SearchKostsView({
               onPageChange={handlePageChange}
             />
           ) : null}
-          <p className="mt-6 text-sm text-[#6b6b6b]">{t("resultsHint")}</p>
+          <p className="mt-6 text-sm text-fg-muted">{t("resultsHint")}</p>
         </div>
       </section>
     </PublicPageShell>

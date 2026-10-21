@@ -1,87 +1,73 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { BrandMark } from "@/components/shared/BrandMark";
 import { Icon } from "@/components/shared/Icon";
 import { ProfileAvatarPlaceholder } from "@/components/shared/profile-avatar-placeholder";
-import { Link, usePathname, useRouter } from "@/i18n/routing";
-import {
-  adminNavGroups,
-  adminNavItems,
-  type AdminNavGroup,
-  type AdminNavPageKey,
-} from "@/features/admin/constants/nav-items";
-import { UserRole } from "@/lib/types/auth";
-import { AdminSignOutDialog } from "@/features/admin/components/admin-sign-out-dialog";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
-import { useLeases } from "@/features/admin/hooks/use-admin-queries";
+import { AdminSignOutDialog } from "@/features/admin/components/admin-sign-out-dialog";
+import { adminNavGroupsForRole } from "@/features/admin/constants/nav-items";
+import {
+  activeNavHref,
+  navTaskBadge,
+  useAdminTasks,
+} from "@/features/admin/lib/nav-state";
+import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { signOutClient } from "@/lib/auth/sign-out-client";
+import { UserRole } from "@/lib/types/auth";
 import { cn } from "@/lib/utils";
 
-function navGroupsForRole(role: UserRole): AdminNavGroup[] {
-  if (role === UserRole.SUPERADMIN) return adminNavGroups;
-  return adminNavGroups
-    .map((group) => ({
-      ...group,
-      items: group.items.filter((item) => item.key !== "staff"),
-    }))
-    .filter((group) => group.items.length > 0);
+const COLLAPSED_KEY = "admin.sidebarCollapsed";
+
+function readCollapsed(): boolean {
+  try {
+    return window.localStorage.getItem(COLLAPSED_KEY) === "1";
+  } catch {
+    return false;
+  }
 }
 
-function resolveActiveNavHref(pathname: string): string | null {
-  const matches = adminNavItems.filter((item) =>
-    item.href === "/admin"
-      ? pathname === "/admin"
-      : pathname === item.href || pathname.startsWith(`${item.href}/`),
-  );
-  if (matches.length === 0) return null;
-  return matches.reduce((best, item) =>
-    item.href.length > best.href.length ? item : best,
-  ).href;
+function writeCollapsed(value: boolean) {
+  try {
+    window.localStorage.setItem(COLLAPSED_KEY, value ? "1" : "0");
+  } catch {
+    // Ignore private-mode / quota failures.
+  }
 }
 
-function NavCountBadge({
-  count,
-  active,
-  label,
-}: {
-  count: number;
-  active: boolean;
-  label: string;
-}) {
-  if (count <= 0) return null;
-  const display = count > 99 ? "99+" : String(count);
-
-  return (
-    <span
-      className={cn(
-        "ml-auto inline-flex min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none tabular-nums",
-        active
-          ? "bg-white/20 text-white ring-1 ring-white/35"
-          : "bg-[linear-gradient(135deg,#71130d_0%,#71130d_100%)] text-white shadow-[0_4px_10px_rgb(90_36_48/0.28)]",
-      )}
-      aria-label={label}
-    >
-      {display}
-    </span>
-  );
-}
-
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+/**
+ * Desktop navigation: a black sidebar with grouped pages, burgundy active
+ * state and a collapsible icon-only mode (remembered per browser).
+ * Phones use AdminMobileNav instead.
+ */
+export function AdminSidebar() {
   const t = useTranslations("admin");
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAdminShell();
-  const { data: leases = [] } = useLeases();
+  const tasks = useAdminTasks();
+  const [collapsed, setCollapsed] = useState(false);
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+
+  useEffect(() => setCollapsed(readCollapsed()), []);
+
+  const current = activeNavHref(pathname);
+  const groups = adminNavGroupsForRole(user.role === UserRole.SUPERADMIN);
+  const profileActive = pathname.startsWith("/admin/profile");
+
+  function toggleCollapsed() {
+    setCollapsed((c) => {
+      writeCollapsed(!c);
+      return !c;
+    });
+  }
 
   async function confirmSignOut() {
     setSigningOut(true);
     try {
       await signOutClient();
-      onNavigate?.();
       setSignOutOpen(false);
       router.push("/admin/login");
       router.refresh();
@@ -90,94 +76,111 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     }
   }
 
-  const profileActive = pathname.startsWith("/admin/profile");
-  const navGroups = navGroupsForRole(user.role);
-  const pendingRenewalReviews = useMemo(
-    () =>
-      leases.filter((lease) => {
-        const renewal = lease.leaseRenewal;
-        return (
-          Boolean(renewal?.isRenewLease) &&
-          !renewal?.isConfirmed &&
-          !renewal?.markAsCompleted
-        );
-      }).length,
-    [leases],
-  );
-
-  const navBadges: Partial<Record<AdminNavPageKey, number>> = {
-    leaseRenewals: pendingRenewalReviews,
-  };
-
   return (
-    <>
-      <Link
-        href="/admin"
-        onClick={onNavigate}
-        className="mb-6 flex items-center gap-3 rounded-2xl px-1.5 py-1 transition-opacity hover:opacity-90"
+    <aside
+      aria-label={t("brand.suite")}
+      className={cn(
+        "relative hidden h-dvh shrink-0 flex-col bg-ink text-white transition-[width] duration-200 ease-out lg:flex",
+        collapsed ? "w-[76px]" : "w-[248px]",
+      )}
+    >
+      <div
+        className={cn(
+          "flex h-16 shrink-0 items-center gap-3 border-b border-white/[0.07]",
+          collapsed ? "justify-center px-2" : "px-5",
+        )}
       >
-        <BrandMark tone="onLight" className="size-11" />
-        <div>
-          <p className="truncate text-base font-bold tracking-tight text-[#1a1c1a]">
-            {t("brand.name")}
-          </p>
-          <p className="text-[11px] font-medium tracking-wide text-ferrugem">
-            {t("brand.suite")}
-          </p>
-        </div>
-      </Link>
+        <Link
+          href="/admin"
+          className="flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-bright"
+          aria-label={t("brand.name")}
+        >
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white">
+            <BrandMark tone="onLight" className="size-6" />
+          </span>
+          {!collapsed && (
+            <span className="min-w-0">
+              <span className="block truncate text-[15px] font-semibold tracking-tight">
+                {t("brand.name")}
+              </span>
+              <span className="block text-[11px] font-medium uppercase tracking-[0.12em] text-brand-bright">
+                {t("brand.suite")}
+              </span>
+            </span>
+          )}
+        </Link>
+      </div>
 
-      <nav className="flex-1 space-y-6 overflow-y-auto pr-1">
-        {navGroups.map((group) => (
-          <section key={group.id}>
-            <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[#83746b]/80">
-              {t(group.labelKey)}
-            </p>
-            <ul className="space-y-1">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-5 [scrollbar-width:thin]">
+        {groups.map((group, gi) => (
+          <section key={group.id} className={cn(gi > 0 && "mt-6")}>
+            {collapsed ? (
+              gi > 0 && (
+                <div
+                  className="mx-auto mb-3 h-px w-8 bg-white/10"
+                  aria-hidden
+                />
+              )
+            ) : (
+              <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                {t(group.labelKey)}
+              </p>
+            )}
+            <ul className="space-y-0.5">
               {group.items.map((item) => {
-                const active = resolveActiveNavHref(pathname) === item.href;
-                const badgeCount = navBadges[item.key] ?? 0;
+                const active = current === item.href;
+                const badge = navTaskBadge(item.key, tasks);
+                const label = t(item.labelKey);
                 return (
                   <li key={item.key}>
                     <Link
                       href={item.href}
-                      onClick={onNavigate}
+                      aria-current={active ? "page" : undefined}
+                      aria-label={
+                        badge > 0
+                          ? `${label} — ${t("nav.toProcess", { count: badge })}`
+                          : collapsed
+                            ? label
+                            : undefined
+                      }
+                      title={collapsed ? label : undefined}
                       className={cn(
-                        "group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition-all duration-200",
+                        "group relative flex h-10 items-center gap-3 rounded-lg text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-bright",
+                        collapsed ? "justify-center" : "px-3",
                         active
-                          ? "bg-gradient-to-r from-[#71130d]/95 to-ferrugem/90 text-white shadow-[0_8px_18px_rgb(90_36_48/0.26)] ring-1 ring-white/20"
-                          : "text-[#51443c] hover:bg-white/45 hover:text-[#1a1c1a]",
+                          ? "bg-brand text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.1),0_6px_16px_-6px_rgb(122_22_48/0.7)]"
+                          : "text-white/65 hover:bg-white/[0.06] hover:text-white",
                       )}
                     >
-                      <span
+                      <Icon
+                        name={item.icon}
+                        size={20}
+                        filled={active}
                         className={cn(
-                          "flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors",
+                          "shrink-0",
                           active
-                            ? "bg-white/15"
-                            : "bg-white/50 group-hover:bg-white/80",
+                            ? "text-white"
+                            : "text-white/55 group-hover:text-white",
                         )}
-                      >
-                        <Icon
-                          name={item.icon}
-                          size={18}
-                          filled={active}
-                          className={active ? "text-white" : "text-ferrugem"}
-                        />
-                      </span>
-                      <span className="min-w-0 truncate">{t(item.labelKey)}</span>
-                      {badgeCount > 0 ? (
-                        <NavCountBadge
-                          count={badgeCount}
-                          active={active}
-                          label={t("nav.leaseRenewalsPending", {
-                            count: badgeCount,
-                          })}
-                        />
-                      ) : (
-                        active && (
-                          <span className="ml-auto size-1.5 shrink-0 rounded-full bg-ferrugem-soft shadow-[0_0_8px_rgb(240_212_200/0.9)]" />
-                        )
+                      />
+                      {!collapsed && (
+                        <span className="min-w-0 flex-1 truncate">{label}</span>
                       )}
+                      {badge > 0 &&
+                        (collapsed ? (
+                          <span className="absolute right-2.5 top-2 size-2 rounded-full bg-brand-bright ring-2 ring-ink" />
+                        ) : (
+                          <span
+                            className={cn(
+                              "inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-semibold leading-5 tabular-nums",
+                              active
+                                ? "bg-white/20 text-white"
+                                : "bg-brand text-white",
+                            )}
+                          >
+                            {badge > 99 ? "99+" : badge}
+                          </span>
+                        ))}
                     </Link>
                   </li>
                 );
@@ -187,39 +190,69 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         ))}
       </nav>
 
-      <div className="mt-6 space-y-2 border-t border-white/40 pt-5">
+      <div className="shrink-0 border-t border-white/[0.07] p-3">
         <Link
           href="/admin/profile"
-          onClick={onNavigate}
+          title={collapsed ? user.name : undefined}
           className={cn(
-            "flex items-center gap-3 rounded-2xl p-2.5 transition-all",
-            profileActive
-              ? "bg-white/55 ring-1 ring-white/70"
-              : "bg-white/30 hover:bg-white/50",
+            "flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-white/[0.06] focus-visible:outline-2 focus-visible:outline-brand-bright",
+            profileActive && "bg-white/[0.08]",
+            collapsed && "justify-center",
           )}
         >
           <ProfileAvatarPlaceholder
-            className="size-10 ring-2 ring-white/80"
-            iconSize={22}
+            className="size-9 shrink-0 ring-2 ring-white/15"
+            iconSize={20}
             label={user.name}
           />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-[#1a1c1a]">
-              {user.name}
-            </p>
-            <p className="truncate text-xs text-[#83746b]">{user.email}</p>
-          </div>
-          <Icon name="chevron_right" size={20} className="shrink-0 text-[#83746b]" />
+          {!collapsed && (
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-medium">
+                {user.name}
+              </span>
+              <span className="block truncate text-xs text-white/45">
+                {user.email}
+              </span>
+            </span>
+          )}
         </Link>
 
-        <button
-          type="button"
-          onClick={() => setSignOutOpen(true)}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[#51443c] transition-colors hover:bg-[#ffdad6]/45 hover:text-[#ba1a1a]"
+        <div
+          className={cn(
+            "mt-1 flex gap-1",
+            collapsed ? "flex-col items-center" : "items-center",
+          )}
         >
-          <Icon name="logout" size={20} />
-          {t("nav.signOut")}
-        </button>
+          <button
+            type="button"
+            onClick={() => setSignOutOpen(true)}
+            title={collapsed ? t("nav.signOut") : undefined}
+            aria-label={collapsed ? t("nav.signOut") : undefined}
+            className={cn(
+              "flex h-9 items-center gap-3 rounded-lg text-sm text-white/60 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-2 focus-visible:outline-brand-bright",
+              collapsed ? "w-9 justify-center" : "flex-1 px-2",
+            )}
+          >
+            <Icon name="logout" size={18} />
+            {!collapsed && t("nav.signOut")}
+          </button>
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            aria-label={
+              collapsed ? t("nav.expandSidebar") : t("nav.collapseSidebar")
+            }
+            title={
+              collapsed ? t("nav.expandSidebar") : t("nav.collapseSidebar")
+            }
+            className="flex size-9 shrink-0 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-2 focus-visible:outline-brand-bright"
+          >
+            <Icon
+              name={collapsed ? "left_panel_open" : "left_panel_close"}
+              size={18}
+            />
+          </button>
+        </div>
       </div>
 
       <AdminSignOutDialog
@@ -228,34 +261,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         onConfirm={confirmSignOut}
         pending={signingOut}
       />
-    </>
-  );
-}
-
-export function AdminSidebar() {
-  const t = useTranslations("admin");
-  const { mobileOpen, setMobileOpen } = useAdminShell();
-
-  return (
-    <>
-
-      {mobileOpen && (
-        <button
-          type="button"
-          aria-label={t("common.closeMenu")}
-          className="fixed inset-0 z-50 bg-[#1a1c1a]/35 backdrop-blur-md lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-
-      <aside
-        className={cn(
-          "glass-panel-strong fixed inset-y-0 left-0 z-50 flex w-[min(100vw-3rem,280px)] flex-col rounded-r-[1.75rem] p-5 shadow-2xl transition-transform duration-300 ease-out lg:hidden",
-          mobileOpen ? "translate-x-0" : "-translate-x-full",
-        )}
-      >
-        <SidebarContent onNavigate={() => setMobileOpen(false)} />
-      </aside>
-    </>
+    </aside>
   );
 }

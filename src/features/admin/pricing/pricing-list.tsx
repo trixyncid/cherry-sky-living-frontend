@@ -10,9 +10,11 @@ import {
   AdminToolbar,
   usePropertyToolbarFilter,
 } from "@/features/admin/components/admin-toolbar";
+import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
+import { useAdminPropertyFilter } from "@/features/admin/hooks/use-admin-property-filter";
 import {
   useUnitPricingMutations,
   useUnitPricings,
@@ -62,7 +64,8 @@ export function PricingList() {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.pricing");
   const ti = useTranslations("admin.pages.inventory");
-  const [propertyFilter, setPropertyFilter] = useState("");
+  const { propertyId: propertyFilter, setPropertyId: setPropertyFilter } =
+    useAdminPropertyFilter();
   const [search, setSearch] = useState("");
   const [priceState, setPriceState] = useState<"" | "missing" | "priced">("");
   const tt = useTranslations("admin.toolbar");
@@ -277,7 +280,7 @@ export function PricingList() {
       {loading ? (
         <SkeletonCards count={2} />
       ) : byProperty.length === 0 ? (
-        <EmptyPanel icon="sell" title={t("empty")} />
+        <EmptyPanel icon={adminPageIcons.pricing} title={t("empty")} />
       ) : (
         <div className="space-y-5">
           {byProperty.map((group) => {
@@ -289,14 +292,14 @@ export function PricingList() {
               <section key={group.id} className={cn(panel, "p-4 sm:p-6")}>
                 <header className="mb-4 flex flex-wrap items-end justify-between gap-2">
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-[0.08em] text-[#71130d]">
+                    <p className="text-xs font-medium uppercase tracking-[0.08em] text-brand">
                       {ti("rateCard")}
                     </p>
-                    <h3 className="text-xl font-medium tracking-tight text-[#141414]">
+                    <h3 className="text-xl font-medium tracking-tight text-fg">
                       {group.name}
                     </h3>
                   </div>
-                  <p className="text-sm text-[#6b6b6b]">
+                  <p className="text-sm text-fg-muted">
                     {ti("typesCount", { count: group.rows.length })}
                   </p>
                 </header>
@@ -354,7 +357,7 @@ function RateLine({
 
   if (monthly === null && daily === null) {
     return (
-      <li className="flex flex-wrap items-center gap-3 rounded-2xl border border-dashed border-[#e3d6d3] p-3">
+      <li className="flex flex-wrap items-center gap-3 rounded-2xl border border-dashed border-line p-3">
         <Photo
           src={row.photo}
           alt=""
@@ -362,14 +365,14 @@ function RateLine({
           className="size-12 shrink-0 rounded-xl"
         />
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium text-[#141414]">{row.name}</p>
-          <p className="text-sm text-[#a1271b]">{ti("missingHint")}</p>
+          <p className="truncate font-medium text-fg">{row.name}</p>
+          <p className="text-sm text-danger">{ti("missingHint")}</p>
         </div>
         <Link
           href={`${BASE}/new?propertyId=${encodeURIComponent(row.propertyId)}&unitTypeId=${encodeURIComponent(row.unitTypeId)}`}
-          className="inline-flex h-10 items-center gap-2 rounded-full bg-[#71130d] px-4 text-sm font-medium text-white hover:bg-[#8a1a12]"
+          className="inline-flex h-10 items-center gap-2 rounded-full bg-brand px-4 text-sm font-medium text-white hover:bg-brand-hover"
         >
-          <Icon name="sell" size={16} />
+          <Icon name={adminPageIcons.pricing} size={16} />
           {ti("setPrice")}
         </Link>
       </li>
@@ -377,7 +380,7 @@ function RateLine({
   }
 
   return (
-    <li className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2 rounded-2xl bg-[#faf7f6] p-3 sm:grid-cols-[auto_minmax(0,1.1fr)_minmax(0,1.6fr)_auto] sm:gap-x-5">
+    <li className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2 rounded-2xl bg-subtle p-3 sm:grid-cols-[auto_minmax(0,1.1fr)_minmax(0,1.6fr)_auto] sm:gap-x-5">
       <div className="relative">
         <Photo
           src={row.photo}
@@ -385,13 +388,13 @@ function RateLine({
           sizes="56px"
           className="size-12 rounded-xl"
         />
-        <span className="absolute -left-1.5 -top-1.5 flex size-6 items-center justify-center rounded-full bg-[#1c0b0a] text-[11px] font-semibold text-white ring-2 ring-white">
+        <span className="absolute -left-1.5 -top-1.5 flex size-6 items-center justify-center rounded-full bg-ink text-[11px] font-semibold text-white ring-2 ring-white">
           {rank}
         </span>
       </div>
       <div className="min-w-0">
-        <p className="truncate font-medium text-[#141414]">{row.name}</p>
-        <p className="text-sm text-[#6b6b6b]">
+        <p className="truncate font-medium text-fg">{row.name}</p>
+        <p className="text-sm text-fg-muted">
           {row.size != null ? `${row.size} m²` : "—"}
           {monthly !== null && row.size
             ? ` · ${ti("perSqm", { price: rupiah(Math.round(monthly / row.size)) })}`
@@ -402,13 +405,13 @@ function RateLine({
       {/* Price ladder */}
       <div className="col-span-3 min-w-0 sm:col-span-1">
         <div className="flex items-baseline justify-between gap-2">
-          <p className="text-lg font-medium text-[#141414] tabular-nums">
+          <p className="text-lg font-medium text-fg tabular-nums">
             {monthly !== null ? `Rp ${formatIdrTable(monthly)}` : "—"}
-            <span className="text-sm font-normal text-[#6b6b6b]">
+            <span className="text-sm font-normal text-fg-muted">
               {ti("perMonth")}
             </span>
           </p>
-          <p className="shrink-0 text-sm text-[#3d3a36] tabular-nums">
+          <p className="shrink-0 text-sm text-fg-2 tabular-nums">
             {daily !== null
               ? `Rp ${formatIdrTable(daily)}${ti("perDay")}`
               : ti("noDaily")}
@@ -417,12 +420,12 @@ function RateLine({
         <div className="mt-1.5 flex items-center gap-2">
           <span className="h-2 flex-1 overflow-hidden rounded-full bg-white">
             <span
-              className="block h-full rounded-full bg-[linear-gradient(90deg,#e8bfb9,#71130d)] transition-[width] duration-700"
+              className="block h-full rounded-full bg-[linear-gradient(90deg,var(--adm-brand-line),var(--adm-brand))] transition-[width] duration-700"
               style={{ width: `${((monthly ?? 0) / top) * 100}%` }}
             />
           </span>
           {saving !== null && saving > 0 ? (
-            <span className="shrink-0 rounded-full bg-[#dff3d6] px-2 py-0.5 text-xs font-medium text-[#1f5a2a]">
+            <span className="shrink-0 rounded-full bg-success-soft px-2 py-0.5 text-xs font-medium text-success">
               {ti("monthlySaves", { pct: saving })}
             </span>
           ) : null}
@@ -468,20 +471,20 @@ function Insight({
         className={cn(
           "flex size-10 shrink-0 items-center justify-center rounded-full",
           tone === "warn"
-            ? "bg-[#fde2df] text-[#a1271b]"
+            ? "bg-danger-soft text-danger"
             : tone === "ok"
-              ? "bg-[#dff3d6] text-[#2f6d22]"
-              : "bg-[#f6f0ef] text-[#71130d]",
+              ? "bg-success-soft text-success"
+              : "bg-hover text-brand",
         )}
       >
         <Icon name={icon} size={20} />
       </span>
       <div className="min-w-0">
-        <p className="text-sm text-[#6b6b6b]">{label}</p>
-        <p className="truncate text-xl font-medium tracking-tight text-[#141414] tabular-nums">
+        <p className="text-sm text-fg-muted">{label}</p>
+        <p className="truncate text-xl font-medium tracking-tight text-fg tabular-nums">
           {value}
         </p>
-        {hint ? <p className="text-xs text-[#6b6b6b]">{hint}</p> : null}
+        {hint ? <p className="text-xs text-fg-muted">{hint}</p> : null}
       </div>
     </div>
   );
