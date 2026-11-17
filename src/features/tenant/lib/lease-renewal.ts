@@ -9,8 +9,14 @@ export type TenantRenewalView =
   | "confirmed"
   | "completed";
 
+/** Roommates see the lease but renewal is the primary tenant's call. */
+export function isRoommateView(lease: Lease): boolean {
+  return lease.isPrimaryTenant === false;
+}
+
 export function canRequestLeaseRenewal(lease: Lease): boolean {
   return (
+    !isRoommateView(lease) &&
     lease.status === "paid" &&
     lease.leaseRenewal != null &&
     !lease.leaseRenewal.markAsCompleted
@@ -39,7 +45,8 @@ export function getTenantRenewalView(lease: Lease): TenantRenewalView {
   if (!canRequestLeaseRenewal(lease)) return "none";
   if (isRenewalDismissed(renewal.id)) return "none";
   // Hidden during the final window before lease end (confirmationDeadline = endDate − N days).
-  if (isInFinalFiveDaysBeforeEnd(renewal.confirmationDeadline, lease.endDate)) return "none";
+  if (isInFinalFiveDaysBeforeEnd(renewal.confirmationDeadline, lease.endDate))
+    return "none";
   return "prompt";
 }
 
@@ -85,5 +92,5 @@ export function getTenantRenewalDisplayStatus(
 }
 
 export function hasLeaseRenewal(lease: Lease): boolean {
-  return lease.leaseRenewal != null;
+  return lease.leaseRenewal != null && !isRoommateView(lease);
 }

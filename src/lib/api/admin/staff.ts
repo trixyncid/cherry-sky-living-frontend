@@ -17,9 +17,7 @@ export async function listStaffUsers(search?: string): Promise<StaffUser[]> {
 }
 
 export async function getStaffUser(id: string): Promise<StaffUser> {
-  const res = await apiFetch<ApiDataResponse<StaffUser>>(
-    `/admin/staff/${id}`,
-  );
+  const res = await apiFetch<ApiDataResponse<StaffUser>>(`/admin/staff/${id}`);
   return res.data;
 }
 
@@ -72,9 +70,8 @@ export async function resetStaffPassword(
 }
 
 export async function deleteStaffUser(id: string): Promise<StaffUser> {
-  const res = await apiFetch<ApiDataResponse<StaffUser>>(
-    `/admin/staff/${id}`,
-    { method: "DELETE" },
-  );
+  const res = await apiFetch<ApiDataResponse<StaffUser>>(`/admin/staff/${id}`, {
+    method: "DELETE",
+  });
   return res.data;
 }

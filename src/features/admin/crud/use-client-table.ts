@@ -1,12 +1,15 @@
 "use client";
 
 import { useCallback } from "react";
+import type {
+  SortDirection,
+  SortValue,
+} from "@/features/admin/crud/sort-utils";
 import {
   DEFAULT_PAGE_SIZE,
   useClientPagination,
 } from "@/features/admin/crud/use-client-pagination";
 import { useClientSort } from "@/features/admin/crud/use-client-sort";
-import type { SortDirection, SortValue } from "@/features/admin/crud/sort-utils";
 
 interface UseClientTableOptions {
   pageSize?: number;

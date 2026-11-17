@@ -8,6 +8,7 @@ export type AdminNavPageKey =
   | "leaseRenewals"
   | "users"
   | "staff"
+  | "activity"
   | "bookkeeping"
   | "pettyCash";
 
@@ -45,6 +46,7 @@ export const adminPageIcons = {
   leaseRenewals: "event_repeat",
   users: "group",
   staff: "badge",
+  activity: "history",
   bookkeeping: "menu_book",
   pettyCash: "wallet",
 } as const satisfies Record<AdminNavPageKey, string>;
@@ -123,6 +125,12 @@ export const adminNavGroups: AdminNavGroup[] = [
         icon: adminPageIcons.staff,
         labelKey: "nav.staff",
       },
+      {
+        key: "activity",
+        href: "/admin/activity",
+        icon: adminPageIcons.activity,
+        labelKey: "nav.activity",
+      },
     ],
   },
   {
@@ -186,6 +194,10 @@ export const adminCreateActions = [
 export function adminNavGroupsForRole(isSuperadmin: boolean): AdminNavGroup[] {
   if (isSuperadmin) return adminNavGroups;
   return adminNavGroups
-    .map((g) => ({ ...g, items: g.items.filter((i) => i.key !== "staff") }))
+    .map((g) => ({
+      ...g,
+      // Superadmin-only pages.
+      items: g.items.filter((i) => i.key !== "staff" && i.key !== "activity"),
+    }))
     .filter((g) => g.items.length > 0);
 }

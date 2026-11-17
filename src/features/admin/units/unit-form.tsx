@@ -270,9 +270,7 @@ export function UnitForm({ id }: { id?: string }) {
                   <option value="vacant">{tp("status.vacant")}</option>
                   <option value="occupied">{tp("status.occupied")}</option>
                 </AdminSelect>
-                <p className="mt-1 text-xs text-fg-muted">
-                  {tp("statusHint")}
-                </p>
+                <p className="mt-1 text-xs text-fg-muted">{tp("statusHint")}</p>
               </AdminField>
             ) : null}
           </div>

@@ -1,4 +1,4 @@
-import { normalizeRole, isTenantRole } from "@/lib/auth/role";
+import { isTenantRole, normalizeRole } from "@/lib/auth/role";
 import { isStaffRole, type UserRole } from "@/lib/types/auth";
 
 /** Default landing route after a successful sign-in, by role. */

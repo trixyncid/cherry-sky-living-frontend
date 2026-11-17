@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { isValidIndonesianPhone } from "@/lib/phone";
 
 export type ProfileFormMessages = {
   nameRequired: string;
@@ -11,19 +10,12 @@ export type ProfileFormMessages = {
   passwordsMismatch: string;
 };
 
+/** Phone numbers are validated separately by `validatePhoneList`. */
 export function createProfileSchema(
-  messages: Pick<
-    ProfileFormMessages,
-    "nameRequired" | "phoneRequired" | "phoneInvalid"
-  >,
+  messages: Pick<ProfileFormMessages, "nameRequired">,
 ) {
   return z.object({
     name: z.string().trim().min(1, messages.nameRequired),
-    phoneNumber: z
-      .string()
-      .trim()
-      .min(1, messages.phoneRequired)
-      .refine(isValidIndonesianPhone, messages.phoneInvalid),
   });
 }
 
@@ -51,8 +43,6 @@ export function createPasswordSchema(
 /** @deprecated Prefer createProfileSchema(messages) for localized validation. */
 export const tenantProfileSchema = createProfileSchema({
   nameRequired: "Name is required",
-  phoneRequired: "Phone number is required",
-  phoneInvalid: "Enter a valid Indonesian mobile number",
 });
 
 /** @deprecated Prefer createPasswordSchema(messages) for localized validation. */
@@ -63,5 +53,9 @@ export const tenantPasswordSchema = createPasswordSchema({
   passwordsMismatch: "Passwords do not match",
 });
 
-export type TenantProfileValues = z.infer<ReturnType<typeof createProfileSchema>>;
-export type TenantPasswordValues = z.infer<ReturnType<typeof createPasswordSchema>>;
+export type TenantProfileValues = z.infer<
+  ReturnType<typeof createProfileSchema>
+>;
+export type TenantPasswordValues = z.infer<
+  ReturnType<typeof createPasswordSchema>
+>;

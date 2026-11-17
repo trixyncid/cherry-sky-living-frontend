@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api/client";
+import { type ApiFetchOptions, apiFetch } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/errors";
 
 export interface PublicAttachment {
@@ -67,16 +67,23 @@ function unwrapItem<T>(payload: { data: T } | T | null | undefined): T | null {
   return payload as T;
 }
 
-export async function listPublicProperties(): Promise<PublicProperty[]> {
+export async function listPublicProperties(
+  options?: ApiFetchOptions,
+): Promise<PublicProperty[]> {
   const res = await apiFetch<PublicPropertiesResponse | PublicProperty[]>(
     "/public/properties",
+    options,
   );
   return unwrapList(res);
 }
 
-export async function getPublicProperty(id: string): Promise<PublicProperty> {
+export async function getPublicProperty(
+  id: string,
+  options?: ApiFetchOptions,
+): Promise<PublicProperty> {
   const res = await apiFetch<PublicPropertyResponse | PublicProperty>(
     `/public/properties/${id}`,
+    options,
   );
   const property = unwrapItem(res);
   if (!property) {

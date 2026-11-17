@@ -1,13 +1,15 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import {
   adminNavItems,
   adminProfileIcon,
 } from "@/features/admin/constants/nav-items";
-import { useLeases } from "@/features/admin/hooks/use-admin-queries";
-import { resolveLeaseTenantLabel } from "@/features/admin/lib/entity-display";
 import { usePathname } from "@/i18n/routing";
+import { getAdminTasks } from "@/lib/api/admin/tasks";
+import { contactSummary } from "@/lib/phone";
+import { adminKeys } from "@/lib/query/keys";
 
 /** Longest nav href matching the current path (so /admin/units/1 → Units). */
 export function activeNavHref(pathname: string): string | null {
@@ -48,47 +50,46 @@ export type AdminTasks = {
 const TASKS_REFRESH_MS = 60_000;
 
 /**
- * The landlord's to-do counts, from the lease list:
+ * The landlord's to-do counts, from a small dedicated endpoint (not the full
+ * lease list):
  * - payments: bills with a receipt waiting for approval
  * - renewals: tenant renewal requests not yet answered
  * - renewalLeases: approved renewals whose new lease isn't created yet
+ * Keyed under leases, so any lease/bill change refreshes the badges too.
  */
 export function useAdminTasks(): AdminTasks {
-  const { data: leases = [] } = useLeases(undefined, {
+  const { data } = useQuery({
+    queryKey: [...adminKeys.leases.all(), "tasks"],
+    queryFn: getAdminTasks,
     refetchInterval: TASKS_REFRESH_MS,
   });
   return useMemo(() => {
-    const payments: AdminTask[] = [];
+    const tenantOf = (lease: {
+      userId: string;
+      user: { name: string; phoneNumber: string | null; email: string } | null;
+    }) => lease.user?.name || contactSummary(lease.user) || lease.userId;
+
+    const payments: AdminTask[] = (data?.bills ?? []).map((inv) => ({
+      id: `payment:${inv.id}`,
+      kind: "payment",
+      tenant: tenantOf(inv.lease),
+      unit: inv.lease.unit?.name ?? "—",
+      sequence: inv.sequence,
+      amount: inv.amount,
+      at: inv.updatedAt,
+      href: `/admin/leases/${inv.lease.id}/edit`,
+    }));
     const renewals: AdminTask[] = [];
     const renewalLeases: AdminTask[] = [];
-    for (const lease of leases) {
-      const tenant = resolveLeaseTenantLabel(lease);
-      const unit = lease.unit?.name ?? "—";
-      const href = `/admin/leases/${lease.id}/edit`;
-      for (const inv of lease.invoices ?? []) {
-        if (inv.status !== "waiting_for_review") continue;
-        payments.push({
-          id: `payment:${inv.id}`,
-          kind: "payment",
-          tenant,
-          unit,
-          sequence: inv.sequence,
-          amount: inv.amount,
-          at: inv.updatedAt ?? lease.updatedAt,
-          href,
-        });
-      }
-      const r = lease.leaseRenewal;
-      if (!r?.isRenewLease || r.markAsCompleted) continue;
-      const task = {
+    for (const r of data?.renewals ?? []) {
+      (r.isConfirmed ? renewalLeases : renewals).push({
         id: `${r.isConfirmed ? "renewalLease" : "renewal"}:${r.id}`,
-        kind: r.isConfirmed ? ("renewalLease" as const) : ("renewal" as const),
-        tenant,
-        unit,
+        kind: r.isConfirmed ? "renewalLease" : "renewal",
+        tenant: tenantOf(r.lease),
+        unit: r.lease.unit?.name ?? "—",
         at: r.updatedAt,
-        href,
-      };
-      (r.isConfirmed ? renewalLeases : renewals).push(task);
+        href: `/admin/leases/${r.lease.id}/edit`,
+      });
     }
     const newest = (a: AdminTask, b: AdminTask) => b.at.localeCompare(a.at);
     payments.sort(newest);
@@ -100,7 +101,7 @@ export function useAdminTasks(): AdminTasks {
       renewalLeases,
       total: payments.length + renewals.length + renewalLeases.length,
     };
-  }, [leases]);
+  }, [data]);
 }
 
 /** Badge count per nav item (Leases, Lease renewals). */

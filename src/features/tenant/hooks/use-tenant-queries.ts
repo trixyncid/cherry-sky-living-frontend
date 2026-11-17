@@ -1,7 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getTenantLease, listTenantLeases, updateTenantLeaseRenewal } from "@/lib/api/tenant/leases";
+import {
+  getTenantLease,
+  listTenantLeases,
+  updateTenantLeaseRenewal,
+  uploadTenantInspection,
+  uploadTenantInspectionVideo,
+} from "@/lib/api/tenant/leases";
 import {
   changeTenantPassword,
   getTenantProfile,
@@ -40,6 +46,21 @@ export function useTenantLeaseMutations() {
         action: "renew" | "decline" | "cancel";
       }) => updateTenantLeaseRenewal(leaseId, { action }),
       onSuccess: invalidate,
+    }),
+    uploadInspection: useMutation({
+      mutationFn: ({ leaseId, file }: { leaseId: string; file: File }) =>
+        uploadTenantInspection(leaseId, file),
+    }),
+    uploadInspectionVideo: useMutation({
+      mutationFn: ({
+        leaseId,
+        file,
+        onProgress,
+      }: {
+        leaseId: string;
+        file: File;
+        onProgress?: (fraction: number) => void;
+      }) => uploadTenantInspectionVideo(leaseId, file, onProgress),
     }),
   };
 }

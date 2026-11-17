@@ -22,7 +22,12 @@ export interface UnitTypeAttachment {
   updatedAt?: string;
 }
 
-export type LeaseAttachmentKind = "agreement" | "downpayment" | "payment";
+export type LeaseAttachmentKind =
+  | "agreement"
+  | "downpayment"
+  | "payment"
+  /** Unit condition photos/report; tenants can upload these. */
+  | "inspection";
 
 export interface LeaseAttachment {
   id: string;
@@ -114,10 +119,19 @@ export interface UnitUserRef {
   phoneNumber?: string | null;
 }
 
+/** One of a person's numbers; the login one equals `phoneNumber`. */
+export interface UserPhone {
+  id: string;
+  phoneNumber: string;
+  label: string | null;
+}
+
 export interface TenantUser extends UnitUserRef {
   role: "tenant";
+  /** The number they sign in with (always one of `phones`). */
   phoneNumber: string | null;
   phoneNumberVerified?: boolean;
+  phones?: UserPhone[];
   isActive: boolean;
   emailVerified: boolean;
   image: string | null;
@@ -126,7 +140,10 @@ export interface TenantUser extends UnitUserRef {
 }
 
 export interface TenantUserDetail extends TenantUser {
+  /** Leases where this tenant is the primary (billed) tenant. */
   leases?: Lease[];
+  /** Leases where this tenant is a roommate. */
+  leaseOccupancies?: { id: string; lease: Lease }[];
 }
 
 export interface StaffUser extends UnitUserRef {
@@ -294,6 +311,14 @@ export interface LeaseBillingSummary {
   } | null;
 }
 
+/** A roommate sharing the unit with the lease's primary tenant. */
+export interface LeaseOccupant {
+  id: string;
+  userId: string;
+  user?: Pick<UnitUserRef, "id" | "name"> & Partial<UnitUserRef>;
+  createdAt?: string;
+}
+
 export interface Lease {
   id: string;
   /** Mirrors the first (move-in) bill — drives occupancy. */
@@ -321,7 +346,12 @@ export interface Lease {
   unitPricingId: string;
   property?: Property;
   unit?: Unit & { property?: Property; unitType?: UnitType };
+  /** Primary tenant: holds the contract, is billed, decides on renewal. */
   user?: UnitUserRef;
+  /** Roommates sharing the unit (not billed). */
+  occupants?: LeaseOccupant[];
+  /** Tenant portal only: whether the viewer is the primary tenant. */
+  isPrimaryTenant?: boolean;
   unitPricing?: UnitPricing;
   leaseRenewal?: LeaseRenewal | null;
   attachments?: LeaseAttachment[];

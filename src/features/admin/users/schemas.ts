@@ -24,6 +24,7 @@ const phoneField = (
     .min(1, messages.phoneRequired)
     .refine(isValidIndonesianPhone, messages.phoneInvalid);
 
+/** Single-phone variant, for quick create (the number is the login number). */
 export function createTenantUserSchema(messages: UserFormMessages) {
   return z.object({
     name: z.string().trim().min(1, messages.nameRequired),
@@ -33,15 +34,23 @@ export function createTenantUserSchema(messages: UserFormMessages) {
   });
 }
 
-export function updateTenantUserSchema(
-  messages: Pick<
-    UserFormMessages,
-    "nameRequired" | "emailInvalid" | "phoneRequired" | "phoneInvalid"
-  >,
+/** Full create form; phone numbers are validated by `validatePhoneList`. */
+export function createTenantUserWithPhonesSchema(
+  messages: Omit<UserFormMessages, "phoneRequired" | "phoneInvalid">,
 ) {
   return z.object({
     name: z.string().trim().min(1, messages.nameRequired),
-    phoneNumber: phoneField(messages),
+    email: optionalEmail(messages.emailInvalid),
+    password: z.string().min(8, messages.passwordMin),
+  });
+}
+
+/** Phone numbers are validated separately by `validatePhoneList`. */
+export function updateTenantUserSchema(
+  messages: Pick<UserFormMessages, "nameRequired" | "emailInvalid">,
+) {
+  return z.object({
+    name: z.string().trim().min(1, messages.nameRequired),
     email: optionalEmail(messages.emailInvalid),
   });
 }

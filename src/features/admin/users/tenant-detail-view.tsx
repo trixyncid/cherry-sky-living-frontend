@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
+import { PhoneNumbersField } from "@/components/shared/phone-numbers-field";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -45,12 +46,24 @@ import { updateTenantUserSchema } from "@/features/admin/users/schemas";
 import { TenantResetPasswordDialog } from "@/features/admin/users/tenant-reset-password-dialog";
 import { Link } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
-import { contactSummary, displayEmailOrEmpty } from "@/lib/phone";
+import {
+  contactSummary,
+  displayEmailOrEmpty,
+  formatPhoneDisplay,
+} from "@/lib/phone";
+import {
+  emptyPhoneList,
+  type PhoneListValue,
+  phoneListFromUser,
+  phoneListSignature,
+  takenPhoneFromError,
+  validatePhoneList,
+} from "@/lib/phone-list";
 import { cn } from "@/lib/utils";
 
 const BASE = "/admin/users";
 
-const emptyForm = { name: "", phoneNumber: "", email: "" };
+const emptyForm = { name: "", email: "" };
 
 interface TenantDetailViewProps {
   id: string;
@@ -60,12 +73,15 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.users");
   const tl = useTranslations("admin.pages.leases");
+  const trm = useTranslations("admin.pages.leases.roommates");
   const to = useTranslations("admin.pages.operations");
+  const tph = useTranslations("common.phoneList");
   const locale = useLocale();
   const { data: tenant, isLoading, error } = useTenantUser(id);
   const mutations = useTenantUserMutations();
   const lookups = useAdminLookups();
   const [form, setForm] = useState(emptyForm);
+  const [phones, setPhones] = useState<PhoneListValue>(emptyPhoneList);
   const [formError, setFormError] = useState<string | null>(null);
   const [resetOpen, setResetOpen] = useState(false);
   const [toggleOpen, setToggleOpen] = useState(false);
@@ -74,15 +90,22 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
     if (tenant) {
       setForm({
         name: tenant.name,
-        phoneNumber: tenant.phoneNumber ?? "",
         email: displayEmailOrEmpty(tenant.email),
       });
+      setPhones(phoneListFromUser(tenant));
     }
   }, [tenant]);
 
   const pendingToggle = mutations.setActive.isPending;
   const pendingSave = mutations.update.isPending;
-  const leases = tenant?.leases ?? [];
+  // Leases they're billed for, plus ones where they're a roommate.
+  const leases = [
+    ...(tenant?.leases ?? []).map((lease) => ({ lease, roommate: false })),
+    ...(tenant?.leaseOccupancies ?? []).map((o) => ({
+      lease: o.lease,
+      roommate: true,
+    })),
+  ];
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -92,11 +115,18 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
     const parsed = updateTenantUserSchema({
       nameRequired: tp("validation.nameRequired"),
       emailInvalid: tp("validation.emailInvalid"),
-      phoneRequired: tp("validation.phoneRequired"),
-      phoneInvalid: tp("validation.phoneInvalid"),
     }).safeParse(form);
     if (!parsed.success) {
       setFormError(parsed.error.issues[0]?.message ?? t("saveFailed"));
+      return;
+    }
+    const phoneList = validatePhoneList(phones, {
+      required: tph("required"),
+      invalid: tph("invalid"),
+      duplicate: tph("duplicate"),
+    });
+    if (!phoneList.ok) {
+      setFormError(phoneList.error);
       return;
     }
 
@@ -104,14 +134,16 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
       await mutations.update.mutateAsync({
         id: tenant.id,
         name: parsed.data.name,
-        phoneNumber: parsed.data.phoneNumber,
+        ...phoneList.data,
         // Empty clears to placeholder on the server
         email: parsed.data.email ?? null,
       });
       showApiSuccess(t("updated"));
     } catch (err) {
-      const msg =
-        err instanceof ApiError && err.code === "CONFLICT"
+      const taken = takenPhoneFromError(err);
+      const msg = taken
+        ? tph("taken", { phone: taken })
+        : err instanceof ApiError && err.code === "CONFLICT"
           ? tp("emailExists")
           : getErrorMessage(err, t("saveFailed"));
       setFormError(msg);
@@ -152,10 +184,12 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
 
   const isDirty =
     form.name !== tenant.name ||
-    form.phoneNumber !== (tenant.phoneNumber ?? "") ||
+    phoneListSignature(phones) !==
+      phoneListSignature(phoneListFromUser(tenant)) ||
     form.email !== displayEmailOrEmpty(tenant.email);
 
   const phone = tenant.phoneNumber;
+  const savedPhones = phoneListFromUser(tenant).rows;
 
   return (
     <>
@@ -211,6 +245,40 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                 <dd className="font-medium">{leases.length}</dd>
               </div>
             </dl>
+            {savedPhones.length > 0 ? (
+              <div className="px-4 pb-4">
+                <p className="mb-1.5 text-xs text-fg-muted">{tph("title")}</p>
+                <ul className="space-y-1.5">
+                  {savedPhones.map((p) => {
+                    const isLogin = p.phoneNumber === tenant.phoneNumber;
+                    return (
+                      <li
+                        key={p.phoneNumber}
+                        className="flex items-center gap-2 rounded-xl bg-subtle px-3 py-2 text-sm"
+                      >
+                        <Icon
+                          name={isLogin ? "key" : "call"}
+                          size={16}
+                          className={isLogin ? "text-brand" : "text-fg-muted"}
+                        />
+                        <span className="min-w-0 flex-1 truncate font-medium tabular-nums">
+                          {formatPhoneDisplay(p.phoneNumber)}
+                        </span>
+                        {isLogin ? (
+                          <span className="shrink-0 rounded-full bg-brand-tint px-2 py-0.5 text-[11px] font-semibold text-brand">
+                            {tph("loginBadge")}
+                          </span>
+                        ) : p.label ? (
+                          <span className="shrink-0 truncate text-xs text-fg-muted">
+                            {p.label}
+                          </span>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ) : null}
             <div className="flex flex-col gap-2 px-4 pb-4">
               <WhatsAppButton
                 phone={phone}
@@ -273,21 +341,6 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                     }
                   />
                 </AdminField>
-                <AdminField label={tp("phone")} htmlFor="tenant-phone" required>
-                  <input
-                    id="tenant-phone"
-                    type="tel"
-                    required
-                    autoComplete="tel"
-                    inputMode="tel"
-                    placeholder={tp("phonePlaceholder")}
-                    className={adminInputClassName}
-                    value={form.phoneNumber}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, phoneNumber: e.target.value }))
-                    }
-                  />
-                </AdminField>
                 <AdminField label={tp("emailOptional")} htmlFor="tenant-email">
                   <input
                     id="tenant-email"
@@ -303,6 +356,14 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                     {tp("emailOptionalHint")}
                   </p>
                 </AdminField>
+                <div className="sm:col-span-2">
+                  <PhoneNumbersField
+                    audience="admin"
+                    value={phones}
+                    onChange={setPhones}
+                    savedLoginPhone={tenant.phoneNumber}
+                  />
+                </div>
               </div>
             </AdminFormSection>
             <AdminFormActions
@@ -327,8 +388,10 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
             ) : (
               <ul className="flex flex-col gap-2">
                 {[...leases]
-                  .sort((a, b) => b.startDate.localeCompare(a.startDate))
-                  .map((lease) => (
+                  .sort((a, b) =>
+                    b.lease.startDate.localeCompare(a.lease.startDate),
+                  )
+                  .map(({ lease, roommate }) => (
                     <li key={lease.id}>
                       <Link
                         href={`/admin/leases/${lease.id}/edit`}
@@ -346,6 +409,23 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                             {formatDate(lease.startDate, locale)} {tl("to")}{" "}
                             {formatDate(lease.endDate, locale)}
                           </span>
+                          {roommate ? (
+                            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-tint px-2 py-0.5 text-[11px] font-semibold text-brand">
+                              <Icon name="group" size={12} />
+                              {trm("roommateOf", {
+                                name: lease.user?.name ?? "—",
+                              })}
+                            </span>
+                          ) : lease.occupants?.length ? (
+                            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-subtle px-2 py-0.5 text-[11px] font-semibold text-fg-2">
+                              <Icon name="group" size={12} />
+                              {trm("sharedWith", {
+                                names: lease.occupants
+                                  .map((o) => o.user?.name ?? "—")
+                                  .join(", "),
+                              })}
+                            </span>
+                          ) : null}
                         </span>
                         <LeaseStatusBadge status={lease.status} />
                         <Icon

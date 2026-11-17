@@ -8,6 +8,12 @@ export const env = createEnv({
      * Prefer this over NEXT_PUBLIC_API_URL for proxy + SSR fetches.
      */
     API_URL: z.string().url().optional(),
+    /**
+     * Shared with the backend (same value in both). Lets the API proxy vouch
+     * for the visitor's IP so the backend's rate limits apply per visitor
+     * and can't be dodged with a forged X-Forwarded-For.
+     */
+    PROXY_SHARED_SECRET: z.string().min(32).optional(),
   },
   client: {
     /**
@@ -18,6 +24,7 @@ export const env = createEnv({
   },
   runtimeEnv: {
     API_URL: process.env.API_URL,
+    PROXY_SHARED_SECRET: process.env.PROXY_SHARED_SECRET,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
   emptyStringAsUndefined: true,

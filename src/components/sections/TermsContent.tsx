@@ -150,6 +150,7 @@ export function TermsContent() {
               className="group"
             >
               <button
+                type="button"
                 onClick={() =>
                   setExpandedSection(
                     expandedSection === section.key ? null : section.key,
@@ -158,9 +159,7 @@ export function TermsContent() {
                 className="glass-card w-full rounded-[1.25rem] p-6 text-left transition-all duration-300 hover:-translate-y-0.5"
               >
                 <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-lg font-bold text-fg">
-                    {section.title}
-                  </h3>
+                  <h3 className="text-lg font-bold text-fg">{section.title}</h3>
                   <Icon
                     name={
                       expandedSection === section.key

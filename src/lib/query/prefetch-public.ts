@@ -1,15 +1,28 @@
-import { QueryClient } from "@tanstack/react-query";
-import { listPublicProperties, getPublicProperty } from "@/lib/api/public/properties";
+import type { QueryClient } from "@tanstack/react-query";
+import type { ApiFetchOptions } from "@/lib/api/client";
+import {
+  getPublicProperty,
+  listPublicProperties,
+} from "@/lib/api/public/properties";
 import { searchPublicUnits } from "@/lib/api/public/search";
 import { searchFiltersToApiParams } from "@/lib/api/public/search-contract";
 import { publicKeys } from "@/lib/query/keys";
 import type { SearchFilters } from "@/lib/types";
 
+/**
+ * Server-side public catalogue fetches: anonymous, so they can share Next's
+ * data cache (60s) across visitors. Never use for authenticated requests.
+ */
+const PUBLIC_SSR_FETCH: ApiFetchOptions = {
+  next: { revalidate: 60 },
+  timeoutMs: 15_000,
+};
+
 export async function prefetchPublicProperties(queryClient: QueryClient) {
   try {
     await queryClient.prefetchQuery({
       queryKey: publicKeys.properties.all(),
-      queryFn: listPublicProperties,
+      queryFn: () => listPublicProperties(PUBLIC_SSR_FETCH),
     });
   } catch {
     // Client hooks render load/error states from an empty cache.
@@ -23,7 +36,7 @@ export async function prefetchPublicProperty(
   try {
     await queryClient.prefetchQuery({
       queryKey: publicKeys.properties.detail(id),
-      queryFn: () => getPublicProperty(id),
+      queryFn: () => getPublicProperty(id, PUBLIC_SSR_FETCH),
     });
   } catch {
     // 404 / network — KostRoutePage distinguishes error vs not-found.
@@ -38,7 +51,7 @@ export async function prefetchPublicSearch(
   try {
     await queryClient.prefetchQuery({
       queryKey: publicKeys.search.list(apiParams as Record<string, unknown>),
-      queryFn: () => searchPublicUnits(apiParams),
+      queryFn: () => searchPublicUnits(apiParams, PUBLIC_SSR_FETCH),
       staleTime: 30_000,
     });
   } catch {

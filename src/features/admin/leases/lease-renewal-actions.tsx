@@ -32,6 +32,8 @@ function buildRenewalLeaseHref(lease: Lease): string {
     renewalId: renewal?.id ?? "",
     unitId: lease.unitId,
     userId: lease.userId,
+    // Lets the new lease bring the roommates along.
+    fromLeaseId: lease.id,
   });
   if (endDate) {
     params.set("startDate", dayAfterDate(endDate));

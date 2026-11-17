@@ -5,6 +5,7 @@ import { Icon } from "@/components/shared/Icon";
 import {
   attachmentDisplayName,
   isPdfAttachment,
+  isVideoAttachment,
 } from "@/features/admin/lib/attachments";
 import { formatDate } from "@/features/admin/lib/format";
 
@@ -38,6 +39,7 @@ export function TenantAttachmentsList({
       {visible.map((item) => {
         const name = attachmentDisplayName(item.url);
         const pdf = isPdfAttachment(item);
+        const video = !pdf && isVideoAttachment(item);
 
         return (
           <li
@@ -57,6 +59,20 @@ export function TenantAttachmentsList({
                     PDF
                   </span>
                 </div>
+              ) : video ? (
+                <>
+                  {/* #t= shows the first frame as a thumbnail. */}
+                  <video
+                    src={`${item.url}#t=0.1`}
+                    preload="metadata"
+                    muted
+                    playsInline
+                    className="size-full object-cover"
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/20 text-white">
+                    <Icon name="play_circle" size={30} />
+                  </span>
+                </>
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img

@@ -68,7 +68,11 @@ export function VacancyByTypeChart({
           align="right"
           iconType="circle"
           iconSize={8}
-          wrapperStyle={{ fontSize: 12, color: "var(--adm-fg-2)", paddingBottom: 4 }}
+          wrapperStyle={{
+            fontSize: 12,
+            color: "var(--adm-fg-2)",
+            paddingBottom: 4,
+          }}
         />
         <Bar
           dataKey="occupied"

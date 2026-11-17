@@ -1,6 +1,6 @@
 "use client";
 
-import { HydrationBoundary, type DehydratedState } from "@tanstack/react-query";
+import { type DehydratedState, HydrationBoundary } from "@tanstack/react-query";
 
 export function PublicHydration({
   state,

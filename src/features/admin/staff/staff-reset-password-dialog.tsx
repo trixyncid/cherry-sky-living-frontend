@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/dialog";
 import { useStaffUserMutations } from "@/features/admin/hooks/use-admin-queries";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { showApiError, showApiSuccess } from "@/features/admin/lib/show-api-error";
+import {
+  showApiError,
+  showApiSuccess,
+} from "@/features/admin/lib/show-api-error";
 import type { StaffUser } from "@/lib/types/admin";
 
 interface StaffResetPasswordDialogProps {
@@ -31,7 +34,9 @@ export function StaffResetPasswordDialog({
   const tp = useTranslations("admin.pages.staff");
   const mutations = useStaffUserMutations();
   const [phase, setPhase] = useState<"confirm" | "result">("confirm");
-  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null);
+  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -106,7 +111,9 @@ export function StaffResetPasswordDialog({
           <>
             <DialogHeader>
               <DialogTitle>{tp("resetResultTitle")}</DialogTitle>
-              <DialogDescription>{tp("resetResultDescription")}</DialogDescription>
+              <DialogDescription>
+                {tp("resetResultDescription")}
+              </DialogDescription>
             </DialogHeader>
             <div className="rounded-xl border border-line bg-subtle p-4">
               <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-fg-muted">
@@ -117,7 +124,11 @@ export function StaffResetPasswordDialog({
               </p>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => void handleCopy()}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void handleCopy()}
+              >
                 {copied ? tp("copied") : tp("copyPassword")}
               </Button>
               <Button type="button" onClick={() => onOpenChange(false)}>

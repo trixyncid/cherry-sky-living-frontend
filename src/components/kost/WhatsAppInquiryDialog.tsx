@@ -161,9 +161,10 @@ export function WhatsAppInquiryDialog({
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
+    const website = String(new FormData(e.currentTarget).get("website") ?? "");
 
     const visitDay = formatDate(form.visitDate, locale);
     const formattedCheckInDate = formatDate(form.checkInDate, locale);
@@ -202,6 +203,7 @@ export function WhatsAppInquiryDialog({
       message: `${roomName} · ${visitDay}, ${form.visitTime} WIB`,
       pagePath: window.location.pathname,
       source: getLeadSource(),
+      website: website || undefined,
     })
       .then(() =>
         track("submit_inquiry", { property: propertyName, room: roomName }),
@@ -265,7 +267,7 @@ export function WhatsAppInquiryDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="relative space-y-4">
           <div>
             <label
               htmlFor="inquiry-name"
@@ -411,6 +413,19 @@ export function WhatsAppInquiryDialog({
               {t("whatsapp.inquiryDialog.submit")}
             </Button>
           </DialogFooter>
+          {/* Honeypot: hidden from people, bots fill it and the API drops the lead. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -left-[10000px] top-auto h-px w-px overflow-hidden"
+          >
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              defaultValue=""
+            />
+          </div>
         </form>
       </DialogContent>
     </Dialog>

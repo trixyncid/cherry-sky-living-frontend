@@ -54,9 +54,7 @@ export function ChartPanel({
     >
       <div className="mb-4">
         <h3 className="font-semibold tracking-tight text-fg">{title}</h3>
-        {subtitle && (
-          <p className="mt-0.5 text-xs text-fg-muted">{subtitle}</p>
-        )}
+        {subtitle && <p className="mt-0.5 text-xs text-fg-muted">{subtitle}</p>}
       </div>
       {body}
     </section>

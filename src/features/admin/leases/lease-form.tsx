@@ -46,6 +46,10 @@ import {
 } from "@/features/admin/leases/lease-overlap";
 import { AdminLeaseRenewalActions } from "@/features/admin/leases/lease-renewal-actions";
 import {
+  LeaseRoommatesField,
+  type RoommateEntry,
+} from "@/features/admin/leases/lease-roommates-field";
+import {
   getLeaseEndDateValue,
   resolveLeasePropertyName,
   resolvePricingUnitTypeName,
@@ -85,6 +89,7 @@ import {
   toMonthEndInputValue,
 } from "@/lib/billing";
 import { parseDateOnly, toDateOnlyString } from "@/lib/date-input";
+import { unitCapacity } from "@/lib/lease-occupants";
 import { contactSummary } from "@/lib/phone";
 import { adminKeys } from "@/lib/query/keys";
 import type { LeaseAttachmentKind } from "@/lib/types/admin";
@@ -103,6 +108,8 @@ type FormState = {
   allowPaidOverride: boolean;
   billingCycle: BillingCycle;
   firstPeriodMode: FirstPeriodMode;
+  /** Create only: roommates to add with the lease (edit saves directly). */
+  occupants: RoommateEntry[];
 } & LeaseDiscountFormState;
 
 const emptyForm: FormState = {
@@ -115,6 +122,7 @@ const emptyForm: FormState = {
   allowPaidOverride: false,
   billingCycle: "monthly",
   firstPeriodMode: "separate",
+  occupants: [],
   ...emptyLeaseDiscount,
 };
 
@@ -145,6 +153,7 @@ export function LeaseForm({ id }: { id?: string }) {
   const tp = useTranslations("admin.pages.leases");
   const td = useTranslations("admin.pages.leases.discount");
   const tr = useTranslations("admin.pages.leaseRenewals");
+  const trm = useTranslations("admin.pages.leases.roommates");
   const ta = useTranslations("admin.attachments");
   const locale = useLocale();
   const router = useRouter();
@@ -192,8 +201,37 @@ export function LeaseForm({ id }: { id?: string }) {
     const userId = searchParams.get("userId");
     const startDate = searchParams.get("startDate");
     if (!renewalId || !unitId || !userId) return null;
-    return { renewalId, unitId, userId, startDate: startDate ?? "" };
+    return {
+      renewalId,
+      unitId,
+      userId,
+      startDate: startDate ?? "",
+      fromLeaseId: searchParams.get("fromLeaseId") ?? "",
+    };
   }, [isEdit, searchParams]);
+
+  // Renewing: roommates on the current lease move to the new one by default.
+  const { data: renewedLease } = useLease(
+    renewalPrefill?.fromLeaseId ?? "",
+    !!renewalPrefill?.fromLeaseId,
+  );
+  useEffect(() => {
+    const occupants = renewedLease?.occupants ?? [];
+    if (isEdit || occupants.length === 0) return;
+    setForm((f) =>
+      f.occupants.length > 0
+        ? f
+        : {
+            ...f,
+            occupants: occupants.map((o) => ({
+              id: o.userId,
+              name: o.user?.name ?? "—",
+              email: o.user?.email,
+              phoneNumber: o.user?.phoneNumber,
+            })),
+          },
+    );
+  }, [isEdit, renewedLease]);
 
   const unitPrefill = useMemo(() => {
     if (isEdit || renewalPrefill) return null;
@@ -407,6 +445,7 @@ export function LeaseForm({ id }: { id?: string }) {
         allowPaidOverride: false,
         billingCycle: lease.billingCycle ?? "upfront",
         firstPeriodMode: lease.firstPeriodMode ?? "separate",
+        occupants: [],
         discountType: lease.discountType ?? "",
         discountAmount:
           lease.discountType === "amount"
@@ -433,6 +472,25 @@ export function LeaseForm({ id }: { id?: string }) {
       }));
     }
   }, [lease, isEdit, renewalPrefill, unitPrefill]);
+
+  const roomCapacity = unitCapacity(isEdit ? lease?.unit : selectedUnit);
+  const savedRoommates: RoommateEntry[] = (lease?.occupants ?? []).map((o) => ({
+    id: o.userId,
+    name: o.user?.name ?? "—",
+    email: o.user?.email,
+    phoneNumber: o.user?.phoneNumber,
+  }));
+
+  /** Edit mode: roommate changes save straight away. */
+  async function saveRoommates(userIds: string[], message: string) {
+    if (!id) return;
+    try {
+      await mutations.updateOccupants.mutateAsync({ id, userIds });
+      showApiSuccess(message);
+    } catch (err) {
+      showApiError(err, trm("saveFailed"));
+    }
+  }
 
   function invalidateLease() {
     void qc.invalidateQueries({ queryKey: adminKeys.leases.all() });
@@ -489,6 +547,7 @@ export function LeaseForm({ id }: { id?: string }) {
   function attachmentKindLabel(kind: LeaseAttachmentKind): string {
     if (kind === "agreement") return tp("kindAgreement");
     if (kind === "payment") return tp("kindPayment");
+    if (kind === "inspection") return tp("kindInspection");
     return tp("kindDownpayment");
   }
 
@@ -516,6 +575,11 @@ export function LeaseForm({ id }: { id?: string }) {
         setFormError(msg);
         return;
       }
+    }
+
+    if (!isEdit && form.occupants.length > Math.max(roomCapacity - 1, 0)) {
+      setFormError(trm("tooMany", { capacity: roomCapacity }));
+      return;
     }
 
     const discountProblem = leaseDiscountError(form);
@@ -554,6 +618,7 @@ export function LeaseForm({ id }: { id?: string }) {
           leaseRenewalId: form.leaseRenewalId || undefined,
           billingCycle: form.billingCycle,
           firstPeriodMode: form.firstPeriodMode,
+          occupantIds: form.occupants.map((o) => o.id),
           discountType: discount.type ?? undefined,
           discountValue: discount.type ? discount.value : undefined,
           discountNote: discount.type
@@ -606,8 +671,16 @@ export function LeaseForm({ id }: { id?: string }) {
       backLabel={t("backToList")}
       title={
         isEdit && lease
-          ? [lease.unit?.name, lease.user?.name].filter(Boolean).join(" · ") ||
-            t("editTitle")
+          ? [
+              lease.unit?.name,
+              lease.user?.name
+                ? lease.occupants?.length
+                  ? `${lease.user.name} +${lease.occupants.length}`
+                  : lease.user.name
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || t("editTitle")
           : tq("newLease")
       }
       description={isEdit ? tp("editDescription") : tp("formDescription")}
@@ -657,10 +730,36 @@ export function LeaseForm({ id }: { id?: string }) {
                       required
                       value={form.userId}
                       disabled={!!renewalPrefill}
-                      onChange={(userId) => setForm((f) => ({ ...f, userId }))}
+                      onChange={(userId) =>
+                        setForm((f) => ({
+                          ...f,
+                          userId,
+                          // The primary tenant can't also be a roommate.
+                          occupants: f.occupants.filter((o) => o.id !== userId),
+                        }))
+                      }
                     />
                   </AdminField>
                 </div>
+                <AdminField label={trm("title")}>
+                  <LeaseRoommatesField
+                    primaryUserId={form.userId}
+                    roommates={form.occupants}
+                    capacity={roomCapacity}
+                    onAdd={(tenant) =>
+                      setForm((f) => ({
+                        ...f,
+                        occupants: [...f.occupants, tenant],
+                      }))
+                    }
+                    onRemove={(userId) =>
+                      setForm((f) => ({
+                        ...f,
+                        occupants: f.occupants.filter((o) => o.id !== userId),
+                      }))
+                    }
+                  />
+                </AdminField>
               </AdminFormSection>
             )}
             <AdminFormSection
@@ -930,6 +1029,34 @@ export function LeaseForm({ id }: { id?: string }) {
                   </AdminField>
                 )}
                 {isEdit && lease && (
+                  <AdminField label={trm("title")}>
+                    <LeaseRoommatesField
+                      primaryUserId={lease.userId}
+                      roommates={savedRoommates}
+                      capacity={roomCapacity}
+                      pending={mutations.updateOccupants.isPending}
+                      confirmRemove
+                      onAdd={(tenant) =>
+                        void saveRoommates(
+                          [...savedRoommates.map((r) => r.id), tenant.id],
+                          trm("added", { name: tenant.name }),
+                        )
+                      }
+                      onRemove={(userId) => {
+                        const name =
+                          savedRoommates.find((r) => r.id === userId)?.name ??
+                          "";
+                        void saveRoommates(
+                          savedRoommates
+                            .map((r) => r.id)
+                            .filter((u) => u !== userId),
+                          trm("removed", { name }),
+                        );
+                      }}
+                    />
+                  </AdminField>
+                )}
+                {isEdit && lease && (
                   <div className="rounded-xl border border-line-strong/55 bg-gradient-to-br from-panel via-subtle to-brand-tint p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex min-w-0 items-start gap-3">
@@ -1016,6 +1143,7 @@ export function LeaseForm({ id }: { id?: string }) {
                 { value: "downpayment", label: tp("kindDownpayment") },
                 // Rent receipts; also offered as proof in Record payment.
                 { value: "payment", label: tp("kindPayment") },
+                { value: "inspection", label: tp("kindInspection") },
               ]}
             />
           </AdminFormSection>

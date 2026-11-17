@@ -39,6 +39,10 @@ type TenantComboboxProps = {
   onChange: (userId: string, tenant?: TenantUser) => void;
   disabled?: boolean;
   required?: boolean;
+  /** Tenants hidden from the options (e.g. people already on the lease). */
+  excludeIds?: readonly string[];
+  /** Trigger text when nothing is selected. */
+  placeholder?: string;
 };
 
 export function TenantCombobox({
@@ -47,6 +51,8 @@ export function TenantCombobox({
   onChange,
   disabled = false,
   required = false,
+  excludeIds,
+  placeholder,
 }: TenantComboboxProps) {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.users");
@@ -63,10 +69,17 @@ export function TenantCombobox({
 
   const debouncedSearch = useDebouncedValue(search, 300);
   const {
-    data: tenants = [],
+    data: allTenants = [],
     isLoading,
     isFetching,
   } = useTenantUsers(debouncedSearch.trim() || undefined, { enabled: open });
+  const tenants = useMemo(
+    () =>
+      excludeIds?.length
+        ? allTenants.filter((tenant) => !excludeIds.includes(tenant.id))
+        : allTenants,
+    [allTenants, excludeIds],
+  );
   const { data: resolvedTenant } = useTenantUser(value, !!value);
 
   const displayTenant = useMemo(() => {
@@ -155,7 +168,7 @@ export function TenantCombobox({
             <span className="truncate">
               {displayTenant
                 ? formatTenantLabel(displayTenant)
-                : t("selectTenant")}
+                : (placeholder ?? t("selectTenant"))}
             </span>
             <span
               className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-fg-muted"
@@ -206,6 +219,7 @@ export function TenantCombobox({
 
           <ul
             id={listboxId}
+            // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: role="listbox" on <ul> is permitted by ARIA in HTML
             role="listbox"
             className="max-h-72 overflow-y-auto p-1"
           >

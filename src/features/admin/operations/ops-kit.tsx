@@ -144,10 +144,7 @@ export function TermProgress({
     e > s ? Math.min(100, Math.max(0, ((now - s) / (e - s)) * 100)) : 0;
   return (
     <div
-      className={cn(
-        "h-1.5 overflow-hidden rounded-full bg-hover",
-        className,
-      )}
+      className={cn("h-1.5 overflow-hidden rounded-full bg-hover", className)}
       aria-hidden
     >
       <div

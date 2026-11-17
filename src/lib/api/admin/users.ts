@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api/client";
+import type { PhoneListPayload } from "@/lib/phone-list";
 import type {
   ApiDataResponse,
   ApiListResponse,
@@ -26,21 +27,28 @@ export async function getTenantUser(id: string): Promise<TenantUserDetail> {
 
 export async function updateTenantUser(
   id: string,
-  input: { name: string; phoneNumber: string; email?: string | null },
+  input: { name: string; email?: string | null } & (
+    | PhoneListPayload
+    | { phoneNumber: string }
+  ),
 ): Promise<TenantUser> {
-  const res = await apiFetch<ApiDataResponse<TenantUser>>(`/admin/users/${id}`, {
-    method: "PATCH",
-    body: input,
-  });
+  const res = await apiFetch<ApiDataResponse<TenantUser>>(
+    `/admin/users/${id}`,
+    {
+      method: "PATCH",
+      body: input,
+    },
+  );
   return res.data;
 }
 
-export async function createTenantUser(input: {
-  name: string;
-  phoneNumber: string;
-  email?: string;
-  password: string;
-}): Promise<TenantUser> {
+/** Send `phones` + `loginPhone`, or just `phoneNumber` (quick create). */
+export async function createTenantUser(
+  input: { name: string; email?: string; password: string } & (
+    | PhoneListPayload
+    | { phoneNumber: string }
+  ),
+): Promise<TenantUser> {
   const res = await apiFetch<ApiDataResponse<TenantUser>>("/admin/users", {
     method: "POST",
     body: input,

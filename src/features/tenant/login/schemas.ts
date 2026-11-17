@@ -1,49 +1,30 @@
 import { z } from "zod";
-import {
-  isValidIndonesianPhone,
-  looksLikeEmail,
-  normalizeIndonesianPhone,
-} from "@/lib/phone";
+import { normalizePhone } from "@/lib/phone";
 
-export const tenantLoginSchema = z
-  .object({
-    identifier: z.string().trim().min(1),
-    password: z.string().min(1, "Password is required"),
-  })
-  .superRefine((data, ctx) => {
-    if (looksLikeEmail(data.identifier)) {
-      if (!z.string().email().safeParse(data.identifier).success) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["identifier"],
-          message: "Invalid email",
-        });
-      }
-      return;
-    }
-    if (!isValidIndonesianPhone(data.identifier)) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["identifier"],
-        message: "Invalid phone number",
-      });
-    }
-  });
+export type TenantLoginMethod = "phone" | "email";
 
-export type TenantLoginValues = z.infer<typeof tenantLoginSchema>;
+export type TenantLoginValues = {
+  method: TenantLoginMethod;
+  /** E.164 from the country picker, e.g. "+6281234567890". */
+  phone: string;
+  email: string;
+  password: string;
+};
 
-export function resolveTenantLoginIdentifier(
-  identifier: string,
+/** The credentials to send, or null when the chosen field is invalid. */
+export function resolveTenantLogin(
+  values: TenantLoginValues,
 ):
-  | { kind: "email"; email: string }
-  | { kind: "phone"; phoneNumber: string }
+  | { kind: "email"; email: string; password: string }
+  | { kind: "phone"; phoneNumber: string; password: string }
   | null {
-  const trimmed = identifier.trim();
-  if (looksLikeEmail(trimmed)) {
-    if (!z.string().email().safeParse(trimmed).success) return null;
-    return { kind: "email", email: trimmed.toLowerCase() };
+  if (!values.password) return null;
+  if (values.method === "email") {
+    const email = values.email.trim().toLowerCase();
+    if (!z.string().email().safeParse(email).success) return null;
+    return { kind: "email", email, password: values.password };
   }
-  const phoneNumber = normalizeIndonesianPhone(trimmed);
+  const phoneNumber = normalizePhone(values.phone);
   if (!phoneNumber) return null;
-  return { kind: "phone", phoneNumber };
+  return { kind: "phone", phoneNumber, password: values.password };
 }

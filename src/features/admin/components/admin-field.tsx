@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import { useTranslations } from "next-intl";
+import * as React from "react";
 import { Icon } from "@/components/shared/Icon";
 import { RequiredMark } from "@/components/shared/required-mark";
 import {
@@ -28,11 +28,7 @@ export function AdminField({
 }) {
   return (
     <div className={cn("space-y-1.5", className)}>
-      <label
-        htmlFor={htmlFor}
-        className="text-label-sm text-foreground"
-        aria-required={required || undefined}
-      >
+      <label htmlFor={htmlFor} className="text-label-sm text-foreground">
         {label}
         {required ? <RequiredMark className="ml-0.5" /> : null}
       </label>
@@ -230,12 +226,11 @@ export function AdminSelect({
   const selectedLabel = selected?.label ?? "";
   const isPlaceholder = !selected;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only reset the highlight when the menu opens, not on every parent re-render
   React.useEffect(() => {
     if (!open) return;
     const idx = options.findIndex((option) => option.value === selectedValue);
     setActiveIndex(idx >= 0 ? idx : 0);
-    // Only reset highlight when the menu opens, not on every parent re-render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   React.useEffect(() => {
@@ -243,10 +238,7 @@ export function AdminSelect({
     itemRefs.current[activeIndex]?.scrollIntoView({ block: "nearest" });
   }, [activeIndex, open]);
 
-  React.useEffect(
-    () => () => window.clearTimeout(typeaheadTimer.current),
-    [],
-  );
+  React.useEffect(() => () => window.clearTimeout(typeaheadTimer.current), []);
 
   function emitChange(next: string) {
     onChange?.({
@@ -388,6 +380,7 @@ export function AdminSelect({
         >
           <ul
             id={listboxId}
+            // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: role="listbox" on <ul> is permitted by ARIA in HTML
             role="listbox"
             className="max-h-64 overflow-y-auto p-1"
           >
@@ -416,7 +409,9 @@ export function AdminSelect({
                       option.value === "" && !isSelected && "text-fg-2",
                     )}
                   >
-                    <span className="min-w-0 flex-1 truncate">{option.label}</span>
+                    <span className="min-w-0 flex-1 truncate">
+                      {option.label}
+                    </span>
                     {isSelected && (
                       <Icon
                         name="check"
@@ -453,16 +448,17 @@ function optionsFromChildren(children: React.ReactNode): Array<{
     [];
 
   React.Children.forEach(children, (child) => {
-    if (!React.isValidElement<{
-      value?: string | number;
-      disabled?: boolean;
-      children?: React.ReactNode;
-    }>(child)) {
+    if (
+      !React.isValidElement<{
+        value?: string | number;
+        disabled?: boolean;
+        children?: React.ReactNode;
+      }>(child)
+    ) {
       return;
     }
     if (child.type !== "option") return;
-    const value =
-      child.props.value == null ? "" : String(child.props.value);
+    const value = child.props.value == null ? "" : String(child.props.value);
     options.push({
       value,
       label: childText(child.props.children) || value,
@@ -497,7 +493,15 @@ export const AdminSearchInput = React.forwardRef<
     variant?: "default" | "menu";
   } & Omit<React.ComponentProps<"input">, "value" | "onChange" | "type">
 >(function AdminSearchInput(
-  { value, onChange, placeholder, className, id, variant = "default", ...props },
+  {
+    value,
+    onChange,
+    placeholder,
+    className,
+    id,
+    variant = "default",
+    ...props
+  },
   ref,
 ) {
   return (

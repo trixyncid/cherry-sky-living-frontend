@@ -218,9 +218,10 @@ export function SurveyScheduleDialog({
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
+    const website = String(new FormData(e.currentTarget).get("website") ?? "");
 
     const propertyLabel = selectedProperty?.name ?? form.propertyId;
     const unitTypeLabel =
@@ -259,6 +260,7 @@ export function SurveyScheduleDialog({
       viewingMode: "in_person",
       pagePath: window.location.pathname,
       source: getLeadSource(),
+      website: website || undefined,
     })
       .then(() =>
         track("submit_viewing", {
@@ -302,7 +304,7 @@ export function SurveyScheduleDialog({
           <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="relative space-y-4">
           <div>
             <label
               htmlFor="survey-name"
@@ -461,6 +463,19 @@ export function SurveyScheduleDialog({
               {t("submit")}
             </Button>
           </DialogFooter>
+          {/* Honeypot: hidden from people, bots fill it and the API drops the lead. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -left-[10000px] top-auto h-px w-px overflow-hidden"
+          >
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              defaultValue=""
+            />
+          </div>
         </form>
       </DialogContent>
     </Dialog>

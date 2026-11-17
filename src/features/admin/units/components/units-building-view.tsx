@@ -36,7 +36,8 @@ interface UnitsBuildingViewProps {
 }
 
 const TILE: Record<RoomVisual, string> = {
-  vacant: "border-success-soft bg-success-soft text-success hover:border-success",
+  vacant:
+    "border-success-soft bg-success-soft text-success hover:border-success",
   occupied:
     "border-brand-line bg-brand-tint text-brand hover:border-brand-line",
   ghost: "border-line bg-subtle text-fg-faint hover:border-line",

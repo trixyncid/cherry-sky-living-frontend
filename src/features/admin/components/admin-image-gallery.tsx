@@ -24,13 +24,14 @@ import {
   type AdminAttachmentItem,
   attachmentDisplayName,
   isPdfAttachment,
+  isVideoAttachment,
 } from "@/features/admin/lib/attachments";
 import { formatDate } from "@/features/admin/lib/format";
+import { exceedsUploadLimit, shrinkImageForUpload } from "@/lib/image-shrink";
 import { cn } from "@/lib/utils";
 
 const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
 const DOCUMENT_ACCEPT = `${IMAGE_ACCEPT},application/pdf`;
-const MAX_BYTES = 5 * 1024 * 1024;
 
 export type AttachmentKindOption = { value: string; label: string };
 
@@ -91,27 +92,26 @@ export function AdminImageGallery({
     if (cameraRef.current) cameraRef.current.value = "";
   }
 
-  function handleFiles(fileList: FileList | File[]) {
+  async function handleFiles(fileList: FileList | File[]) {
     const files = Array.from(fileList);
     if (files.length === 0) return;
 
     const allowed = files.filter((file) => isAllowedFile(file, allowPdf));
+    resetInputs();
     if (allowed.length === 0) {
       setLocalError(allowPdf ? t("invalidTypeWithPdf") : t("invalidType"));
-      resetInputs();
       return;
     }
 
-    const oversized = allowed.find((file) => file.size > MAX_BYTES);
-    if (oversized) {
+    // Phone photos are downscaled first; the size limit applies afterwards.
+    const prepared = await Promise.all(allowed.map(shrinkImageForUpload));
+    if (prepared.some(exceedsUploadLimit)) {
       setLocalError(t("tooLarge"));
-      resetInputs();
       return;
     }
 
     setLocalError(null);
-    queue.add(allowed);
-    resetInputs();
+    queue.add(prepared);
   }
 
   function onDragEnter(event: React.DragEvent) {
@@ -141,7 +141,7 @@ export function AdminImageGallery({
     event.stopPropagation();
     dragCount.current = 0;
     setDragActive(false);
-    handleFiles(event.dataTransfer.files);
+    void handleFiles(event.dataTransfer.files);
   }
 
   async function confirmDelete() {
@@ -157,6 +157,7 @@ export function AdminImageGallery({
   }
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop target; keyboard users use the file picker button inside
     <div
       onDragEnter={onDragEnter}
       onDragLeave={onDragLeave}
@@ -175,7 +176,7 @@ export function AdminImageGallery({
         multiple
         className="sr-only"
         aria-label={t("dropTitle")}
-        onChange={(event) => handleFiles(event.target.files ?? [])}
+        onChange={(event) => void handleFiles(event.target.files ?? [])}
       />
       {camera ? (
         <input
@@ -186,7 +187,7 @@ export function AdminImageGallery({
           className="sr-only"
           tabIndex={-1}
           aria-hidden
-          onChange={(event) => handleFiles(event.target.files ?? [])}
+          onChange={(event) => void handleFiles(event.target.files ?? [])}
         />
       ) : null}
 
@@ -266,6 +267,15 @@ export function AdminImageGallery({
                       {attachmentDisplayName(preview.url)}
                     </p>
                   </div>
+                ) : isVideoAttachment(preview) ? (
+                  // biome-ignore lint/a11y/useMediaCaption: tenant-recorded room footage; no captions exist
+                  <video
+                    key={preview.url}
+                    src={preview.url}
+                    controls
+                    playsInline
+                    className="size-full object-contain"
+                  />
                 ) : (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
@@ -496,6 +506,7 @@ function PhotoTile({
   const t = useTranslations("admin.attachments");
   const name = attachmentDisplayName(item.url);
   const pdf = isPdfAttachment(item);
+  const video = !pdf && isVideoAttachment(item);
 
   return (
     <div className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-hover shadow-sm">
@@ -512,6 +523,19 @@ function PhotoTile({
               {name}
             </span>
           </div>
+        ) : video ? (
+          <span className="relative block size-full">
+            <video
+              src={`${item.url}#t=0.1`}
+              preload="metadata"
+              muted
+              playsInline
+              className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+            />
+            <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-white drop-shadow">
+              <Icon name="play_circle" size={36} />
+            </span>
+          </span>
         ) : (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img

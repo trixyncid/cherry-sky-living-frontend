@@ -171,10 +171,7 @@ export function AdminToolbar({
       {resultCount !== undefined || active.length > 0 || searching ? (
         <div className="flex flex-wrap items-center gap-2 px-1 text-sm">
           {resultCount !== undefined ? (
-            <span
-              className="mr-1 font-medium text-fg"
-              aria-live="polite"
-            >
+            <span className="mr-1 font-medium text-fg" aria-live="polite">
               {t("results", { count: resultCount })}
             </span>
           ) : null}
@@ -225,9 +222,7 @@ export function AdminToolbar({
             {filters.map((f) => (
               <div key={f.key} className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-fg">
-                    {f.label}
-                  </p>
+                  <p className="text-sm font-medium text-fg">{f.label}</p>
                   {f.active && f.onClear ? (
                     <button
                       type="button"

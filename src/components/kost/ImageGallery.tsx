@@ -185,7 +185,8 @@ export function ImageGallery({
                   );
                 })}
                 {remainingCount > 0 && (
-                  <div
+                  <button
+                    type="button"
                     className={cn(
                       "flex cursor-pointer items-center justify-center rounded-xl bg-brand-soft transition-colors hover:bg-brand-soft",
                       isCompact
@@ -202,7 +203,7 @@ export function ImageGallery({
                     >
                       {t("roomDetail.morePhotos", { count: remainingCount })}
                     </span>
-                  </div>
+                  </button>
                 )}
               </motion.div>
             )}
@@ -222,6 +223,7 @@ export function ImageGallery({
           >
             <div className="relative h-full w-full flex items-center justify-center p-4">
               <button
+                type="button"
                 className="absolute top-4 right-4 p-2 text-white hover:bg-white/10 rounded-full transition-colors z-10"
                 onClick={() => setShowAllPhotos(false)}
               >

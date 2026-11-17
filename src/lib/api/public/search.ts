@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api/client";
+import { type ApiFetchOptions, apiFetch } from "@/lib/api/client";
 import type {
   PublicAttachment,
   PublicPricing,
@@ -110,7 +110,8 @@ function buildQueryString(params: PublicSearchParams): string {
 
 export async function searchPublicUnits(
   params: PublicSearchParams = {},
+  options?: ApiFetchOptions,
 ): Promise<PublicSearchResponse> {
   const query = buildQueryString(params);
-  return apiFetch<PublicSearchResponse>(`/public/search${query}`);
+  return apiFetch<PublicSearchResponse>(`/public/search${query}`, options);
 }

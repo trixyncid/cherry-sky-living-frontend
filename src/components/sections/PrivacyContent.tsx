@@ -176,6 +176,7 @@ export function PrivacyContent() {
               className="group"
             >
               <button
+                type="button"
                 onClick={() =>
                   setExpandedSection(
                     expandedSection === section.key ? null : section.key,
@@ -184,9 +185,7 @@ export function PrivacyContent() {
                 className="glass-card w-full rounded-[1.25rem] p-6 text-left transition-all duration-300 hover:-translate-y-0.5"
               >
                 <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-lg font-bold text-fg">
-                    {section.title}
-                  </h3>
+                  <h3 className="text-lg font-bold text-fg">{section.title}</h3>
                   <Icon
                     name={
                       expandedSection === section.key
@@ -245,15 +244,9 @@ export function PrivacyContent() {
           className="glass-card mt-16 rounded-[1.5rem] p-6"
         >
           <div className="flex items-start gap-4">
-            <Icon
-              name="info"
-              size={24}
-              className="mt-1 shrink-0 text-brand"
-            />
+            <Icon name="info" size={24} className="mt-1 shrink-0 text-brand" />
             <div>
-              <h3 className="mb-2 font-bold text-fg">
-                Important Notice
-              </h3>
+              <h3 className="mb-2 font-bold text-fg">Important Notice</h3>
               <p className="text-sm text-fg-2">
                 We may update this Privacy Policy periodically. Your continued
                 use of our services following notifications of changes

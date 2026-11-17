@@ -4,9 +4,9 @@ import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { ProfileAvatarPlaceholder } from "@/components/shared/profile-avatar-placeholder";
-import { Link, usePathname } from "@/i18n/routing";
-import { adminNavItems } from "@/features/admin/constants/nav-items";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
+import { adminNavItems } from "@/features/admin/constants/nav-items";
+import { Link, usePathname } from "@/i18n/routing";
 import { UserRole } from "@/lib/types/auth";
 import { cn } from "@/lib/utils";
 

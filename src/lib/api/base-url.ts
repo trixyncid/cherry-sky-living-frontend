@@ -8,13 +8,17 @@ const LOCAL_API_URL = "http://localhost:8000";
  * Resolution order:
  * 1. API_URL — server-only, available at runtime on Vercel (no rebuild needed)
  * 2. NEXT_PUBLIC_API_URL — build-time fallback for local dev / existing deploys
- * 3. localhost:8000 — local default
+ * 3. localhost:8000 — local default (development / test only; production throws)
  */
 export function getServerApiUrl(): string {
-  return (env.API_URL ?? env.NEXT_PUBLIC_API_URL ?? LOCAL_API_URL).replace(
-    /\/$/,
-    "",
-  );
+  const configured = env.API_URL ?? env.NEXT_PUBLIC_API_URL;
+  if (!configured && process.env.NODE_ENV === "production") {
+    // Checked per call (not at import) so `next build` without the env works.
+    throw new Error(
+      "API_URL is not set. Set API_URL (or NEXT_PUBLIC_API_URL) to the backend URL in production — refusing to fall back to localhost.",
+    );
+  }
+  return (configured ?? LOCAL_API_URL).replace(/\/$/, "");
 }
 
 /**

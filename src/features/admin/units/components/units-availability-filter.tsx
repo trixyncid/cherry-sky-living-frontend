@@ -6,8 +6,8 @@ import {
   AdminDateRangePicker,
   AdminField,
 } from "@/features/admin/components/admin-field";
-import { cn } from "@/lib/utils";
 import { formatDate } from "@/features/admin/lib/format";
+import { cn } from "@/lib/utils";
 
 export type AvailabilityRange = {
   startDate: string;
@@ -85,9 +85,7 @@ export function UnitsAvailabilityFilter({
 
       {expanded && (
         <div className="glass-panel rounded-2xl p-5">
-          <p className="mb-1 text-sm font-medium text-fg-2">
-            {tp("filters")}
-          </p>
+          <p className="mb-1 text-sm font-medium text-fg-2">{tp("filters")}</p>
           <p className="mb-4 text-xs text-fg-muted">{tp("hint")}</p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <AdminField
@@ -125,9 +123,7 @@ export function UnitsAvailabilityFilter({
               )}
             </div>
           </div>
-          {dateError && (
-            <p className="mt-3 text-sm text-danger">{dateError}</p>
-          )}
+          {dateError && <p className="mt-3 text-sm text-danger">{dateError}</p>}
         </div>
       )}
     </div>

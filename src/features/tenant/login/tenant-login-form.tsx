@@ -4,6 +4,8 @@ import { useForm } from "@tanstack/react-form";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { CountryPhoneInput } from "@/components/shared/country-phone-input";
+import { Icon } from "@/components/shared/Icon";
 import {
   AdminLoginShell,
   LoginField,
@@ -11,9 +13,9 @@ import {
   PasswordToggle,
 } from "@/features/admin/login/admin-login-shell";
 import {
-  resolveTenantLoginIdentifier,
+  resolveTenantLogin,
+  type TenantLoginMethod,
   type TenantLoginValues,
-  tenantLoginSchema,
 } from "@/features/tenant/login/schemas";
 import { useRouter } from "@/i18n/routing";
 import { getTenantProfile } from "@/lib/api/tenant/profile";
@@ -29,6 +31,7 @@ import {
 } from "@/lib/auth/role";
 import { signOutClient } from "@/lib/auth/sign-out-client";
 import { toast } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 function showLoginError(
   t: ReturnType<typeof useTranslations<"tenant.login">>,
@@ -68,17 +71,13 @@ export function TenantLoginForm() {
 
   const form = useForm({
     defaultValues: {
-      identifier: "",
+      method: "phone",
+      phone: "",
+      email: "",
       password: "",
-    } satisfies TenantLoginValues,
+    } as TenantLoginValues,
     onSubmit: async ({ value }) => {
-      const parsed = tenantLoginSchema.safeParse(value);
-      if (!parsed.success) {
-        showLoginError(t, "invalid");
-        return;
-      }
-
-      const resolved = resolveTenantLoginIdentifier(parsed.data.identifier);
+      const resolved = resolveTenantLogin(value);
       if (!resolved) {
         showLoginError(t, "invalid");
         return;
@@ -88,11 +87,11 @@ export function TenantLoginForm() {
         resolved.kind === "email"
           ? await authClient.signIn.email({
               email: resolved.email,
-              password: parsed.data.password,
+              password: resolved.password,
             })
           : await authClient.signIn.phoneNumber({
               phoneNumber: resolved.phoneNumber,
-              password: parsed.data.password,
+              password: resolved.password,
             });
 
       if (result.error) {
@@ -144,22 +143,64 @@ export function TenantLoginForm() {
           void form.handleSubmit();
         }}
       >
-        <form.Field name="identifier">
-          {(field) => (
-            <LoginField
-              id="tenant-identifier"
-              label={t("identifierLabel")}
-              icon="person"
-              type="text"
-              autoComplete="username"
-              inputMode="email"
-              placeholder={t("identifierPlaceholder")}
-              required
-              value={field.state.value}
-              onBlur={field.handleBlur}
-              onChange={(e) => field.handleChange(e.target.value)}
-            />
-          )}
+        <form.Field name="method">
+          {(methodField) => {
+            const method = methodField.state.value;
+            return (
+              <>
+                <MethodSwitch
+                  value={method}
+                  onChange={(next) => methodField.handleChange(next)}
+                  label={t("methodLabel")}
+                  phoneLabel={t("methodPhone")}
+                  emailLabel={t("methodEmail")}
+                />
+                {method === "phone" ? (
+                  <form.Field name="phone">
+                    {(field) => (
+                      <div>
+                        <label
+                          htmlFor="tenant-phone"
+                          className="mb-2 block text-sm font-medium text-fg"
+                        >
+                          {t("phoneLabel")}
+                        </label>
+                        <CountryPhoneInput
+                          id="tenant-phone"
+                          size="lg"
+                          autoComplete="tel"
+                          required
+                          value={field.state.value}
+                          onChange={(v) => field.handleChange(v)}
+                        />
+                        <p className="mt-1.5 text-xs text-fg-muted">
+                          {t("phoneHint")}
+                        </p>
+                      </div>
+                    )}
+                  </form.Field>
+                ) : (
+                  <form.Field name="email">
+                    {(field) => (
+                      <LoginField
+                        id="tenant-email"
+                        label={t("emailLabel")}
+                        icon="mail"
+                        type="email"
+                        autoComplete="username"
+                        inputMode="email"
+                        placeholder={t("emailPlaceholder")}
+                        required
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                    )}
+                  </form.Field>
+                )}
+              </>
+            );
+          }}
         </form.Field>
 
         <form.Field name="password">
@@ -201,5 +242,56 @@ export function TenantLoginForm() {
         </form.Subscribe>
       </form>
     </AdminLoginShell>
+  );
+}
+
+/** Phone / Email segmented switch above the sign-in fields. */
+function MethodSwitch({
+  value,
+  onChange,
+  label,
+  phoneLabel,
+  emailLabel,
+}: {
+  value: TenantLoginMethod;
+  onChange: (value: TenantLoginMethod) => void;
+  label: string;
+  phoneLabel: string;
+  emailLabel: string;
+}) {
+  const options: { value: TenantLoginMethod; label: string; icon: string }[] = [
+    { value: "phone", label: phoneLabel, icon: "smartphone" },
+    { value: "email", label: emailLabel, icon: "mail" },
+  ];
+  return (
+    <fieldset className="grid grid-cols-2 gap-1 rounded-2xl bg-subtle p-1">
+      <legend className="sr-only">{label}</legend>
+      {options.map((o) => {
+        const selected = value === o.value;
+        return (
+          <label
+            key={o.value}
+            className={cn(
+              "flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl text-sm font-medium transition-colors",
+              "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand/30",
+              selected
+                ? "bg-white text-fg shadow-[0_1px_3px_rgb(11_11_13/0.08)]"
+                : "text-fg-muted hover:text-fg",
+            )}
+          >
+            <input
+              type="radio"
+              name="tenant-login-method"
+              value={o.value}
+              checked={selected}
+              onChange={() => onChange(o.value)}
+              className="sr-only"
+            />
+            <Icon name={o.icon} size={18} />
+            {o.label}
+          </label>
+        );
+      })}
+    </fieldset>
   );
 }

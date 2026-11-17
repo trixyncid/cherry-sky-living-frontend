@@ -12,5 +12,7 @@ export function getRoleFromAuthUser(
 export function getRoleFromSignInData(data: unknown): string | undefined {
   if (!data || typeof data !== "object") return undefined;
   const record = data as { user?: User };
-  return getRoleFromAuthUser(record.user as Record<string, unknown> | undefined);
+  return getRoleFromAuthUser(
+    record.user as Record<string, unknown> | undefined,
+  );
 }

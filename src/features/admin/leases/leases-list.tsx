@@ -145,6 +145,7 @@ export function LeasesList() {
         lease.unit?.name ?? lease.unitId,
         resolveLeasePropertyName(lease, lookups),
         resolveLeaseTenantLabel(lease),
+        ...(lease.occupants ?? []).map((o) => o.user?.name ?? ""),
       ]
         .join(" ")
         .toLowerCase()
@@ -471,7 +472,10 @@ function LeaseCard({
       <div className="flex items-start gap-3">
         <Avatar name={tenant} seed={lease.userId} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-medium text-fg">{tenant}</p>
+          <p className="flex min-w-0 items-center gap-1.5 text-[15px] font-medium text-fg">
+            <span className="truncate">{tenant}</span>
+            <RoommatesChip lease={lease} />
+          </p>
           <p className="truncate text-xs text-fg-muted">
             {lease.unit?.name ?? "—"} ·{" "}
             {resolveLeasePropertyName(lease, lookups)}
@@ -619,7 +623,10 @@ function ListRow({
     <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-1 px-4 py-3 sm:grid-cols-[auto_minmax(0,1.3fr)_minmax(0,1fr)_auto_auto_auto] sm:gap-x-5 sm:px-5">
       <Avatar name={tenant} seed={lease.userId} />
       <div className="min-w-0">
-        <p className="truncate font-medium text-fg">{tenant}</p>
+        <p className="flex min-w-0 items-center gap-1.5 font-medium text-fg">
+          <span className="truncate">{tenant}</span>
+          <RoommatesChip lease={lease} />
+        </p>
         <p className="truncate text-xs text-fg-muted">
           {lease.unit?.name ?? "—"} · {resolveLeasePropertyName(lease, lookups)}
         </p>
@@ -693,5 +700,22 @@ function Kpi({
         </p>
       </div>
     </div>
+  );
+}
+
+/** "+1" next to the primary tenant when roommates share the unit. */
+function RoommatesChip({ lease }: { lease: Lease }) {
+  const tp = useTranslations("admin.pages.leases.roommates");
+  const roommates = lease.occupants ?? [];
+  if (roommates.length === 0) return null;
+  const names = roommates.map((o) => o.user?.name ?? "—").join(", ");
+  return (
+    <span
+      title={tp("sharedWith", { names })}
+      className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-brand-tint px-1.5 py-0.5 text-[11px] font-semibold text-brand"
+    >
+      <Icon name="group" size={12} />+{roommates.length}
+      <span className="sr-only">{tp("sharedWith", { names })}</span>
+    </span>
   );
 }

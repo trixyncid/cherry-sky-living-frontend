@@ -41,6 +41,8 @@ export async function createLease(input: {
   discountType?: LeaseDiscountType | null;
   discountValue?: number;
   discountNote?: string | null;
+  /** Roommates sharing the unit with the primary tenant. */
+  occupantIds?: string[];
   file?: File | null;
   attachmentKind?: LeaseAttachmentKind;
 }): Promise<Lease> {
@@ -53,6 +55,9 @@ export async function createLease(input: {
     form.set("startDate", fields.startDate);
     form.set("endDate", fields.endDate);
     form.set("unitPricingId", fields.unitPricingId);
+    for (const occupantId of fields.occupantIds ?? []) {
+      form.append("occupantIds", occupantId);
+    }
     if (fields.leaseRenewalId) {
       form.set("leaseRenewalId", fields.leaseRenewalId);
     }
@@ -99,6 +104,18 @@ export async function updateLease(
     method: "PUT",
     body: input,
   });
+  return res.data;
+}
+
+/** Replace the lease's roommates with exactly `userIds` (empty clears). */
+export async function updateLeaseOccupants(
+  id: string,
+  userIds: string[],
+): Promise<Lease> {
+  const res = await apiFetch<ApiDataResponse<Lease>>(
+    `/admin/leases/${id}/occupants`,
+    { method: "PUT", body: { userIds } },
+  );
   return res.data;
 }
 

@@ -1,4 +1,12 @@
-import { beforeEach, describe, expect, test } from "bun:test";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  setSystemTime,
+  test,
+} from "bun:test";
 import type { Lease, LeaseRenewal } from "@/lib/types/admin";
 import {
   canRequestLeaseRenewal,
@@ -10,6 +18,15 @@ import {
   isInFinalFiveDaysBeforeEnd,
   isRenewalDismissed,
 } from "./lease-renewal";
+
+// The fixtures below are dated around September 2026; pin "now" so the
+// suite doesn't start failing once the real date passes them.
+beforeAll(() => {
+  setSystemTime(new Date("2026-09-06T03:00:00.000Z"));
+});
+afterAll(() => {
+  setSystemTime();
+});
 
 const memoryStore = new Map<string, string>();
 
@@ -147,9 +164,9 @@ describe("tenant lease renewal helpers", () => {
         lease({ leaseRenewal: renewal({ markAsCompleted: true }) }),
       ),
     ).toBe("completed");
-    expect(
-      getTenantRenewalDisplayStatus(lease({ status: "unpaid" })),
-    ).toBe("not_eligible");
+    expect(getTenantRenewalDisplayStatus(lease({ status: "unpaid" }))).toBe(
+      "not_eligible",
+    );
     expect(getTenantRenewalDisplayStatus(lease({ leaseRenewal: null }))).toBe(
       null,
     );

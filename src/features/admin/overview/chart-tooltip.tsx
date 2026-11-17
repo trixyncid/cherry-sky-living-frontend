@@ -41,10 +41,7 @@ export function ChartTooltip({
           const raw = item.value;
           const num = typeof raw === "number" ? raw : Number(raw);
           return (
-            <li
-              key={name}
-              className="flex items-center gap-2 text-sm text-fg"
-            >
+            <li key={name} className="flex items-center gap-2 text-sm text-fg">
               <span
                 className="size-2.5 shrink-0 rounded-full"
                 style={{ background: item.color ?? "var(--chart-1)" }}

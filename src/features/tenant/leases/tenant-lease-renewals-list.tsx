@@ -1,23 +1,23 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
-import { Link } from "@/i18n/routing";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminStatCard } from "@/features/admin/components/admin-stat-card";
-import { formatDate } from "@/features/admin/lib/format";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { LeaseRenewalPrompt } from "@/features/tenant/leases/lease-renewal-prompt";
+import { formatDate } from "@/features/admin/lib/format";
 import { useTenantLeases } from "@/features/tenant/hooks/use-tenant-queries";
+import { LeaseRenewalPrompt } from "@/features/tenant/leases/lease-renewal-prompt";
 import {
   getTenantRenewalDisplayStatus,
   hasLeaseRenewal,
   type TenantRenewalDisplayStatus,
 } from "@/features/tenant/lib/lease-renewal";
-import { cn } from "@/lib/utils";
+import { Link } from "@/i18n/routing";
 import type { Lease } from "@/lib/types/admin";
+import { cn } from "@/lib/utils";
 
 type StatusFilter = "all" | "active" | "completed";
 
@@ -37,10 +37,7 @@ export function TenantLeaseRenewalsList() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const { data = [], isLoading, error } = useTenantLeases();
 
-  const renewalLeases = useMemo(
-    () => data.filter(hasLeaseRenewal),
-    [data],
-  );
+  const renewalLeases = useMemo(() => data.filter(hasLeaseRenewal), [data]);
 
   const metrics = useMemo(() => {
     const statuses = renewalLeases.map(
@@ -49,9 +46,8 @@ export function TenantLeaseRenewalsList() {
     return {
       total: renewalLeases.length,
       actionNeeded: statuses.filter((s) => s === "action_needed").length,
-      inProgress: statuses.filter(
-        (s) => s === "requested" || s === "confirmed",
-      ).length,
+      inProgress: statuses.filter((s) => s === "requested" || s === "confirmed")
+        .length,
       completed: statuses.filter((s) => s === "completed").length,
     };
   }, [renewalLeases]);
@@ -92,7 +88,9 @@ export function TenantLeaseRenewalsList() {
             iconClassName="bg-[#B06000]/12 text-[#B06000]"
             label={tp("stats.actionNeeded")}
             value={metrics.actionNeeded}
-            className={metrics.actionNeeded > 0 ? "ring-1 ring-[#B06000]/20" : undefined}
+            className={
+              metrics.actionNeeded > 0 ? "ring-1 ring-[#B06000]/20" : undefined
+            }
           />
           <AdminStatCard
             icon="sync"
@@ -179,7 +177,10 @@ function RenewalCard({ lease }: { lease: Lease }) {
               {lease.unit?.property?.name ?? "—"}
             </p>
           </div>
-          <TenantRenewalStatusBadge status={status} label={tp(`status.${status}`)} />
+          <TenantRenewalStatusBadge
+            status={status}
+            label={tp(`status.${status}`)}
+          />
         </div>
 
         <dl className="mt-4 grid gap-3 sm:grid-cols-3">

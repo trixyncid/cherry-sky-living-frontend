@@ -7,35 +7,35 @@
  * @param amount - The amount to format
  * @param options - Formatting options
  * @returns Formatted currency string
- * 
+ *
  * @example
  * formatCurrency(1800000) // "Rp 1.800.000"
  * formatCurrency(1500000, { compact: true }) // "Rp 1,5 jt"
  */
 export function formatCurrency(
-    amount: number,
-    options: { compact?: boolean; showDecimals?: boolean } = {}
+  amount: number,
+  options: { compact?: boolean; showDecimals?: boolean } = {},
 ): string {
-    const { compact = false, showDecimals = false } = options;
+  const { compact = false, showDecimals = false } = options;
 
-    if (compact) {
-        if (amount >= 1_000_000) {
-            const millions = amount / 1_000_000;
-            return `Rp ${millions.toFixed(millions % 1 === 0 ? 0 : 1)} jt`;
-        }
-        if (amount >= 1_000) {
-            const thousands = amount / 1_000;
-            return `Rp ${thousands.toFixed(thousands % 1 === 0 ? 0 : 1)} rb`;
-        }
+  if (compact) {
+    if (amount >= 1_000_000) {
+      const millions = amount / 1_000_000;
+      return `Rp ${millions.toFixed(millions % 1 === 0 ? 0 : 1)} jt`;
     }
+    if (amount >= 1_000) {
+      const thousands = amount / 1_000;
+      return `Rp ${thousands.toFixed(thousands % 1 === 0 ? 0 : 1)} rb`;
+    }
+  }
 
-    // Standard Indonesian number formatting with dot separators
-    const formatted = new Intl.NumberFormat('id-ID', {
-        minimumFractionDigits: showDecimals ? 2 : 0,
-        maximumFractionDigits: showDecimals ? 2 : 0,
-    }).format(amount);
+  // Standard Indonesian number formatting with dot separators
+  const formatted = new Intl.NumberFormat("id-ID", {
+    minimumFractionDigits: showDecimals ? 2 : 0,
+    maximumFractionDigits: showDecimals ? 2 : 0,
+  }).format(amount);
 
-    return `Rp ${formatted}`;
+  return `Rp ${formatted}`;
 }
 
 /**
@@ -45,21 +45,21 @@ export function formatCurrency(
  * @returns Formatted phone number for WhatsApp (e.g., "628123456789")
  */
 export function formatWhatsAppNumber(phoneNumber: string): string {
-    // Remove all non-numeric characters
-    const cleaned = phoneNumber.replace(/\D/g, '');
+  // Remove all non-numeric characters
+  const cleaned = phoneNumber.replace(/\D/g, "");
 
-    // Convert leading 0 to 62 (Indonesia country code)
-    if (cleaned.startsWith('0')) {
-        return '62' + cleaned.substring(1);
-    }
+  // Convert leading 0 to 62 (Indonesia country code)
+  if (cleaned.startsWith("0")) {
+    return "62" + cleaned.substring(1);
+  }
 
-    // If already starts with 62, return as is
-    if (cleaned.startsWith('62')) {
-        return cleaned;
-    }
+  // If already starts with 62, return as is
+  if (cleaned.startsWith("62")) {
+    return cleaned;
+  }
 
-    // Otherwise, add 62 prefix
-    return '62' + cleaned;
+  // Otherwise, add 62 prefix
+  return "62" + cleaned;
 }
 
 /**
@@ -69,13 +69,13 @@ export function formatWhatsAppNumber(phoneNumber: string): string {
  * @returns WhatsApp URL
  */
 export function generateWhatsAppURL(
-    phoneNumber: string,
-    message?: string
+  phoneNumber: string,
+  message?: string,
 ): string {
-    const formattedNumber = formatWhatsAppNumber(phoneNumber);
-    const encodedMessage = message ? encodeURIComponent(message) : '';
+  const formattedNumber = formatWhatsAppNumber(phoneNumber);
+  const encodedMessage = message ? encodeURIComponent(message) : "";
 
-    return `https://wa.me/${formattedNumber}${encodedMessage ? `?text=${encodedMessage}` : ''}`;
+  return `https://wa.me/${formattedNumber}${encodedMessage ? `?text=${encodedMessage}` : ""}`;
 }
 
 /**
@@ -85,13 +85,13 @@ export function generateWhatsAppURL(
  * @returns Pre-filled inquiry message
  */
 export function generateInquiryMessage(
-    propertyName: string,
-    roomType?: string
+  propertyName: string,
+  roomType?: string,
 ): string {
-    if (roomType) {
-        return `Halo kak 👋 Kamar ${roomType} di ${propertyName} masih ada? Kalau mau sewa, langkah selanjutnya gimana ya? Makasih 🙏`;
-    }
-    return `Halo kak 👋 Saya lagi lihat-lihat ${propertyName} nih. Boleh minta info lebih lanjut? Makasih 🙏`;
+  if (roomType) {
+    return `Halo kak 👋 Kamar ${roomType} di ${propertyName} masih ada? Kalau mau sewa, langkah selanjutnya gimana ya? Makasih 🙏`;
+  }
+  return `Halo kak 👋 Saya lagi lihat-lihat ${propertyName} nih. Boleh minta info lebih lanjut? Makasih 🙏`;
 }
 
 /**
@@ -100,7 +100,7 @@ export function generateInquiryMessage(
  * @returns Pre-filled visit scheduling message
  */
 export function generateVisitMessage(propertyName: string): string {
-    return `Halo kak 👋 Saya mau main ke ${propertyName} buat lihat kamar. Kira-kira kapan bisanya ya? Makasih 🙏`;
+  return `Halo kak 👋 Saya mau main ke ${propertyName} buat lihat kamar. Kira-kira kapan bisanya ya? Makasih 🙏`;
 }
 
 /**
@@ -110,18 +110,18 @@ export function generateVisitMessage(propertyName: string): string {
  * @returns Formatted availability message
  */
 export function formatAvailability(
-    count: number,
-    locale: 'id' | 'en' = 'id'
+  count: number,
+  locale: "id" | "en" = "id",
 ): string {
-    if (count === 0) {
-        return locale === 'id' ? 'Penuh' : 'Full';
-    }
-    if (count === 1) {
-        return locale === 'id' ? '1 kamar tersedia' : '1 room available';
-    }
-    return locale === 'id'
-        ? `${count} kamar tersedia`
-        : `${count} rooms available`;
+  if (count === 0) {
+    return locale === "id" ? "Penuh" : "Full";
+  }
+  if (count === 1) {
+    return locale === "id" ? "1 kamar tersedia" : "1 room available";
+  }
+  return locale === "id"
+    ? `${count} kamar tersedia`
+    : `${count} rooms available`;
 }
 
 /**
@@ -130,23 +130,23 @@ export function formatAvailability(
  * Indonesian strings ("1-2 orang") and localizes the person unit.
  */
 export function formatCapacity(
-    capacity: string,
-    locale: 'id' | 'en' = 'id'
+  capacity: string,
+  locale: "id" | "en" = "id",
 ): string {
-    if (!capacity || capacity === '—') return capacity;
+  if (!capacity || capacity === "—") return capacity;
 
-    const cleaned = capacity
-        .replace(/\s*orang\s*/gi, '')
-        .replace(/\s*persons?\s*/gi, '')
-        .trim();
+  const cleaned = capacity
+    .replace(/\s*orang\s*/gi, "")
+    .replace(/\s*persons?\s*/gi, "")
+    .trim();
 
-    if (!cleaned) return capacity;
+  if (!cleaned) return capacity;
 
-    const isSingular = cleaned === '1';
-    if (locale === 'en') {
-        return `${cleaned} ${isSingular ? 'person' : 'persons'}`;
-    }
-    return `${cleaned} orang`;
+  const isSingular = cleaned === "1";
+  if (locale === "en") {
+    return `${cleaned} ${isSingular ? "person" : "persons"}`;
+  }
+  return `${cleaned} orang`;
 }
 
 /**
@@ -156,8 +156,8 @@ export function formatCapacity(
  * @returns Truncated text
  */
 export function truncate(text: string, maxLength: number): string {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength).trim() + '...';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength).trim() + "...";
 }
 
 /**
@@ -166,12 +166,12 @@ export function truncate(text: string, maxLength: number): string {
  * @returns URL-friendly slug
  */
 export function generateSlug(text: string): string {
-    return text
-        .toLowerCase()
-        .trim()
-        .replace(/[^\w\s-]/g, '') // Remove special characters
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/-+/g, '-'); // Remove consecutive hyphens
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "") // Remove special characters
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-"); // Remove consecutive hyphens
 }
 
 /**
@@ -181,8 +181,8 @@ export function generateSlug(text: string): string {
  * @returns Percentage (0-100)
  */
 export function calculatePercentage(value: number, total: number): number {
-    if (total === 0) return 0;
-    return Math.round((value / total) * 100);
+  if (total === 0) return 0;
+  return Math.round((value / total) * 100);
 }
 
 /**
@@ -192,11 +192,11 @@ export function calculatePercentage(value: number, total: number): number {
  * @returns Status indicator
  */
 export function getOccupancyStatus(
-    available: number,
-    total: number
-): 'available' | 'almost-full' | 'full' {
-    if (available === 0) return 'full';
-    const percentage = calculatePercentage(available, total);
-    if (percentage <= 20) return 'almost-full';
-    return 'available';
+  available: number,
+  total: number,
+): "available" | "almost-full" | "full" {
+  if (available === 0) return "full";
+  const percentage = calculatePercentage(available, total);
+  if (percentage <= 20) return "almost-full";
+  return "available";
 }

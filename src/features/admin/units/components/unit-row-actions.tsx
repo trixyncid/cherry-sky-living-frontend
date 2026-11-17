@@ -40,7 +40,10 @@ export function UnitRowActions({
       {lease ? (
         <Link
           href={buildViewLeaseHref(lease.id)}
-          className={cn(actionClass, "hover:bg-success-soft/80 hover:text-success")}
+          className={cn(
+            actionClass,
+            "hover:bg-success-soft/80 hover:text-success",
+          )}
           aria-label={tp("viewLease")}
           title={tp("viewLease")}
         >
@@ -49,7 +52,10 @@ export function UnitRowActions({
       ) : (
         <Link
           href={buildCreateLeaseHref(unit.id, suggestedLeaseStartDate)}
-          className={cn(actionClass, "hover:bg-warning-soft/80 hover:text-brand")}
+          className={cn(
+            actionClass,
+            "hover:bg-warning-soft/80 hover:text-brand",
+          )}
           aria-label={tp("createLease")}
           title={tp("createLease")}
         >
@@ -68,10 +74,7 @@ export function UnitRowActions({
         type="button"
         disabled={disabled}
         onClick={onDelete}
-        className={cn(
-          actionClass,
-          "hover:bg-danger-soft/60 hover:text-danger",
-        )}
+        className={cn(actionClass, "hover:bg-danger-soft/60 hover:text-danger")}
         aria-label={tc("deleteConfirm")}
         title={tc("deleteConfirm")}
       >

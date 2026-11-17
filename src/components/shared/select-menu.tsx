@@ -180,6 +180,7 @@ export function SelectMenu({
         >
           <ul
             id={listboxId}
+            // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: role="listbox" on <ul> is permitted by ARIA in HTML
             role="listbox"
             className="max-h-56 overscroll-contain overflow-y-auto p-1.5"
             onWheel={(event) => event.stopPropagation()}
@@ -207,9 +208,7 @@ export function SelectMenu({
                       className={cn(
                         "flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
                         isActive && "bg-subtle",
-                        isSelected
-                          ? "font-semibold text-brand"
-                          : "text-fg",
+                        isSelected ? "font-semibold text-brand" : "text-fg",
                         option.disabled && "cursor-not-allowed opacity-50",
                       )}
                     >

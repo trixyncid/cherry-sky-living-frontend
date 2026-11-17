@@ -2,20 +2,20 @@
 
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
-import { Link } from "@/i18n/routing";
+import { formatDate } from "@/features/admin/lib/format";
 import {
   showApiError,
   showApiSuccess,
 } from "@/features/admin/lib/show-api-error";
-import { formatDate } from "@/features/admin/lib/format";
+import { useTenantLeaseMutations } from "@/features/tenant/hooks/use-tenant-queries";
 import {
   clearRenewalDismissal,
   dismissRenewalPrompt,
   getTenantRenewalView,
 } from "@/features/tenant/lib/lease-renewal";
-import { useTenantLeaseMutations } from "@/features/tenant/hooks/use-tenant-queries";
-import { cn } from "@/lib/utils";
+import { Link } from "@/i18n/routing";
 import type { Lease } from "@/lib/types/admin";
+import { cn } from "@/lib/utils";
 
 interface LeaseRenewalPromptProps {
   lease: Lease;

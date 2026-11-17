@@ -1,6 +1,9 @@
-import type { AdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import type { SortValue } from "@/features/admin/crud/sort-utils";
-import { countPropertyAttachments, countUnitTypeAttachments } from "@/features/admin/lib/attachments";
+import type { AdminLookups } from "@/features/admin/hooks/use-admin-lookups";
+import {
+  countPropertyAttachments,
+  countUnitTypeAttachments,
+} from "@/features/admin/lib/attachments";
 import {
   getLeaseEndDateValue,
   resolveLeasePropertyName,
@@ -37,7 +40,10 @@ function resolveRenewalSortStatus(lease: Lease): LeaseRenewalSortStatus {
   return "pending_confirmation";
 }
 
-export function getPropertySortValue(property: Property, key: string): SortValue {
+export function getPropertySortValue(
+  property: Property,
+  key: string,
+): SortValue {
   switch (key) {
     case "name":
       return property.name;
@@ -149,7 +155,10 @@ export function getLeaseRenewalSortValue(
   return getLeaseSortValue(lease, key, lookups);
 }
 
-export function getLedgerEntrySortValue(entry: LedgerEntry, key: string): SortValue {
+export function getLedgerEntrySortValue(
+  entry: LedgerEntry,
+  key: string,
+): SortValue {
   switch (key) {
     case "date":
       return entry.date;
@@ -183,7 +192,10 @@ export function getTenantLeaseSortValue(lease: Lease, key: string): SortValue {
   }
 }
 
-export function getTenantUserSortValue(user: TenantUser, key: string): SortValue {
+export function getTenantUserSortValue(
+  user: TenantUser,
+  key: string,
+): SortValue {
   switch (key) {
     case "name":
       return user.name;

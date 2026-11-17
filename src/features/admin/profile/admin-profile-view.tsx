@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
+import { useEffect, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { ProfileAvatarPlaceholder } from "@/components/shared/profile-avatar-placeholder";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
@@ -11,22 +10,23 @@ import {
   adminInputClassName,
 } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
-import { formatDate } from "@/features/admin/lib/format";
+import {
+  useAdminProfile,
+  useAdminProfileMutations,
+} from "@/features/admin/hooks/use-admin-queries";
 import { getErrorMessage } from "@/features/admin/lib/errors";
+import { formatDate } from "@/features/admin/lib/format";
 import {
   showApiError,
   showApiSuccess,
 } from "@/features/admin/lib/show-api-error";
 import {
-  createAdminPasswordSchema,
-  createAdminProfileSchema,
   type AdminPasswordValues,
   type AdminProfileValues,
+  createAdminPasswordSchema,
+  createAdminProfileSchema,
 } from "@/features/admin/profile/schemas";
-import {
-  useAdminProfile,
-  useAdminProfileMutations,
-} from "@/features/admin/hooks/use-admin-queries";
+import { useRouter } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 
@@ -53,7 +53,8 @@ export function AdminProfileView() {
   const { data: profile, isLoading, error } = useAdminProfile();
   const mutations = useAdminProfileMutations();
 
-  const [profileForm, setProfileForm] = useState<AdminProfileValues>(emptyProfile);
+  const [profileForm, setProfileForm] =
+    useState<AdminProfileValues>(emptyProfile);
   const [profileError, setProfileError] = useState<string | null>(null);
 
   const [passwordForm, setPasswordForm] =
@@ -156,7 +157,11 @@ export function AdminProfileView() {
                     roleBadgeClass(profile.role),
                   )}
                 >
-                  {ts(`roles.${profile.role}` as "roles.admin" | "roles.superadmin")}
+                  {ts(
+                    `roles.${profile.role}` as
+                      | "roles.admin"
+                      | "roles.superadmin",
+                  )}
                 </span>
                 <p className="mt-2 text-xs text-fg-muted">
                   {tp("memberSince")}: {formatDate(profile.createdAt, locale)}
@@ -168,18 +173,23 @@ export function AdminProfileView() {
               {tp("accountSection")}
             </h3>
 
-            <form onSubmit={(e) => void handleProfileSubmit(e)} className="space-y-4">
+            <form
+              onSubmit={(e) => void handleProfileSubmit(e)}
+              className="space-y-4"
+            >
               {profileError && <AdminAlert message={profileError} />}
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <AdminField label={t("name")} htmlFor="admin-profile-name" required>
+                <AdminField
+                  label={t("name")}
+                  htmlFor="admin-profile-name"
+                  required
+                >
                   <input
                     id="admin-profile-name"
                     type="text"
                     value={profileForm.name}
-                    onChange={(e) =>
-                      setProfileForm({ name: e.target.value })
-                    }
+                    onChange={(e) => setProfileForm({ name: e.target.value })}
                     className={adminInputClassName}
                     autoComplete="name"
                     required
@@ -197,7 +207,9 @@ export function AdminProfileView() {
                       "cursor-not-allowed bg-hover text-fg-2",
                     )}
                   />
-                  <p className="mt-1 text-xs text-fg-muted">{tp("emailReadOnly")}</p>
+                  <p className="mt-1 text-xs text-fg-muted">
+                    {tp("emailReadOnly")}
+                  </p>
                 </AdminField>
               </div>
 
@@ -217,12 +229,21 @@ export function AdminProfileView() {
             <h3 className="mb-1 text-sm font-semibold text-fg">
               {tp("passwordSection")}
             </h3>
-            <p className="mb-4 text-sm text-fg-2">{tp("passwordDescription")}</p>
+            <p className="mb-4 text-sm text-fg-2">
+              {tp("passwordDescription")}
+            </p>
 
-            <form onSubmit={(e) => void handlePasswordSubmit(e)} className="space-y-4">
+            <form
+              onSubmit={(e) => void handlePasswordSubmit(e)}
+              className="space-y-4"
+            >
               {passwordError && <AdminAlert message={passwordError} />}
 
-              <AdminField label={tp("currentPassword")} htmlFor="admin-current-password" required>
+              <AdminField
+                label={tp("currentPassword")}
+                htmlFor="admin-current-password"
+                required
+              >
                 <PasswordInput
                   id="admin-current-password"
                   value={passwordForm.currentPassword}
@@ -238,7 +259,11 @@ export function AdminProfileView() {
               </AdminField>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <AdminField label={tp("newPassword")} htmlFor="admin-new-password" required>
+                <AdminField
+                  label={tp("newPassword")}
+                  htmlFor="admin-new-password"
+                  required
+                >
                   <PasswordInput
                     id="admin-new-password"
                     value={passwordForm.newPassword}
@@ -252,7 +277,11 @@ export function AdminProfileView() {
                     autoComplete="new-password"
                   />
                 </AdminField>
-                <AdminField label={tp("confirmPassword")} htmlFor="admin-confirm-password" required>
+                <AdminField
+                  label={tp("confirmPassword")}
+                  htmlFor="admin-confirm-password"
+                  required
+                >
                   <PasswordInput
                     id="admin-confirm-password"
                     value={passwordForm.confirmPassword}
@@ -274,7 +303,9 @@ export function AdminProfileView() {
                   disabled={passwordPending}
                   className="glass-control rounded-xl px-5 py-2.5 text-sm font-semibold text-brand transition-colors hover:bg-hover disabled:opacity-50"
                 >
-                  {passwordPending ? tp("updatingPassword") : tp("updatePassword")}
+                  {passwordPending
+                    ? tp("updatingPassword")
+                    : tp("updatePassword")}
                 </button>
               </div>
             </form>
@@ -321,10 +352,7 @@ function PasswordInput({
         className="absolute inset-y-0 right-0 flex items-center pr-3 text-fg-muted transition-colors hover:text-brand"
         aria-label={show ? hideLabel : showLabel}
       >
-        <Icon
-          name={show ? "visibility_off" : "visibility"}
-          size={20}
-        />
+        <Icon name={show ? "visibility_off" : "visibility"} size={20} />
       </button>
     </div>
   );

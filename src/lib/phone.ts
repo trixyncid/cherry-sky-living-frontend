@@ -1,3 +1,5 @@
+import { splitE164 } from "@/lib/countries";
+
 const PLACEHOLDER_EMAIL_DOMAIN = "phone.invalid";
 
 function digitsOnly(raw: string): string {
@@ -30,6 +32,28 @@ export function normalizeIndonesianPhone(raw: string): string | null {
   return `+${digits}`;
 }
 
+/**
+ * Normalize any phone number to E.164 (+<country code><number>). Mirrors the
+ * backend: no "+"/"00" prefix means Indonesian; +62 gets the Indonesian mobile
+ * rules; other countries only the E.164 shape check (7–15 digits).
+ */
+export function normalizePhone(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const international = trimmed.startsWith("+") || trimmed.startsWith("00");
+  if (!international) return normalizeIndonesianPhone(trimmed);
+
+  let digits = digitsOnly(trimmed);
+  if (trimmed.startsWith("00")) digits = digits.slice(2);
+  if (digits.startsWith("62")) return normalizeIndonesianPhone(digits);
+  if (!/^[1-9]\d{6,14}$/.test(digits)) return null;
+  return `+${digits}`;
+}
+
+export function isValidPhone(raw: string): boolean {
+  return normalizePhone(raw) !== null;
+}
+
 export function isValidIndonesianPhone(raw: string): boolean {
   return normalizeIndonesianPhone(raw) !== null;
 }
@@ -49,16 +73,23 @@ export function looksLikeEmail(identifier: string): boolean {
   return identifier.trim().includes("@");
 }
 
-/** "+6281234567890" → "+62 812-3456-7890" (falls back to the raw value). */
+/**
+ * "+6281234567890" → "+62 812-3456-7890"; other countries get the calling
+ * code split off ("+905321234567" → "+90 5321234567"). Falls back to raw.
+ */
 export function formatPhoneDisplay(phone: string | null | undefined): string {
   if (!phone) return "";
-  const normalized = normalizeIndonesianPhone(phone);
+  const normalized = normalizePhone(phone);
   if (!normalized) return phone.trim();
-  const rest = normalized.slice(3);
-  const groups = [rest.slice(0, 3), rest.slice(3, 7), rest.slice(7)].filter(
-    Boolean,
-  );
-  return `+62 ${groups.join("-")}`;
+  if (normalized.startsWith("+62")) {
+    const rest = normalized.slice(3);
+    const groups = [rest.slice(0, 3), rest.slice(3, 7), rest.slice(7)].filter(
+      Boolean,
+    );
+    return `+62 ${groups.join("-")}`;
+  }
+  const split = splitE164(normalized);
+  return split ? `+${split.country.dial} ${split.national}` : normalized;
 }
 
 type ContactSource = {

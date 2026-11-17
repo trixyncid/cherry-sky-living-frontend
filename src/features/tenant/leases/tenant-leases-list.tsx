@@ -133,6 +133,18 @@ export function TenantLeasesList() {
                           ? ` · ${lease.unit.unitType.name}`
                           : ""}
                       </p>
+                      {(lease.occupants?.length ?? 0) > 0 ? (
+                        <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#fdf6f4] px-2 py-0.5 text-[11px] font-medium text-[#71130d]">
+                          <Icon name="group" size={12} />
+                          {lease.isPrimaryTenant === false
+                            ? tp("residents.sharedWithPrimary", {
+                                name: lease.user?.name ?? "—",
+                              })
+                            : tp("residents.sharedCount", {
+                                count: lease.occupants?.length ?? 0,
+                              })}
+                        </p>
+                      ) : null}
                     </div>
                   </div>
                   <span className="shrink-0 rounded-full bg-[#f6f0ef] px-2.5 py-1 text-xs font-medium text-[#3d3a36]">

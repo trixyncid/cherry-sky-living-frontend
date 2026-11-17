@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { PhoneNumbersField } from "@/components/shared/phone-numbers-field";
 import {
   AdminField,
   AdminPasswordInput,
@@ -20,9 +21,15 @@ import {
   showApiError,
   showApiSuccess,
 } from "@/features/admin/lib/show-api-error";
-import { createTenantUserSchema } from "@/features/admin/users/schemas";
+import { createTenantUserWithPhonesSchema } from "@/features/admin/users/schemas";
 import { useRouter } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
+import {
+  emptyPhoneList,
+  selectedLoginPhone,
+  takenPhoneFromError,
+  validatePhoneList,
+} from "@/lib/phone-list";
 
 const BASE = "/admin/users";
 
@@ -31,38 +38,51 @@ export function TenantUserForm() {
   const tp = useTranslations("admin.pages.users");
   const router = useRouter();
   const mutations = useTenantUserMutations();
+  const tph = useTranslations("common.phoneList");
   const [form, setForm] = useState({
     name: "",
-    phoneNumber: "",
     email: "",
     password: "",
   });
+  const [phones, setPhones] = useState(emptyPhoneList);
   const [formError, setFormError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
 
-    const parsed = createTenantUserSchema({
+    const parsed = createTenantUserWithPhonesSchema({
       nameRequired: tp("validation.nameRequired"),
       emailInvalid: tp("validation.emailInvalid"),
-      phoneRequired: tp("validation.phoneRequired"),
-      phoneInvalid: tp("validation.phoneInvalid"),
       passwordMin: tp("validation.passwordMin"),
     }).safeParse(form);
     if (!parsed.success) {
       setFormError(parsed.error.issues[0]?.message ?? t("saveFailed"));
       return;
     }
+    const phoneList = validatePhoneList(phones, {
+      required: tph("required"),
+      invalid: tph("invalid"),
+      duplicate: tph("duplicate"),
+    });
+    if (!phoneList.ok) {
+      setFormError(phoneList.error);
+      return;
+    }
 
     try {
-      const created = await mutations.create.mutateAsync(parsed.data);
+      const created = await mutations.create.mutateAsync({
+        ...parsed.data,
+        ...phoneList.data,
+      });
       showApiSuccess(t("created"));
       router.push(`${BASE}/${created.id}`);
       router.refresh();
     } catch (err) {
-      const msg =
-        err instanceof ApiError && err.code === "CONFLICT"
+      const taken = takenPhoneFromError(err);
+      const msg = taken
+        ? tph("taken", { phone: taken })
+        : err instanceof ApiError && err.code === "CONFLICT"
           ? tp("emailExists")
           : getErrorMessage(err, t("saveFailed"));
       setFormError(msg);
@@ -80,7 +100,7 @@ export function TenantUserForm() {
         <PersonPreview
           name={form.name}
           email={form.email}
-          phone={form.phoneNumber}
+          phone={selectedLoginPhone(phones) ?? ""}
         />
       }
       backHref={BASE}
@@ -110,22 +130,6 @@ export function TenantUserForm() {
                 }
               />
             </AdminField>
-            <AdminField label={tp("phone")} htmlFor="tenant-phone" required>
-              <input
-                id="tenant-phone"
-                type="tel"
-                required
-                autoComplete="tel"
-                inputMode="tel"
-                placeholder={tp("phonePlaceholder")}
-                className={adminInputClassName}
-                value={form.phoneNumber}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, phoneNumber: e.target.value }))
-                }
-              />
-              <p className="mt-1 text-xs text-fg-muted">{tp("phoneHint")}</p>
-            </AdminField>
             <AdminField label={tp("emailOptional")} htmlFor="tenant-email">
               <input
                 id="tenant-email"
@@ -141,6 +145,13 @@ export function TenantUserForm() {
                 {tp("emailOptionalHint")}
               </p>
             </AdminField>
+            <div className="sm:col-span-2">
+              <PhoneNumbersField
+                audience="admin"
+                value={phones}
+                onChange={setPhones}
+              />
+            </div>
           </div>
         </AdminFormSection>
 

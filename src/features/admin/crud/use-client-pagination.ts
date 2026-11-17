@@ -19,6 +19,7 @@ export function useClientPagination<T>(
     if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: back to page 1 whenever the list or page size changes
   useEffect(() => {
     setPage(1);
   }, [items.length, pageSize]);

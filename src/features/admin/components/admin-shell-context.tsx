@@ -7,11 +7,11 @@ import {
   useMemo,
   useState,
 } from "react";
+import type { AdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import {
   useProperties,
   useUnitTypes,
 } from "@/features/admin/hooks/use-admin-queries";
-import type { AdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import type { Property, UnitType } from "@/lib/types/admin";
 import type { User } from "@/lib/types/auth";
 

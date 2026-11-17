@@ -1,6 +1,8 @@
+import { env } from "@/env";
 import { getServerApiUrl } from "@/lib/api/base-url";
 import {
   cookieHeaderForBackend,
+  isSecureRequest,
   setCookieForBrowser,
 } from "@/lib/auth/session-cookie";
 
@@ -16,16 +18,82 @@ import {
  * the Next.js server can read it and forward it to Railway for SSR session checks.
  */
 
+/** Backend areas the browser may reach; everything else 404s here. */
+const ALLOWED_PREFIXES = new Set([
+  "auth",
+  "public",
+  "admin",
+  "leases",
+  "profile",
+]);
+
+/** Request headers worth forwarding; the rest stay on this side. */
+const FORWARDED_REQUEST_HEADERS = [
+  "accept",
+  "accept-language",
+  "content-type",
+  "cookie",
+  "origin",
+  "referer",
+  "user-agent",
+  "x-forwarded-host",
+  "x-forwarded-proto",
+];
+
+/**
+ * The visitor's IP as the hosting platform saw it. On Vercel both headers are
+ * set by the platform itself, not passed through from the client.
+ */
+function visitorIp(request: Request): string | null {
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
+}
+
+const UPSTREAM_TIMEOUT_MS = 15_000;
+// Large multipart uploads get longer; they're capped at a few MB anyway.
+const UPLOAD_TIMEOUT_MS = 60_000;
+
+function jsonError(status: number, code: string, message: string) {
+  return Response.json(
+    { success: false, error: { code, message } },
+    {
+      status,
+      headers: {
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff",
+      },
+    },
+  );
+}
+
 async function proxyRequest(request: Request, pathSegments: string[]) {
   const incomingUrl = new URL(request.url);
-  const targetPath = pathSegments.join("/");
+  if (
+    !pathSegments.length ||
+    !ALLOWED_PREFIXES.has(pathSegments[0] ?? "") ||
+    pathSegments.some((s) => s === ".." || s === ".")
+  ) {
+    return jsonError(404, "NOT_FOUND", "Not found");
+  }
+  const targetPath = pathSegments.map(encodeURIComponent).join("/");
   const target = new URL(`${getServerApiUrl()}/${targetPath}`);
   target.search = incomingUrl.search;
 
-  // Copy headers, dropping hop-by-hop headers that must not be forwarded.
-  const forwardHeaders = new Headers(request.headers);
-  for (const h of ["host", "connection", "transfer-encoding", "te"]) {
-    forwardHeaders.delete(h);
+  const forwardHeaders = new Headers();
+  for (const name of FORWARDED_REQUEST_HEADERS) {
+    const value = request.headers.get(name);
+    if (value) forwardHeaders.set(name, value);
+  }
+  // Vouch for the visitor's IP so the backend rate-limits per visitor.
+  const ip = visitorIp(request);
+  if (ip) {
+    // Read by a backend that doesn't have the shared secret yet.
+    forwardHeaders.set("x-forwarded-for", ip);
+    if (env.PROXY_SHARED_SECRET) {
+      forwardHeaders.set("x-proxy-secret", env.PROXY_SHARED_SECRET);
+      forwardHeaders.set("x-client-ip", ip);
+    }
   }
 
   const cookie = forwardHeaders.get("cookie");
@@ -46,15 +114,45 @@ async function proxyRequest(request: Request, pathSegments: string[]) {
     body = await request.arrayBuffer();
   }
 
-  const upstream = await fetch(target, {
-    method: request.method,
-    headers: forwardHeaders,
-    body,
-    redirect: "manual",
-  });
+  const isMultipart = (request.headers.get("content-type") ?? "").startsWith(
+    "multipart/",
+  );
+  let upstream: Response;
+  try {
+    upstream = await fetch(target, {
+      method: request.method,
+      headers: forwardHeaders,
+      body,
+      redirect: "manual",
+      signal: AbortSignal.timeout(
+        isMultipart ? UPLOAD_TIMEOUT_MS : UPSTREAM_TIMEOUT_MS,
+      ),
+    });
+  } catch (error) {
+    const timedOut =
+      error instanceof DOMException &&
+      (error.name === "TimeoutError" || error.name === "AbortError");
+    console.error("[api-proxy] upstream request failed", {
+      path: targetPath,
+      method: request.method,
+      reason: timedOut ? "timeout" : String(error),
+    });
+    return timedOut
+      ? jsonError(
+          504,
+          "GATEWAY_TIMEOUT",
+          "The server took too long to respond. Please try again.",
+        )
+      : jsonError(
+          502,
+          "BAD_GATEWAY",
+          "The server is unavailable right now. Please try again shortly.",
+        );
+  }
 
   const responseHeaders = new Headers(upstream.headers);
-  const isHttps = incomingUrl.protocol === "https:";
+  // Behind a TLS-terminating proxy request.url can look like http.
+  const isHttps = isSecureRequest(request);
 
   // Rewrite every Set-Cookie header so the cookie lands on the Vercel domain.
   const setCookies =
@@ -83,6 +181,10 @@ async function proxyRequest(request: Request, pathSegments: string[]) {
   responseHeaders.delete("content-encoding");
   responseHeaders.delete("transfer-encoding");
   responseHeaders.set("content-length", String(responseBody.byteLength));
+  // API responses are per-user: never let a CDN or browser cache reuse them,
+  // and never let a browser sniff them into HTML on this origin.
+  responseHeaders.set("cache-control", "no-store");
+  responseHeaders.set("x-content-type-options", "nosniff");
 
   return new Response(responseBody, {
     status: upstream.status,

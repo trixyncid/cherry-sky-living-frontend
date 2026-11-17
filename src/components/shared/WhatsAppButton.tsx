@@ -3,71 +3,71 @@
  * Generates WhatsApp link with pre-filled message
  */
 
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Icon } from '@/components/shared/Icon';
-import { generateWhatsAppURL } from '@/lib/utils/format';
-import type { WhatsAppButtonProps } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { Icon } from "@/components/shared/Icon";
+import { Button } from "@/components/ui/button";
+import type { WhatsAppButtonProps } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { generateWhatsAppURL } from "@/lib/utils/format";
 
 export function WhatsAppButton({
-    phoneNumber,
-    message,
-    variant = 'default',
-    className,
-    label,
+  phoneNumber,
+  message,
+  variant = "default",
+  className,
+  label,
 }: WhatsAppButtonProps) {
-    const whatsappURL = generateWhatsAppURL(phoneNumber, message);
+  const whatsappURL = generateWhatsAppURL(phoneNumber, message);
 
-    const handleClick = (e: React.MouseEvent<HTMLElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        window.open(whatsappURL, '_blank', 'noopener,noreferrer');
-    };
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.open(whatsappURL, "_blank", "noopener,noreferrer");
+  };
 
-    if (variant === 'icon') {
-        return (
-            <button
-                onClick={handleClick}
-                className={cn(
-                    'inline-flex items-center justify-center rounded-full w-12 h-12 bg-ink hover:bg-ink-2 text-white transition-colors shadow-lg',
-                    className
-                )}
-                aria-label="Inquire via WhatsApp"
-                type="button"
-            >
-                <Icon name="whatsapp" size={24} />
-            </button>
-        );
-    }
-
-    if (variant === 'compact') {
-        return (
-            <button
-                onClick={handleClick}
-                className={cn(
-                    'inline-flex items-center gap-2 px-4 py-2 bg-ink hover:bg-ink-2 text-white text-sm font-medium rounded-lg transition-colors',
-                    className
-                )}
-                type="button"
-            >
-                <Icon name="whatsapp" size={18} />
-                <span>WhatsApp</span>
-            </button>
-        );
-    }
-
+  if (variant === "icon") {
     return (
-        <Button
-            onClick={handleClick}
-            className={cn(
-                'bg-ink hover:bg-ink-2 text-white font-semibold',
-                className
-            )}
-        >
-            <Icon name="whatsapp" size={20} className="mr-2" />
-            { label }
-        </Button>
+      <button
+        onClick={handleClick}
+        className={cn(
+          "inline-flex items-center justify-center rounded-full w-12 h-12 bg-ink hover:bg-ink-2 text-white transition-colors shadow-lg",
+          className,
+        )}
+        aria-label="Inquire via WhatsApp"
+        type="button"
+      >
+        <Icon name="whatsapp" size={24} />
+      </button>
     );
+  }
+
+  if (variant === "compact") {
+    return (
+      <button
+        onClick={handleClick}
+        className={cn(
+          "inline-flex items-center gap-2 px-4 py-2 bg-ink hover:bg-ink-2 text-white text-sm font-medium rounded-lg transition-colors",
+          className,
+        )}
+        type="button"
+      >
+        <Icon name="whatsapp" size={18} />
+        <span>WhatsApp</span>
+      </button>
+    );
+  }
+
+  return (
+    <Button
+      onClick={handleClick}
+      className={cn(
+        "bg-ink hover:bg-ink-2 text-white font-semibold",
+        className,
+      )}
+    >
+      <Icon name="whatsapp" size={20} className="mr-2" />
+      {label}
+    </Button>
+  );
 }

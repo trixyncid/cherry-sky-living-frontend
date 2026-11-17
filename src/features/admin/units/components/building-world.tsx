@@ -190,8 +190,9 @@ const Room = memo(function Room({
     >
       {room.exposed.map((side) => {
         const street = outer.includes(side);
-        // Text on s/w walls would read mirrored — flip it back.
-        const mirrored = side === "s" || side === "w";
+        // wallStyle's front face points +y (x walls) / -x (y walls), so the
+        // n and e facades are seen from behind: flip their text back.
+        const mirrored = side === "n" || side === "e";
         return (
           <div
             key={side}

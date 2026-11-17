@@ -101,7 +101,9 @@ type CookieReader = {
 };
 
 /** Read the session token from the Next.js cookie store (either local or prod name). */
-export function readSessionToken(cookieStore: CookieReader): string | undefined {
+export function readSessionToken(
+  cookieStore: CookieReader,
+): string | undefined {
   return (
     cookieStore.get(LOCAL_SESSION_COOKIE_NAME)?.value ??
     cookieStore.get(SESSION_COOKIE_NAME)?.value
@@ -121,11 +123,35 @@ export function sessionCookieHeaderForBackend(
 }
 
 /**
+ * Whether the browser reached us over HTTPS. Behind Vercel / a proxy,
+ * `request.url` can be http even though the visitor used https, so trust
+ * `x-forwarded-proto` and always assume HTTPS in production.
+ */
+export function isSecureRequest(request: Request): boolean {
+  if (process.env.NODE_ENV === "production") return true;
+  const forwarded = request.headers
+    .get("x-forwarded-proto")
+    ?.split(",")[0]
+    ?.trim()
+    .toLowerCase();
+  if (forwarded === "https") return true;
+  try {
+    return new URL(request.url).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Adapt an upstream Set-Cookie for the frontend origin.
  * Preserves SESSION_COOKIE_NAME on HTTPS; strips __Secure-/Secure on HTTP dev
  * because browsers reject secure-prefixed cookies without HTTPS.
+ * Pass `isSecureRequest(request)` as `isHttps`.
  */
-export function setCookieForBrowser(setCookie: string, isHttps: boolean): string {
+export function setCookieForBrowser(
+  setCookie: string,
+  isHttps: boolean,
+): string {
   let out = setCookie.replace(/;\s*Domain=[^;]*/gi, "");
   out = out.replace(/;\s*SameSite=None/gi, "; SameSite=Lax");
 
@@ -154,13 +180,20 @@ type CookieWriter = {
   ) => void;
 };
 
-/** Expire session cookies on the frontend origin (Route Handler / Server Action). */
-export function expireSessionCookies(cookieStore: CookieWriter): void {
+/**
+ * Expire session cookies on the frontend origin (Route Handler / Server Action).
+ * `secure` (see isSecureRequest) marks the unprefixed cookie Secure on HTTPS.
+ */
+export function expireSessionCookies(
+  cookieStore: CookieWriter,
+  secure = false,
+): void {
   const expired = {
     path: "/",
     expires: new Date(0),
     maxAge: 0,
     httpOnly: true,
+    secure,
     sameSite: "lax" as const,
   };
 

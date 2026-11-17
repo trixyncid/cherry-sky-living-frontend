@@ -12,6 +12,7 @@ import {
   setLeaseInvoicePending,
   updateLease,
   updateLeaseBilling,
+  updateLeaseOccupants,
   updateLeaseRenewal,
 } from "@/lib/api/admin/leases";
 import {
@@ -328,12 +329,8 @@ export function useTenantUserMutations() {
       mutationFn: ({
         id,
         ...input
-      }: {
-        id: string;
-        name: string;
-        phoneNumber: string;
-        email?: string | null;
-      }) => updateTenantUser(id, input),
+      }: { id: string } & Parameters<typeof updateTenantUser>[1]) =>
+        updateTenantUser(id, input),
       onSuccess: invalidate,
     }),
     setActive: useMutation({
@@ -454,6 +451,15 @@ export function useLeaseMutations() {
       }: { id: string } & Parameters<typeof updateLease>[1]) =>
         updateLease(id, input),
       onSuccess: invalidate,
+    }),
+    updateOccupants: useMutation({
+      mutationFn: ({ id, userIds }: { id: string; userIds: string[] }) =>
+        updateLeaseOccupants(id, userIds),
+      onSuccess: () => {
+        invalidate();
+        // Tenant pages list the leases a tenant shares.
+        void qc.invalidateQueries({ queryKey: adminKeys.users.all() });
+      },
     }),
     confirmRenewal: useMutation({
       mutationFn: ({

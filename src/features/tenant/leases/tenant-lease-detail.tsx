@@ -14,9 +14,14 @@ import { TermProgress } from "@/features/admin/operations/ops-kit";
 import { TenantAttachmentsList } from "@/features/tenant/components/tenant-attachments-list";
 import { useTenantLease } from "@/features/tenant/hooks/use-tenant-queries";
 import { LeaseRenewalPrompt } from "@/features/tenant/leases/lease-renewal-prompt";
+import { TenantLeaseInspection } from "@/features/tenant/leases/tenant-lease-inspection";
 import { TenantLeasePaymentSummary } from "@/features/tenant/leases/tenant-lease-payment-summary";
-import { getTenantRenewalView } from "@/features/tenant/lib/lease-renewal";
+import {
+  getTenantRenewalView,
+  isRoommateView,
+} from "@/features/tenant/lib/lease-renewal";
 import { Link } from "@/i18n/routing";
+import { leaseResidents } from "@/lib/lease-occupants";
 import type { LeaseAttachmentKind } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +30,7 @@ export function TenantLeaseDetail({ id }: { id: string }) {
   const tp = useTranslations("tenant.pages.leases");
   const tn = useTranslations("tenant.nav");
   const th = useTranslations("tenant.home");
+  const tr = useTranslations("tenant.pages.leases.residents");
   const { data: lease, isLoading, error } = useTenantLease(id);
 
   if (isLoading) {
@@ -47,11 +53,19 @@ export function TenantLeaseDetail({ id }: { id: string }) {
   }
 
   const renewalView = getTenantRenewalView(lease);
-  const attachments = lease.attachments ?? lease.downpaymentAttachments ?? [];
+  const residents = leaseResidents(lease);
+  const roommateView = isRoommateView(lease);
+  // Inspection files have their own section below.
+  const attachments = (
+    lease.attachments ??
+    lease.downpaymentAttachments ??
+    []
+  ).filter((a) => a.kind !== "inspection");
 
   function kindLabel(kind: LeaseAttachmentKind): string {
     if (kind === "agreement") return tp("kindAgreement");
     if (kind === "payment") return tp("kindPayment");
+    if (kind === "inspection") return tp("kindInspection");
     return tp("kindDownpayment");
   }
 
@@ -70,7 +84,18 @@ export function TenantLeaseDetail({ id }: { id: string }) {
           <div className="flex justify-end">
             <LeaseStatusBadge status={lease.status} />
           </div>
-          <TenantLeasePaymentSummary lease={lease} />
+          {roommateView ? (
+            <div className="flex items-start gap-2.5 rounded-2xl border border-[#f0dcd8] bg-[#fdf6f4] px-4 py-3 text-sm text-[#3d3d3d]">
+              <Icon
+                name="group"
+                size={18}
+                className="mt-0.5 shrink-0 text-[#71130d]"
+              />
+              <p>{tr("roommateNotice", { name: lease.user?.name ?? "—" })}</p>
+            </div>
+          ) : null}
+          {/* Bills and documents belong to the primary tenant. */}
+          {roommateView ? null : <TenantLeasePaymentSummary lease={lease} />}
         </>
       }
     >
@@ -111,18 +136,53 @@ export function TenantLeaseDetail({ id }: { id: string }) {
           </dl>
         </AdminFormSection>
 
+        {residents.length > 1 ? (
+          <AdminFormSection icon="group" title={tr("title")} hint={tr("hint")}>
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {residents.map((person) => (
+                <li
+                  key={person.id}
+                  className="flex items-center gap-3 rounded-2xl bg-[#faf7f6] p-3.5"
+                >
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#71130d]">
+                    {person.name.trim().charAt(0).toUpperCase() || "?"}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[15px] font-medium text-[#141414]">
+                      {person.name}
+                    </span>
+                    <span className="block text-xs text-[#6b6b6b]">
+                      {person.isPrimary ? tr("primary") : tr("roommate")}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </AdminFormSection>
+        ) : null}
+
         <AdminFormSection
-          icon="folder_open"
-          title={tp("documentsTitle")}
-          hint={tp("documentsDescription")}
+          icon="fact_check"
+          title={tp("inspection.title")}
+          hint={tp("inspection.hint")}
         >
-          <TenantAttachmentsList
-            attachments={attachments.map((a) => ({
-              ...a,
-              kindLabel: kindLabel(a.kind),
-            }))}
-          />
+          <TenantLeaseInspection lease={lease} />
         </AdminFormSection>
+
+        {roommateView ? null : (
+          <AdminFormSection
+            icon="folder_open"
+            title={tp("documentsTitle")}
+            hint={tp("documentsDescription")}
+          >
+            <TenantAttachmentsList
+              attachments={attachments.map((a) => ({
+                ...a,
+                kindLabel: kindLabel(a.kind),
+              }))}
+            />
+          </AdminFormSection>
+        )}
       </div>
     </AdminDetailPage>
   );

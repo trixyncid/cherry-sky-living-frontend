@@ -3,6 +3,9 @@ import { getServerApiUrl } from "@/lib/api/base-url";
 import { sessionCookieHeaderForBackend } from "@/lib/auth/session-cookie";
 import type { User } from "@/lib/types/auth";
 
+/** Session checks gate every portal render — fail closed rather than hang. */
+const SESSION_TIMEOUT_MS = 10_000;
+
 export interface AuthSession {
   user: User;
   session: {
@@ -41,15 +44,22 @@ export async function getSession(): Promise<AuthSession | null> {
         "x-real-ip": headerStore.get("x-real-ip") ?? "",
       },
       cache: "no-store",
+      signal: AbortSignal.timeout(SESSION_TIMEOUT_MS),
     });
   } catch {
-    // API unreachable (e.g. ECONNREFUSED when backend is not running)
+    // API unreachable (e.g. ECONNREFUSED when backend is not running) or timed out
     return null;
   }
 
   if (!response.ok) return null;
 
-  const data = (await response.json()) as GetSessionResponse | null;
+  let data: GetSessionResponse | null;
+  try {
+    data = (await response.json()) as GetSessionResponse | null;
+  } catch {
+    // Non-JSON body (proxy error page) or body timed out.
+    return null;
+  }
   if (!data?.user || !data.session) return null;
 
   const raw = data.user as User & { image?: string | null; isActive?: boolean };
@@ -71,7 +81,8 @@ export async function getSession(): Promise<AuthSession | null> {
  *
  * Cookie mutation is not allowed from Server Components. Callers that need
  * to clear the frontend session should redirect to GET /api/auth/sign-out
- * (see `requireAdmin` / `requireTenant` wrong-portal handling).
+ * with an `error` param (see `requireAdmin` / `requireTenant` wrong-portal
+ * handling) — a GET without one does not sign out.
  */
 export async function signOutSession(): Promise<void> {
   const cookieStore = await cookies();
@@ -82,8 +93,9 @@ export async function signOutSession(): Promise<void> {
       method: "POST",
       headers: cookieHeader ? { cookie: cookieHeader } : undefined,
       cache: "no-store",
+      signal: AbortSignal.timeout(SESSION_TIMEOUT_MS),
     });
   } catch {
-    // API unreachable — nothing else to do here.
+    // API unreachable or timed out — nothing else to do here.
   }
 }

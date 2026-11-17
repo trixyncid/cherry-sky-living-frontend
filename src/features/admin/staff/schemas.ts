@@ -27,5 +27,9 @@ export function updateStaffUserSchema(
   });
 }
 
-export type CreateStaffUserValues = z.infer<ReturnType<typeof createStaffUserSchema>>;
-export type UpdateStaffUserValues = z.infer<ReturnType<typeof updateStaffUserSchema>>;
+export type CreateStaffUserValues = z.infer<
+  ReturnType<typeof createStaffUserSchema>
+>;
+export type UpdateStaffUserValues = z.infer<
+  ReturnType<typeof updateStaffUserSchema>
+>;

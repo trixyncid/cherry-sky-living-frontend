@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api/client";
+import type { PhoneListPayload } from "@/lib/phone-list";
 import type { ApiDataResponse } from "@/lib/types/admin";
 import type { TenantProfile } from "@/lib/types/tenant";
 
@@ -7,10 +8,9 @@ export async function getTenantProfile(): Promise<TenantProfile> {
   return res.data;
 }
 
-export async function updateTenantProfile(input: {
-  name: string;
-  phoneNumber: string;
-}): Promise<TenantProfile> {
+export async function updateTenantProfile(
+  input: { name: string; currentPassword?: string } & PhoneListPayload,
+): Promise<TenantProfile> {
   const res = await apiFetch<ApiDataResponse<TenantProfile>>("/profile", {
     method: "PUT",
     body: input,

@@ -149,11 +149,7 @@ export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
                     key={item.label}
                     className="flex items-center gap-2 text-[15px] text-fg"
                   >
-                    <Icon
-                      name={item.icon}
-                      size={16}
-                      className="text-success"
-                    />
+                    <Icon name={item.icon} size={16} className="text-success" />
                     {item.label}
                   </li>
                 ))}

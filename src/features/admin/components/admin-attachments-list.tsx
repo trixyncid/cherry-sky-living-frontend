@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
 import {
-  attachmentDisplayName,
   type AdminAttachmentItem,
+  attachmentDisplayName,
 } from "@/features/admin/lib/attachments";
 import { formatDate } from "@/features/admin/lib/format";
 
@@ -101,9 +101,7 @@ export function AdminAttachmentsList({
       <AdminDeleteDialog
         open={deleteTarget !== null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        itemName={
-          deleteTarget ? attachmentDisplayName(deleteTarget.url) : ""
-        }
+        itemName={deleteTarget ? attachmentDisplayName(deleteTarget.url) : ""}
         onConfirm={confirmDelete}
         pending={deletePending}
       />

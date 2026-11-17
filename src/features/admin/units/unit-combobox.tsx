@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import {
   Popover,
@@ -14,18 +14,15 @@ import {
 } from "@/features/admin/components/admin-field";
 import { adminMenuItemClassName } from "@/features/admin/components/admin-menu";
 import {
-  useAdminLookups,
   type AdminLookups,
+  useAdminLookups,
 } from "@/features/admin/hooks/use-admin-lookups";
+import { useUnit, useUnits } from "@/features/admin/hooks/use-admin-queries";
 import {
   resolveUnitPropertyName,
   resolveUnitTenantLabel,
   resolveUnitTypeNameForUnit,
 } from "@/features/admin/lib/entity-display";
-import {
-  useUnit,
-  useUnits,
-} from "@/features/admin/hooks/use-admin-queries";
 import { useDebouncedValue } from "@/lib/hooks/use-debounced-value";
 import type { Unit } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
@@ -67,7 +64,11 @@ export function UnitCombobox({
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
 
   const debouncedSearch = useDebouncedValue(search, 300);
-  const { data: units = [], isLoading, isFetching } = useUnits(undefined, {
+  const {
+    data: units = [],
+    isLoading,
+    isFetching,
+  } = useUnits(undefined, {
     enabled: open,
   });
   const { data: resolvedUnit } = useUnit(value, !!value);
@@ -79,9 +80,7 @@ export function UnitCombobox({
       const tenant = resolveUnitTenantLabel(unit);
       return (
         unit.name.toLowerCase().includes(q) ||
-        resolveUnitTypeNameForUnit(unit, lookups)
-          .toLowerCase()
-          .includes(q) ||
+        resolveUnitTypeNameForUnit(unit, lookups).toLowerCase().includes(q) ||
         resolveUnitPropertyName(unit, lookups).toLowerCase().includes(q) ||
         tenant.toLowerCase().includes(q)
       );
@@ -104,6 +103,7 @@ export function UnitCombobox({
     setActiveIndex(0);
   }, [open]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset the highlight whenever the search text settles
   useEffect(() => {
     setActiveIndex(0);
   }, [debouncedSearch]);
@@ -208,6 +208,7 @@ export function UnitCombobox({
 
           <ul
             id={listboxId}
+            // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: role="listbox" on <ul> is permitted by ARIA in HTML
             role="listbox"
             className="max-h-72 overflow-y-auto p-1"
           >

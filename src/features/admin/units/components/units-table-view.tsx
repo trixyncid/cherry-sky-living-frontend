@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { useCallback } from "react";
 import { AdminPagination } from "@/features/admin/components/admin-pagination";
 import { AdminTableShell } from "@/features/admin/components/admin-table-shell";
 import { UnitStatusBadge } from "@/features/admin/components/status-badge";
@@ -10,7 +10,6 @@ import {
   AdminCrudTableCell,
   AdminCrudTableRow,
 } from "@/features/admin/crud/admin-crud-table";
-import { UnitRowActions } from "@/features/admin/units/components/unit-row-actions";
 import { getUnitSortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
 import type { AdminLookups } from "@/features/admin/hooks/use-admin-lookups";
@@ -18,6 +17,7 @@ import {
   resolveUnitTenantLabel,
   resolveUnitTypeNameForUnit,
 } from "@/features/admin/lib/entity-display";
+import { UnitRowActions } from "@/features/admin/units/components/unit-row-actions";
 import type { Unit } from "@/lib/types/admin";
 
 interface UnitsTableViewProps {

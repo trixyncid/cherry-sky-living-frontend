@@ -17,6 +17,13 @@ export function isPdfAttachment(
   return /\.pdf(?:$|\?)/i.test(item.url);
 }
 
+export function isVideoAttachment(
+  item: Pick<AdminAttachmentItem, "url" | "contentType">,
+): boolean {
+  if (item.contentType?.toLowerCase().startsWith("video/")) return true;
+  return /\.(?:mp4|mov|m4v|webm|3gp)(?:$|\?)/i.test(item.url);
+}
+
 export function countPropertyAttachments(property: Property): number {
   if (property._count?.propertyAttachments != null) {
     return property._count.propertyAttachments;

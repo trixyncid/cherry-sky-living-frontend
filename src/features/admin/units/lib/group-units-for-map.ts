@@ -13,7 +13,12 @@ export type PropertyUnitGroup = {
   address?: string;
   city?: string;
   floors: UnitFloorGroup[];
-  stats: { total: number; vacant: number; occupied: number; occupancyPct: number };
+  stats: {
+    total: number;
+    vacant: number;
+    occupied: number;
+    occupancyPct: number;
+  };
 };
 
 /** Infer floor from room number (e.g. 101 → 1, 1203 → 12). Returns null when unknown. */
@@ -97,7 +102,5 @@ export function groupUnitsForMap(
     });
   }
 
-  return groups.sort((a, b) =>
-    a.propertyName.localeCompare(b.propertyName),
-  );
+  return groups.sort((a, b) => a.propertyName.localeCompare(b.propertyName));
 }

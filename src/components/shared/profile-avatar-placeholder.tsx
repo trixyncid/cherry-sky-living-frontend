@@ -18,8 +18,7 @@ export function ProfileAvatarPlaceholder({
         "flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-hover text-fg-muted",
         className,
       )}
-      aria-label={label}
-      role={label ? "img" : undefined}
+      {...(label ? { role: "img", "aria-label": label } : {})}
       aria-hidden={label ? undefined : true}
     >
       <Icon name="person" size={iconSize} />

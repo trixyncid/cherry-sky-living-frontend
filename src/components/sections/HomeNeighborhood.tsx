@@ -108,11 +108,7 @@ export function HomeNeighborhood({ featured }: HomeNeighborhoodProps) {
             <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-5">
               <div className="flex flex-wrap gap-4 text-sm text-fg-2">
                 <span className="inline-flex items-center gap-1.5">
-                  <Icon
-                    name="meeting_room"
-                    size={16}
-                    className="text-brand"
-                  />
+                  <Icon name="meeting_room" size={16} className="text-brand" />
                   {t("roomsAvailable", {
                     available: featured.availableRooms,
                     total: featured.totalRooms,
