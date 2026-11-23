@@ -38,7 +38,11 @@ const DARK_HERO_PATHS = new Set([
   "/contact",
   "/terms",
   "/privacy",
+  "/how-it-works",
 ]);
+
+/** Routes that stay dark the whole way down (none at the moment). */
+const ALWAYS_DARK_PATHS = new Set<string>();
 
 function normalizePath(pathname: string) {
   return pathname.replace(/^\/(en|id)(?=\/|$)/, "") || "/";
@@ -57,11 +61,11 @@ function NavbarLink({ link, label, isActive, isSolid }: NavbarLinkProps) {
       href={link.href}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "px-3 py-2 text-[15px] font-medium transition-colors duration-200 xl:px-3.5",
+        "rounded-full px-3 py-1.5 text-[15px] font-medium transition-colors duration-200 xl:px-3.5",
         isActive
           ? isSolid
-            ? "text-brand"
-            : "text-white underline decoration-brand-soft decoration-2 underline-offset-8"
+            ? "bg-brand text-white"
+            : "bg-white text-ink"
           : isSolid
             ? "text-fg hover:text-brand"
             : "text-subtle/80 hover:text-white",
@@ -85,7 +89,8 @@ export function Navbar({ onMenuClick }: NavbarProps) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-  const isSolid = !DARK_HERO_PATHS.has(current) || scrolled;
+  const alwaysDark = ALWAYS_DARK_PATHS.has(current);
+  const isSolid = !alwaysDark && (!DARK_HERO_PATHS.has(current) || scrolled);
 
   const isLinkActive = (link: PublicNavLink) =>
     current === link.href ||
@@ -100,7 +105,9 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         "fixed left-0 right-0 top-0 z-50 transition-all duration-300",
         isSolid
           ? "border-b border-line bg-canvas/90 backdrop-blur-md"
-          : "border-b border-white/10 bg-transparent",
+          : alwaysDark && scrolled
+            ? "border-b border-white/10 bg-ink/40 backdrop-blur-md"
+            : "border-b border-white/10 bg-transparent",
       )}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -120,7 +127,15 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             />
           </Link>
 
-          <div className="hidden items-center lg:flex">
+          {/* Links in a floating glass pill. */}
+          <div
+            className={cn(
+              "hidden items-center rounded-full border p-1 transition-colors duration-300 lg:flex",
+              isSolid
+                ? "border-line bg-white/80"
+                : "border-white/15 bg-white/[0.08] backdrop-blur-md",
+            )}
+          >
             {PUBLIC_NAV_LINKS.map((link) => (
               <NavbarLink
                 key={link.key}

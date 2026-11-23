@@ -14,6 +14,10 @@ export const env = createEnv({
      * and can't be dodged with a forged X-Forwarded-For.
      */
     PROXY_SHARED_SECRET: z.string().min(32).optional(),
+    /** Bearer secret the admin sends to POST /api/revalidate on publish. */
+    REVALIDATE_SECRET: z.string().min(16).optional(),
+    /** Secret for /api/preview (draft mode). */
+    PREVIEW_SECRET: z.string().min(16).optional(),
   },
   client: {
     /**
@@ -25,6 +29,8 @@ export const env = createEnv({
   runtimeEnv: {
     API_URL: process.env.API_URL,
     PROXY_SHARED_SECRET: process.env.PROXY_SHARED_SECRET,
+    REVALIDATE_SECRET: process.env.REVALIDATE_SECRET,
+    PREVIEW_SECRET: process.env.PREVIEW_SECRET,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
   emptyStringAsUndefined: true,

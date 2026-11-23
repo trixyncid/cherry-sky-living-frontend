@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Instrument_Serif, Plus_Jakarta_Sans } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -12,6 +12,15 @@ import "react-day-picker/style.css";
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
+  display: "swap",
+});
+
+/** Display serif — used only for italic headline accents. */
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -56,7 +65,9 @@ export default async function LocaleLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${plusJakarta.variable} antialiased font-sans`}>
+      <body
+        className={`${plusJakarta.variable} ${instrumentSerif.variable} antialiased font-sans`}
+      >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AppProviders>{children}</AppProviders>
         </NextIntlClientProvider>

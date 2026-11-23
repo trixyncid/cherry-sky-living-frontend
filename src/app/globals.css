@@ -10,6 +10,7 @@
     var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-instrument-serif), ui-serif, Georgia, serif;
 
   --color-surface: #ffffff;
   --color-surface-dim: #e6e6e9;
@@ -868,4 +869,68 @@ form [data-form-section] .form-step-num {
 
 form [data-form-section] .form-step-num::before {
   content: counter(form-step);
+}
+
+/* ——— Landing page (components/landing) ——— */
+
+/* CSS dusk sky: shown before the shader sky loads and as the no-WebGL /
+   reduced-motion fallback. */
+.story-sky-fallback {
+  background:
+    radial-gradient(60% 40% at 70% 88%, rgb(246 169 120 / 0.55), transparent 70%),
+    radial-gradient(50% 35% at 25% 20%, rgb(122 22 48 / 0.35), transparent 70%),
+    linear-gradient(to bottom, #2b1a3a 0%, #5c2e4f 38%, #a24a64 66%, #f6a978 100%);
+}
+
+/* Per-property palette: Cherry warm, Sky cool. PLACEHOLDER hexes for Sky. */
+.lp-theme,
+.lp-theme[data-property="cherry"] {
+  --lp-accent: #7a1630;
+  --lp-accent-soft: #f3b9c6;
+  --lp-tint: #fbf4f6;
+}
+.lp-theme[data-property="sky"] {
+  --lp-accent: #1f6a94;
+  --lp-accent-soft: #a9dcef;
+  --lp-tint: #eef8fb;
+}
+
+/* Slow push-in for photos standing in for video. */
+.lp-kenburns {
+  animation: lp-kenburns 18s ease-in-out infinite alternate;
+}
+@keyframes lp-kenburns {
+  from { transform: scale(1.02); }
+  to { transform: scale(1.14); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-kenburns { animation: none; }
+}
+
+.story-scroll-cue {
+  position: relative;
+  width: 1.1rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  border: 1.5px solid rgb(255 255 255 / 0.6);
+}
+.story-scroll-cue::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0.3rem;
+  width: 3px;
+  height: 0.4rem;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: #fff;
+  animation: story-scroll-cue 1.8s ease-in-out infinite;
+}
+@keyframes story-scroll-cue {
+  0% { opacity: 0; transform: translateY(0); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(0.55rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .story-scroll-cue::after { animation: none; }
 }

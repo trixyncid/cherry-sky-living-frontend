@@ -40,6 +40,7 @@ export function Footer({ cta }: FooterProps) {
     {
       title: t("footer.support"),
       links: [
+        { label: t("nav.howItWorks"), href: "/how-it-works" },
         { label: t("nav.faq"), href: "/faq" },
         { label: t("nav.contact"), href: "/contact" },
         { label: t("footer.tenantPortal"), href: "/tenant/login" },

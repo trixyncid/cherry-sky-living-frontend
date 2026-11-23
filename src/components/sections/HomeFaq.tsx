@@ -5,12 +5,13 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { SurveyScheduleDialog } from "@/components/sections/SurveyScheduleDialog";
-import { ArrowPill, Eyebrow } from "@/components/shared/ArrowPill";
+import { Eyebrow } from "@/components/shared/ArrowPill";
 import { Icon } from "@/components/shared/Icon";
 import { Reveal } from "@/components/shared/Reveal";
+import { localized, siteConfig } from "@/config/site";
 import { Link } from "@/i18n/routing";
 import { track } from "@/lib/analytics";
 import { getContactWhatsAppNumber } from "@/lib/contact";
@@ -46,7 +47,7 @@ interface HomeFaqProps {
 export function HomeFaq({ asPage = false }: HomeFaqProps) {
   const t = useTranslations("home.faq");
   const tWhatsapp = useTranslations("whatsapp");
-  const tCta = useTranslations("home.cta");
+  const locale = useLocale();
   const reduceMotion = useReducedMotion();
   const [openId, setOpenId] = useState<(typeof FAQ_IDS)[number] | null>(
     "visit",
@@ -105,35 +106,47 @@ export function HomeFaq({ asPage = false }: HomeFaqProps) {
             </div>
           )}
 
-          <div className="flex max-w-md items-center gap-4 rounded-[1.25rem] bg-canvas p-3">
-            <span className="flex size-24 shrink-0 items-center justify-center rounded-xl bg-brand text-[#25D366]">
-              <Icon name="whatsapp" size={40} />
-            </span>
-            <div className="min-w-0">
-              <p className="text-[17px] font-semibold text-fg">
-                {t("cardTitle")}
-              </p>
-              <p className="text-sm text-fg-muted">{t("cardSub")}</p>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <ArrowPill
-                  href={whatsappUrl}
-                  external
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() =>
-                    track("click_whatsapp", { location: "faq_card" })
-                  }
-                  className="h-10 text-sm"
-                >
-                  {tCta("whatsapp")}
-                </ArrowPill>
-                <Link
-                  href="/contact"
-                  className="px-2 text-sm font-semibold text-fg underline-offset-4 hover:underline"
-                >
-                  {t("contactCta")}
-                </Link>
+          {/* Contact card: who answers, when, and one clear way to reach
+              them. WhatsApp is named by its glyph, in the site's own colours. */}
+          <div className="max-w-md rounded-[1.75rem] border border-line bg-canvas p-5 sm:p-6">
+            <div className="flex items-center gap-4">
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
+                <Icon name="whatsapp" size={22} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-lg font-semibold tracking-tight text-fg">
+                  {t("cardTitle")}
+                </p>
+                <p className="text-sm text-fg-muted">{t("cardSub")}</p>
               </div>
+            </div>
+            <p className="mt-5 flex items-center gap-2 border-t border-line pt-4 text-sm text-fg-2">
+              <Icon name="schedule" size={18} className="text-fg-muted" />
+              {t("cardHours", {
+                days: localized(siteConfig.viewingHours.days, locale),
+                time: siteConfig.viewingHours.time,
+              })}
+            </p>
+            <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  track("click_whatsapp", { location: "faq_card" })
+                }
+                className="inline-flex h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-ink sm:flex-1 px-5 text-[15px] font-semibold text-white transition-colors hover:bg-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              >
+                <Icon name="whatsapp" size={18} />
+                {t("cardChat")}
+              </a>
+              <Link
+                href="/contact"
+                className="inline-flex h-12 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-line-strong px-5 text-[15px] font-semibold text-fg transition-colors hover:border-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              >
+                {t("cardForm")}
+                <Icon name="arrow_forward" size={18} />
+              </Link>
             </div>
           </div>
         </Reveal>

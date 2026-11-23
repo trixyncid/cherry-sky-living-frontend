@@ -13,7 +13,15 @@ export type AnalyticsEvent =
   | "submit_viewing"
   | "submit_inquiry"
   | "submit_waitlist"
-  | "gallery_open";
+  | "gallery_open"
+  // Landing page (scroll-video journey)
+  | "whatsapp_click"
+  | "search_submit"
+  | "inquiry_submit"
+  | "viewing_booked"
+  | "waitlist_join"
+  | "journey_progress"
+  | "property_selected";
 
 export type AnalyticsParams = Record<
   string,

@@ -32,6 +32,8 @@ export interface LeadFormProps {
   kosts?: Kost[];
   tone?: "light" | "dark";
   className?: string;
+  /** Pre-fills the message (e.g. the search filters a waitlist is for). */
+  initialMessage?: string;
 }
 
 type Errors = Partial<Record<"name" | "phone" | "form", string>>;
@@ -45,6 +47,7 @@ export function LeadForm({
   kosts = [],
   tone = "light",
   className,
+  initialMessage = "",
 }: LeadFormProps) {
   const t = useTranslations("leads");
   const tWhatsapp = useTranslations("whatsapp");
@@ -58,7 +61,7 @@ export function LeadForm({
   const [selectedProperty, setSelectedProperty] = useState(propertyId ?? "");
   const [moveIn, setMoveIn] = useState("");
   const [budget, setBudget] = useState("");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(initialMessage);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "done">("idle");
   const [sentUrl, setSentUrl] = useState("");

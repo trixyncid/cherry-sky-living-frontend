@@ -1,11 +1,35 @@
 "use client";
 
-import "./globals.css";
+import type { CSSProperties } from "react";
 
 /**
  * Last-resort boundary: the root layout itself failed, so there are no
  * translations or providers. Bilingual copy, plain markup.
+ *
+ * Styled inline on purpose. This file is bundled into every page, and
+ * importing globals.css here makes the dev server track a second copy of
+ * the stylesheet that no page links, which breaks CSS hot reload ("No link
+ * element found for chunk …globals…css"). Inline styles also still work if
+ * the stylesheet is what failed to load. Colours mirror the --adm-* tokens.
  */
+const BRAND = "#7a1630";
+const INK = "#0f0f11";
+const MUTED = "#66666e";
+const LINE = "#e6e6e9";
+
+const pill: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  height: 40,
+  padding: "0 20px",
+  borderRadius: 9999,
+  fontSize: 14,
+  fontWeight: 500,
+  fontFamily: "inherit",
+  textDecoration: "none",
+  cursor: "pointer",
+};
+
 export default function GlobalError({
   error,
   reset,
@@ -15,33 +39,76 @@ export default function GlobalError({
 }) {
   return (
     <html lang="id">
-      <body className="flex min-h-screen items-center justify-center bg-white px-4 font-sans text-fg antialiased">
-        <main className="w-full max-w-md text-center">
-          <h1 className="text-xl font-semibold tracking-tight">
+      <body
+        style={{
+          margin: 0,
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "0 16px",
+          background: "#fff",
+          color: INK,
+          fontFamily:
+            'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
+          WebkitFontSmoothing: "antialiased",
+        }}
+      >
+        <main style={{ width: "100%", maxWidth: 448, textAlign: "center" }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 20,
+              fontWeight: 600,
+              letterSpacing: "-0.025em",
+            }}
+          >
             Terjadi kesalahan · Something went wrong
           </h1>
-          <p className="mt-2 text-sm leading-relaxed text-fg-muted">
+          <p
+            style={{
+              margin: "8px 0 0",
+              fontSize: 14,
+              lineHeight: 1.625,
+              color: MUTED,
+            }}
+          >
             Halaman tidak dapat dimuat. Silakan coba lagi.
             <br />
             The page couldn&apos;t load. Please try again.
           </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <div
+            style={{
+              marginTop: 24,
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 8,
+            }}
+          >
             <button
               type="button"
               onClick={reset}
-              className="h-10 rounded-full bg-brand px-5 text-sm font-medium text-white"
+              style={{ ...pill, border: 0, background: BRAND, color: "#fff" }}
             >
               Coba lagi · Try again
             </button>
             <a
               href="/"
-              className="inline-flex h-10 items-center rounded-full border border-line px-5 text-sm font-medium"
+              style={{
+                ...pill,
+                border: `1px solid ${LINE}`,
+                background: "#fff",
+                color: INK,
+              }}
             >
               Beranda · Home
             </a>
           </div>
           {error.digest ? (
-            <p className="mt-6 text-xs text-fg-faint">Ref: {error.digest}</p>
+            <p style={{ margin: "24px 0 0", fontSize: 12, color: "#a1a1aa" }}>
+              Ref: {error.digest}
+            </p>
           ) : null}
         </main>
       </body>

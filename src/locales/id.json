@@ -14,7 +14,8 @@
     "location": "Lokasi",
     "faq": "FAQ",
     "checkAvailability": "Cek ketersediaan",
-    "explore": "Jelajahi"
+    "explore": "Jelajahi",
+    "howItWorks": "Cara kerja"
   },
   "hero": {
     "title": "Kamar berfurnitur. Rumah yang tenang. Siap saat Anda siap.",
@@ -256,7 +257,10 @@
         "message": "Halo kak 👋 Saya {name}, mau survey kamar dong.\n\n📅 {surveyDay}, jam {surveyTime} WIB\n🏠 {roomType} di {property}\n📱 {phone}\n\nBisa dibantu konfirmasi ya kak? Makasih banyak 🙏"
       },
       "cardTitle": "Bicara dengan pemilik",
-      "cardSub": "Dibalas langsung via WhatsApp"
+      "cardSub": "Dibalas langsung via WhatsApp",
+      "cardHours": "Dibalas {days}, {time}",
+      "cardChat": "Chat via WhatsApp",
+      "cardForm": "Kirim pesan"
     },
     "amenities": {
       "badge": "Sudah termasuk untuk penghuni",
@@ -2961,6 +2965,10 @@
     "faq": {
       "title": "FAQ",
       "description": "Jawaban seputar kunjungan, deposit, listrik, Wi-Fi, dan ketersediaan kamar."
+    },
+    "howItWorks": {
+      "title": "Cara kerjanya",
+      "description": "Dari pesan pertama hingga pindah: pilih kamar, jadwalkan kunjungan, sepakati syarat secara tertulis, dan langsung tinggal."
     }
   },
   "trust": {
@@ -3012,5 +3020,153 @@
     "backToTop": "Kembali ke atas",
     "questions": "Ada pertanyaan tentang dokumen ini?",
     "questionsSub": "Hubungi kami dan kami akan menjelaskan hal yang kurang jelas."
+  },
+  "landing": {
+    "meta": {
+      "title": "Kost di Medan — Cherry Kost & Sky Kost | Cherry Sky Living",
+      "description": "Dua kost terawat di Medan dengan kamar siap huni, lift, dapur bersama, dan laundry. Cek ketersediaan kamar hari ini dan tanya langsung via WhatsApp.",
+      "keywords": "kost Medan, kost eksklusif Medan, kost dekat kampus Medan, sewa kamar Medan, Cherry Kost, Sky Kost"
+    },
+    "hero": {
+      "count": "{count, plural, =0 {Belum ada kamar kosong di {names}} other {# kamar tersedia di {names}}}",
+      "whatsapp": "Tanya via WhatsApp",
+      "explore": "Pilih kost Anda",
+      "statPrice": "Sewa mulai / bulan",
+      "statRooms": "Kamar tersedia",
+      "statTypes": "Tipe kamar",
+      "statHours": "Jam survei, {days}"
+    },
+    "search": {
+      "title": "Cek ketersediaan kamar",
+      "property": "Kost",
+      "all": "Semua",
+      "roomType": "Tipe kamar",
+      "any": "Semua",
+      "moveIn": "Bulan masuk",
+      "duration": "Durasi",
+      "months": "{count} bulan",
+      "budget": "Budget / bulan",
+      "gender": "Untuk",
+      "putra": "Putra",
+      "putri": "Putri",
+      "campur": "Campur",
+      "submit": "Cek Ketersediaan",
+      "loading": "Memuat kamar…",
+      "results": "{count, plural, =0 {Belum ada kamar yang cocok} other {# tipe kamar tersedia}}",
+      "reset": "Hapus filter",
+      "emptyTitle": "Belum ada kamar yang cocok",
+      "emptyBody": "Tinggalkan nomor WhatsApp Anda — kami kabari begitu ada kamar yang sesuai.",
+      "waitlistPrefix": "Daftar tunggu untuk:",
+      "waitlistCta": "Kabari saya saat tersedia",
+      "anyTime": "Kapan saja"
+    },
+    "choose": {
+      "eyebrow": "Pilih rumah Anda",
+      "titleLead": "Dua kost,",
+      "titleAccent": "satu standar.",
+      "photoAlt": "Tampak depan {name}",
+      "gender": {
+        "putra": "Putra",
+        "putri": "Putri",
+        "campur": "Campur"
+      },
+      "price": "Harga / bulan",
+      "ask": "Tanya kami",
+      "available": "Tersedia sekarang",
+      "rooms": "{count, plural, =0 {Penuh} other {# kamar}}",
+      "cta": "Masuk ke {name}",
+      "aside": "Dua bangunan, satu pemilik. Pilih salah satu untuk masuk dan melihat kamarnya."
+    },
+    "journey": {
+      "label": "Perjalanan masuk ke {name}",
+      "scroll": "Gulir untuk masuk",
+      "roomEyebrow": "Kamar Anda",
+      "perMonth": "/bulan",
+      "askRoom": "Tanya kamar ini",
+      "allRooms": "Semua tipe kamar",
+      "skip": "Lewati ke daftar kamar"
+    },
+    "rooms": {
+      "titleLead": "Pilih",
+      "titleAccent": "tipe kamar.",
+      "left": "{count, plural, one {Sisa # kamar} other {Sisa # kamar}}",
+      "soon": "Segera tersedia",
+      "full": "Penuh",
+      "none": "Daftar kamar sedang diperbarui. Tanya kami via WhatsApp untuk ketersediaan terbaru.",
+      "openGallery": "Lihat foto {name}",
+      "photoAlt": "Kamar {room} di {name}",
+      "perMonth": "/bulan",
+      "ask": "Tanya harga",
+      "gender": {
+        "putra": "Putra",
+        "putri": "Putri",
+        "campur": "Campur"
+      },
+      "whatsapp": "WhatsApp",
+      "survey": "Survei",
+      "waitlist": "Kabari saya",
+      "galleryAlt": "Foto {n} kamar {room}",
+      "fullDetail": "Lihat detail lengkap",
+      "aside": "Harga dan ketersediaan langsung dari sistem kami — yang Anda lihat adalah yang benar-benar ada."
+    },
+    "facilities": {
+      "titleLead": "Fasilitas",
+      "titleAccent": "yang dipakai tiap hari.",
+      "aside": "Semua sudah termasuk di gedung, tanpa perlu keluar rumah."
+    },
+    "closing": {
+      "eyebrow": "Selamat malam dari {name}",
+      "titleLead": "Satu langit,",
+      "titleAccent": "dua pilihan pulang.",
+      "other": "Lihat juga {name}",
+      "continue": "Lokasi & perbandingan"
+    },
+    "location": {
+      "eyebrow": "Lokasi",
+      "titleLead": "Dekat dengan keseharian,",
+      "titleAccent": "mudah dijangkau.",
+      "openMaps": "Buka di Google Maps",
+      "schematic": "Ilustrasi kawasan — bukan peta berskala"
+    },
+    "compare": {
+      "eyebrow": "Bandingkan",
+      "titleLead": "Cherry atau Sky?",
+      "titleAccent": "Lihat bedanya.",
+      "price": "Harga per bulan",
+      "roomTypes": "Tipe kamar",
+      "available": "Tersedia sekarang",
+      "deposit": "Deposit",
+      "askUs": "Tanya kami",
+      "facilities": "Fasilitas",
+      "gender": "Untuk",
+      "rules": "Aturan",
+      "nearby": "Terdekat",
+      "aside": "Belum yakin? Bandingkan keduanya berdampingan."
+    },
+    "testimonials": {
+      "eyebrow": "Kata penghuni",
+      "titleLead": "Mereka sudah",
+      "titleAccent": "merasa di rumah.",
+      "google": "{rating} di Google ({count} ulasan)"
+    },
+    "final": {
+      "eyebrow": "Siap melihat kamar?",
+      "titleLead": "Tanya dulu,",
+      "titleAccent": "lihat langsung, baru putuskan.",
+      "body": "Survei {days}, {time}. Pilih waktu dan kami tunggu di lokasi.",
+      "whatsapp": "Chat via WhatsApp",
+      "survey": "Jadwalkan Survei"
+    },
+    "sticky": {
+      "check": "Cek Ketersediaan"
+    },
+    "dock": {
+      "label": "Navigasi halaman",
+      "choose": "Pilih kost",
+      "rooms": "Kamar",
+      "facilities": "Fasilitas",
+      "location": "Lokasi",
+      "faq": "FAQ"
+    }
   }
 }

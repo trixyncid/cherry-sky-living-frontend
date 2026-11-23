@@ -1,0 +1,23 @@
+{
+  "property": "cherry",
+  "outDir": "public/media/cherry",
+  "targets": { "desktopJourneyMB": 15, "mobileJourneyMB": 8 },
+  "clips": {
+    "journey-1-arrival": {
+      "file": "/Users/winstencoellins/Documents/videos/csl/Camera_gliding_into_building_lobby_da5d4223.mp4",
+      "focal": { "x": 0.58, "y": 0.5 }
+    },
+    "journey-2-lift": {
+      "file": "/Users/winstencoellins/Documents/videos/csl/Camera_moving_through_hotel_corr…_8534e4fa.mp4",
+      "focal": { "x": 0.5, "y": 0.5 }
+    },
+    "journey-3-room": {
+      "file": "/Users/winstencoellins/Documents/videos/csl/Camera_gliding_through_hotel_cor…_2489db11.mp4",
+      "focal": { "x": 0.55, "y": 0.5 }
+    },
+    "closing": {
+      "file": "/Users/winstencoellins/Documents/videos/csl/Neoclassical_building_evening_tr…_36af7559.mp4",
+      "focal": { "x": 0.68, "y": 0.5 }
+    }
+  }
+}

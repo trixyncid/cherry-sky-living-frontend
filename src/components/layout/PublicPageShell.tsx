@@ -19,6 +19,8 @@ interface PublicPageShellProps {
   children: ReactNode;
   /** Hide the final CTA panel (e.g. pages that already end in a form). */
   hideCta?: boolean;
+  /** Hide the floating CTA (pages with their own sticky bar). */
+  hideFloating?: boolean;
   /** Page-specific floating CTA (context-aware WhatsApp message etc.). */
   floating?: FloatingCtaOptions;
 }
@@ -26,6 +28,7 @@ interface PublicPageShellProps {
 export function PublicPageShell({
   children,
   hideCta = false,
+  hideFloating = false,
   floating,
 }: PublicPageShellProps) {
   const { data: kosts, isLoading } = useKosts();
@@ -43,7 +46,7 @@ export function PublicPageShell({
           }
         />
       </div>
-      <HomeFloatingCta {...floating} />
+      {hideFloating ? null : <HomeFloatingCta {...floating} />}
     </AppLayout>
   );
 }

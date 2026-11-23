@@ -14,7 +14,8 @@
     "location": "Location",
     "faq": "FAQ",
     "checkAvailability": "Check availability",
-    "explore": "Explore"
+    "explore": "Explore",
+    "howItWorks": "How it works"
   },
   "hero": {
     "title": "Furnished rooms. Quiet houses. Ready when you are.",
@@ -256,7 +257,10 @@
         "message": "Hi there 👋 I'm {name} and I'd love to come see a room.\n\n📅 {viewingDay} at {viewingTime} WIB\n🏠 {roomType} at {property}\n📱 {phone}\n\nCould you confirm that works? Thanks so much 🙏"
       },
       "cardTitle": "Talk to the owner",
-      "cardSub": "Replies personally on WhatsApp"
+      "cardSub": "Replies personally on WhatsApp",
+      "cardHours": "Replies {days}, {time}",
+      "cardChat": "Chat on WhatsApp",
+      "cardForm": "Send a message"
     },
     "amenities": {
       "badge": "Included for residents",
@@ -2961,6 +2965,10 @@
     "faq": {
       "title": "FAQ",
       "description": "Answers about viewings, deposits, electricity, Wi-Fi and availability."
+    },
+    "howItWorks": {
+      "title": "How it works",
+      "description": "From first message to move-in: pick a room, book a viewing, agree the terms in writing, and move in ready."
     }
   },
   "trust": {
@@ -3012,5 +3020,153 @@
     "backToTop": "Back to top",
     "questions": "Questions about this document?",
     "questionsSub": "Message us and we'll explain anything that's unclear."
+  },
+  "landing": {
+    "meta": {
+      "title": "Boarding houses in Medan — Cherry Kost & Sky Kost | Cherry Sky Living",
+      "description": "Two well-kept boarding houses in Medan with move-in ready rooms, a lift, shared kitchen and laundry. Check today's availability and ask on WhatsApp.",
+      "keywords": "kost Medan, boarding house Medan, room for rent Medan, kost near campus Medan, Cherry Kost, Sky Kost"
+    },
+    "hero": {
+      "count": "{count, plural, =0 {No rooms open right now at {names}} one {# room available at {names}} other {# rooms available at {names}}}",
+      "whatsapp": "Ask on WhatsApp",
+      "explore": "Choose your home",
+      "statPrice": "Monthly rent from",
+      "statRooms": "Rooms available",
+      "statTypes": "Room types",
+      "statHours": "Viewing hours, {days}"
+    },
+    "search": {
+      "title": "Check room availability",
+      "property": "Property",
+      "all": "All",
+      "roomType": "Room type",
+      "any": "Any",
+      "moveIn": "Move-in month",
+      "duration": "Duration",
+      "months": "{count, plural, one {# month} other {# months}}",
+      "budget": "Budget / month",
+      "gender": "For",
+      "putra": "Men",
+      "putri": "Women",
+      "campur": "Mixed",
+      "submit": "Check availability",
+      "loading": "Loading rooms…",
+      "results": "{count, plural, =0 {No matching rooms yet} one {# room type available} other {# room types available}}",
+      "reset": "Clear filters",
+      "emptyTitle": "No matching rooms yet",
+      "emptyBody": "Leave your WhatsApp number and we'll message you as soon as a matching room opens.",
+      "waitlistPrefix": "Waitlist for:",
+      "waitlistCta": "Notify me when available",
+      "anyTime": "Any time"
+    },
+    "choose": {
+      "eyebrow": "Choose your home",
+      "titleLead": "Two houses,",
+      "titleAccent": "one standard.",
+      "photoAlt": "{name} exterior",
+      "gender": {
+        "putra": "Men only",
+        "putri": "Women only",
+        "campur": "Mixed"
+      },
+      "price": "Monthly rent",
+      "ask": "Ask us",
+      "available": "Available now",
+      "rooms": "{count, plural, =0 {Full} one {# room} other {# rooms}}",
+      "cta": "Step into {name}",
+      "aside": "Two buildings, one owner. Pick one to step inside and see its rooms."
+    },
+    "journey": {
+      "label": "The walk into {name}",
+      "scroll": "Scroll to step inside",
+      "roomEyebrow": "Your room",
+      "perMonth": "/month",
+      "askRoom": "Ask about this room",
+      "allRooms": "All room types",
+      "skip": "Skip to the room list"
+    },
+    "rooms": {
+      "titleLead": "Pick your",
+      "titleAccent": "room type.",
+      "left": "{count, plural, one {# room left} other {# rooms left}}",
+      "soon": "Available soon",
+      "full": "Full",
+      "none": "The room list is being updated. Ask us on WhatsApp for the latest availability.",
+      "openGallery": "View photos of {name}",
+      "photoAlt": "{room} room at {name}",
+      "perMonth": "/month",
+      "ask": "Ask for price",
+      "gender": {
+        "putra": "Men only",
+        "putri": "Women only",
+        "campur": "Mixed"
+      },
+      "whatsapp": "WhatsApp",
+      "survey": "Viewing",
+      "waitlist": "Notify me",
+      "galleryAlt": "Photo {n} of the {room} room",
+      "fullDetail": "See full details",
+      "aside": "Prices and availability come straight from our system — what you see is what is actually open."
+    },
+    "facilities": {
+      "titleLead": "Facilities",
+      "titleAccent": "you'll use every day.",
+      "aside": "All inside the building, so you never have to go out for the basics."
+    },
+    "closing": {
+      "eyebrow": "Good night from {name}",
+      "titleLead": "One sky,",
+      "titleAccent": "two ways home.",
+      "other": "See {name} too",
+      "continue": "Location & comparison"
+    },
+    "location": {
+      "eyebrow": "Location",
+      "titleLead": "Close to daily life,",
+      "titleAccent": "easy to reach.",
+      "openMaps": "Open in Google Maps",
+      "schematic": "Illustrated neighbourhood — not to scale"
+    },
+    "compare": {
+      "eyebrow": "Compare",
+      "titleLead": "Cherry or Sky?",
+      "titleAccent": "See the difference.",
+      "price": "Monthly rent",
+      "roomTypes": "Room types",
+      "available": "Available now",
+      "deposit": "Deposit",
+      "askUs": "Ask us",
+      "facilities": "Facilities",
+      "gender": "For",
+      "rules": "House rules",
+      "nearby": "Nearby",
+      "aside": "Not sure yet? Compare the two side by side."
+    },
+    "testimonials": {
+      "eyebrow": "From residents",
+      "titleLead": "They already",
+      "titleAccent": "feel at home.",
+      "google": "{rating} on Google ({count} reviews)"
+    },
+    "final": {
+      "eyebrow": "Ready to see a room?",
+      "titleLead": "Ask first,",
+      "titleAccent": "visit, then decide.",
+      "body": "Viewings {days}, {time}. Pick a time and we'll meet you there.",
+      "whatsapp": "Chat on WhatsApp",
+      "survey": "Book a viewing"
+    },
+    "sticky": {
+      "check": "Check availability"
+    },
+    "dock": {
+      "label": "Page navigation",
+      "choose": "Choose",
+      "rooms": "Rooms",
+      "facilities": "Facilities",
+      "location": "Location",
+      "faq": "FAQ"
+    }
   }
 }
