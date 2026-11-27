@@ -101,14 +101,6 @@ export function Footer({ cta }: FooterProps) {
               </a>
             </div>
             <ul className="mt-8 flex flex-col gap-2 text-[15px] text-white/70">
-              <li>
-                <a
-                  href={`mailto:${siteConfig.email}`}
-                  className="hover:text-white"
-                >
-                  {siteConfig.email}
-                </a>
-              </li>
               {(kosts ?? []).map((kost) => (
                 <li key={kost.id}>
                   <span className="text-white">{kost.name}</span>

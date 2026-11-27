@@ -9,7 +9,7 @@ import {
   AdminDatePicker,
   AdminField,
   AdminSelect,
-  adminInputClassName,
+  AdminTextarea,
 } from "@/features/admin/components/admin-field";
 import {
   AdminDetailPage,
@@ -44,10 +44,6 @@ import {
   deleteLedgerEntryAttachment,
   uploadLedgerEntryImage,
 } from "@/lib/api/admin/attachments";
-import {
-  isLedgerCategoryForType,
-  ledgerCategoriesForType,
-} from "@/lib/ledger-categories";
 import { adminKeys } from "@/lib/query/keys";
 import type { LedgerEntryType } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
@@ -56,7 +52,6 @@ const BASE = "/admin/bookkeeping";
 
 type FormState = {
   type: LedgerEntryType;
-  category: string;
   amount: string;
   description: string;
   date: string;
@@ -65,7 +60,6 @@ type FormState = {
 
 const emptyForm: FormState = {
   type: "income",
-  category: "",
   amount: "",
   description: "",
   date: toDateInputValue(new Date()),
@@ -108,14 +102,13 @@ export function LedgerEntryForm({ id }: { id?: string }) {
     if (isEdit) return;
     const type = new URLSearchParams(window.location.search).get("type");
     if (type === "income" || type === "expense")
-      setForm((f) => (f.type === type ? f : { ...f, type, category: "" }));
+      setForm((f) => (f.type === type ? f : { ...f, type }));
   }, [isEdit]);
 
   useEffect(() => {
     if (entry) {
       setForm({
         type: entry.type,
-        category: entry.category ?? "",
         amount: formatIdrInput(entry.amount),
         description: entry.description,
         date: toDateInputValue(entry.date),
@@ -136,7 +129,6 @@ export function LedgerEntryForm({ id }: { id?: string }) {
   const isDirty =
     !entry ||
     form.type !== entry.type ||
-    form.category !== (entry.category ?? "") ||
     parseIdrInput(form.amount) !== entry.amount ||
     form.description !== entry.description ||
     form.date !== toDateInputValue(entry.date) ||
@@ -165,7 +157,6 @@ export function LedgerEntryForm({ id }: { id?: string }) {
 
     const payload = {
       type: form.type,
-      category: form.category || null,
       amount,
       description: form.description.trim(),
       date: form.date,
@@ -257,33 +248,11 @@ export function LedgerEntryForm({ id }: { id?: string }) {
                     value={form.type}
                     onChange={(e) => {
                       const type = e.target.value as LedgerEntryType;
-                      setForm((f) => ({
-                        ...f,
-                        type,
-                        category: isLedgerCategoryForType(type, f.category)
-                          ? f.category
-                          : "",
-                      }));
+                      setForm((f) => ({ ...f, type }));
                     }}
                   >
                     <option value="income">{tp("typeIncome")}</option>
                     <option value="expense">{tp("typeExpense")}</option>
-                  </AdminSelect>
-                </AdminField>
-                <AdminField label={tp("category")} htmlFor="ledger-category">
-                  <AdminSelect
-                    id="ledger-category"
-                    value={form.category}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, category: e.target.value }))
-                    }
-                  >
-                    <option value="">{tp("categoryNone")}</option>
-                    {ledgerCategoriesForType(form.type).map((category) => (
-                      <option key={category} value={category}>
-                        {tp(`categories.${category}`)}
-                      </option>
-                    ))}
                   </AdminSelect>
                 </AdminField>
                 <AdminField
@@ -298,19 +267,22 @@ export function LedgerEntryForm({ id }: { id?: string }) {
                     onValueChange={(amount) =>
                       setForm((f) => ({ ...f, amount }))
                     }
-                    placeholder="Rp. 0"
+                    placeholder="Rp 0"
                   />
                 </AdminField>
+                {/* The note is the only record of what this money was for. */}
                 <AdminField
-                  label={t("description")}
+                  label={tp("notes")}
                   htmlFor="ledger-description"
                   required
                   className="sm:col-span-2"
                 >
-                  <input
+                  <AdminTextarea
                     id="ledger-description"
                     required
-                    className={adminInputClassName}
+                    rows={3}
+                    maxLength={2000}
+                    placeholder={tp("notesPlaceholder")}
                     value={form.description}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, description: e.target.value }))
@@ -380,9 +352,6 @@ export function LedgerEntryForm({ id }: { id?: string }) {
           <LedgerPreview
             type={form.type}
             amount={parseIdrInput(form.amount) || 0}
-            categoryLabel={
-              form.category ? tp(`categories.${form.category}`) : undefined
-            }
             description={form.description}
             date={form.date}
             propertyName={

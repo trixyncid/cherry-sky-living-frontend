@@ -290,14 +290,12 @@ export function PricingPreview({
 export function LedgerPreview({
   type,
   amount,
-  categoryLabel,
   description,
   date,
   propertyName,
 }: {
   type: "income" | "expense";
   amount: number;
-  categoryLabel?: string;
   description: string;
   date: string;
   propertyName?: string;
@@ -327,8 +325,7 @@ export function LedgerPreview({
               {placeholder(description, t("description"))}
             </p>
             <p className="truncate text-xs text-fg-muted">
-              {propertyName || t("allProperties")} ·{" "}
-              {categoryLabel || t("uncategorized")}
+              {propertyName || t("allProperties")}
             </p>
           </div>
         </div>

@@ -10,10 +10,7 @@ import {
 } from "@/features/admin/bookkeeping/calculate-lease-income";
 import { computeLedgerSummary } from "@/features/admin/bookkeeping/compute-ledger-summary";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import {
-  AdminDateRangePicker,
-  AdminSelect,
-} from "@/features/admin/components/admin-field";
+import { AdminDateRangePicker } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminPagination } from "@/features/admin/components/admin-pagination";
 import {
@@ -52,11 +49,6 @@ import {
 } from "@/features/admin/lib/show-api-error";
 import { Segmented } from "@/features/admin/overview/dashboard-widgets";
 import { Link } from "@/i18n/routing";
-import {
-  isLedgerCategoryForType,
-  LEDGER_EXPENSE_CATEGORIES,
-  LEDGER_INCOME_CATEGORIES,
-} from "@/lib/ledger-categories";
 import type { LedgerEntry, LedgerEntryType } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
 
@@ -84,7 +76,6 @@ export function BookkeepingList() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
   const tb = useTranslations("admin.pages.ledger");
   const locale = useLocale();
 
@@ -186,15 +177,13 @@ export function BookkeepingList() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const byCategory = categoryFilter
-      ? allEntries.filter((e) => categoryOf(e) === categoryFilter)
-      : allEntries;
-    if (!q) return byCategory;
-    return byCategory.filter((entry) => {
+    if (!q) return allEntries;
+    // Notes are how entries are told apart, so search reads them.
+    return allEntries.filter((entry) => {
       const property = entry.property?.name ?? "";
       return [entry.description, property].join(" ").toLowerCase().includes(q);
     });
-  }, [allEntries, search, categoryFilter]);
+  }, [allEntries, search]);
 
   const getSortValue = useCallback(
     (item: LedgerEntry, key: string) => getLedgerEntrySortValue(item, key),
@@ -236,24 +225,6 @@ export function BookkeepingList() {
       .map(([month, v]) => ({ month, ...v }));
   }, [allEntries]);
 
-  // Category breakdown per type.
-  const breakdown = useMemo(() => {
-    const result: Record<LedgerEntryType, { key: string; amount: number }[]> = {
-      income: [],
-      expense: [],
-    };
-    for (const type of ["income", "expense"] as const) {
-      const map = new Map<string, number>();
-      for (const e of allEntries)
-        if (e.type === type)
-          map.set(categoryOf(e), (map.get(categoryOf(e)) ?? 0) + e.amount);
-      result[type] = [...map.entries()]
-        .map(([key, amount]) => ({ key, amount }))
-        .sort((a, b) => b.amount - a.amount);
-    }
-    return result;
-  }, [allEntries]);
-
   const days = useMemo(() => {
     const groups: { day: string; entries: LedgerEntry[]; net: number }[] = [];
     for (const e of pageData) {
@@ -280,8 +251,6 @@ export function BookkeepingList() {
     propertyFilter,
     setPropertyFilter,
   );
-  const categoryLabel = (key: string) =>
-    key === "none" ? tp("categoryNone") : tp(`categories.${key}`);
 
   return (
     <>
@@ -321,10 +290,7 @@ export function BookkeepingList() {
             active: typeFilter !== "",
             chip:
               typeFilter === "income" ? tp("typeIncome") : tp("typeExpense"),
-            onClear: () => {
-              setTypeFilter("");
-              setCategoryFilter("");
-            },
+            onClear: () => setTypeFilter(""),
             width: "w-auto",
             control: (
               <Segmented
@@ -332,7 +298,6 @@ export function BookkeepingList() {
                 value={typeFilter || "all"}
                 onChange={(v) => {
                   setTypeFilter(v === "all" ? "" : v);
-                  setCategoryFilter("");
                   setPage(1);
                 }}
                 options={[
@@ -362,33 +327,6 @@ export function BookkeepingList() {
                 onToChange={setEndDate}
                 placeholder={tp("dateRangePlaceholder")}
               />
-            ),
-          },
-          {
-            key: "category",
-            label: tt("category"),
-            active: categoryFilter !== "",
-            chip: categoryFilter ? categoryLabel(categoryFilter) : undefined,
-            onClear: () => setCategoryFilter(""),
-            width: "w-44",
-            control: (
-              <AdminSelect
-                value={categoryFilter}
-                onChange={(e) => {
-                  setCategoryFilter(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="">{tp("allCategories")}</option>
-                {[
-                  ...(typeFilter !== "expense" ? LEDGER_INCOME_CATEGORIES : []),
-                  ...(typeFilter !== "income" ? LEDGER_EXPENSE_CATEGORIES : []),
-                ].map((c) => (
-                  <option key={c} value={c}>
-                    {categoryLabel(c)}
-                  </option>
-                ))}
-              </AdminSelect>
             ),
           },
         ]}
@@ -503,71 +441,6 @@ export function BookkeepingList() {
         </div>
       </section>
 
-      {/* Category breakdown */}
-      <section className="mb-5 grid gap-4 md:grid-cols-2">
-        {(["income", "expense"] as const).map((type) => {
-          const rows = breakdown[type];
-          const total = rows.reduce((s, r) => s + r.amount, 0);
-          return (
-            <div key={type} className={cn(panel, "p-5")}>
-              <h3 className="mb-3 text-[15px] font-medium text-fg">
-                {type === "income" ? tb("whereFrom") : tb("whereTo")}
-              </h3>
-              {rows.length === 0 ? (
-                <p className="text-sm text-fg-muted">{t("empty")}</p>
-              ) : (
-                <ul className="flex flex-col gap-1">
-                  {rows.slice(0, 5).map((r) => {
-                    const active = categoryFilter === r.key;
-                    const pct = total > 0 ? (r.amount / total) * 100 : 0;
-                    return (
-                      <li key={r.key}>
-                        <button
-                          type="button"
-                          aria-pressed={active}
-                          onClick={() => {
-                            setCategoryFilter(active ? "" : r.key);
-                            setPage(1);
-                          }}
-                          className={cn(
-                            "w-full rounded-xl px-2.5 py-2 text-left transition-colors",
-                            active
-                              ? "bg-hover ring-1 ring-brand-line"
-                              : "hover:bg-subtle",
-                          )}
-                        >
-                          <span className="flex items-center gap-2.5 text-sm">
-                            <CategoryIcon category={r.key} type={type} small />
-                            <span className="flex-1 truncate text-fg">
-                              {categoryLabel(r.key)}
-                            </span>
-                            <span className="tabular-nums text-fg-2">
-                              {rupiah(r.amount)}
-                            </span>
-                            <span className="w-10 text-right text-xs tabular-nums text-fg-muted">
-                              {Math.round(pct)}%
-                            </span>
-                          </span>
-                          <span className="mt-1.5 ml-9 block h-1.5 overflow-hidden rounded-full bg-hover">
-                            <span
-                              className={cn(
-                                "block h-full rounded-full",
-                                type === "income" ? "bg-success" : "bg-danger",
-                              )}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          );
-        })}
-      </section>
-
       {dateRangeError && (
         <p className="mb-4 text-sm text-danger">{dateRangeError}</p>
       )}
@@ -635,10 +508,7 @@ export function BookkeepingList() {
                       key={entry.id}
                       className="flex items-center gap-3 px-5 py-3"
                     >
-                      <CategoryIcon
-                        category={categoryOf(entry)}
-                        type={entry.type}
-                      />
+                      <TypeIcon type={entry.type} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-[15px] font-medium text-fg">
                           {entry.description}
@@ -647,8 +517,6 @@ export function BookkeepingList() {
                           <span>
                             {entry.property?.name ?? tp("generalShort")}
                           </span>
-                          <span aria-hidden>·</span>
-                          <span>{categoryLabel(categoryOf(entry))}</span>
                           {receipts > 0 ? (
                             <span className="inline-flex items-center gap-0.5">
                               <span aria-hidden>·</span>
@@ -738,53 +606,19 @@ export function BookkeepingList() {
   );
 }
 
-/** Lease rent rows carry no category — they are rent. */
-function categoryOf(entry: LedgerEntry): string {
-  if (isLeaseIncomeEntry(entry.id)) return "rent";
-  return entry.category && isLedgerCategoryForType(entry.type, entry.category)
-    ? entry.category
-    : "none";
-}
-
-const CATEGORY_ICONS: Record<string, string> = {
-  rent: "key",
-  deposit: "savings",
-  late_fee: "alarm",
-  other_income: "add_card",
-  utilities: "bolt",
-  maintenance: "build",
-  cleaning: "cleaning_services",
-  staff: "badge",
-  supplies: "inventory_2",
-  tax: "account_balance",
-  other_expense: "receipt",
-  none: "receipt_long",
-};
-
-function CategoryIcon({
-  category,
-  type,
-  small,
-}: {
-  category: string;
-  type: LedgerEntryType;
-  small?: boolean;
-}) {
+/** Money in (green) or out (red); the note says what it was for. */
+function TypeIcon({ type }: { type: LedgerEntryType }) {
   return (
     <span
       aria-hidden
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-full",
-        small ? "size-7" : "size-10",
+        "flex size-10 shrink-0 items-center justify-center rounded-full",
         type === "income"
           ? "bg-success-soft text-success"
           : "bg-danger-soft text-danger",
       )}
     >
-      <Icon
-        name={CATEGORY_ICONS[category] ?? "receipt_long"}
-        size={small ? 15 : 19}
-      />
+      <Icon name={type === "income" ? "south_west" : "north_east"} size={19} />
     </span>
   );
 }

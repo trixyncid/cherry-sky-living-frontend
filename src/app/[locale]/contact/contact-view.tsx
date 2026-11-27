@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { generateWhatsAppURL } from "@/lib/utils/format";
 
 /**
- * Contact — four direct channels, a lead-saving inquiry form, and each
+ * Contact — three direct channels, a lead-saving inquiry form, and each
  * residence with a pinned map. All details come from live data/site config.
  */
 export function ContactView() {
@@ -48,14 +48,6 @@ export function ContactView() {
       onClick: () => track("click_call", { location: "contact_channel" }),
     },
     {
-      key: "email",
-      icon: "mail",
-      title: t("hero.email"),
-      value: siteConfig.email,
-      sub: t("page.emailSub"),
-      href: `mailto:${siteConfig.email}`,
-    },
-    {
       key: "hours",
       icon: "schedule",
       title: t("hero.hours"),
@@ -75,7 +67,7 @@ export function ContactView() {
       />
       <section className="w-full bg-canvas px-5 pt-24 sm:px-8 lg:px-12 lg:pt-32">
         <div className="mx-auto w-full max-w-[90rem]">
-          <ul className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {channels.map((c, i) => {
               const inner = (
                 <>

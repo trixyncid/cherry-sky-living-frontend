@@ -2315,8 +2315,6 @@
         "dateRangePlaceholder": "All dates",
         "invalidDateRange": "Start date must be on or before end date.",
         "date": "Date",
-        "category": "Category",
-        "categoryNone": "Uncategorized",
         "amount": "Amount (IDR)",
         "amountRequired": "Enter a valid amount greater than zero.",
         "noProperty": "General (not for one property)",
@@ -2337,24 +2335,12 @@
           "loss": "Loss",
           "noExpenseYet": "No spending recorded yet"
         },
-        "categories": {
-          "rent": "Rent",
-          "deposit": "Deposit",
-          "late_fee": "Late fee",
-          "other_income": "Other income",
-          "utilities": "Utilities",
-          "maintenance": "Maintenance",
-          "cleaning": "Cleaning",
-          "staff": "Staff & payroll",
-          "supplies": "Supplies",
-          "tax": "Tax & fees",
-          "other_expense": "Other expense"
-        },
         "lockedBill": "This entry was created automatically from a paid rent bill, so it can’t be changed here. Change it from the lease page.",
-        "allCategories": "All categories",
         "generalShort": "General",
         "savedEntry": "Entry saved.",
-        "deleteHint": "Delete this entry if it was recorded by mistake."
+        "deleteHint": "Delete this entry if it was recorded by mistake.",
+        "notes": "Notes",
+        "notesPlaceholder": "e.g. October electricity bill"
       },
       "inventory": {
         "portfolio": "Portfolio",

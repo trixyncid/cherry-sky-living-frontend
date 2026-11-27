@@ -125,8 +125,6 @@ export function PettyCashList() {
   const voidedCount = (data?.data ?? []).filter((e) => e.reversedAt).length;
 
   const propertyToolbar = usePropertyToolbarFilter(propertyId, setPropertyId);
-  const categoryLabel = (category: string | null) =>
-    category ? tb(`categories.${category}`) : null;
   const newHref = (entryType: ManualPettyCashType) =>
     `${BASE}/new?type=${entryType}${propertyId ? `&propertyId=${propertyId}` : ""}`;
 
@@ -313,7 +311,6 @@ export function PettyCashList() {
               key={entry.id}
               entry={entry}
               showProperty={!propertyId}
-              categoryLabel={categoryLabel(entry.category)}
               onVoid={() => setVoidTarget(entry)}
             />
           ))}
@@ -394,12 +391,10 @@ function BalanceCard({
 function EntryRow({
   entry,
   showProperty,
-  categoryLabel,
   onVoid,
 }: {
   entry: PettyCashEntry;
   showProperty: boolean;
-  categoryLabel: string | null;
   onVoid: () => void;
 }) {
   const tp = useTranslations("admin.pages.pettyCash");
@@ -442,7 +437,6 @@ function EntryRow({
           <span className="font-medium text-fg-2">
             {tp(`types.${entry.type}`)}
           </span>
-          {categoryLabel ? <span>· {categoryLabel}</span> : null}
           {showProperty && entry.property ? (
             <span>· {entry.property.name}</span>
           ) : null}

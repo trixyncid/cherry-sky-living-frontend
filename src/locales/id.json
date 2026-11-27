@@ -2315,8 +2315,6 @@
         "dateRangePlaceholder": "Semua tanggal",
         "invalidDateRange": "Tanggal mulai harus sama dengan atau sebelum tanggal akhir.",
         "date": "Tanggal",
-        "category": "Kategori",
-        "categoryNone": "Tanpa kategori",
         "amount": "Jumlah (Rp)",
         "amountRequired": "Masukkan jumlah yang valid lebih dari nol.",
         "noProperty": "Umum (bukan untuk satu kost)",
@@ -2337,24 +2335,12 @@
           "loss": "Rugi",
           "noExpenseYet": "Belum ada pengeluaran dicatat"
         },
-        "categories": {
-          "rent": "Sewa",
-          "deposit": "Deposit",
-          "late_fee": "Denda keterlambatan",
-          "other_income": "Pemasukan lain",
-          "utilities": "Utilitas",
-          "maintenance": "Perawatan",
-          "cleaning": "Kebersihan",
-          "staff": "Gaji & staf",
-          "supplies": "Perlengkapan",
-          "tax": "Pajak & biaya",
-          "other_expense": "Pengeluaran lain"
-        },
         "lockedBill": "Catatan ini dibuat otomatis dari tagihan sewa yang sudah dibayar, jadi tidak bisa diubah di sini. Ubah lewat halaman sewa.",
-        "allCategories": "Semua kategori",
         "generalShort": "Umum",
         "savedEntry": "Catatan disimpan.",
-        "deleteHint": "Hapus catatan ini kalau salah dicatat."
+        "deleteHint": "Hapus catatan ini kalau salah dicatat.",
+        "notes": "Catatan",
+        "notesPlaceholder": "mis. Bayar listrik Oktober"
       },
       "inventory": {
         "portfolio": "Portofolio",

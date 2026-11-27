@@ -9,7 +9,7 @@ import {
   AdminDatePicker,
   AdminField,
   AdminSelect,
-  adminInputClassName,
+  AdminTextarea,
 } from "@/features/admin/components/admin-field";
 import {
   AdminDetailPage,
@@ -46,10 +46,6 @@ import {
   deletePettyCashReceipt,
   uploadPettyCashReceipt,
 } from "@/lib/api/admin/petty-cash";
-import {
-  LEDGER_EXPENSE_CATEGORIES,
-  LEDGER_INCOME_CATEGORIES,
-} from "@/lib/ledger-categories";
 import { adminKeys } from "@/lib/query/keys";
 import type { ManualPettyCashType } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
@@ -68,17 +64,10 @@ const SIGN: Record<ManualPettyCashType, 1 | -1> = {
   return_to_bank: -1,
 };
 
-function categoriesFor(type: ManualPettyCashType): readonly string[] {
-  if (type === "expense") return LEDGER_EXPENSE_CATEGORIES;
-  if (type === "cash_in") return LEDGER_INCOME_CATEGORIES;
-  return [];
-}
-
 type FormState = {
   type: ManualPettyCashType;
   propertyId: string;
   amount: string;
-  category: string;
   description: string;
   date: string;
 };
@@ -101,7 +90,6 @@ export function PettyCashForm({ id }: { id?: string }) {
     type: "expense",
     propertyId: "",
     amount: "",
-    category: "",
     description: "",
     date: toDateInputValue(new Date()),
   });
@@ -130,7 +118,6 @@ export function PettyCashForm({ id }: { id?: string }) {
       type: entry.type,
       propertyId: entry.propertyId,
       amount: formatIdrInput(Math.abs(entry.amount)),
-      category: entry.category ?? "",
       description: entry.description,
       date: toDateInputValue(entry.date),
     });
@@ -200,7 +187,6 @@ export function PettyCashForm({ id }: { id?: string }) {
     }
     const payload = {
       amount,
-      category: form.category || null,
       description: form.description.trim(),
       date: form.date,
     };
@@ -233,7 +219,6 @@ export function PettyCashForm({ id }: { id?: string }) {
     return <p className="text-sm text-fg-muted">{t("loading")}</p>;
   }
 
-  const categories = categoriesFor(form.type);
   const pending = mutations.create.isPending || mutations.update.isPending;
 
   return (
@@ -280,15 +265,7 @@ export function PettyCashForm({ id }: { id?: string }) {
                         key={type}
                         type="button"
                         aria-pressed={form.type === type}
-                        onClick={() =>
-                          setForm((f) => ({
-                            ...f,
-                            type,
-                            category: categoriesFor(type).includes(f.category)
-                              ? f.category
-                              : "",
-                          }))
-                        }
+                        onClick={() => setForm((f) => ({ ...f, type }))}
                         className={cn(
                           "flex flex-col items-start gap-1.5 rounded-xl border p-3 text-left text-sm transition-colors",
                           form.type === type
@@ -360,35 +337,18 @@ export function PettyCashForm({ id }: { id?: string }) {
                     placeholder={t("pickDate")}
                   />
                 </AdminField>
-                {categories.length > 0 ? (
-                  <AdminField label={tf("category")} htmlFor="petty-category">
-                    <AdminSelect
-                      id="petty-category"
-                      value={form.category}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, category: e.target.value }))
-                      }
-                    >
-                      <option value="">{tf("categoryNone")}</option>
-                      {categories.map((category) => (
-                        <option key={category} value={category}>
-                          {tb(`categories.${category}`)}
-                        </option>
-                      ))}
-                    </AdminSelect>
-                  </AdminField>
-                ) : null}
+                {/* The note is the only record of what this cash was for. */}
                 <AdminField
-                  label={t("description")}
+                  label={tb("notes")}
                   htmlFor="petty-description"
                   required
                   className="sm:col-span-2"
                 >
-                  <input
+                  <AdminTextarea
                     id="petty-description"
                     required
+                    rows={3}
                     maxLength={500}
-                    className={adminInputClassName}
                     placeholder={tf("descriptionPlaceholder")}
                     value={form.description}
                     onChange={(e) =>
