@@ -29,7 +29,6 @@ import {
 } from "@/features/admin/hooks/use-admin-queries";
 import {
   EmptyPanel,
-  IconAction,
   panel,
   SkeletonCards,
 } from "@/features/admin/inventory/inventory-kit";
@@ -141,7 +140,7 @@ export function StaffList() {
         primaryAction={
           isSuperadmin
             ? {
-                label: t("add"),
+                label: t("addStaff"),
                 href: `${BASE}/new`,
                 icon: "add",
               }
@@ -259,7 +258,7 @@ export function StaffList() {
                               <p className="flex items-center gap-2 truncate text-[15px] font-medium text-fg">
                                 <span className="truncate">{user.name}</span>
                                 {isSelf ? (
-                                  <span className="shrink-0 rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">
+                                  <span className="shrink-0 rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand">
                                     {tp("you")}
                                   </span>
                                 ) : null}
@@ -282,35 +281,45 @@ export function StaffList() {
                             <div className="flex items-center gap-2 border-t border-line pt-3">
                               <Link
                                 href={`${BASE}/${user.id}/edit`}
-                                className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-line bg-white px-4 text-sm font-medium text-fg hover:border-brand-line hover:text-brand"
+                                className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-line bg-white px-4 text-sm font-medium text-fg hover:border-brand-line hover:text-brand"
                               >
                                 <Icon name="edit" size={16} />
                                 {t("editTitle")}
                               </Link>
-                              <IconAction
-                                icon="lock_reset"
-                                label={tp("resetPassword")}
+                            </div>
+                          ) : null}
+                          {isSuperadmin ? (
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                              <button
+                                type="button"
                                 onClick={() => setResetUser(user)}
-                              />
-                              <IconAction
-                                icon={
-                                  user.isActive ? "person_off" : "person_check"
-                                }
-                                label={
-                                  user.isActive
-                                    ? tp("deactivate")
-                                    : tp("activate")
-                                }
-                                onClick={() => setToggleUser(user)}
-                                disabled={isSelf}
-                              />
-                              <IconAction
-                                icon="delete"
-                                tone="danger"
-                                label={t("deleteConfirm")}
-                                onClick={() => deleteDialog.openDelete(user)}
-                                disabled={isSelf}
-                              />
+                                className="font-medium text-fg-2 underline-offset-4 hover:text-brand hover:underline"
+                              >
+                                {tp("resetPassword")}
+                              </button>
+                              {/* Your own account: these would lock you out. */}
+                              {!isSelf ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => setToggleUser(user)}
+                                    className="font-medium text-fg-2 underline-offset-4 hover:text-brand hover:underline"
+                                  >
+                                    {user.isActive
+                                      ? tp("deactivate")
+                                      : tp("activate")}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      deleteDialog.openDelete(user)
+                                    }
+                                    className="font-medium text-danger underline-offset-4 hover:underline"
+                                  >
+                                    {tp("deleteAccount")}
+                                  </button>
+                                </>
+                              ) : null}
                             </div>
                           ) : null}
                         </article>
@@ -335,7 +344,7 @@ export function StaffList() {
         </div>
 
         {/* Who can do what */}
-        <aside className="h-fit rounded-[1.75rem] bg-ink p-5 text-white lg:sticky lg:top-0">
+        <aside className="h-fit rounded-lg bg-ink p-5 text-white lg:sticky lg:top-0">
           <p className="text-sm text-white/70">{to("rolesGuide")}</p>
           <ul className="mt-3 space-y-3">
             {(["superadmin", "admin"] as const).map((role) => (

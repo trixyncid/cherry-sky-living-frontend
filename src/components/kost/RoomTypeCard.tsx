@@ -10,6 +10,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { WhatsAppInquiryDialog } from "@/components/kost/WhatsAppInquiryDialog";
 import { Icon } from "@/components/shared/Icon";
 import { Link } from "@/i18n/routing";
+import { DAILY_DURATION_DAYS } from "@/lib/billing";
 import type { RoomTypeCardProps } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { formatCapacity, formatCurrency } from "@/lib/utils/format";
@@ -140,6 +141,11 @@ export function RoomTypeCard({
                 <span className="ml-1 text-[11px] text-fg-muted">
                   {getDurationLabel(startingPricing.durationDays, t)}
                 </span>
+                {startingPricing.durationDays === DAILY_DURATION_DAYS ? (
+                  <span className="block text-[11px] text-fg-muted">
+                    {t("pricing.minStayWeek")}
+                  </span>
+                ) : null}
               </p>
             ) : (
               <p className="mt-auto pt-1 text-xs text-fg-muted">

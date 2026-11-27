@@ -126,8 +126,27 @@ export interface UserPhone {
   label: string | null;
 }
 
+export type IdentityDocumentType = "ktp" | "passport";
+/** pending = waiting for an admin; checked = confirmed; rejected = new photo needed. */
+export type IdentityDocumentStatus = "pending" | "checked" | "rejected";
+
+/** A tenant's KTP / passport photo; `url` is a short-lived signed link. */
+export interface IdentityDocument {
+  id: string;
+  type: IdentityDocumentType;
+  fileName: string;
+  contentType: string | null;
+  url: string | null;
+  status: IdentityDocumentStatus;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  createdAt: string;
+}
+
 export interface TenantUser extends UnitUserRef {
   role: "tenant";
+  /** Lists carry only the status; the detail page carries the file. */
+  identityDocument?: Pick<IdentityDocument, "status" | "type"> | null;
   /** The number they sign in with (always one of `phones`). */
   phoneNumber: string | null;
   phoneNumberVerified?: boolean;
@@ -144,6 +163,7 @@ export interface TenantUserDetail extends TenantUser {
   leases?: Lease[];
   /** Leases where this tenant is a roommate. */
   leaseOccupancies?: { id: string; lease: Lease }[];
+  identityDocument?: IdentityDocument | null;
 }
 
 export interface StaffUser extends UnitUserRef {
@@ -271,6 +291,9 @@ export interface LeaseInvoice {
   lateFeePerDay: number;
   lateFeeWaived: boolean;
   lateFeeWaiveReason: string | null;
+  /** The fee and days late when it was waived (kept for the payment record). */
+  lateFeeWaivedAmount?: number;
+  lateFeeWaivedDays?: number;
   lateFeeCharged: number;
   /** Last change (e.g. when a receipt was sent for review). */
   updatedAt?: string;
@@ -381,6 +404,8 @@ export interface LedgerEntry {
   propertyId: string | null;
   /** Set for auto-posted rent rows linked to a lease. */
   leaseId?: string | null;
+  /** Set when a paid bill posted this row; the server refuses edits and deletes. */
+  invoiceId?: string | null;
   /** Soft-void timestamp; excluded from income summaries when set. */
   reversedAt?: string | null;
   property?: Pick<Property, "id" | "name" | "city">;

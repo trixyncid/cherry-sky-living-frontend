@@ -376,10 +376,7 @@ export function PropertyForm({ id }: { id?: string }) {
         </form>
 
         <aside
-          className={cn(
-            "space-y-4 lg:sticky lg:top-4",
-            isEdit && "max-lg:order-first",
-          )}
+          className={cn("space-y-4 lg:sticky lg:top-4", "max-lg:order-first")}
         >
           <PropertyPreview
             name={form.name}
@@ -395,7 +392,7 @@ export function PropertyForm({ id }: { id?: string }) {
             hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
             headerExtra={
               isEdit && photoCount > 0 ? (
-                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-fg-2">
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold text-fg-2">
                   {ta("photoCount", { count: photoCount })}
                 </span>
               ) : null

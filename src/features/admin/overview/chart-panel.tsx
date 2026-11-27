@@ -48,7 +48,7 @@ export function ChartPanel({
   return (
     <section
       className={cn(
-        "glass-panel relative overflow-hidden rounded-[1.75rem] p-5 sm:p-6",
+        "glass-panel relative overflow-hidden rounded-lg p-5 sm:p-6",
         className,
       )}
     >

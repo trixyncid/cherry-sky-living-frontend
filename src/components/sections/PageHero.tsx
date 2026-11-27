@@ -1,7 +1,7 @@
 /**
- * Inner-page hero in the homepage's language: night-graded photo, the
- * transparent navbar over it, guide lines, a glass pill eyebrow and a
- * centred two-tone headline. Page-specific controls go in `children`.
+ * Inner-page hero in the homepage's language: dusk-graded photo under the
+ * transparent navbar, a ruled uppercase eyebrow and a left-aligned two-line
+ * headline (white, then muted). Page-specific controls go in `children`.
  */
 
 "use client";
@@ -37,7 +37,7 @@ export function PageHero({
   return (
     <section
       className={cn(
-        "relative w-full overflow-hidden bg-ink text-white",
+        "relative isolate w-full overflow-hidden bg-ink text-white",
         className,
       )}
     >
@@ -48,44 +48,38 @@ export function PageHero({
         priority
         loading="eager"
         sizes="100vw"
-        className="object-cover object-center"
+        className="-z-10 object-cover object-center"
       />
-      <div className="pointer-events-none absolute inset-0 bg-brand-deep/45 mix-blend-multiply" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgb(11_11_13/0.9)_0%,rgb(11_11_13/0.72)_45%,rgb(11_11_13/0.92)_100%)]" />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 left-[22%] hidden w-px bg-white/10 lg:block"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 right-[22%] hidden w-px bg-white/10 lg:block"
-      />
+      {/* Dusk grade, as on the homepage: navy from the left, darker below. */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(22_16_38/0.9)_0%,rgb(22_16_38/0.65)_45%,rgb(42_31_69/0.3)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgb(22_16_38/0.6)_0%,transparent_30%,rgb(22_16_38/0.85)_100%)]" />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-col items-center px-5 pb-12 pt-28 text-center sm:px-8 lg:pb-16 lg:pt-32">
-        <p className="inline-flex items-center gap-2.5 rounded-full border border-white/12 bg-white/[0.08] px-4 py-2 text-[15px] backdrop-blur-md">
+      <div className="relative mx-auto w-full max-w-[90rem] px-5 pb-12 pt-32 sm:px-8 lg:px-12 lg:pb-16 lg:pt-40">
+        <p className="flex items-center gap-4 text-[11px] font-medium uppercase tracking-[0.32em] text-white/80">
           {live ? (
             <span className="relative flex size-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success/70 motion-reduce:animate-none" />
-              <span className="relative inline-flex size-2 rounded-full bg-success" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success-bright/70 motion-reduce:animate-none" />
+              <span className="relative inline-flex size-2 rounded-full bg-success-bright" />
             </span>
-          ) : null}
+          ) : (
+            <span aria-hidden className="h-px w-12 bg-white/60" />
+          )}
           {eyebrow}
         </p>
-        <h1 className="mt-6 max-w-4xl text-balance text-[clamp(2rem,3.4vw,3.1rem)] font-medium leading-[1.06] tracking-[-0.035em]">
-          {titleLead}
+        <h1 className="mt-6 max-w-4xl text-[clamp(2.25rem,5vw,4.25rem)] font-semibold leading-[1] tracking-[-0.04em]">
+          <span className="block text-balance">{titleLead}</span>
           {titleAccent ? (
-            <>
-              {" "}
-              <span className="text-white/60">{titleAccent}</span>
-            </>
+            <span className="block text-balance font-normal text-white/60">
+              {titleAccent}
+            </span>
           ) : null}
         </h1>
         {description ? (
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/75 md:text-lg">
+          <p className="mt-6 max-w-xl text-pretty text-base leading-relaxed text-white/80 md:text-[17px]">
             {description}
           </p>
         ) : null}
-        {children ? <div className="mt-8 w-full">{children}</div> : null}
+        {children ? <div className="mt-10 w-full">{children}</div> : null}
       </div>
     </section>
   );

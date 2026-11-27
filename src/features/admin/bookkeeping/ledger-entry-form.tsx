@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { Icon } from "@/components/shared/Icon";
 import {
   AdminCurrencyInput,
   AdminDatePicker,
@@ -20,6 +21,7 @@ import { AdminImageGallery } from "@/features/admin/components/admin-image-galle
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { LedgerPreview } from "@/features/admin/components/form-previews";
 import { adminPageIcons } from "@/features/admin/constants/nav-items";
+import { AdminDangerZone } from "@/features/admin/crud/admin-danger-zone";
 import {
   useLedgerEntry,
   useLedgerEntryMutations,
@@ -180,12 +182,14 @@ export function LedgerEntryForm({ id }: { id?: string }) {
         // Files picked before saving upload on the edit page.
         const files = queue.takeAll();
         stashPendingUploads(`ledgerEntry:${created.id}`, files);
-        showApiSuccess(
-          files.length > 0
-            ? ta("savedUploading", { count: files.length })
-            : tp("createdStayToUpload"),
-        );
-        router.replace(`${BASE}/${created.id}/edit`);
+        // Back to the list unless photos still have to upload (edit page does that).
+        if (files.length > 0) {
+          showApiSuccess(ta("savedUploading", { count: files.length }));
+          router.replace(`${BASE}/${created.id}/edit`);
+        } else {
+          showApiSuccess(tp("savedEntry"));
+          router.replace(BASE);
+        }
         router.refresh();
       }
     } catch (err) {
@@ -205,6 +209,8 @@ export function LedgerEntryForm({ id }: { id?: string }) {
   }
 
   const photoCount = attachments.length;
+  // Posted from a paid bill: the server refuses edits, so say so up front.
+  const locked = Boolean(entry?.invoiceId);
 
   return (
     <AdminDetailPage
@@ -222,121 +228,154 @@ export function LedgerEntryForm({ id }: { id?: string }) {
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21.5rem]">
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
           <AdminFormError message={formError} />
+          {locked ? (
+            <p className="flex items-start gap-2 rounded-lg border border-brand-line bg-brand-tint px-4 py-3 text-sm text-fg-2">
+              <Icon
+                name="lock"
+                size={18}
+                className="mt-px shrink-0 text-brand"
+              />
+              {tp("lockedBill")}
+            </p>
+          ) : null}
 
-          <AdminFormSection
-            icon={adminPageIcons.bookkeeping}
-            title={tp("detailsTitle")}
-            hint={tp("detailsHint")}
-          >
-            <div className="grid gap-4 sm:grid-cols-2">
-              <AdminField
-                label={tp("entryType")}
-                htmlFor="ledger-type"
-                required
-              >
-                <AdminSelect
-                  id="ledger-type"
+          <fieldset disabled={locked} className="contents">
+            <AdminFormSection
+              icon={adminPageIcons.bookkeeping}
+              title={tp("detailsTitle")}
+              hint={tp("detailsHint")}
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                <AdminField
+                  label={tp("entryType")}
+                  htmlFor="ledger-type"
                   required
-                  value={form.type}
-                  onChange={(e) => {
-                    const type = e.target.value as LedgerEntryType;
-                    setForm((f) => ({
-                      ...f,
-                      type,
-                      category: isLedgerCategoryForType(type, f.category)
-                        ? f.category
-                        : "",
-                    }));
-                  }}
                 >
-                  <option value="income">{tp("typeIncome")}</option>
-                  <option value="expense">{tp("typeExpense")}</option>
-                </AdminSelect>
-              </AdminField>
-              <AdminField label={tp("category")} htmlFor="ledger-category">
-                <AdminSelect
-                  id="ledger-category"
-                  value={form.category}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, category: e.target.value }))
-                  }
-                >
-                  <option value="">{tp("categoryNone")}</option>
-                  {ledgerCategoriesForType(form.type).map((category) => (
-                    <option key={category} value={category}>
-                      {tp(`categories.${category}`)}
-                    </option>
-                  ))}
-                </AdminSelect>
-              </AdminField>
-              <AdminField label={tp("amount")} htmlFor="ledger-amount" required>
-                <AdminCurrencyInput
-                  id="ledger-amount"
+                  <AdminSelect
+                    id="ledger-type"
+                    required
+                    value={form.type}
+                    onChange={(e) => {
+                      const type = e.target.value as LedgerEntryType;
+                      setForm((f) => ({
+                        ...f,
+                        type,
+                        category: isLedgerCategoryForType(type, f.category)
+                          ? f.category
+                          : "",
+                      }));
+                    }}
+                  >
+                    <option value="income">{tp("typeIncome")}</option>
+                    <option value="expense">{tp("typeExpense")}</option>
+                  </AdminSelect>
+                </AdminField>
+                <AdminField label={tp("category")} htmlFor="ledger-category">
+                  <AdminSelect
+                    id="ledger-category"
+                    value={form.category}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, category: e.target.value }))
+                    }
+                  >
+                    <option value="">{tp("categoryNone")}</option>
+                    {ledgerCategoriesForType(form.type).map((category) => (
+                      <option key={category} value={category}>
+                        {tp(`categories.${category}`)}
+                      </option>
+                    ))}
+                  </AdminSelect>
+                </AdminField>
+                <AdminField
+                  label={tp("amount")}
+                  htmlFor="ledger-amount"
                   required
-                  value={form.amount}
-                  onValueChange={(amount) => setForm((f) => ({ ...f, amount }))}
-                  placeholder="Rp. 0"
-                />
-              </AdminField>
-              <AdminField
-                label={t("description")}
-                htmlFor="ledger-description"
-                required
-                className="sm:col-span-2"
-              >
-                <input
-                  id="ledger-description"
-                  required
-                  className={adminInputClassName}
-                  value={form.description}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, description: e.target.value }))
-                  }
-                />
-              </AdminField>
-              <AdminField label={tp("date")} htmlFor="ledger-date" required>
-                <AdminDatePicker
-                  id="ledger-date"
-                  value={form.date}
-                  onChange={(date) => setForm((f) => ({ ...f, date }))}
-                  placeholder={t("pickDate")}
-                />
-              </AdminField>
-              <AdminField label={t("property")} htmlFor="ledger-property">
-                <AdminSelect
-                  id="ledger-property"
-                  value={form.propertyId}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, propertyId: e.target.value }))
-                  }
                 >
-                  <option value="">{tp("noProperty")}</option>
-                  {properties.map((property) => (
-                    <option key={property.id} value={property.id}>
-                      {property.name}
-                    </option>
-                  ))}
-                </AdminSelect>
-              </AdminField>
-            </div>
-          </AdminFormSection>
+                  <AdminCurrencyInput
+                    id="ledger-amount"
+                    required
+                    value={form.amount}
+                    onValueChange={(amount) =>
+                      setForm((f) => ({ ...f, amount }))
+                    }
+                    placeholder="Rp. 0"
+                  />
+                </AdminField>
+                <AdminField
+                  label={t("description")}
+                  htmlFor="ledger-description"
+                  required
+                  className="sm:col-span-2"
+                >
+                  <input
+                    id="ledger-description"
+                    required
+                    className={adminInputClassName}
+                    value={form.description}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, description: e.target.value }))
+                    }
+                  />
+                </AdminField>
+                <AdminField label={tp("date")} htmlFor="ledger-date" required>
+                  <AdminDatePicker
+                    id="ledger-date"
+                    value={form.date}
+                    onChange={(date) => setForm((f) => ({ ...f, date }))}
+                    placeholder={t("pickDate")}
+                  />
+                </AdminField>
+                <AdminField label={t("property")} htmlFor="ledger-property">
+                  <AdminSelect
+                    id="ledger-property"
+                    value={form.propertyId}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, propertyId: e.target.value }))
+                    }
+                  >
+                    <option value="">{tp("noProperty")}</option>
+                    {properties.map((property) => (
+                      <option key={property.id} value={property.id}>
+                        {property.name}
+                      </option>
+                    ))}
+                  </AdminSelect>
+                </AdminField>
+              </div>
+            </AdminFormSection>
+          </fieldset>
 
-          <AdminFormActions
-            cancelHref={BASE}
-            cancelLabel={t("cancel")}
-            pending={pending}
-            submitDisabled={isEdit && !isDirty}
-            dirty={isEdit ? isDirty : undefined}
-            submitLabel={isEdit ? tp("saveDetails") : tp("saveAndAddPhotos")}
-            pendingLabel={t("saving")}
-          />
+          {!locked ? (
+            <AdminFormActions
+              cancelHref={BASE}
+              cancelLabel={t("cancel")}
+              pending={pending}
+              submitDisabled={isEdit && !isDirty}
+              dirty={isEdit ? isDirty : undefined}
+              submitLabel={isEdit ? tp("saveDetails") : tp("saveAndAddPhotos")}
+              pendingLabel={t("saving")}
+            />
+          ) : null}
+          {isEdit && entry && !locked ? (
+            <AdminDangerZone
+              itemName={entry.description}
+              hint={tp("deleteHint")}
+              pending={mutations.remove.isPending}
+              onDelete={async () => {
+                try {
+                  await mutations.remove.mutateAsync(entry.id);
+                  showApiSuccess(t("deleted"));
+                  router.replace(BASE);
+                } catch (err) {
+                  showApiError(err, t("deleteFailed"));
+                }
+              }}
+            />
+          ) : null}
         </form>
 
         <aside
-          className={cn(
-            "space-y-4 lg:sticky lg:top-4",
-            isEdit && "max-lg:order-first",
-          )}
+          className={cn("space-y-4 lg:sticky lg:top-4", "max-lg:order-first")}
         >
           <LedgerPreview
             type={form.type}
@@ -356,7 +395,7 @@ export function LedgerEntryForm({ id }: { id?: string }) {
             hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
             headerExtra={
               isEdit && photoCount > 0 ? (
-                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-fg-2">
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold text-fg-2">
                   {ta("photoCount", { count: photoCount })}
                 </span>
               ) : null

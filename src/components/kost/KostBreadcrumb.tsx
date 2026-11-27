@@ -26,7 +26,10 @@ export function KostBreadcrumb({
   return (
     <nav
       aria-label="Breadcrumb"
-      className={cn("flex flex-wrap items-center gap-1.5 text-sm", className)}
+      className={cn(
+        "flex flex-wrap items-center gap-1.5 text-[13px]",
+        className,
+      )}
     >
       {items.map((item, index) => {
         const isLast = index === items.length - 1;

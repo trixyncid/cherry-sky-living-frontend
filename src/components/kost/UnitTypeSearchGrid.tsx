@@ -1,6 +1,6 @@
 /**
  * Unit Type Search Grid
- * Estoria-style room type cards with Details + WhatsApp inquiry
+ * Photo-led room type cards (RoomTile) or a hairline comparison table
  */
 
 "use client";
@@ -34,9 +34,9 @@ function monthlyDisplay(unitType: SearchUnitTypeResult) {
 function UnitTypeTable({ unitTypes }: { unitTypes: SearchUnitTypeResult[] }) {
   const t = useTranslations();
   return (
-    <div className="overflow-x-auto rounded-[1.25rem] bg-white">
+    <div className="overflow-x-auto rounded-lg border border-line bg-panel">
       <table className="w-full min-w-[40rem] text-left text-[15px]">
-        <thead className="border-b border-hover text-[13px] font-semibold text-fg-muted">
+        <thead className="border-b border-line text-[10px] font-medium uppercase tracking-[0.24em] text-fg-muted">
           <tr>
             <th scope="col" className="px-5 py-4">
               {t("search.colRoom")}
@@ -58,7 +58,7 @@ function UnitTypeTable({ unitTypes }: { unitTypes: SearchUnitTypeResult[] }) {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-hover">
+        <tbody className="divide-y divide-line">
           {unitTypes.map((unitType) => {
             const detailUrl = `/kosts/${unitType.propertyId}/${unitType.id}`;
             const { displayPrice } = monthlyDisplay(unitType);
@@ -68,7 +68,7 @@ function UnitTypeTable({ unitTypes }: { unitTypes: SearchUnitTypeResult[] }) {
                 key={`${unitType.propertyId}-${unitType.id}`}
                 className="hover:bg-canvas"
               >
-                <td className="px-5 py-4 font-semibold text-fg">
+                <td className="px-5 py-4 font-medium text-fg">
                   <Link href={detailUrl} className="hover:text-brand">
                     {unitType.name}
                   </Link>
@@ -98,7 +98,7 @@ function UnitTypeTable({ unitTypes }: { unitTypes: SearchUnitTypeResult[] }) {
                   {isOpen ? (
                     <Link
                       href={detailUrl}
-                      className="inline-flex h-9 items-center rounded-full bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-hover"
+                      className="inline-flex h-9 items-center rounded-lg bg-ink px-4 text-sm font-medium text-white hover:bg-brand"
                     >
                       {t("cta.viewDetails")}
                     </Link>
@@ -112,7 +112,7 @@ function UnitTypeTable({ unitTypes }: { unitTypes: SearchUnitTypeResult[] }) {
                       trigger={
                         <button
                           type="button"
-                          className="inline-flex h-9 items-center whitespace-nowrap rounded-full border border-line-strong px-4 text-sm font-semibold text-fg hover:border-fg"
+                          className="inline-flex h-9 items-center whitespace-nowrap rounded-lg border border-line-strong px-4 text-sm font-medium text-fg hover:border-fg"
                         >
                           {t("leads.submit.waitlist")}
                         </button>
@@ -139,11 +139,11 @@ export function UnitTypeSearchGrid({
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div
             key={i}
-            className="h-[26rem] animate-pulse rounded-[1.25rem] bg-white"
+            className="aspect-[4/3] animate-pulse rounded-lg bg-line"
           />
         ))}
       </div>
@@ -152,9 +152,9 @@ export function UnitTypeSearchGrid({
 
   if (unitTypes.length === 0) {
     return (
-      <div className="flex flex-col items-start gap-5 rounded-[1.25rem] bg-white p-8 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col items-start gap-5 rounded-lg border border-line bg-panel p-8 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-4">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-canvas text-brand">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-line-strong text-fg">
             <Icon name="search_off" size={24} />
           </span>
           <div>
@@ -168,21 +168,14 @@ export function UnitTypeSearchGrid({
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
           {onReset ? (
-            <button
-              type="button"
-              onClick={onReset}
-              className="inline-flex h-11 items-center rounded-full border border-line-strong px-5 text-[15px] font-semibold text-fg hover:border-fg"
-            >
+            <button type="button" onClick={onReset} className="btn btn-outline">
               {t("search.clearAll")}
             </button>
           ) : null}
           <LeadDialog
             type="waitlist"
             trigger={
-              <button
-                type="button"
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-brand px-5 text-[15px] font-semibold text-white hover:bg-brand-hover"
-              >
+              <button type="button" className="btn btn-brand">
                 <Icon name="notifications" size={16} />
                 {t("search.emptyWaitlist")}
               </button>
@@ -198,7 +191,7 @@ export function UnitTypeSearchGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
       {unitTypes.map((unitType) => {
         const { displayPrice } = monthlyDisplay(unitType);
         return (

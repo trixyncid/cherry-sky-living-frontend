@@ -78,8 +78,8 @@ export function HomeFaq({ asPage = false }: HomeFaqProps) {
       aria-labelledby={asPage ? undefined : "faq-heading"}
       aria-label={asPage ? t("title") : undefined}
       className={cn(
-        "w-full px-5 py-14 sm:px-8 lg:py-20",
-        asPage ? "pt-12 lg:pt-16" : "bg-white",
+        "w-full py-24 lg:py-32",
+        asPage ? "pt-16 lg:pt-20" : "bg-panel",
       )}
     >
       <script
@@ -89,18 +89,18 @@ export function HomeFaq({ asPage = false }: HomeFaqProps) {
           __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <div className="mx-auto grid w-full max-w-[90rem] gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+      <div className="mx-auto grid w-full max-w-[90rem] gap-14 px-5 sm:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20 lg:px-12">
         <Reveal className="flex flex-col justify-between gap-10 lg:sticky lg:top-28 lg:self-start">
           {asPage ? null : (
             <div>
               <Eyebrow>{t("eyebrow")}</Eyebrow>
               <h2
                 id="faq-heading"
-                className="mt-4 text-[clamp(2.2rem,4.4vw,3.6rem)] font-medium leading-[1.02] tracking-[-0.04em] text-fg"
+                className="mt-5 max-w-xl text-balance text-[clamp(2.1rem,4.4vw,3.75rem)] font-semibold leading-[1] tracking-[-0.04em] text-fg"
               >
                 {t("title")}
               </h2>
-              <p className="mt-5 max-w-md text-base leading-relaxed text-fg-muted">
+              <p className="mt-6 max-w-md text-[15px] leading-relaxed text-fg-muted">
                 {t("description")}
               </p>
             </div>
@@ -108,26 +108,26 @@ export function HomeFaq({ asPage = false }: HomeFaqProps) {
 
           {/* Contact card: who answers, when, and one clear way to reach
               them. WhatsApp is named by its glyph, in the site's own colours. */}
-          <div className="max-w-md rounded-[1.75rem] border border-line bg-canvas p-5 sm:p-6">
+          <div className="max-w-md border-t border-line pt-6">
             <div className="flex items-center gap-4">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-line-strong text-fg">
                 <Icon name="whatsapp" size={22} />
               </span>
               <div className="min-w-0">
-                <p className="text-lg font-semibold tracking-tight text-fg">
+                <p className="text-base font-medium text-fg">
                   {t("cardTitle")}
                 </p>
                 <p className="text-sm text-fg-muted">{t("cardSub")}</p>
               </div>
             </div>
-            <p className="mt-5 flex items-center gap-2 border-t border-line pt-4 text-sm text-fg-2">
+            <p className="mt-5 flex items-center gap-2 text-sm text-fg-2">
               <Icon name="schedule" size={18} className="text-fg-muted" />
               {t("cardHours", {
                 days: localized(siteConfig.viewingHours.days, locale),
                 time: siteConfig.viewingHours.time,
               })}
             </p>
-            <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <a
                 href={whatsappUrl}
                 target="_blank"
@@ -135,57 +135,59 @@ export function HomeFaq({ asPage = false }: HomeFaqProps) {
                 onClick={() =>
                   track("click_whatsapp", { location: "faq_card" })
                 }
-                className="inline-flex h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-ink sm:flex-1 px-5 text-[15px] font-semibold text-white transition-colors hover:bg-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                className="btn btn-solid px-5"
               >
                 <Icon name="whatsapp" size={18} />
                 {t("cardChat")}
               </a>
-              <Link
-                href="/contact"
-                className="inline-flex h-12 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-line-strong px-5 text-[15px] font-semibold text-fg transition-colors hover:border-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-              >
+              <Link href="/contact" className="btn btn-outline px-5">
                 {t("cardForm")}
-                <Icon name="arrow_forward" size={18} />
+                <Icon name="north_east" size={17} />
               </Link>
             </div>
           </div>
         </Reveal>
 
         <Reveal delay={0.1}>
-          <ul className="flex flex-col gap-3">
+          <ul className="border-t border-line">
             {answered.map((id, index) => {
               const isOpen = openId === id;
               const panelId = `faq-panel-${id}`;
               return (
-                <li
-                  key={id}
-                  className={cn(
-                    "overflow-hidden rounded-xl border transition-colors duration-300",
-                    isOpen
-                      ? "border-line-strong bg-canvas"
-                      : "border-transparent bg-canvas hover:border-line-strong",
-                  )}
-                >
+                <li key={id} className="relative border-b border-line">
+                  {/* Open row: a short cherry rule over the hairline. */}
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "absolute -top-px left-0 h-px bg-brand transition-[width] duration-500 motion-reduce:transition-none",
+                      isOpen ? "w-24" : "w-0",
+                    )}
+                  />
                   <h3>
                     <button
                       type="button"
                       onClick={() => setOpenId(isOpen ? null : id)}
                       aria-expanded={isOpen}
                       aria-controls={panelId}
-                      className="flex w-full items-center gap-4 px-5 py-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand sm:px-6"
+                      className="group flex w-full items-center gap-4 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand sm:gap-6"
                     >
-                      <span className="w-6 shrink-0 text-sm font-medium tabular-nums text-fg-muted">
+                      <span
+                        className={cn(
+                          "w-6 shrink-0 text-sm tabular-nums transition-colors",
+                          isOpen ? "text-brand" : "text-fg-faint",
+                        )}
+                      >
                         {String(index + 1).padStart(2, "0")}
                       </span>
-                      <span className="flex-1 text-[17px] font-semibold tracking-tight text-fg sm:text-lg">
+                      <span className="flex-1 text-[17px] font-medium tracking-[-0.01em] text-fg sm:text-xl">
                         {t(`items.${id}.q`)}
                       </span>
                       <span
                         className={cn(
-                          "flex size-9 shrink-0 items-center justify-center rounded-full transition-all duration-300 motion-reduce:transition-none",
+                          "flex size-9 shrink-0 items-center justify-center rounded-full border transition-all duration-300 motion-reduce:transition-none",
                           isOpen
-                            ? "rotate-45 bg-brand text-white"
-                            : "bg-line text-fg",
+                            ? "rotate-45 border-brand text-brand"
+                            : "border-line-strong text-fg group-hover:border-fg",
                         )}
                       >
                         <Icon name="add" size={18} />
@@ -206,12 +208,12 @@ export function HomeFaq({ asPage = false }: HomeFaqProps) {
                         transition={{ duration: 0.3 }}
                         className="overflow-hidden"
                       >
-                        <div className="px-5 pb-6 pl-15 text-base leading-relaxed text-fg-2 sm:px-6 sm:pl-[4rem]">
+                        <div className="max-w-2xl pb-7 pl-10 pr-12 text-base leading-relaxed text-fg-2 sm:pl-12">
                           <p>{t(`items.${id}.a`)}</p>
                           {id === "visit" ? (
                             <SurveyScheduleDialog
                               triggerLabel={t("items.visit.cta")}
-                              className="rounded-full"
+                              className="mt-5 h-11 rounded-md px-5 py-0 font-medium hover:bg-brand"
                             />
                           ) : null}
                         </div>

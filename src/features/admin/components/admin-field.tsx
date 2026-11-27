@@ -39,7 +39,7 @@ export function AdminField({
 
 // 16px on phones so iOS Safari doesn't zoom on focus; 15px from sm up.
 const adminControlBase =
-  "glass-control w-full rounded-xl text-base text-fg transition-[border-color,box-shadow] focus:outline-none sm:text-[15px]";
+  "glass-control w-full rounded-md text-base text-fg transition-[border-color,box-shadow] focus:outline-none sm:text-[15px]";
 
 /** Readable placeholder (≈5.3:1 on white). */
 const placeholderTone = "placeholder:text-fg-muted";

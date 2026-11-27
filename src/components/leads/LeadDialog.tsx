@@ -28,9 +28,9 @@ export function LeadDialog({ trigger, ...formProps }: LeadDialogProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="max-h-[90svh] overflow-y-auto rounded-[1.75rem] sm:max-w-lg">
+      <DialogContent className="max-h-[90svh] overflow-y-auto rounded-xl border border-line sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl">
+          <DialogTitle className="text-2xl font-semibold tracking-[-0.03em]">
             {isWaitlist ? t("waitlist.title") : t("inquiry.title")}
           </DialogTitle>
           <DialogDescription className="text-base">

@@ -165,14 +165,18 @@ export function UnitTypesList() {
       <AdminPageHeader
         title={tp("title")}
         description={tp("description")}
-        primaryAction={{ label: t("add"), href: createHref, icon: "add" }}
+        primaryAction={{
+          label: t("addUnitType"),
+          href: createHref,
+          icon: "add",
+        }}
       />
 
       <AdminToolbar
         search={{
           value: search,
           onChange: setSearch,
-          placeholder: t("searchPlaceholder"),
+          placeholder: t("searchUnitTypes"),
         }}
         filters={[
           propertyToolbar,
@@ -224,7 +228,7 @@ export function UnitTypesList() {
           action={
             <Link
               href={createHref}
-              className="admin-btn-primary mt-2 inline-flex h-11 items-center gap-2 rounded-full px-5 text-[15px] font-medium"
+              className="admin-btn-primary mt-2 inline-flex h-11 items-center gap-2 rounded-md px-5 text-[15px] font-medium"
             >
               <Icon name="add" size={18} />
               {t("add")}
@@ -338,7 +342,7 @@ export function UnitTypesList() {
                           </span>
                           <span className="h-2 flex-1 overflow-hidden rounded-full bg-hover">
                             <span
-                              className="block h-full rounded-full bg-[linear-gradient(90deg,var(--adm-brand-line),var(--adm-brand))]"
+                              className="block h-full rounded-full bg-fg-2"
                               style={{
                                 width: `${(row.monthly / maxMonthly) * 100}%`,
                               }}
@@ -390,11 +394,9 @@ export function UnitTypesList() {
   );
 }
 
+/** Prices are edited on the room type's own form. */
 function pricingHref(row: Row) {
-  const own = row.type.pricings?.[0];
-  return own
-    ? `/admin/pricing/${own.id}/edit`
-    : `/admin/pricing/new?propertyId=${encodeURIComponent(row.type.propertyId)}&unitTypeId=${encodeURIComponent(row.type.id)}`;
+  return `/admin/unit-types/${row.type.id}/edit`;
 }
 
 function NoPrice({ row }: { row: Row }) {
@@ -433,7 +435,11 @@ function TypeCard({
           alt={type.name}
           fallbackLabel={ti("noPhoto")}
           sizes="(min-width: 1280px) 30vw, (min-width: 640px) 45vw, 100vw"
-          className="aspect-[16/10] w-full transition-transform duration-700 group-hover:scale-[1.03]"
+          className={cn(
+            "w-full transition-transform duration-700 group-hover:scale-[1.03]",
+            // Without a photo, a short strip is enough (phones got ~400px of blank).
+            row.photo ? "aspect-[16/10]" : "aspect-[16/5] sm:aspect-[16/10]",
+          )}
         />
         <div className="absolute left-3 top-3 flex gap-2">
           {type.size != null ? (
@@ -452,7 +458,8 @@ function TypeCard({
         <span
           className={cn(
             "absolute right-3 top-3 rounded-full px-2.5 py-1 text-xs font-semibold",
-            full ? "bg-brand text-white" : "bg-success-soft text-success",
+            // Full is good news, so not the alarm red.
+            full ? "bg-ink text-white" : "bg-success-soft text-success",
           )}
         >
           {full ? ti("full") : ti("vacantCount", { count: row.vacant })}
@@ -513,7 +520,7 @@ function TypeCard({
         <div className="mt-auto flex items-center gap-2 pt-1">
           <Link
             href={`/admin/units?propertyId=${encodeURIComponent(type.propertyId)}`}
-            className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-sm font-medium text-fg transition-colors hover:border-brand-line hover:text-brand"
+            className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md border border-line bg-white px-4 text-sm font-medium text-fg transition-colors hover:border-brand-line hover:text-brand"
           >
             <Icon name={adminPageIcons.properties} size={17} />
             {ti("viewRooms")}

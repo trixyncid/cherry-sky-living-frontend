@@ -142,7 +142,7 @@ export function SearchResultsToolbar({
     (filters.sortBy ?? "property-asc") === "property-asc";
 
   return (
-    <div className="space-y-3 rounded-[1.25rem] bg-white p-3">
+    <div className="space-y-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
           <button
@@ -152,10 +152,10 @@ export function SearchResultsToolbar({
               patch({ availability: availabilityOn ? "all" : "available" })
             }
             className={cn(
-              "inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-colors",
+              "inline-flex h-10 items-center rounded-md px-4 text-sm font-medium transition-colors",
               availabilityOn
-                ? "bg-brand text-white"
-                : "border border-line-strong bg-white text-fg-2 hover:border-fg",
+                ? "bg-ink text-white"
+                : "border border-line-strong bg-panel text-fg-2 hover:border-fg",
             )}
           >
             {t("filterAvailable")}
@@ -165,10 +165,10 @@ export function SearchResultsToolbar({
             aria-pressed={monthlyOn}
             onClick={() => patch({ durationDays: monthlyOn ? undefined : 30 })}
             className={cn(
-              "inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-colors",
+              "inline-flex h-10 items-center rounded-md px-4 text-sm font-medium transition-colors",
               monthlyOn
-                ? "bg-brand text-white"
-                : "border border-line-strong bg-white text-fg-2 hover:border-fg",
+                ? "bg-ink text-white"
+                : "border border-line-strong bg-panel text-fg-2 hover:border-fg",
             )}
           >
             {t("filterMonthly")}
@@ -180,12 +180,12 @@ export function SearchResultsToolbar({
             <button
               type="button"
               onClick={onReset}
-              className="text-sm font-semibold text-fg underline-offset-4 hover:underline"
+              className="text-sm font-medium text-fg underline-offset-4 hover:underline"
             >
               {t("clearAll")}
             </button>
           ) : null}
-          <div className="flex items-center gap-2 text-sm font-semibold text-fg-muted">
+          <div className="flex items-center gap-2 text-sm font-medium text-fg-muted">
             <Icon name="sort" size={16} />
             <span className="hidden sm:inline">{t("sortLabel")}</span>
             <SelectMenu
@@ -200,7 +200,7 @@ export function SearchResultsToolbar({
                 value: option.id,
                 label: t(option.labelKey),
               }))}
-              className="h-10 w-44 rounded-full pl-4 text-sm font-semibold"
+              className="h-10 w-44 rounded-lg border-line-strong bg-panel pl-4 text-sm font-medium"
               contentClassName="min-w-[13rem]"
             />
           </div>
@@ -208,13 +208,13 @@ export function SearchResultsToolbar({
       </div>
 
       {hasChips ? (
-        <div className="flex flex-wrap items-center gap-2 border-t border-hover pt-3">
+        <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
           {chips.map((chip) => (
             <button
               key={chip.id}
               type="button"
               onClick={() => patch(chip.clear)}
-              className="inline-flex h-9 items-center gap-1 rounded-full bg-canvas pl-3.5 pr-2 text-sm font-medium text-fg transition-colors hover:bg-line"
+              className="inline-flex h-9 items-center gap-1 rounded-md border border-line-strong bg-panel pl-3.5 pr-2 text-sm font-medium text-fg transition-colors hover:border-fg"
               aria-label={t("removeFilter", { label: chip.label })}
             >
               {chip.label}

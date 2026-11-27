@@ -59,34 +59,40 @@ export function LegalDocument({
         titleLead={t("hero.title")}
         description={t("hero.description")}
       >
-        <p className="inline-flex rounded-full border border-white/12 bg-white/[0.08] px-4 py-2 text-sm text-white/80 backdrop-blur-md">
+        <p className="eyebrow border-t border-white/15 pt-5 text-[10px] text-white/65">
           {t("lastUpdated")}
         </p>
       </PageHero>
 
-      <section className="w-full px-5 py-12 sm:px-8 lg:py-16">
-        <div className="mx-auto grid w-full max-w-[90rem] gap-10 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-16">
+      <section className="w-full bg-canvas px-5 py-24 sm:px-8 lg:px-12 lg:py-32">
+        <div className="mx-auto grid w-full max-w-[90rem] gap-10 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-24">
           <nav
             aria-label={tLegal("onThisPage")}
-            className="lg:sticky lg:top-24 lg:self-start"
+            className="min-w-0 lg:sticky lg:top-24 lg:self-start"
           >
-            <p className="mb-3 text-sm font-semibold text-fg">
+            <p className="eyebrow mb-4 flex items-center gap-4 text-fg-muted">
+              <span aria-hidden className="h-px w-10 bg-fg/30" />
               {tLegal("onThisPage")}
             </p>
-            <ol className="flex gap-1 overflow-x-auto pb-1 [scrollbar-width:none] lg:flex-col lg:overflow-visible [&::-webkit-scrollbar]:hidden">
+            <ol className="flex gap-1 overflow-x-auto pb-1 [scrollbar-width:none] lg:flex-col lg:gap-0 lg:overflow-visible lg:border-t lg:border-line [&::-webkit-scrollbar]:hidden">
               {sections.map(([key, section], i) => (
                 <li key={key} className="shrink-0">
                   <a
                     href={`#${key}`}
                     aria-current={active === key ? "location" : undefined}
                     className={cn(
-                      "flex items-start gap-3 rounded-xl px-3 py-2 text-[15px] transition-colors",
+                      "flex items-start gap-3 rounded-md border border-line px-3 py-2 text-[15px] transition-colors lg:rounded-none lg:border-0 lg:border-b lg:px-0 lg:py-3",
                       active === key
-                        ? "bg-white font-semibold text-fg"
+                        ? "border-fg font-medium text-fg lg:border-line"
                         : "text-fg-muted hover:text-fg",
                     )}
                   >
-                    <span className="tabular-nums text-fg-muted">
+                    <span
+                      className={cn(
+                        "tabular-nums",
+                        active === key ? "text-brand" : "text-fg-faint",
+                      )}
+                    >
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span className="whitespace-nowrap lg:whitespace-normal">
@@ -104,14 +110,14 @@ export function LegalDocument({
                 key={key}
                 id={key}
                 aria-labelledby={`${key}-title`}
-                className="scroll-mt-24 border-b border-line py-8 first:pt-0 last:border-b-0"
+                className="scroll-mt-24 border-b border-line py-10 first:pt-0 last:border-b-0"
               >
-                <span className="text-sm font-semibold tabular-nums text-brand">
+                <span className="text-sm tabular-nums text-fg-faint">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h2
                   id={`${key}-title`}
-                  className="mt-2 text-2xl font-medium tracking-tight text-fg"
+                  className="mt-3 text-[clamp(1.5rem,2.4vw,2rem)] font-semibold leading-[1.1] tracking-[-0.035em] text-fg"
                 >
                   {stripNumber(section.title)}
                 </h2>
@@ -127,7 +133,7 @@ export function LegalDocument({
                       >
                         <span
                           aria-hidden
-                          className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-brand"
+                          className="mt-[0.8em] h-px w-3 shrink-0 bg-fg/40"
                         />
                         {item}
                       </li>
@@ -137,9 +143,11 @@ export function LegalDocument({
               </section>
             ))}
 
-            <div className="mt-10 flex flex-col items-start gap-4 rounded-[1.25rem] bg-brand p-6 text-white sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-12 flex flex-col items-start gap-5 rounded-lg bg-ink p-6 text-white sm:flex-row sm:items-center sm:justify-between lg:p-8">
               <div>
-                <p className="text-lg font-semibold">{tLegal("questions")}</p>
+                <p className="text-xl font-semibold tracking-tight">
+                  {tLegal("questions")}
+                </p>
                 <p className="mt-1 text-base text-white/65">
                   {tLegal("questionsSub")}
                 </p>
@@ -154,16 +162,17 @@ export function LegalDocument({
                 onClick={() =>
                   track("click_whatsapp", { location: `legal_${namespace}` })
                 }
-                className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-white px-5 text-[15px] font-semibold text-fg"
+                className="btn btn-outline-light shrink-0"
               >
-                <Icon name="whatsapp" size={16} className="text-[#25D366]" />
+                <Icon name="whatsapp" size={17} />
                 WhatsApp
+                <Icon name="north_east" size={17} />
               </a>
             </div>
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-fg-2 hover:text-fg"
+              className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-fg-2 underline-offset-4 hover:text-fg hover:underline"
             >
               <Icon name="arrow_upward" size={16} />
               {tLegal("backToTop")}

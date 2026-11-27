@@ -10,10 +10,13 @@ import {
 } from "@/lib/api/tenant/leases";
 import {
   changeTenantPassword,
+  getTenantIdentity,
   getTenantProfile,
   updateTenantProfile,
+  uploadTenantIdentity,
 } from "@/lib/api/tenant/profile";
 import { tenantKeys } from "@/lib/query/keys";
+import type { IdentityDocumentType } from "@/lib/types/admin";
 
 export function useTenantLeases() {
   return useQuery({
@@ -86,4 +89,21 @@ export function useTenantProfileMutations() {
       mutationFn: changeTenantPassword,
     }),
   };
+}
+
+/** The tenant's own KTP / passport upload (null until they add one). */
+export function useTenantIdentity() {
+  return useQuery({
+    queryKey: tenantKeys.profile.identity(),
+    queryFn: getTenantIdentity,
+  });
+}
+
+export function useUploadTenantIdentity() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ type, file }: { type: IdentityDocumentType; file: File }) =>
+      uploadTenantIdentity(type, file),
+    onSuccess: (doc) => qc.setQueryData(tenantKeys.profile.identity(), doc),
+  });
 }

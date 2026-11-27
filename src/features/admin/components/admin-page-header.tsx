@@ -1,7 +1,6 @@
 "use client";
 
 import { Icon } from "@/components/shared/Icon";
-import { useCurrentPageIcon } from "@/features/admin/lib/nav-state";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +38,6 @@ export function AdminPageHeader({
   secondaryAction,
   className,
 }: AdminPageHeaderProps) {
-  const pageIcon = useCurrentPageIcon();
   const resolvedPrimary =
     primaryAction ??
     (actionLabel && onAction
@@ -52,7 +50,7 @@ export function AdminPageHeader({
       : undefined);
 
   const primaryClassName =
-    "admin-btn-primary flex h-10 flex-1 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-colors disabled:opacity-50 sm:flex-none";
+    "admin-btn-primary flex h-10 flex-1 items-center justify-center gap-2 rounded-md px-5 text-sm font-medium transition-colors disabled:opacity-50 sm:flex-none";
 
   return (
     <div
@@ -62,14 +60,6 @@ export function AdminPageHeader({
       )}
     >
       <div className="flex min-w-0 items-start gap-3.5">
-        {pageIcon ? (
-          <span
-            className="mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-xl bg-ink text-white shadow-[0_6px_16px_-8px_rgb(11_11_13/0.5)]"
-            aria-hidden
-          >
-            <Icon name={pageIcon} size={22} />
-          </span>
-        ) : null}
         <div className="min-w-0">
           <h2 className="text-[clamp(1.5rem,2vw,1.875rem)] font-semibold tracking-[-0.025em] text-fg">
             {title}
@@ -89,7 +79,7 @@ export function AdminPageHeader({
               type="button"
               onClick={secondaryAction.onClick}
               disabled={secondaryAction.disabled}
-              className="flex h-10 flex-1 items-center justify-center gap-2 rounded-full border border-line-strong bg-panel px-5 text-sm font-medium text-fg transition-colors hover:border-fg hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-50 sm:flex-none"
+              className="flex h-10 flex-1 items-center justify-center gap-2 rounded-md border border-line-strong bg-panel px-5 text-sm font-medium text-fg transition-colors hover:border-fg hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-50 sm:flex-none"
             >
               {secondaryAction.icon && (
                 <Icon name={secondaryAction.icon} size={18} />

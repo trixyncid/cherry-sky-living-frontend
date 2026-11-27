@@ -3,15 +3,6 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
 import { AdminSelect } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
@@ -20,7 +11,7 @@ import {
   AdminToolbar,
   usePropertyToolbarFilter,
 } from "@/features/admin/components/admin-toolbar";
-import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
+import { LeaseStandingBadge } from "@/features/admin/components/status-badge";
 import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { getTenantUserSortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
@@ -28,12 +19,10 @@ import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import { useAdminPropertyFilter } from "@/features/admin/hooks/use-admin-property-filter";
 import {
   useLeases,
-  useTenantUserMutations,
   useTenantUsers,
 } from "@/features/admin/hooks/use-admin-queries";
 import {
   EmptyPanel,
-  IconAction,
   panel,
   SkeletonCards,
 } from "@/features/admin/inventory/inventory-kit";
@@ -44,19 +33,17 @@ import {
 import { getErrorMessage } from "@/features/admin/lib/errors";
 import { formatDate } from "@/features/admin/lib/format";
 import {
-  showApiError,
-  showApiSuccess,
-} from "@/features/admin/lib/show-api-error";
-import {
   Avatar,
   StatusDot,
   WhatsAppButton,
 } from "@/features/admin/operations/ops-kit";
-import { TenantResetPasswordDialog } from "@/features/admin/users/tenant-reset-password-dialog";
 import { Link } from "@/i18n/routing";
-import { ApiError } from "@/lib/api/errors";
 import { displayEmailOrEmpty, formatPhoneDisplay } from "@/lib/phone";
-import type { Lease, TenantUser } from "@/lib/types/admin";
+import type {
+  IdentityDocumentStatus,
+  Lease,
+  TenantUser,
+} from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
 
 const BASE = "/admin/users";
@@ -65,10 +52,7 @@ export function UsersList() {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.users");
   const [search, setSearch] = useState("");
-  const [resetUser, setResetUser] = useState<TenantUser | null>(null);
-  const [toggleUser, setToggleUser] = useState<TenantUser | null>(null);
   const { data = [], isLoading, error } = useTenantUsers(search || undefined);
-  const mutations = useTenantUserMutations();
   const to = useTranslations("admin.pages.operations");
   const locale = useLocale();
   const lookups = useAdminLookups();
@@ -139,31 +123,8 @@ export function UsersList() {
   const { page, setPage, pageData, total, pageSize, setPageSize } =
     useClientTable(visible, getSortValue, {
       defaultSortKey: "name",
-      pageSize: 24,
+      pageSize: 25,
     });
-
-  async function confirmToggleActive() {
-    if (!toggleUser) return;
-    const nextActive = !toggleUser.isActive;
-    try {
-      await mutations.setActive.mutateAsync({
-        id: toggleUser.id,
-        isActive: nextActive,
-      });
-      showApiSuccess(
-        nextActive ? tp("activateSuccess") : tp("deactivateSuccess"),
-      );
-      setToggleUser(null);
-    } catch (err) {
-      const msg =
-        err instanceof ApiError && err.code === "FORBIDDEN"
-          ? tp("forbiddenAction")
-          : getErrorMessage(err, t("saveFailed"));
-      showApiError(err, msg);
-    }
-  }
-
-  const pending = mutations.setActive.isPending;
 
   return (
     <>
@@ -171,7 +132,7 @@ export function UsersList() {
         title={tp("title")}
         description={tp("description")}
         primaryAction={{
-          label: t("add"),
+          label: t("addTenant"),
           href: `${BASE}/new`,
           icon: "add",
         }}
@@ -266,6 +227,7 @@ export function UsersList() {
                           {email}
                         </p>
                       ) : null}
+                      <IdentityChip status={user.identityDocument?.status} />
                     </div>
                     {!user.isActive ? (
                       <span className="shrink-0 rounded-full bg-hover px-2.5 py-1 text-xs font-medium text-fg-muted">
@@ -293,7 +255,7 @@ export function UsersList() {
                           })}
                         </span>
                       </span>
-                      <LeaseStatusBadge status={lease.status} />
+                      <LeaseStandingBadge lease={lease} />
                     </Link>
                   ) : (
                     <p className="flex items-center gap-2 rounded-2xl border border-dashed border-line p-3 text-sm text-fg-muted">
@@ -312,25 +274,11 @@ export function UsersList() {
                     />
                     <Link
                       href={`${BASE}/${user.id}`}
-                      className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-line bg-white px-4 text-sm font-medium text-fg hover:border-brand-line hover:text-brand"
+                      className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-line bg-white px-4 text-sm font-medium text-fg hover:border-brand-line hover:text-brand"
                     >
                       {to("profile")}
                     </Link>
-                    <IconAction
-                      icon="lock_reset"
-                      label={tp("resetPassword")}
-                      onClick={() => setResetUser(user)}
-                    />
-                    <IconAction
-                      icon={user.isActive ? "person_off" : "person_check"}
-                      label={user.isActive ? tp("deactivate") : tp("activate")}
-                      tone={user.isActive ? "danger" : "light"}
-                      onClick={() => setToggleUser(user)}
-                    />
                   </div>
-                  <p className="-mt-1 text-xs text-fg-muted">
-                    {to("joined", { date: formatDate(user.createdAt, locale) })}
-                  </p>
                 </article>
               );
             })}
@@ -348,54 +296,26 @@ export function UsersList() {
           ) : null}
         </>
       )}
-
-      <TenantResetPasswordDialog
-        user={resetUser}
-        open={resetUser !== null}
-        onOpenChange={(open) => !open && setResetUser(null)}
-      />
-
-      <Dialog
-        open={toggleUser !== null}
-        onOpenChange={(open) => !open && setToggleUser(null)}
-      >
-        <DialogContent showCloseButton={!pending}>
-          <DialogHeader>
-            <DialogTitle>
-              {toggleUser?.isActive
-                ? tp("deactivateTitle")
-                : tp("activateTitle")}
-            </DialogTitle>
-            <DialogDescription>
-              {toggleUser?.isActive
-                ? tp("deactivateDescription", { name: toggleUser?.name ?? "" })
-                : tp("activateDescription", { name: toggleUser?.name ?? "" })}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={pending}
-              onClick={() => setToggleUser(null)}
-            >
-              {t("cancel")}
-            </Button>
-            <Button
-              type="button"
-              variant={toggleUser?.isActive ? "destructive" : "default"}
-              disabled={pending || !toggleUser}
-              onClick={() => void confirmToggleActive()}
-            >
-              {pending
-                ? t("saving")
-                : toggleUser?.isActive
-                  ? tp("deactivate")
-                  : tp("activate")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
+  );
+}
+
+/** ID (KTP/passport) state on a tenant card; nothing once it's checked. */
+function IdentityChip({ status }: { status?: IdentityDocumentStatus }) {
+  const t = useTranslations("admin.pages.users.identity");
+  if (status === "checked") return null;
+  const key = status ?? "missing";
+  return (
+    <span
+      className={cn(
+        "mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+        key === "rejected"
+          ? "bg-danger-soft text-danger"
+          : "bg-brand-soft text-brand",
+      )}
+    >
+      <Icon name="badge" size={14} />
+      {t(`chip.${key}`)}
+    </span>
   );
 }

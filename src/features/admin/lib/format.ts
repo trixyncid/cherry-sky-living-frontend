@@ -66,20 +66,17 @@ export function dayAfterDate(value: string | Date): string {
   return `${yy}-${mm}-${dd}`;
 }
 
+/**
+ * Short rupiah for tight spots, always with "Rp": "Rp 4,2 miliar", "Rp 347,3 juta".
+ * Below one million the exact amount reads better than a rounded one: "Rp 40.000".
+ */
 export function formatIdrCompact(amount: number): string {
-  if (amount >= 1_000_000_000) {
-    return `${(amount / 1_000_000_000).toFixed(1)}B`;
-  }
-  if (amount >= 1_000_000) {
-    const millions = new Intl.NumberFormat("id-ID", {
-      maximumFractionDigits: 1,
-    }).format(amount / 1_000_000);
-    return `${millions} juta`;
-  }
-  if (amount >= 1_000) {
-    return `${(amount / 1_000).toFixed(0)}K`;
-  }
-  return String(amount);
+  const short = (value: number) =>
+    new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 }).format(value);
+  if (amount >= 1_000_000_000)
+    return `Rp ${short(amount / 1_000_000_000)} miliar`;
+  if (amount >= 1_000_000) return `Rp ${short(amount / 1_000_000)} juta`;
+  return `Rp ${new Intl.NumberFormat("id-ID").format(amount)}`;
 }
 
 export function formatIdrTable(amount: number): string {

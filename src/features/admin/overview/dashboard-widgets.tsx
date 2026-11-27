@@ -13,7 +13,7 @@ import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { cn } from "@/lib/utils";
 
 export const card =
-  "rounded-2xl border border-line bg-panel p-4 shadow-[0_1px_2px_rgb(11_11_13/0.04)] sm:p-6";
+  "rounded-2xl border border-line bg-panel p-4 shadow-[0_1px_2px_rgb(22_16_38/0.04)] sm:p-6";
 
 /* ——— Segmented toggle (Weekly | Monthly style) ——— */
 export function Segmented<T extends string>({
@@ -46,11 +46,11 @@ export function Segmented<T extends string>({
           aria-selected={value === o.id}
           onClick={() => onChange(o.id)}
           className={cn(
-            "h-9 shrink-0 whitespace-nowrap rounded-full px-4 text-sm transition-colors",
+            "h-9 shrink-0 whitespace-nowrap rounded-md px-4 text-sm transition-colors",
             value === o.id
               ? tone === "dark"
                 ? "bg-white text-ink shadow-sm"
-                : "bg-white font-medium text-fg shadow-[0_1px_3px_rgb(11_11_13/0.18)]"
+                : "bg-white font-medium text-fg shadow-[0_1px_3px_rgb(22_16_38/0.18)]"
               : tone === "dark"
                 ? "text-white/70 hover:text-white"
                 : "text-fg-2 hover:text-fg",
@@ -91,12 +91,6 @@ export function KpiCard({
         brand && "border-brand bg-brand text-white",
       )}
     >
-      {brand ? (
-        <span
-          className="pointer-events-none absolute -right-12 -top-12 size-40 rounded-full bg-white/10 blur-2xl"
-          aria-hidden
-        />
-      ) : null}
       <p
         className={cn(
           "relative flex items-center justify-between gap-2 text-sm font-medium",
@@ -115,7 +109,7 @@ export function KpiCard({
       </p>
       <p
         className={cn(
-          "relative text-[clamp(1.6rem,2.2vw,2rem)] font-semibold leading-tight tracking-[-0.03em] tabular-nums",
+          "relative whitespace-nowrap text-[clamp(1.25rem,1.6vw,1.75rem)] font-semibold leading-tight tracking-[-0.03em] tabular-nums",
           brand ? "text-white" : "text-fg",
         )}
       >

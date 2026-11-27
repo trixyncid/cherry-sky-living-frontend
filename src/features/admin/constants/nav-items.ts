@@ -23,7 +23,8 @@ export type AdminNavGroupLabelKey =
   | "nav.groups.main"
   | "nav.groups.inventory"
   | "nav.groups.operations"
-  | "nav.groups.finance";
+  | "nav.groups.finance"
+  | "nav.groups.settings";
 
 export interface AdminNavGroup {
   id: string;
@@ -89,12 +90,6 @@ export const adminNavGroups: AdminNavGroup[] = [
         icon: adminPageIcons.units,
         labelKey: "nav.units",
       },
-      {
-        key: "pricing",
-        href: "/admin/pricing",
-        icon: adminPageIcons.pricing,
-        labelKey: "nav.pricing",
-      },
     ],
   },
   {
@@ -119,18 +114,6 @@ export const adminNavGroups: AdminNavGroup[] = [
         icon: adminPageIcons.users,
         labelKey: "nav.users",
       },
-      {
-        key: "staff",
-        href: "/admin/staff",
-        icon: adminPageIcons.staff,
-        labelKey: "nav.staff",
-      },
-      {
-        key: "activity",
-        href: "/admin/activity",
-        icon: adminPageIcons.activity,
-        labelKey: "nav.activity",
-      },
     ],
   },
   {
@@ -148,6 +131,24 @@ export const adminNavGroups: AdminNavGroup[] = [
         href: "/admin/petty-cash",
         icon: adminPageIcons.pettyCash,
         labelKey: "nav.pettyCash",
+      },
+    ],
+  },
+  {
+    id: "settings",
+    labelKey: "nav.groups.settings",
+    items: [
+      {
+        key: "staff",
+        href: "/admin/staff",
+        icon: adminPageIcons.staff,
+        labelKey: "nav.staff",
+      },
+      {
+        key: "activity",
+        href: "/admin/activity",
+        icon: adminPageIcons.activity,
+        labelKey: "nav.activity",
       },
     ],
   },
@@ -176,18 +177,6 @@ export const adminCreateActions = [
     key: "cashExpense",
   },
   { href: "/admin/users/new", icon: "person_add", key: "addTenant" },
-  { href: "/admin/units/new", icon: adminPageIcons.units, key: "addUnit" },
-  {
-    href: "/admin/pricing/new",
-    icon: adminPageIcons.pricing,
-    key: "setPricing",
-  },
-  {
-    href: "/admin/unit-types/new",
-    icon: adminPageIcons.unitTypes,
-    key: "addUnitType",
-  },
-  { href: "/admin/properties/new", icon: "add_home", key: "addProperty" },
 ] as const;
 
 /** Nav groups visible to a role (staff management is superadmin-only). */

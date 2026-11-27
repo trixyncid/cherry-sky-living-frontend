@@ -175,7 +175,7 @@ export function DateRangePicker({
         disabled={disabled}
         aria-label={label ?? placeholder}
         className={cn(
-          "group grid w-full grid-cols-[1fr_auto_1fr] items-stretch overflow-hidden rounded-2xl border border-line-strong bg-white text-left shadow-[0_1px_2px_rgb(11_11_13/0.05)] transition-[border-color,box-shadow]",
+          "group grid w-full grid-cols-[1fr_auto_1fr] items-stretch overflow-hidden rounded-2xl border border-line-strong bg-white text-left shadow-[0_1px_2px_rgb(22_16_38/0.05)] transition-[border-color,box-shadow]",
           "hover:border-line-strong",
           "focus:outline-none focus-visible:border-brand focus-visible:ring-[3px] focus-visible:ring-brand/15",
           "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-line disabled:hover:shadow-none",

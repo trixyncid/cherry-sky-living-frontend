@@ -1,0 +1,178 @@
+{
+  "property": "sky",
+  "fps": 24,
+  "generatedAt": "2026-11-27T08:40:52.127Z",
+  "files": {
+    "journey-1-arrival.desktop.first": {
+      "url": "/media/sky/journey-1-arrival.desktop.first.webp",
+      "bytes": 88692
+    },
+    "journey-1-arrival.desktop.last": {
+      "url": "/media/sky/journey-1-arrival.desktop.last.webp",
+      "bytes": 109866
+    },
+    "journey-1-arrival.desktop.play": {
+      "url": "/media/sky/journey-1-arrival.desktop.play.mp4",
+      "bytes": 1091664,
+      "duration": 3.9166666666666665
+    },
+    "journey-1-arrival.mobile.first": {
+      "url": "/media/sky/journey-1-arrival.mobile.first.webp",
+      "bytes": 36802
+    },
+    "journey-1-arrival.mobile.last": {
+      "url": "/media/sky/journey-1-arrival.mobile.last.webp",
+      "bytes": 35836
+    },
+    "journey-1-arrival.mobile.play": {
+      "url": "/media/sky/journey-1-arrival.mobile.play.mp4",
+      "bytes": 343372,
+      "duration": 3.9166666666666665
+    },
+    "journey-2-lift.desktop.first": {
+      "url": "/media/sky/journey-2-lift.desktop.first.webp",
+      "bytes": 107296
+    },
+    "journey-2-lift.desktop.last": {
+      "url": "/media/sky/journey-2-lift.desktop.last.webp",
+      "bytes": 48062
+    },
+    "journey-2-lift.desktop.play": {
+      "url": "/media/sky/journey-2-lift.desktop.play.mp4",
+      "bytes": 1105854,
+      "duration": 3.9166666666666665
+    },
+    "journey-2-lift.mobile.first": {
+      "url": "/media/sky/journey-2-lift.mobile.first.webp",
+      "bytes": 36086
+    },
+    "journey-2-lift.mobile.last": {
+      "url": "/media/sky/journey-2-lift.mobile.last.webp",
+      "bytes": 16884
+    },
+    "journey-2-lift.mobile.play": {
+      "url": "/media/sky/journey-2-lift.mobile.play.mp4",
+      "bytes": 288993,
+      "duration": 3.9166666666666665
+    },
+    "journey-3-room.desktop.first": {
+      "url": "/media/sky/journey-3-room.desktop.first.webp",
+      "bytes": 44408
+    },
+    "journey-3-room.desktop.last": {
+      "url": "/media/sky/journey-3-room.desktop.last.webp",
+      "bytes": 29468
+    },
+    "journey-3-room.desktop.play": {
+      "url": "/media/sky/journey-3-room.desktop.play.mp4",
+      "bytes": 768971,
+      "duration": 3.9166666666666665
+    },
+    "journey-3-room.mobile.first": {
+      "url": "/media/sky/journey-3-room.mobile.first.webp",
+      "bytes": 15744
+    },
+    "journey-3-room.mobile.last": {
+      "url": "/media/sky/journey-3-room.mobile.last.webp",
+      "bytes": 14034
+    },
+    "journey-3-room.mobile.play": {
+      "url": "/media/sky/journey-3-room.mobile.play.mp4",
+      "bytes": 262004,
+      "duration": 3.9166666666666665
+    },
+    "closing.desktop.first": {
+      "url": "/media/sky/closing.desktop.first.webp",
+      "bytes": 158892
+    },
+    "closing.desktop.last": {
+      "url": "/media/sky/closing.desktop.last.webp",
+      "bytes": 72040
+    },
+    "closing.desktop.play": {
+      "url": "/media/sky/closing.desktop.play.mp4",
+      "bytes": 1516161,
+      "duration": 3.9166666666666665
+    },
+    "closing.mobile.first": {
+      "url": "/media/sky/closing.mobile.first.webp",
+      "bytes": 62872
+    },
+    "closing.mobile.last": {
+      "url": "/media/sky/closing.mobile.last.webp",
+      "bytes": 29474
+    },
+    "closing.mobile.play": {
+      "url": "/media/sky/closing.mobile.play.mp4",
+      "bytes": 520088,
+      "duration": 3.9166666666666665
+    },
+    "journey.desktop.scrub.mp4": {
+      "url": "/media/sky/journey.desktop.scrub.mp4",
+      "bytes": 8875202,
+      "duration": 11.25,
+      "crf": 24,
+      "fps": 24
+    },
+    "journey.desktop.scrub.webm": {
+      "url": "/media/sky/journey.desktop.scrub.webm",
+      "bytes": 13518904,
+      "duration": 11.25,
+      "crf": 44,
+      "fps": 24
+    },
+    "journey.mobile.scrub.mp4": {
+      "url": "/media/sky/journey.mobile.scrub.mp4",
+      "bytes": 3178284,
+      "duration": 11.25,
+      "crf": 24,
+      "fps": 24
+    },
+    "closing.desktop.scrub.mp4": {
+      "url": "/media/sky/closing.desktop.scrub.mp4",
+      "bytes": 4621287,
+      "duration": 3.9166666666666665,
+      "crf": 24,
+      "fps": 24
+    },
+    "closing.desktop.scrub.webm": {
+      "url": "/media/sky/closing.desktop.scrub.webm",
+      "bytes": 4728327,
+      "duration": 3.9166666666666665,
+      "crf": 56,
+      "fps": 24
+    },
+    "closing.mobile.scrub.mp4": {
+      "url": "/media/sky/closing.mobile.scrub.mp4",
+      "bytes": 1796583,
+      "duration": 3.9166666666666665,
+      "crf": 24,
+      "fps": 24
+    },
+    "choice-loop": {
+      "url": "/media/sky/choice-loop.mp4",
+      "bytes": 758996,
+      "duration": 6
+    }
+  },
+  "notes": [],
+  "journey": {
+    "chapters": [
+      {
+        "role": "journey-1-arrival",
+        "start": 0,
+        "end": 0.337037037037037
+      },
+      {
+        "role": "journey-2-lift",
+        "start": 0.337037037037037,
+        "end": 0.662962962962963
+      },
+      {
+        "role": "journey-3-room",
+        "start": 0.662962962962963,
+        "end": 1
+      }
+    ]
+  }
+}

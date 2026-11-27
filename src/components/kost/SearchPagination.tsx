@@ -40,7 +40,7 @@ export function SearchPagination({
   const pages = buildPageNumbers(page, totalPages);
 
   return (
-    <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-[1.25rem] bg-white px-4 py-3 sm:flex-row sm:px-5">
+    <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-line pt-5 sm:flex-row">
       <p className="text-sm font-medium text-fg-muted">
         {t("paginationShowing", { start, end, total })}
       </p>
@@ -49,7 +49,7 @@ export function SearchPagination({
           type="button"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          className="flex size-10 items-center justify-center rounded-full text-fg transition-colors hover:bg-canvas disabled:opacity-40"
+          className="flex size-10 items-center justify-center rounded-lg border border-line-strong text-fg transition-colors hover:border-fg disabled:opacity-40"
           aria-label={t("paginationPrevious")}
         >
           <Icon name="chevron_left" size={20} />
@@ -68,8 +68,8 @@ export function SearchPagination({
               type="button"
               onClick={() => onPageChange(p)}
               className={cn(
-                "flex size-10 items-center justify-center rounded-full text-sm font-semibold transition-colors",
-                p === page ? "bg-brand text-white" : "text-fg hover:bg-canvas",
+                "flex size-10 items-center justify-center rounded-lg text-sm font-medium tabular-nums transition-colors",
+                p === page ? "bg-ink text-white" : "text-fg hover:bg-hover",
               )}
             >
               {p}
@@ -80,7 +80,7 @@ export function SearchPagination({
           type="button"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
-          className="flex size-10 items-center justify-center rounded-full text-fg transition-colors hover:bg-canvas disabled:opacity-40"
+          className="flex size-10 items-center justify-center rounded-lg border border-line-strong text-fg transition-colors hover:border-fg disabled:opacity-40"
           aria-label={t("paginationNext")}
         >
           <Icon name="chevron_right" size={20} />

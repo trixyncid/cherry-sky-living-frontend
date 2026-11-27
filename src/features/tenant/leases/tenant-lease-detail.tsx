@@ -34,7 +34,7 @@ export function TenantLeaseDetail({ id }: { id: string }) {
   const { data: lease, isLoading, error } = useTenantLease(id);
 
   if (isLoading) {
-    return <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>;
+    return <p className="text-sm text-fg-muted">{t("loading")}</p>;
   }
 
   if (error || !lease) {
@@ -42,7 +42,7 @@ export function TenantLeaseDetail({ id }: { id: string }) {
       <div className="space-y-4">
         <Link
           href="/tenant/leases"
-          className="glass-control inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-sm font-medium text-[#71130d] transition-colors hover:bg-white"
+          className="glass-control inline-flex h-10 items-center gap-1.5 rounded-md px-4 text-sm font-medium text-brand transition-colors hover:bg-white"
         >
           <Icon name="arrow_back" size={18} />
           {t("backToList")}
@@ -85,11 +85,11 @@ export function TenantLeaseDetail({ id }: { id: string }) {
             <LeaseStatusBadge status={lease.status} />
           </div>
           {roommateView ? (
-            <div className="flex items-start gap-2.5 rounded-2xl border border-[#f0dcd8] bg-[#fdf6f4] px-4 py-3 text-sm text-[#3d3d3d]">
+            <div className="flex items-start gap-2.5 rounded-2xl border border-line bg-subtle px-4 py-3 text-sm text-fg-2">
               <Icon
                 name="group"
                 size={18}
-                className="mt-0.5 shrink-0 text-[#71130d]"
+                className="mt-0.5 shrink-0 text-brand"
               />
               <p>{tr("roommateNotice", { name: lease.user?.name ?? "—" })}</p>
             </div>
@@ -114,7 +114,7 @@ export function TenantLeaseDetail({ id }: { id: string }) {
               className="mb-4 h-2"
             />
           ) : null}
-          <dl className="grid gap-3 sm:grid-cols-2">
+          <dl className="grid grid-cols-2 gap-3">
             <DetailItem
               label={tp("startDate")}
               value={formatDate(lease.startDate)}
@@ -123,15 +123,18 @@ export function TenantLeaseDetail({ id }: { id: string }) {
               label={tp("endDate")}
               value={lease.endDate ? formatDate(lease.endDate) : "—"}
             />
-            {lease.unit?.property?.address ? (
+            {lease.unit?.property?.address || lease.unit?.property?.city ? (
+              // One address line instead of separate "Alamat" and "Kota" boxes.
               <DetailItem
                 label={tp("address")}
-                value={lease.unit.property.address}
-                className="sm:col-span-2"
+                value={[
+                  lease.unit?.property?.address,
+                  lease.unit?.property?.city,
+                ]
+                  .filter(Boolean)
+                  .join(", ")}
+                className="col-span-2"
               />
-            ) : null}
-            {lease.unit?.property?.city ? (
-              <DetailItem label={tp("city")} value={lease.unit.property.city} />
             ) : null}
           </dl>
         </AdminFormSection>
@@ -142,16 +145,16 @@ export function TenantLeaseDetail({ id }: { id: string }) {
               {residents.map((person) => (
                 <li
                   key={person.id}
-                  className="flex items-center gap-3 rounded-2xl bg-[#faf7f6] p-3.5"
+                  className="flex items-center gap-3 rounded-2xl bg-subtle p-3.5"
                 >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#71130d]">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-sm font-semibold text-brand">
                     {person.name.trim().charAt(0).toUpperCase() || "?"}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[15px] font-medium text-[#141414]">
+                    <span className="block truncate text-[15px] font-medium text-fg">
                       {person.name}
                     </span>
-                    <span className="block text-xs text-[#6b6b6b]">
+                    <span className="block text-xs text-fg-muted">
                       {person.isPrimary ? tr("primary") : tr("roommate")}
                     </span>
                   </span>
@@ -198,9 +201,9 @@ function DetailItem({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-2xl bg-[#faf7f6] p-3.5", className)}>
-      <dt className="text-xs text-[#6b6b6b]">{label}</dt>
-      <dd className="mt-0.5 text-[15px] font-medium text-[#141414]">{value}</dd>
+    <div className={cn("rounded-2xl bg-subtle p-3.5", className)}>
+      <dt className="text-xs text-fg-muted">{label}</dt>
+      <dd className="mt-0.5 text-[15px] font-medium text-fg">{value}</dd>
     </div>
   );
 }

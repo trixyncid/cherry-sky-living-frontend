@@ -39,44 +39,47 @@ export function LocationSection({
   return (
     <section
       aria-label={t("eyebrow")}
-      className="w-full px-5 pb-14 pt-12 sm:px-8 lg:pb-20 lg:pt-16"
+      className="w-full bg-canvas px-5 py-24 sm:px-8 lg:px-12 lg:py-32"
     >
-      <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-8 lg:gap-12">
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,24rem)_1fr]">
-          <div className="flex flex-col gap-4">
+      <div className="mx-auto w-full max-w-[90rem]">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,26rem)_1fr] lg:gap-16">
+          <div className="flex flex-col gap-10">
             {isLoading
               ? [0, 1].map((i) => (
                   <div
                     key={i}
                     aria-hidden
-                    className="h-40 animate-pulse rounded-[1.5rem] bg-hover"
+                    className="h-40 animate-pulse rounded-lg bg-hover"
                   />
                 ))
               : kosts.map((kost, index) => (
                   <Reveal
                     key={kost.id}
                     delay={index * 0.08}
-                    className="rounded-[1.25rem] bg-white p-5"
+                    className="border-t border-line pt-6"
                   >
-                    <h2 className="text-lg font-semibold tracking-tight text-fg">
+                    <p className="text-sm tabular-nums text-fg-faint">
+                      {String(index + 1).padStart(2, "0")}
+                    </p>
+                    <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-fg">
                       {kost.name}
                     </h2>
-                    <p className="mt-1.5 flex items-start gap-2 text-base leading-relaxed text-fg-2">
+                    <p className="mt-2 flex items-start gap-2 text-base leading-relaxed text-fg-2">
                       <Icon
                         name="location_on"
                         size={18}
-                        className="mt-0.5 shrink-0 text-brand"
+                        className="mt-0.5 shrink-0 text-fg-muted"
                       />
                       {[kost.location.address, kost.location.city]
                         .filter(Boolean)
                         .join(", ")}
                     </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="mt-6 flex flex-wrap gap-3">
                       <a
                         href={mapsSearchUrl(kost)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex h-10 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+                        className="btn btn-solid"
                       >
                         <Icon name="near_me" size={16} />
                         {t("directions")}
@@ -96,7 +99,7 @@ export function LocationSection({
                             property: kost.name,
                           })
                         }
-                        className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line-strong px-4 text-sm font-semibold text-fg transition-colors hover:border-fg"
+                        className="btn btn-outline"
                       >
                         <Icon
                           name="whatsapp"
@@ -109,19 +112,21 @@ export function LocationSection({
                   </Reveal>
                 ))}
 
-            <div className="flex items-center gap-3 rounded-[1.25rem] bg-brand p-5 text-white text-base">
-              <Icon name="schedule" size={20} className="text-brand-soft" />
-              <span>
-                <span className="font-semibold">{t("viewingHours")}:</span>{" "}
+            <div className="border-t border-line pt-6">
+              <p className="eyebrow flex items-center gap-3 text-fg-muted">
+                <span aria-hidden className="size-2 rounded-full bg-success" />
+                {t("viewingHours")}
+              </p>
+              <p className="mt-3 text-lg font-medium text-fg">
                 {localized(siteConfig.viewingHours.days, locale)}{" "}
                 {siteConfig.viewingHours.time}
-              </span>
+              </p>
             </div>
           </div>
 
           <Reveal
             delay={0.1}
-            className="relative min-h-[20rem] overflow-hidden rounded-[1.25rem] bg-line lg:min-h-[28rem]"
+            className="relative min-h-[22rem] overflow-hidden rounded-lg border border-line bg-line lg:min-h-[36rem]"
           >
             <iframe
               src={MEDAN_MAP_EMBED_URL}

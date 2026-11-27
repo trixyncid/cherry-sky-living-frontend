@@ -10,6 +10,7 @@ import { startOfToday } from "date-fns";
 import { useLocale, useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { DatePicker } from "@/components/date-picker";
+import { InquiryPerks } from "@/components/leads/InquiryPerks";
 import { Icon } from "@/components/shared/Icon";
 import { SelectMenu } from "@/components/shared/select-menu";
 import { localized, siteConfig } from "@/config/site";
@@ -126,18 +127,19 @@ export function LeadForm({
     setStatus("done");
   };
 
+  const showProperty = !unitTypeId && kosts.length > 0;
   const responseTime = localized(siteConfig.responseTime, locale);
   const hours = `${localized(siteConfig.viewingHours.days, locale)} ${siteConfig.viewingHours.time}`;
 
   const label = cn(
-    "mb-1.5 block text-sm font-semibold",
+    "mb-1.5 block text-sm font-medium",
     dark ? "text-white/85" : "text-fg",
   );
   const input = cn(
-    "h-12 w-full rounded-xl border px-4 text-base transition-colors focus:outline-none focus:ring-2",
+    "h-12 w-full rounded-lg border px-4 text-base transition-colors focus:outline-none focus:ring-2",
     dark
-      ? "border-white/15 bg-white/10 text-white placeholder:text-white/45 focus:border-white/40 focus:ring-white/20"
-      : "border-line-strong bg-white text-fg placeholder:text-fg-muted focus:border-fg focus:ring-fg/10",
+      ? "border-white/25 bg-white/5 text-white placeholder:text-white/45 focus:border-white/60 focus:ring-white/20"
+      : "border-line-strong bg-panel text-fg placeholder:text-fg-muted focus:border-brand focus:ring-brand/20",
   );
   const errorText = cn(
     "mt-1.5 text-sm",
@@ -170,10 +172,11 @@ export function LeadForm({
           onClick={() =>
             track("click_whatsapp", { location: `lead_success_${type}` })
           }
-          className="inline-flex h-12 items-center gap-2 rounded-full bg-ink px-6 text-[15px] font-semibold text-white transition-colors hover:bg-ink-2"
+          className={cn("btn", dark ? "btn-light" : "btn-solid")}
         >
-          <Icon name="whatsapp" size={18} />
+          <Icon name="whatsapp" size={17} />
           {t("success.openWhatsApp")}
+          <Icon name="north_east" size={17} />
         </a>
       </output>
     );
@@ -242,8 +245,8 @@ export function LeadForm({
         onClick={() => setShowMore((v) => !v)}
         aria-expanded={showMore}
         className={cn(
-          "inline-flex items-center gap-1.5 self-start text-sm font-semibold",
-          dark ? "text-brand-bright" : "text-brand",
+          "inline-flex items-center gap-1.5 self-start text-sm font-medium underline-offset-4 hover:underline",
+          dark ? "text-white/80" : "text-fg-2",
         )}
       >
         <Icon name={showMore ? "remove" : "add"} size={16} />
@@ -252,7 +255,7 @@ export function LeadForm({
 
       {showMore ? (
         <div className="grid gap-4 sm:grid-cols-2">
-          {!unitTypeId && kosts.length > 0 ? (
+          {showProperty ? (
             <div>
               <label htmlFor={`${uid}-property`} className={label}>
                 {t("property")}
@@ -265,7 +268,7 @@ export function LeadForm({
                   { value: "", label: t("anyProperty") },
                   ...kosts.map((k) => ({ value: k.id, label: k.name })),
                 ]}
-                className="h-12"
+                className={cn(input, "pr-10")}
               />
             </div>
           ) : null}
@@ -279,11 +282,16 @@ export function LeadForm({
               onChange={setMoveIn}
               fromDate={startOfToday()}
               placeholder={t("moveInPlaceholder")}
-              className="h-12"
+              className={cn(
+                input,
+                "px-3 shadow-none",
+                !moveIn && (dark ? "text-white/45" : "text-fg-muted"),
+              )}
             />
           </div>
           {type === "inquiry" ? (
-            <div>
+            // Spans the row when the residence picker would leave it alone.
+            <div className={cn(showProperty && "sm:col-span-2")}>
               <label htmlFor={`${uid}-budget`} className={label}>
                 {t("budget")}
               </label>
@@ -320,12 +328,12 @@ export function LeadForm({
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-brand px-7 text-[15px] font-semibold text-white transition-colors hover:bg-brand-hover"
-      >
-        <Icon name="whatsapp" size={18} />
+      {type === "inquiry" ? <InquiryPerks dark={dark} /> : null}
+
+      <button type="submit" className="btn btn-brand">
+        <Icon name="whatsapp" size={17} />
         {t(`submit.${type}`)}
+        <Icon name="north_east" size={17} />
       </button>
 
       <p className={cn("text-sm", dark ? "text-white/55" : "text-fg-muted")}>

@@ -73,7 +73,7 @@ const QUICK_ACTIONS: ManualPettyCashType[] = [
 ];
 
 const secondaryBtn =
-  "inline-flex h-10 items-center gap-2 rounded-full border border-line-strong bg-panel px-4 text-sm font-medium text-fg transition-colors hover:border-fg hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
+  "inline-flex h-10 items-center gap-2 rounded-md border border-line-strong bg-panel px-4 text-sm font-medium text-fg transition-colors hover:border-fg hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
 
 function signedRupiah(amount: number): string {
   return `${amount > 0 ? "+" : amount < 0 ? "−" : ""}${formatIdr(Math.abs(amount))}`;
@@ -179,7 +179,9 @@ export function PettyCashList() {
             ))}
         {summary ? (
           <div className="flex flex-col justify-between rounded-2xl border border-line bg-panel p-5">
-            <p className="text-xs text-fg-muted">{tp("periodHint")}</p>
+            <p className="text-xs text-fg-muted">
+              {startDate || endDate ? tp("periodHint") : tp("periodAll")}
+            </p>
             <dl className="mt-3 space-y-2 text-sm">
               <div className="flex items-center justify-between">
                 <dt className="flex items-center gap-1.5 text-fg-2">
@@ -208,7 +210,7 @@ export function PettyCashList() {
         search={{
           value: search,
           onChange: setSearch,
-          placeholder: tc("searchPlaceholder"),
+          placeholder: tp("searchPlaceholder"),
         }}
         filters={[
           {
@@ -258,6 +260,7 @@ export function PettyCashList() {
                   setStartDate(from);
                   setEndDate(to);
                 }}
+                placeholder={tb("dateRangePlaceholder")}
               />
             ),
           },
@@ -292,13 +295,15 @@ export function PettyCashList() {
           title={tp("empty")}
           hint={tp("emptyHint")}
           action={
-            <Link
-              href={newHref("top_up")}
-              className="admin-btn-primary inline-flex h-10 items-center gap-2 rounded-full px-5 text-sm font-medium"
+            // First step is counting the cash already there, not a top-up from the bank.
+            <button
+              type="button"
+              onClick={() => setCountOpen(true)}
+              className="admin-btn-primary inline-flex h-10 items-center gap-2 rounded-md px-5 text-sm font-medium"
             >
-              <Icon name={PETTY_CASH_TYPE_ICON.top_up} size={18} />
-              {tp("actions.top_up")}
-            </Link>
+              <Icon name="calculate" size={18} />
+              {tp("countNow")}
+            </button>
           }
         />
       ) : (
@@ -338,27 +343,30 @@ function BalanceCard({
   const tp = useTranslations("admin.pages.pettyCash");
   const locale = useLocale();
   const negative = balance < 0;
-  const low = !negative && balance < PETTY_CASH_LOW_BALANCE;
+  const empty = balance === 0;
+  const low = !negative && !empty && balance < PETTY_CASH_LOW_BALANCE;
 
   return (
     <div className="relative overflow-hidden rounded-2xl bg-ink p-5 text-white">
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -right-12 -top-16 size-44 rounded-full bg-brand/40 blur-3xl"
-      />
       <div className="relative">
         <p className="flex items-center justify-between gap-2 text-sm text-white/70">
           <span className="truncate">{name}</span>
-          {negative || low ? (
+          {negative || low || empty ? (
             <span
               className={cn(
-                "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                "shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold",
                 negative
                   ? "bg-danger text-white"
-                  : "bg-warning-soft text-warning",
+                  : empty
+                    ? "bg-white/15 text-white"
+                    : "bg-warning-soft text-warning",
               )}
             >
-              {negative ? tp("negative") : tp("lowBalance")}
+              {negative
+                ? tp("negative")
+                : empty
+                  ? tp("emptyBalance")
+                  : tp("lowBalance")}
             </span>
           ) : null}
         </p>
@@ -484,7 +492,7 @@ function EntryRow({
         </p>
         {!voided && entry.balanceAfter !== undefined ? (
           <p className="mt-0.5 text-xs tabular-nums text-fg-muted">
-            {formatIdr(entry.balanceAfter)}
+            {tp("balanceAfter", { amount: formatIdr(entry.balanceAfter) })}
           </p>
         ) : null}
       </div>
@@ -495,7 +503,7 @@ function EntryRow({
             href={`${BASE}/${entry.id}/edit`}
             aria-label={tp("edit")}
             title={tp("edit")}
-            className="flex size-8 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-hover hover:text-fg"
+            className="flex size-10 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-hover hover:text-fg"
           >
             <Icon name="edit" size={17} />
           </Link>
@@ -506,7 +514,7 @@ function EntryRow({
             onClick={onVoid}
             aria-label={tp("void")}
             title={tp("void")}
-            className="flex size-8 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-danger-soft hover:text-danger"
+            className="flex size-10 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-danger-soft hover:text-danger"
           >
             <Icon name="block" size={17} />
           </button>
@@ -636,7 +644,7 @@ function CountCashDialog({
             type="button"
             disabled={!counted.trim() || mutations.count.isPending}
             onClick={() => void submit()}
-            className="admin-btn-primary inline-flex h-10 items-center gap-2 rounded-full px-5 text-sm font-medium disabled:opacity-50"
+            className="admin-btn-primary inline-flex h-10 items-center gap-2 rounded-md px-5 text-sm font-medium disabled:opacity-50"
           >
             <Icon name={PETTY_CASH_TYPE_ICON.adjustment} size={18} />
             {td("confirm")}
@@ -696,13 +704,13 @@ function VoidEntryDialog({
         />
         <DialogFooter>
           <button type="button" className={secondaryBtn} onClick={onClose}>
-            {tc("cancel")}
+            {td("back")}
           </button>
           <button
             type="button"
             disabled={mutations.void.isPending}
             onClick={() => void submit()}
-            className="inline-flex h-10 items-center gap-2 rounded-full bg-danger px-5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="inline-flex h-10 items-center gap-2 rounded-md bg-danger px-5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {td("confirm")}
           </button>

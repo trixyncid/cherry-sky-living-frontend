@@ -14,6 +14,7 @@ import { getUnitSortValue } from "@/features/admin/crud/admin-table-sort";
 import { useClientTable } from "@/features/admin/crud/use-client-table";
 import type { AdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import {
+  resolveUnitPropertyName,
   resolveUnitTenantLabel,
   resolveUnitTypeNameForUnit,
 } from "@/features/admin/lib/entity-display";
@@ -82,6 +83,7 @@ export function UnitsTableView({
         <AdminCrudTable
           columns={[
             { key: "name", label: t("name") },
+            { key: "property", label: t("property") },
             { key: "unitType", label: t("unitType") },
             { key: "maxOccupancy", label: t("maxOccupancy") },
             { key: "tenant", label: t("tenant") },
@@ -96,6 +98,9 @@ export function UnitsTableView({
             <AdminCrudTableRow key={unit.id}>
               <AdminCrudTableCell className="font-semibold">
                 {unit.name}
+              </AdminCrudTableCell>
+              <AdminCrudTableCell className="text-fg-2">
+                {resolveUnitPropertyName(unit, lookups)}
               </AdminCrudTableCell>
               <AdminCrudTableCell className="text-fg-2">
                 {resolveUnitTypeNameForUnit(unit, lookups)}

@@ -29,30 +29,30 @@ export function IncludedPanel({
   return (
     <div
       className={cn(
-        "grid overflow-hidden rounded-[1.25rem] bg-white sm:grid-cols-[1.2fr_1fr]",
+        "grid overflow-hidden rounded-lg border border-line bg-panel sm:grid-cols-[1.2fr_1fr]",
         className,
       )}
     >
       <div className="p-6">
-        <p className="mb-4 flex items-center gap-2 text-sm font-semibold text-success">
-          <Icon name="check_circle" size={18} />
+        <p className="eyebrow mb-5 flex items-center gap-3 text-fg-muted">
+          <span className="size-2 rounded-full bg-success" />
           {t("included")}
         </p>
-        <ul className="grid grid-cols-2 gap-x-4 gap-y-3">
+        <ul className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
           {INCLUDED.map((item) => (
             <li
               key={item.key}
               className="flex items-center gap-2 text-[15px] text-fg"
             >
-              <Icon name={item.icon} size={18} className="text-success" />
+              <Icon name={item.icon} size={18} className="text-fg-muted" />
               {t(item.key)}
             </li>
           ))}
         </ul>
       </div>
-      <div className="flex flex-col gap-3 border-t border-hover bg-subtle p-6 sm:border-l sm:border-t-0">
-        <p className="flex items-center gap-2 text-sm font-semibold text-brand">
-          <Icon name="receipt_long" size={18} />
+      <div className="flex flex-col gap-3 border-t border-line bg-subtle p-6 sm:border-l sm:border-t-0">
+        <p className="eyebrow mb-2 flex items-center gap-3 text-fg-muted">
+          <span aria-hidden className="h-px w-6 bg-fg/30" />
           {t("paidSeparately")}
         </p>
         <p className="text-[15px] leading-relaxed text-fg-2">
@@ -63,7 +63,7 @@ export function IncludedPanel({
             ? tDetail("depositFor", { amount: formatCurrency(deposit) })
             : t("deposit")}
         </p>
-        <p className="mt-auto border-t border-hover pt-3 text-[15px] font-semibold text-fg">
+        <p className="mt-auto border-t border-line pt-3 text-[15px] font-medium text-fg">
           {t("noAgent")}
         </p>
       </div>

@@ -61,7 +61,7 @@ export function VacancyByTypeChart({
         />
         <Tooltip
           content={<ChartTooltip valueFormatter={(v) => String(v)} />}
-          cursor={{ fill: "rgb(11 11 13 / 0.06)" }}
+          cursor={{ fill: "rgb(22 16 38 / 0.06)" }}
         />
         <Legend
           verticalAlign="top"

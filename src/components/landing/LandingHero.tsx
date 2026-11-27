@@ -1,15 +1,15 @@
 /**
- * Hero — a centred, editorial opening: live availability pill, headline,
- * the two calls to action, then a glass search dock and a row of live
- * numbers. Everything is server-rendered HTML that works before any 3D
- * loads; the shader sky fades in behind once the page is idle.
+ * Hero — full-bleed property photography that cycles between slides, a
+ * left-aligned editorial headline, a numbered slide index on the right and
+ * a row of thumbnails along the bottom. The availability search and live
+ * numbers sit in a dark band directly underneath (#cari).
  */
 
 "use client";
 
-import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { localized, siteConfig } from "@/config/site";
 import { type LandingContent, pick } from "@/lib/landing/schema";
@@ -24,7 +24,34 @@ import {
   whatsappHref,
 } from "./shared";
 
-const SkyCanvas = dynamic(() => import("./SkyCanvas"), { ssr: false });
+const SLIDE_MS = 7000;
+
+interface Slide {
+  photo: string;
+  focal: { x: number; y: number };
+  title: string;
+  label: string;
+}
+
+/** Each property's exterior, then the first property's hero room (max 3). */
+function buildSlides(properties: PropertyVM[], locale: string): Slide[] {
+  const slides: Slide[] = properties.map((p) => ({
+    photo: p.content.exteriorPhoto,
+    focal: p.content.exteriorFocal,
+    title: p.name,
+    label: pick(p.content.area, locale),
+  }));
+  const first = properties[0];
+  const room = first?.content.media.clips["journey-3-room"];
+  if (first && room?.posterDesktop)
+    slides.push({
+      photo: room.posterDesktop,
+      focal: room.focal,
+      title: first.content.heroRoom ?? first.name,
+      label: first.name,
+    });
+  return slides.slice(0, 3);
+}
 
 export function LandingHero({
   content,
@@ -44,20 +71,28 @@ export function LandingHero({
   onSearch: () => void;
 }) {
   const t = useTranslations("landing.hero");
+  const tc = useTranslations("common.brand");
   const locale = useLocale();
-  const [sky, setSky] = useState<"off" | "loading" | "ready">("off");
+  const slides = useMemo(
+    () => buildSlides(properties, locale),
+    [properties, locale],
+  );
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
 
+  // Auto-advance; off for reduced motion / low-end devices and while hovered.
+  // `active` restarts the timer after a manual pick.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: see above
   useEffect(() => {
-    if (tier === null || tier === "static") return;
-    const start = () => setSky((s) => (s === "off" ? "loading" : s));
-    const idle = window.requestIdleCallback?.(start, { timeout: 1500 });
-    const timer =
-      idle === undefined ? window.setTimeout(start, 500) : undefined;
-    return () => {
-      if (idle !== undefined) window.cancelIdleCallback?.(idle);
-      if (timer !== undefined) window.clearTimeout(timer);
-    };
-  }, [tier]);
+    if (paused || tier === null || tier === "static" || slides.length < 2)
+      return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setTimeout(
+      () => setActive((i) => (i + 1) % slides.length),
+      SLIDE_MS,
+    );
+    return () => window.clearTimeout(id);
+  }, [active, paused, tier, slides.length]);
 
   const available = properties.reduce(
     (s, p) => s + (p.kost?.availableRooms ?? 0),
@@ -93,118 +128,215 @@ export function LandingHero({
   ];
 
   return (
-    <section
-      id="cari"
-      aria-labelledby="hero-heading"
-      className="relative overflow-hidden bg-ink text-white"
-    >
-      <div aria-hidden className="story-sky-fallback absolute inset-0" />
-      {sky !== "off" ? (
+    <>
+      <section
+        aria-labelledby="hero-heading"
+        className="relative isolate overflow-hidden bg-ink text-white"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
         <div
           aria-hidden
-          className={cn(
-            "absolute inset-0 transition-opacity duration-1000",
-            sky === "ready" ? "opacity-100" : "opacity-0",
-          )}
-        >
-          <SkyCanvas onReady={() => setSky("ready")} />
-        </div>
-      ) : null}
-      {/* Deepens the sky to late dusk so white type and the glass dock sit
-          on a dark, even field; a little warmth is left low on the horizon. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgb(11_11_13/0.82)_0%,rgb(24_10_20/0.66)_45%,rgb(40_14_26/0.5)_78%,rgb(11_11_13/0.7)_100%)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_30%,transparent_30%,rgb(11_11_13/0.55)_100%)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ink to-transparent"
-      />
+          className="story-sky-fallback absolute inset-0 -z-20"
+        />
+        {slides.map((s, i) => (
+          <Image
+            key={s.photo}
+            src={s.photo}
+            alt=""
+            fill
+            priority={i === 0}
+            sizes="100vw"
+            className={cn(
+              "-z-10 object-cover transition-opacity duration-[1400ms] ease-out motion-reduce:transition-none",
+              i === active ? "opacity-100" : "opacity-0",
+            )}
+            style={{
+              objectPosition: `${s.focal.x * 100}% ${s.focal.y * 100}%`,
+            }}
+          />
+        ))}
+        {/* Dusk grade: navy from the left for the type, darker at the foot
+            for the thumbnails; the photo stays readable on the right. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(22_16_38/0.85)_0%,rgb(22_16_38/0.55)_42%,rgb(42_31_69/0.15)_75%)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgb(22_16_38/0.55)_0%,transparent_22%,transparent_60%,rgb(22_16_38/0.9)_100%)]"
+        />
 
-      <div className="relative mx-auto flex min-h-[100svh] w-full max-w-[80rem] flex-col items-center justify-center px-5 pb-10 pt-28 text-center sm:px-8">
-        <p
-          aria-live="polite"
-          className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm backdrop-blur-md"
-        >
-          <span className="relative flex size-2">
-            {available > 0 ? (
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success-bright/70 motion-reduce:animate-none" />
-            ) : null}
-            <span
-              className={cn(
-                "relative inline-flex size-2 rounded-full",
-                available > 0 ? "bg-success-bright" : "bg-warning",
+        <div className="relative mx-auto flex min-h-[100svh] w-full max-w-[90rem] flex-col px-5 pb-8 pt-32 sm:px-8 lg:px-12 lg:pt-40">
+          <div className="max-w-[56rem]">
+            <p className="flex items-center gap-4 text-[11px] font-medium uppercase tracking-[0.32em] text-white/80">
+              <span aria-hidden className="h-px w-12 bg-white/60" />
+              {tc("fullName")}
+            </p>
+            <p
+              aria-live="polite"
+              className="mt-4 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-white/80"
+            >
+              <span
+                aria-hidden
+                className={cn(
+                  "size-2 rounded-full",
+                  available > 0 ? "bg-success-bright" : "bg-warning",
+                )}
+              />
+              {loading ? (
+                <span className="inline-block h-3 w-56 animate-pulse rounded bg-white/25" />
+              ) : (
+                t("count", { count: available, names })
               )}
+            </p>
+
+            <h1
+              id="hero-heading"
+              className="mt-7 text-[clamp(2.75rem,6.2vw,5.5rem)] font-semibold leading-[0.98] tracking-[-0.045em]"
+            >
+              <span className="block text-balance">
+                {pick(content.hero?.headline, locale)}
+              </span>
+              <span className="block text-balance font-normal text-white/60">
+                {pick(content.hero?.accent, locale)}
+              </span>
+            </h1>
+            <p className="mt-7 max-w-md text-pretty text-base leading-relaxed text-white/85 md:text-[17px]">
+              {pick(content.hero?.subtitle, locale)}
+            </p>
+
+            <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
+              <a
+                href="#pilih"
+                className="group inline-flex h-13 items-center gap-3 rounded-xl border border-white/70 px-7 text-[15px] font-medium transition-colors hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                {t("explore")}
+                <Icon
+                  name="north_east"
+                  size={17}
+                  className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transition-none"
+                />
+              </a>
+              <a
+                href={whatsappHref(ctx, locale)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackWhatsApp(ctx)}
+                className="inline-flex items-center gap-2 text-[15px] font-medium text-white/80 underline-offset-4 transition-colors hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                <Icon name="whatsapp" size={17} />
+                {t("whatsapp")}
+              </a>
+            </div>
+          </div>
+
+          {/* Slide index — desktop only, like a page counter. */}
+          {slides.length > 1 ? (
+            <div className="absolute right-8 top-1/2 hidden -translate-y-1/2 flex-col items-center gap-3 lg:flex xl:right-12">
+              {slides.map((s, i) => (
+                <button
+                  key={s.photo}
+                  type="button"
+                  onClick={() => setActive(i)}
+                  aria-label={t("slide", { n: i + 1, title: s.title })}
+                  aria-current={i === active}
+                  className={cn(
+                    "flex flex-col items-center gap-3 text-xs font-medium tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
+                    i === active
+                      ? "text-white"
+                      : "text-white/50 hover:text-white",
+                  )}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                  {i === active ? (
+                    <span aria-hidden className="h-9 w-px bg-white/80" />
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="mt-auto flex items-end gap-8 pt-14">
+            <ul className="flex gap-4 overflow-x-auto sm:gap-6">
+              {slides.map((s, i) => (
+                <li key={s.photo} className="shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setActive(i)}
+                    aria-label={t("slide", { n: i + 1, title: s.title })}
+                    aria-current={i === active}
+                    className="group block text-left focus-visible:outline-none"
+                  >
+                    <span
+                      className={cn(
+                        "relative block h-16 w-28 overflow-hidden rounded-md ring-1 transition sm:h-20 sm:w-36",
+                        i === active
+                          ? "ring-white"
+                          : "opacity-75 ring-white/10 group-hover:opacity-100 group-focus-visible:ring-white",
+                      )}
+                    >
+                      <Image
+                        src={s.photo}
+                        alt=""
+                        fill
+                        sizes="144px"
+                        className="object-cover"
+                      />
+                    </span>
+                    <span className="mt-3 block text-sm font-medium">
+                      {s.title}
+                    </span>
+                    <span className="mt-1 block text-[10px] uppercase tracking-[0.24em] text-white/60">
+                      {s.label}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <span
+              aria-hidden
+              className="mb-12 hidden h-px flex-1 bg-white/25 md:block"
             />
-          </span>
-          {loading ? (
-            <span className="inline-block h-4 w-56 animate-pulse rounded bg-white/25" />
-          ) : (
-            <span className="font-medium">
-              {t("count", { count: available, names })}
-            </span>
-          )}
-        </p>
-
-        <h1
-          id="hero-heading"
-          className="mt-7 max-w-5xl text-balance text-[clamp(2.75rem,7.2vw,6.5rem)] font-semibold leading-[0.98] tracking-[-0.045em]"
-        >
-          {pick(content.hero?.headline, locale)}{" "}
-          <span className="font-display font-normal italic tracking-[-0.015em] text-brand-line">
-            {pick(content.hero?.accent, locale)}
-          </span>
-        </h1>
-        <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-white/85">
-          {pick(content.hero?.subtitle, locale)}
-        </p>
-
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <a
-            href={whatsappHref(ctx, locale)}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackWhatsApp(ctx)}
-            className="inline-flex h-13 items-center gap-2 rounded-full bg-white px-7 py-3.5 text-[15px] font-semibold text-ink shadow-[0_18px_40px_-20px_rgb(255_255_255/0.6)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
-          >
-            <Icon name="whatsapp" size={18} />
-            {t("whatsapp")}
-          </a>
-          <a
-            href="#pilih"
-            className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-7 py-3.5 text-[15px] font-semibold backdrop-blur-md transition-colors hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            {t("explore")}
-            <Icon name="arrow_downward" size={18} />
-          </a>
+            <a
+              href="#cari"
+              className="group mb-7 hidden shrink-0 items-center gap-4 text-sm font-medium md:inline-flex"
+            >
+              {t("scroll")}
+              <span className="flex size-11 items-center justify-center rounded-full border border-white/60 transition-colors group-hover:bg-white group-hover:text-ink">
+                <Icon name="arrow_downward" size={18} />
+              </span>
+            </a>
+          </div>
         </div>
+      </section>
 
-        <div className="mt-12 w-full">
+      <section
+        id="cari"
+        aria-label={t("searchLabel")}
+        className="relative scroll-mt-16 border-t border-white/10 bg-ink text-white"
+      >
+        <div className="mx-auto w-full max-w-[90rem] px-5 py-10 sm:px-8 lg:px-12 lg:py-12">
           <SearchBar
             properties={properties}
             filters={filters}
             update={update}
             onSubmit={onSearch}
           />
+          <dl className="mt-8 grid grid-cols-2 gap-y-5 sm:grid-cols-4 sm:divide-x sm:divide-white/15">
+            {stats.map((s) => (
+              <div key={s.label} className="px-4 first:pl-0">
+                <dd className="whitespace-nowrap text-[clamp(1.25rem,2vw,1.7rem)] font-semibold tracking-tight tabular-nums">
+                  {s.value}
+                </dd>
+                <dt className="mt-1 text-xs leading-snug text-white/65">
+                  {s.label}
+                </dt>
+              </div>
+            ))}
+          </dl>
         </div>
-
-        <dl className="mt-8 grid w-full max-w-3xl grid-cols-2 gap-y-5 sm:grid-cols-4 sm:divide-x sm:divide-white/15">
-          {stats.map((s) => (
-            <div key={s.label} className="px-4">
-              <dd className="whitespace-nowrap text-[clamp(1.25rem,2vw,1.7rem)] font-semibold tracking-tight tabular-nums">
-                {s.value}
-              </dd>
-              <dt className="mt-1 text-xs leading-snug text-white/65">
-                {s.label}
-              </dt>
-            </div>
-          ))}
-        </dl>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

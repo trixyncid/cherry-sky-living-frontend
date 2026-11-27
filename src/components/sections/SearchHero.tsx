@@ -51,20 +51,17 @@ export function SearchHero({
       description={t("subtitle")}
       photo={roomPhoto}
     >
-      <div className="mx-auto flex max-w-6xl flex-col gap-4">
-        <div className="flex flex-wrap justify-center gap-2">
+      <div className="flex max-w-6xl flex-col gap-8">
+        <dl className="flex divide-x divide-white/15">
           {stats.map((stat) => (
-            <p
-              key={stat.label}
-              className="inline-flex items-baseline gap-2 rounded-full border border-white/12 bg-white/[0.08] px-4 py-2 backdrop-blur-md"
-            >
-              <span className="text-lg font-semibold tabular-nums">
+            <div key={stat.label} className="px-6 first:pl-0">
+              <dd className="text-[clamp(1.25rem,2vw,1.6rem)] font-semibold tracking-tight tabular-nums">
                 {isLoading ? "…" : stat.value}
-              </span>
-              <span className="text-sm text-white/70">{stat.label}</span>
-            </p>
+              </dd>
+              <dt className="mt-1 text-xs text-white/65">{stat.label}</dt>
+            </div>
           ))}
-        </div>
+        </dl>
         <div className="text-left text-fg">
           <HeroSearchBar
             initialFilters={initialFilters}

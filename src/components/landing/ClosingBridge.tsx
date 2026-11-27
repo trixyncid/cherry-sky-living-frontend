@@ -161,43 +161,41 @@ export function ClosingBridge({
           <div className="story-sky-fallback absolute inset-0" />
           {near && tier !== "static" ? <SkyCanvas tone={tone} /> : null}
         </div>
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(11_11_13/0.6),transparent_50%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(75deg,rgb(22_16_38/0.75),rgb(22_16_38/0.3)_50%,transparent_75%)]" />
 
         <div
           ref={copy}
-          className="absolute inset-0 flex items-center justify-center px-5 text-center"
+          className="absolute inset-0 mx-auto flex w-full max-w-[90rem] items-center px-5 sm:px-8 lg:px-12"
           style={{ opacity: 0 }}
         >
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/70">
+            <p className="eyebrow flex items-center gap-4 text-white/75">
+              <span aria-hidden className="h-px w-10 bg-white/50" />
               {t("eyebrow", { name: vm.name })}
             </p>
             <h2
               id="closing-heading"
-              className="mt-4 text-[clamp(2.2rem,4.4vw,3.8rem)] font-semibold leading-[1.03] tracking-[-0.035em]"
+              className="mt-5 text-[clamp(2.2rem,4.4vw,3.8rem)] font-semibold leading-[1] tracking-[-0.04em]"
             >
-              {t("titleLead")}{" "}
-              <span className="font-display font-normal italic">
+              <span className="block text-balance">{t("titleLead")}</span>
+              <span className="block text-balance font-normal text-white/55">
                 {t("titleAccent")}
               </span>
             </h2>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <div className="mt-9 flex flex-wrap gap-3">
               {other ? (
                 <button
                   type="button"
                   onClick={onSwitch}
-                  className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-7 text-[15px] font-semibold text-ink hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+                  className="btn btn-light"
                 >
                   {t("other", { name: other.name })}
-                  <Icon name="arrow_forward" size={18} />
+                  <Icon name="north_east" size={17} />
                 </button>
               ) : null}
-              <a
-                href="#lokasi"
-                className="inline-flex h-12 items-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 text-[15px] font-semibold backdrop-blur-md hover:bg-white hover:text-ink"
-              >
+              <a href="#lokasi" className="btn btn-outline-light">
                 {t("continue")}
-                <Icon name="arrow_downward" size={18} />
+                <Icon name="arrow_downward" size={17} />
               </a>
             </div>
           </div>

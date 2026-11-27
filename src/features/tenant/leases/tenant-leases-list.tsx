@@ -107,8 +107,8 @@ export function TenantLeasesList() {
                 href={`${BASE}/${lease.id}`}
                 className={cn(
                   panel,
-                  "group flex flex-col gap-4 p-5 transition-shadow hover:shadow-[0_18px_40px_-22px_rgb(28_11_10/0.4)]",
-                  phase === "current" && "ring-2 ring-[#e8bfb9]",
+                  "group flex flex-col gap-4 p-5 transition-colors",
+                  phase === "current" && "ring-2 ring-brand-line",
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -117,24 +117,24 @@ export function TenantLeasesList() {
                       className={cn(
                         "flex size-12 shrink-0 items-center justify-center rounded-2xl",
                         phase === "current"
-                          ? "bg-[#71130d] text-white"
-                          : "bg-[#f6f0ef] text-[#71130d]",
+                          ? "bg-brand text-white"
+                          : "bg-subtle text-brand",
                       )}
                     >
                       <Icon name="bed" size={22} />
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-lg font-medium tracking-tight text-[#141414]">
+                      <p className="truncate text-lg font-medium tracking-tight text-fg">
                         {th("roomLine", { unit: lease.unit?.name ?? "—" })}
                       </p>
-                      <p className="truncate text-sm text-[#6b6b6b]">
+                      <p className="truncate text-sm text-fg-muted">
                         {lease.unit?.property?.name ?? "—"}
                         {lease.unit?.unitType?.name
                           ? ` · ${lease.unit.unitType.name}`
                           : ""}
                       </p>
                       {(lease.occupants?.length ?? 0) > 0 ? (
-                        <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#fdf6f4] px-2 py-0.5 text-[11px] font-medium text-[#71130d]">
+                        <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-subtle px-2 py-0.5 text-xs font-medium text-brand">
                           <Icon name="group" size={12} />
                           {lease.isPrimaryTenant === false
                             ? tp("residents.sharedWithPrimary", {
@@ -147,7 +147,7 @@ export function TenantLeasesList() {
                       ) : null}
                     </div>
                   </div>
-                  <span className="shrink-0 rounded-full bg-[#f6f0ef] px-2.5 py-1 text-xs font-medium text-[#3d3a36]">
+                  <span className="shrink-0 rounded-full bg-subtle px-2.5 py-1 text-xs font-medium text-fg-2">
                     {th(`phase.${phase}`)}
                   </span>
                 </div>
@@ -156,7 +156,7 @@ export function TenantLeasesList() {
                   {lease.endDate ? (
                     <TermProgress start={lease.startDate} end={lease.endDate} />
                   ) : null}
-                  <div className="mt-1.5 flex justify-between text-sm text-[#6b6b6b]">
+                  <div className="mt-1.5 flex justify-between text-sm text-fg-muted">
                     <span>{formatDate(lease.startDate, locale)}</span>
                     <span>
                       {lease.endDate ? formatDate(lease.endDate, locale) : "—"}
@@ -164,19 +164,26 @@ export function TenantLeasesList() {
                   </div>
                 </div>
 
-                <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-[#f6f0ef] pt-3">
+                <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-subtle pt-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <LeaseStatusBadge status={lease.status} />
                     {phase === "current" && lease.endDate ? (
                       <DueChip date={lease.endDate} warnWithin={30} />
                     ) : null}
                   </div>
-                  <span className="flex items-center gap-2 text-[15px] font-medium tabular-nums text-[#141414]">
-                    {rupiah(lease.unitPricing?.price ?? lease.amountDue ?? 0)}
+                  <span className="flex items-center gap-2 text-[15px] font-medium tabular-nums text-fg">
+                    <span>
+                      {rupiah(lease.unitPricing?.price ?? lease.amountDue ?? 0)}
+                      {lease.unitPricing?.price ? (
+                        <span className="text-xs font-normal text-fg-muted">
+                          {t("perMonth")}
+                        </span>
+                      ) : null}
+                    </span>
                     <Icon
                       name="arrow_forward"
                       size={18}
-                      className="text-[#71130d] transition-transform group-hover:translate-x-0.5"
+                      className="text-brand transition-transform group-hover:translate-x-0.5"
                     />
                   </span>
                 </div>

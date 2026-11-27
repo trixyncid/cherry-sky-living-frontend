@@ -118,8 +118,9 @@ export function TenantLeaseInspection({ lease }: { lease: Lease }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#faf7f6] p-3.5">
-        <p className="min-w-0 flex-1 text-sm text-[#3d3d3d]">
+      {/* Stacked on phones so the text isn't squeezed into a narrow column. */}
+      <div className="flex flex-col items-stretch gap-3 rounded-2xl bg-subtle p-3.5 sm:flex-row sm:items-center sm:justify-between">
+        <p className="min-w-0 flex-1 text-sm text-fg-2">
           {files.length > 0
             ? tp("count", { count: files.length })
             : tp("prompt")}
@@ -128,7 +129,7 @@ export function TenantLeaseInspection({ lease }: { lease: Lease }) {
           type="button"
           disabled={busy}
           onClick={() => inputRef.current?.click()}
-          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-[#71130d] px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+          className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-md bg-brand px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
         >
           <Icon
             name={busy ? "progress_activity" : "add_a_photo"}
@@ -172,7 +173,7 @@ export function TenantLeaseInspection({ lease }: { lease: Lease }) {
         />
       ) : null}
 
-      <p className="flex items-start gap-1.5 text-xs leading-relaxed text-[#6b6b6b]">
+      <p className="flex items-start gap-1.5 text-xs leading-relaxed text-fg-muted">
         <Icon name="info" size={14} className="mt-0.5 shrink-0" />
         {tp("rules")}
       </p>

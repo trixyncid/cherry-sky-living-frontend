@@ -434,6 +434,7 @@
     "almostFull": "Almost Full"
   },
   "pricing": {
+    "minStayWeek": "Minimum stay 1 week",
     "perMonth": "/month",
     "packages": "Price packages",
     "popular": "Popular",
@@ -671,25 +672,40 @@
     "generalInquiry": "Hi there 👋 I'm looking for a room. Could you share which rooms are available and the prices? Thanks! 🙏",
     "visitSchedule": "Hi there 👋 I'd love to drop by {propertyName} to see the rooms. When would be a good time? Thanks! 🙏",
     "inquiryDialog": {
-      "title": "Inquire via WhatsApp",
-      "description": "Please complete your details below. WhatsApp will open with a prepared inquiry for our team, and we keep a copy of your request so we can follow up.",
+      "title": "Ask about this room",
+      "description": "Leave your name and WhatsApp number and our team will answer personally. Everything else is optional.",
       "name": "Full name",
       "namePlaceholder": "Your full name",
-      "phone": "Contact number",
-      "phonePlaceholder": "e.g. 081269175252",
+      "phone": "WhatsApp number",
+      "phonePlaceholder": "e.g. 0812 3456 7890",
       "visitDate": "Visit date",
       "visitDatePlaceholder": "Pick a date",
       "visitTime": "Visit time",
       "visitTimePlaceholder": "Pick a time",
-      "visitHint": "Visits Monday–Saturday, 08:00–17:00 WIB. Our team will confirm on WhatsApp.",
+      "visitHint": "Pick a slot and we'll confirm on WhatsApp. Viewings Monday–Saturday, 08:00–17:00 WIB.",
       "checkInDate": "Preferred move-in date",
       "checkInDatePlaceholder": "Select move-in date",
-      "depositNote": "Please note: a deposit of {amount} is required to proceed with a lease. Payment details will be confirmed by our team after the terms have been agreed.",
-      "submit": "Continue to WhatsApp",
+      "depositNote": "A refundable deposit of {amount} applies if you decide to rent. We'll walk you through the details before anything is paid.",
+      "submit": "Send my question on WhatsApp",
       "required": "This field is required",
-      "invalidPhone": "Please enter a valid phone number",
+      "invalidPhone": "Enter a valid Indonesian mobile number (e.g. 0812…)",
       "invalidVisitDate": "Pick a Monday–Saturday from today onwards",
-      "bookingMessage": "Hi there 👋 I'm {name} and I'm interested in the {roomType} at {propertyName}.\n\n📅 I'd like to visit: {visitDay} at {visitTime} WIB\n🔑 Planning to move in: {checkInDate}\n📱 My number: {phone}\n\n{hasDeposit, select, yes {I've noted the {deposit} deposit too. } other {}}Looking forward to hearing from you, thanks! 🙏"
+      "optional": "(optional)",
+      "question": "What would you like to know?",
+      "questionPlaceholder": "e.g. Is the room still available next month? Is parking included?",
+      "visitTitle": "Want to see it in person?",
+      "visitDateNeeded": "Pick a date for the time you chose",
+      "visitTimeNeeded": "Pick a time for this date",
+      "submitNote": "WhatsApp opens with your message ready. Nothing is sent until you press send.",
+      "message": {
+        "intro": "Hi there 👋 I'm {name}, and I'm interested in the {roomType} at {propertyName}.",
+        "defaultQuestion": "Could you tell me more about this room?",
+        "visit": "📅 I'd like to view it: {visitDay} at {visitTime} WIB",
+        "moveIn": "🔑 Planning to move in: {date}",
+        "phone": "📱 My number: {phone}",
+        "deposit": "💳 I've noted the {deposit} deposit.",
+        "closing": "Looking forward to hearing from you, thanks! 🙏"
+      }
     },
     "roomViewing": "Hi there 👋 I'd love to see the {roomType} at {propertyName}. When would be a good time? Thanks! 🙏",
     "waitlist": "Hi there 👋 Looks like the {roomType} at {propertyName} is full right now. Could you let me know when one opens up? Thanks! 🙏",
@@ -1139,7 +1155,7 @@
   "admin": {
     "brand": {
       "name": "Cherry Sky Living",
-      "suite": "Admin Suite"
+      "suite": "Management panel"
     },
     "dateRangePicker": {
       "selected": "Selected range",
@@ -1172,31 +1188,32 @@
       "closeMenu": "Close menu"
     },
     "nav": {
-      "overview": "Dashboard",
-      "properties": "Properties",
-      "unitTypes": "Unit types",
-      "units": "Units",
+      "overview": "Home",
+      "properties": "Buildings",
+      "unitTypes": "Room types",
+      "units": "Rooms",
       "vacantSearch": "Vacant rooms",
       "leases": "Leases",
-      "leaseRenewals": "Lease renewals",
+      "leaseRenewals": "Renewals",
       "leaseRenewalsPending": "{count} renewal requests awaiting review",
       "users": "Tenants",
       "staff": "Staff",
       "pricing": "Pricing",
-      "bookkeeping": "Bookkeeping",
+      "bookkeeping": "Bank account",
       "signOut": "Logout",
       "collapseSidebar": "Collapse sidebar",
       "expandSidebar": "Expand sidebar",
       "groups": {
         "main": "Main",
-        "inventory": "Inventory",
-        "operations": "Operations",
-        "finance": "Finance"
+        "inventory": "Rooms & buildings",
+        "operations": "Leases & tenants",
+        "finance": "Finance",
+        "settings": "Settings"
       },
       "shortcuts": "Shortcuts",
       "pettyCash": "Petty cash",
       "toProcess": "{count} to process",
-      "activity": "Activity"
+      "activity": "Change history"
     },
     "header": {
       "notifications": "Notifications",
@@ -1212,18 +1229,18 @@
     "table": {
       "unitProperty": "Unit / Property",
       "rentAmount": "Rent Amount (IDR)",
-      "showing": "Showing {start} to {end} of {total} entries",
+      "showing": "{start}–{end} of {total}",
       "show": "Show",
-      "entries": "entries",
+      "entries": "per page",
       "pageSize": "Entries per page",
       "previous": "Previous page",
       "next": "Next page"
     },
     "login": {
       "title": "Sign in",
-      "subtitle": "Manage your properties with the admin suite",
+      "subtitle": "Sign in to manage your properties",
       "emailLabel": "Email Address",
-      "emailPlaceholder": "admin@skykost.com",
+      "emailPlaceholder": "e.g. name@email.com",
       "passwordLabel": "Password",
       "showPassword": "Show password",
       "hidePassword": "Hide password",
@@ -1270,7 +1287,7 @@
       "backToList": "Back to list",
       "cancel": "Cancel",
       "deleteTitle": "Delete record?",
-      "deleteDescription": "This will permanently delete \"{name}\". This action cannot be undone.",
+      "deleteDescription": "“{name}” will be deleted for good. This can’t be undone.",
       "deleteConfirm": "Delete",
       "deleting": "Deleting…",
       "confirmDelete": "Delete \"{name}\"?",
@@ -1281,8 +1298,8 @@
       "address": "Address",
       "city": "City",
       "property": "Property",
-      "unitType": "Unit type",
-      "unit": "Unit",
+      "unitType": "Room type",
+      "unit": "Room",
       "tenant": "Tenant",
       "status": "Status",
       "size": "Size (m²)",
@@ -1296,11 +1313,11 @@
       "period": "Period",
       "actions": "Actions",
       "allProperties": "All properties",
-      "allUnitTypes": "All unit types",
+      "allUnitTypes": "All room types",
       "selectProperty": "Select property",
       "selectPropertyFirst": "Select a property first",
-      "selectUnitType": "Select unit type",
-      "selectUnit": "Select unit",
+      "selectUnitType": "Select room type",
+      "selectUnit": "Select room",
       "selectPricing": "Select pricing package",
       "propertyRequired": "Property is required.",
       "startDate": "Start date",
@@ -1317,7 +1334,23 @@
       "sortBy": "Sorted by {column}, {direction}",
       "sortAscending": "ascending",
       "sortDescending": "descending",
-      "sortByColumn": "Sort by {column}"
+      "sortByColumn": "Sort by {column}",
+      "deleteTitleNamed": "Delete {name}?",
+      "deleteTypeName": "Type “{name}” to continue",
+      "addProperty": "Add building",
+      "addUnitType": "Add room type",
+      "addUnit": "Add room",
+      "addLease": "New lease",
+      "addTenant": "Add tenant",
+      "addStaff": "Add staff",
+      "searchUnitTypes": "Search room type name…",
+      "searchUnits": "Search room number or type…",
+      "searchBookkeeping": "Search description or category…",
+      "searchRenewals": "Search tenant or room…",
+      "searchProperties": "Search building name or address…",
+      "searchLeases": "Search tenant name or room number…",
+      "dangerTitle": "Delete",
+      "optional": "optional"
     },
     "attachments": {
       "column": "Images",
@@ -1537,7 +1570,7 @@
           "nothing": "All clear. Nothing needs your attention.",
           "leases": "Leases",
           "statusAll": "All",
-          "statusPaid": "Paid",
+          "statusPaid": "On track",
           "statusUnpaid": "Unpaid",
           "statusReview": "Awaiting review",
           "colLease": "Lease",
@@ -1549,11 +1582,12 @@
           "colStatus": "Status",
           "noLeases": "No leases in this view.",
           "quickActions": "Quick actions",
-          "greeting": "{greeting}, {name}"
+          "greeting": "{greeting}, {name}",
+          "deadlinePassed": "Confirmation deadline passed ({date})"
         }
       },
       "properties": {
-        "title": "Properties",
+        "title": "Buildings",
         "description": "Manage kost buildings.",
         "formDescription": "Add the building details first. After you save, you can choose listing photos on the same page.",
         "editDescription": "Update the building details, or choose photos and click Upload. Photo upload is separate from Save details.",
@@ -1584,10 +1618,11 @@
         "paymentRulesRequired": "Fill in the payment due day, late fee per day and renewal reminder. Enter 0 for no late fee.",
         "deposit": "Deposit",
         "depositPlaceholder": "e.g. Rp. 300.000",
-        "depositHint": "Refundable deposit shown on the website. Leave blank to hide it."
+        "depositHint": "Refundable deposit shown on the website. Leave blank to hide it.",
+        "deleteConsequence": "Everything inside goes with it: {units} rooms and {types} room types with their prices."
       },
       "unitTypes": {
-        "title": "Unit types",
+        "title": "Room types",
         "description": "Manage room categories for one property at a time. Use All properties only to audit across kosts.",
         "allPropertiesInventory": "All properties (inventory)",
         "emptyScoped": "No unit types for this property yet. Add one to define room categories.",
@@ -1611,8 +1646,8 @@
         "imageRequired": "Please choose an image file first."
       },
       "units": {
-        "title": "Units",
-        "description": "See every building in 3D, peek into each floor, and check which rooms are vacant for a date range.",
+        "title": "Rooms",
+        "description": "See which rooms are empty and which are taken.",
         "searchPlaceholder": "Search by unit, type, or property…",
         "empty": "No units found.",
         "formDescription": "Add or update a rentable unit.",
@@ -1624,8 +1659,8 @@
         "saveDetails": "Save details",
         "sizeRequired": "Enter a valid size in square meters.",
         "viewMode": "View mode",
-        "mapView": "Building",
-        "tableView": "Table",
+        "mapView": "3D view",
+        "tableView": "List",
         "legend": "Status",
         "occupancy": "Occupancy",
         "floorLabel": "Floor {floor}",
@@ -1651,7 +1686,7 @@
           "toggle": "Check availability",
           "filters": "Availability period",
           "dateRange": "Date range",
-          "dateRangePlaceholder": "Select start and end dates",
+          "dateRangePlaceholder": "Check empty on dates…",
           "endDate": "End date",
           "search": "Search",
           "clear": "Clear",
@@ -1692,7 +1727,17 @@
           "clickForDetails": "Click for room details",
           "available": "Green rooms are free for your dates",
           "core": "Lift & stairs"
-        }
+        },
+        "statusAuto": "Updates automatically from leases: occupied while a lease is active.",
+        "statusFilter": {
+          "label": "Status",
+          "all": "All rooms",
+          "vacant": "Empty only",
+          "occupied": "Occupied only"
+        },
+        "roomNumber": "Room number",
+        "roomNumberPlaceholder": "e.g. 305",
+        "roomNumberHint": "The first digit is the floor (305 → floor 3)."
       },
       "users": {
         "title": "Tenants",
@@ -1724,7 +1769,7 @@
         "deactivateSuccess": "Tenant deactivated.",
         "joined": "Joined",
         "password": "Password",
-        "passwordHint": "Minimum 8 characters. The tenant will use this to sign in.",
+        "passwordHint": "At least 8 letters or digits. After saving you can send it to the tenant on WhatsApp.",
         "showPassword": "Show password",
         "hidePassword": "Hide password",
         "validation": {
@@ -1755,7 +1800,48 @@
         "detailNotFound": "Tenant not found.",
         "leaseCount": "Leases",
         "leasesSection": "Lease history",
-        "leasesEmpty": "This tenant has no leases yet."
+        "leasesEmpty": "This tenant has no leases yet.",
+        "generatePassword": "Generate a password",
+        "identity": {
+          "title": "ID / passport",
+          "status": {
+            "missing": "Not uploaded",
+            "pending": "Needs checking",
+            "checked": "Checked",
+            "rejected": "Waiting for new photo"
+          },
+          "missingHint": "The tenant hasn’t uploaded yet. They’re reminded in the tenant app.",
+          "types": {
+            "ktp": "KTP (ID card)",
+            "passport": "Passport"
+          },
+          "uploadedOn": "uploaded {date}",
+          "askedReason": "New photo requested: {reason}",
+          "reasonLabel": "Why is a new photo needed?",
+          "reasonPlaceholder": "e.g. Blurry photo, number unreadable",
+          "sendRequest": "Send to tenant",
+          "cancel": "Cancel",
+          "markChecked": "Mark as checked",
+          "askNew": "Ask for a new photo",
+          "checkedDone": "ID marked as checked.",
+          "rejectedDone": "New photo request sent to the tenant.",
+          "reviewFailed": "Couldn’t save. Try again.",
+          "chip": {
+            "missing": "No ID yet",
+            "pending": "ID needs checking",
+            "rejected": "Waiting for new ID photo"
+          }
+        },
+        "paymentRecord": {
+          "title": "Payment record",
+          "none": "No bills due yet.",
+          "bills": "Bills",
+          "late": "Late",
+          "waived": "Fees waived",
+          "summaryGood": "Always paid on time.",
+          "summaryLate": "Paid late on {late} of {bills} bills.",
+          "summaryWaived": "Paid late on {late} of {bills} bills. Late fees waived: {amount}."
+        }
       },
       "staff": {
         "title": "Staff",
@@ -1775,7 +1861,7 @@
         "you": "you",
         "roles": {
           "admin": "Admin",
-          "superadmin": "Superadmin"
+          "superadmin": "Owner"
         },
         "roleHint": "Only superadmin accounts can assign the superadmin role.",
         "password": "Password",
@@ -1793,7 +1879,7 @@
         "statusActive": "Active",
         "statusInactive": "Inactive",
         "activate": "Activate",
-        "deactivate": "Deactivate",
+        "deactivate": "Deactivate (can’t sign in)",
         "activateTitle": "Activate staff account?",
         "deactivateTitle": "Deactivate staff account?",
         "activateDescription": "\"{name}\" will be able to sign in to the admin portal again.",
@@ -1804,7 +1890,7 @@
         "deleteBlocked": "This staff account has created or updated records and cannot be deleted. Deactivate the account instead.",
         "deleteLastSuperadminBlocked": "Cannot delete the last superadmin account.",
         "deleteSelfBlocked": "You cannot delete your own account.",
-        "resetPassword": "Reset password",
+        "resetPassword": "New password",
         "resetTitle": "Reset staff password?",
         "resetDescription": "This will generate a new temporary password for \"{name}\" and sign them out of all active sessions.",
         "resetConfirm": "Reset password",
@@ -1816,7 +1902,15 @@
         "temporaryPassword": "Temporary password",
         "copyPassword": "Copy password",
         "copied": "Copied!",
-        "done": "Done"
+        "done": "Done",
+        "lastSuperadminRole": "There must be at least one owner (superadmin). Make someone else an owner first.",
+        "deleteAccount": "Delete account",
+        "ownRoleHint": "You can’t change your own role.",
+        "generatePassword": "Generate a password",
+        "accountTitle": "Account",
+        "deactivateAsk": "They won’t be able to sign in. Sure?",
+        "activateAsk": "Let them sign in again?",
+        "deleteHint": "Delete accounts of staff who no longer work here. For a break, just deactivate."
       },
       "leases": {
         "title": "Lease Agreements",
@@ -1827,7 +1921,7 @@
         "to": "to",
         "expiring": "Expiring",
         "formDescription": "Create or update a tenant lease agreement.",
-        "editDescription": "Update the lease period and pricing. Payment status uses Confirm / Reject actions. Documents upload separately.",
+        "editDescription": "Change dates, price or roommates. Payments are recorded under Payment schedule below.",
         "partiesTitle": "People & room",
         "partiesHint": "Who is renting, and which room.",
         "termsTitle": "Lease terms",
@@ -1836,7 +1930,7 @@
         "photosHint": "Files upload as soon as you add them. Set the type on each file before it uploads.",
         "photosHintCreate": "Add the agreement or downpayment proof now — they upload when you create the lease. Rent receipts go on the bills under Payment schedule.",
         "createdStayToUpload": "Lease created.",
-        "saveDetails": "Save details",
+        "saveDetails": "Save lease changes",
         "saveAndAddPhotos": "Create lease",
         "unitPrefillHint": "Creating a lease for {unit} at {property}. Choose the tenant and pricing package below.",
         "addNewTenant": "Add new tenant",
@@ -1864,12 +1958,12 @@
         "endDate": "End date",
         "leasePeriod": "Lease period",
         "leasePeriodPlaceholder": "Select start and end dates",
-        "leasePeriodHint": "Pick a start date, then an end month. The end date always snaps to month-end. Partial first months use the daily rate.",
+        "leasePeriodHint": "Pick the move-in date and the last night of the stay. Full months use the monthly price. Days left over at the start or end use the daily price.",
         "periodStart": "Move-in",
-        "periodEnd": "Move-out",
+        "periodEnd": "Last night",
         "periodStartHint": "Any calendar day",
-        "periodEndHint": "Snaps to month-end",
-        "durationPresets": "Quick length",
+        "periodEndHint": "The last night the tenant sleeps in the room",
+        "durationPresets": "Length",
         "durationMonths": "{count, plural, one {# month} other {# months}}",
         "amountPreview": "Amount preview",
         "receiptBadge": "Lease invoice",
@@ -1888,7 +1982,7 @@
         "receiptBreakdownTitle": "Payment calculation details",
         "receiptDailyNotUsed": "Not used (full months only)",
         "receiptFooter": "Totals update as you change dates or pricing. Final amount is saved with the lease.",
-        "amountDue": "Amount due",
+        "amountDue": "Total lease value",
         "monthlyRate": "Monthly rate",
         "stubDays": "Start stub days",
         "startStubSubtotal": "Start partial rent",
@@ -2016,7 +2110,7 @@
           "empty": "This lease has no bills yet.",
           "dialog": {
             "title": "Record payment",
-            "description": "Confirm the selected bills as paid. Rent and late fees are added to Bookkeeping.",
+            "description": "Confirm the selected bills as paid. Rent and late fees are recorded automatically in Bank account, or Petty cash if paid in cash.",
             "rent": "Rent",
             "lateFees": "Late fees",
             "total": "Total received",
@@ -2039,11 +2133,14 @@
           },
           "waiveDialog": {
             "title": "Waive the late fee on bill {n}?",
-            "body": "The tenant won't be charged a late fee for this bill. If it's already paid, the late fee is removed from Bookkeeping.",
+            "body": "The tenant won’t have to pay this bill’s late fee. The fee amount and days late stay on the tenant’s payment record.",
             "reason": "Reason (optional)",
             "confirm": "Waive late fee"
           },
-          "recordPayment": "Record payment"
+          "recordPayment": "Record payment",
+          "cycleCurrent": "Payment plan: {cycle}.",
+          "cycleChange": "Change",
+          "feeWaivedDetail": "Late fee {amount} ({days} days) waived"
         },
         "discount": {
           "label": "Discount",
@@ -2086,7 +2183,12 @@
           "sharedWith": "Shared with {names}",
           "roommateOf": "Roommate of {name}"
         },
-        "kindInspection": "Unit inspection"
+        "kindInspection": "Unit inspection",
+        "paidLocked": "This lease is paid, so dates and price are locked.",
+        "paidUnlocked": "Unlocked: dates and price can be changed.",
+        "unlock": "Unlock",
+        "relock": "Lock again",
+        "deleteHint": "Delete this lease only if it was entered by mistake."
       },
       "leaseRenewals": {
         "title": "Lease renewals",
@@ -2114,7 +2216,7 @@
           "requested": "Renewal requests",
           "requestedHint": "Tenants who want to renew",
           "pendingConfirmation": "Awaiting confirmation",
-          "pendingHint": "Needs admin approval",
+          "pendingHint": "Tenant wants to renew",
           "confirmed": "Ready for new lease",
           "confirmedHint": "Confirmed, lease not yet created",
           "completed": "Completed",
@@ -2125,7 +2227,14 @@
           "pending_confirmation": "Awaiting confirmation",
           "confirmed": "Confirmed",
           "completed": "Completed"
-        }
+        },
+        "confirmDialog": {
+          "title": "Confirm this renewal?",
+          "description": "The renewal for {name} – room {unit} will be confirmed. You can then create the new lease.",
+          "cancel": "Cancel",
+          "confirm": "Yes, confirm"
+        },
+        "showMore": "Show {count} more"
       },
       "pricing": {
         "title": "Pricing",
@@ -2151,7 +2260,7 @@
       "profile": {
         "title": "My profile",
         "description": "Update your account name and password.",
-        "emailReadOnly": "Email cannot be changed here. Ask a superadmin to update it in Staff.",
+        "emailReadOnly": "Ask an owner to change your email.",
         "memberSince": "Member since",
         "accountSection": "Account details",
         "passwordSection": "Change password",
@@ -2174,11 +2283,12 @@
           "newPasswordMin": "New password must be at least 8 characters",
           "confirmPasswordRequired": "Please confirm your new password",
           "passwordsMismatch": "Passwords do not match"
-        }
+        },
+        "emailReadOnlyOwner": "Change your email from the Staff page."
       },
       "bookkeeping": {
-        "title": "Bookkeeping",
-        "description": "Track income and expenses across your properties.",
+        "title": "Bank account",
+        "description": "Money in and out through the bank account (transfers). For cash, use Petty cash.",
         "formDescription": "Record a financial transaction.",
         "editDescription": "Update the entry, or add receipt photos and click Upload.",
         "detailsTitle": "Entry details",
@@ -2202,7 +2312,7 @@
         "categoryNone": "Uncategorized",
         "amount": "Amount (IDR)",
         "amountRequired": "Enter a valid amount greater than zero.",
-        "noProperty": "All properties",
+        "noProperty": "General (not for one property)",
         "leasesLoadFailed": "Failed to load leases for rent income.",
         "leaseIncomeDescription": "Rent {unit} - {property}",
         "fromLease": "From lease",
@@ -2217,7 +2327,8 @@
           "net": "Net balance",
           "netHint": "Income minus expenses",
           "profit": "Profit",
-          "loss": "Loss"
+          "loss": "Loss",
+          "noExpenseYet": "No spending recorded yet"
         },
         "categories": {
           "rent": "Rent",
@@ -2231,7 +2342,12 @@
           "supplies": "Supplies",
           "tax": "Tax & fees",
           "other_expense": "Other expense"
-        }
+        },
+        "lockedBill": "This entry was created automatically from a paid rent bill, so it can’t be changed here. Change it from the lease page.",
+        "allCategories": "All categories",
+        "generalShort": "General",
+        "savedEntry": "Entry saved.",
+        "deleteHint": "Delete this entry if it was recorded by mistake."
       },
       "inventory": {
         "portfolio": "Portfolio",
@@ -2294,14 +2410,14 @@
         "endingSoon": "Ending in 30 days",
         "colUnpaid": "Unpaid",
         "colReview": "Awaiting review",
-        "colPaid": "Paid",
+        "colPaid": "On track",
         "emptyColumn": "Nothing here right now.",
         "showAll": "Show all {count}",
         "showLess": "Show less",
         "daysLate": "{count, plural, one {# day late} other {# days late}}",
         "proofAttached": "Payment proof attached",
         "noProof": "No payment proof yet",
-        "renewalAsked": "Renewal requested",
+        "renewalAsked": "Wants to renew",
         "reject": "Reject",
         "openLease": "Open lease",
         "bucket": {
@@ -2331,8 +2447,8 @@
         "superadminOnly": "Only a superadmin can change staff accounts."
       },
       "ledger": {
-        "addIncome": "Income",
-        "addExpense": "Expense",
+        "addIncome": "Record money in",
+        "addExpense": "Record money out",
         "netResult": "Net result",
         "allTime": "All time",
         "byMonth": "Cash flow by month",
@@ -2343,7 +2459,7 @@
       },
       "pettyCash": {
         "title": "Petty cash",
-        "description": "Cash kept at each property, separate from the bank ledger. Top it up, record cash spending with a receipt, and count it regularly.",
+        "description": "Cash kept at each property. Record every bit of cash coming in or going out, and count it regularly.",
         "balance": "Cash in the box",
         "totalBalance": "All petty cash",
         "lastCounted": "Last counted {date}",
@@ -2354,24 +2470,24 @@
         "moneyOut": "Money out",
         "periodHint": "For the selected dates",
         "actions": {
-          "expense": "Cash expense",
-          "top_up": "Top up",
-          "cash_in": "Cash in",
-          "return_to_bank": "Return to bank",
-          "count": "Count cash"
+          "expense": "Record cash spending",
+          "top_up": "Take from bank",
+          "cash_in": "Receive cash",
+          "return_to_bank": "Deposit to bank",
+          "count": "Count the cash"
         },
         "types": {
-          "top_up": "Top-up",
-          "expense": "Expense",
-          "cash_in": "Cash in",
-          "return_to_bank": "Return to bank",
-          "adjustment": "Cash count"
+          "top_up": "Taken from bank",
+          "expense": "Cash spending",
+          "cash_in": "Cash received",
+          "return_to_bank": "Deposited to bank",
+          "adjustment": "Count adjustment"
         },
         "typeHints": {
-          "top_up": "Cash added to the box, e.g. withdrawn from the bank.",
+          "top_up": "Cash taken from the bank into the drawer. Also record it as money out in Bank account.",
           "expense": "Cash spent — add a photo of the receipt.",
           "cash_in": "Cash received, e.g. a tenant paying in cash.",
-          "return_to_bank": "Cash taken from the box and deposited at the bank."
+          "return_to_bank": "Cash from the drawer deposited to the bank. Also record it as money in under Bank account."
         },
         "columns": {
           "date": "Date",
@@ -2384,18 +2500,19 @@
         "voidReason": "Reason: {reason}",
         "showVoided": "Show voided",
         "empty": "No cash movements yet.",
-        "emptyHint": "Start by recording how much cash is in the box with a top-up.",
+        "emptyHint": "Start by counting the cash in the drawer right now.",
         "filterType": "Type",
         "allTypes": "All types",
         "edit": "Edit",
-        "void": "Void",
+        "void": "Cross out",
         "receipt": "Receipt",
         "voidDialog": {
-          "title": "Void this entry?",
-          "body": "It stays in the history, crossed out, and stops counting towards the balance.",
+          "title": "Cross out this entry?",
+          "body": "It stays visible in the history (crossed out) but no longer counts toward the balance.",
           "reason": "Reason (optional)",
-          "confirm": "Void entry",
-          "done": "Entry voided"
+          "confirm": "Yes, cross it out",
+          "done": "Entry crossed out",
+          "back": "Go back"
         },
         "countDialog": {
           "title": "Count the cash",
@@ -2434,10 +2551,15 @@
           "lockedBill": "This entry comes from a bill paid in cash. Change it from the lease's payment schedule.",
           "lockedCount": "A cash count can't be edited. Void it and count again.",
           "voidedNotice": "This entry was voided and no longer counts."
-        }
+        },
+        "emptyBalance": "Empty",
+        "countNow": "Count the cash now",
+        "balanceAfter": "Left: {amount}",
+        "periodAll": "All dates",
+        "searchPlaceholder": "Search description…"
       },
       "activity": {
-        "title": "Activity log",
+        "title": "Change history",
         "description": "Every change made in the admin portal: who did it, what, and when. Only superadmins can see this.",
         "empty": "No activity recorded yet.",
         "loadMore": "Load more",
@@ -2447,33 +2569,72 @@
         "unknownActor": "Unknown user",
         "record": "Record {id}",
         "verbs": {
-          "POST": "Created / action",
-          "PUT": "Updated",
-          "PATCH": "Updated",
+          "POST": "Added",
+          "PUT": "Changed",
+          "PATCH": "Changed",
           "DELETE": "Deleted",
-          "PROFILE": "Profile"
-        }
+          "PROFILE": "Updated profile",
+          "confirm": "Confirmed",
+          "reject": "Rejected",
+          "void": "Crossed out",
+          "active": "Activated/deactivated",
+          "reset-password": "Made a new password for",
+          "submit-for-review": "Sent for checking",
+          "late-fee-waiver": "Waived late fee on",
+          "pending": "Reopened",
+          "renewal": "Processed renewal on",
+          "billing": "Changed payment plan of",
+          "occupants": "Changed roommates on",
+          "packages": "Changed prices",
+          "identity": "Reviewed ID of"
+        },
+        "things": {
+          "leases": "lease",
+          "lease": "lease",
+          "invoices": "bill",
+          "units": "room",
+          "unit-types": "room type",
+          "unit-type": "room type",
+          "properties": "building",
+          "property": "building",
+          "users": "tenant",
+          "staff": "staff account",
+          "ledger-entries": "bank entry",
+          "ledger-entry": "bank entry",
+          "petty-cash": "petty cash entry",
+          "unit-pricings": "price",
+          "attachments": "file",
+          "lease-downpayment": "down payment",
+          "leads": "lead",
+          "jobs": "scheduled job"
+        },
+        "roles": {
+          "superadmin": "Owner",
+          "admin": "Staff"
+        },
+        "today": "Today",
+        "yesterday": "Yesterday"
       }
     },
     "mobile": {
       "home": "Home",
       "leases": "Leases",
-      "units": "Units",
+      "units": "Rooms",
       "more": "More",
-      "create": "Create",
+      "create": "Add new",
       "createTitle": "Create new",
       "createHint": "What would you like to add?",
       "menuTitle": "Menu",
       "actions": {
         "newLease": "New lease",
-        "recordIncome": "Record income",
-        "recordExpense": "Record expense",
+        "recordIncome": "Record money in (bank)",
+        "recordExpense": "Record money out (bank)",
         "addTenant": "Add tenant",
-        "addUnit": "Add unit",
+        "addUnit": "Add room",
         "setPricing": "Set pricing",
         "addUnitType": "Add room type",
-        "addProperty": "Add property",
-        "cashExpense": "Cash expense"
+        "addProperty": "Add building",
+        "cashExpense": "Record cash spending"
       }
     },
     "form": {
@@ -2562,8 +2723,19 @@
         "renewalLeases": "Renewals to finish"
       },
       "paymentDetail": "Bill {n} · {amount} · receipt sent",
-      "renewalDetail": "Wants to renew — approve or decline",
+      "renewalDetail": "Wants to renew — needs your confirmation",
       "renewalLeaseDetail": "Approved — create the new lease"
+    },
+    "accountCreated": {
+      "title": "{name}’s account is ready",
+      "description": "Give these sign-in details to the person. The password is only shown here once.",
+      "login": "Sign in with",
+      "password": "Password",
+      "copy": "Copy",
+      "copied": "Copied",
+      "whatsapp": "Send via WhatsApp",
+      "done": "Done",
+      "message": "Hi {name}, your Cherry Sky account is ready.\nSign in with: {login}\nPassword: {password}\nPlease change the password after signing in."
     }
   },
   "tenant": {
@@ -2648,7 +2820,8 @@
       "email": "Email",
       "days": "days",
       "save": "Save changes",
-      "saving": "Saving…"
+      "saving": "Saving…",
+      "perMonth": "/month"
     },
     "pages": {
       "leases": {
@@ -2658,7 +2831,7 @@
         "empty": "You have no leases yet.",
         "to": "to",
         "startDate": "Start date",
-        "endDate": "End date",
+        "endDate": "Last night",
         "duration": "Duration",
         "address": "Address",
         "city": "City",
@@ -2706,9 +2879,10 @@
           "statusUnpaid": "Unpaid",
           "statusReview": "Being checked",
           "feeWaived": "late fee waived",
-          "lateFee": "late fee Rp {amount}",
-          "nextBill": "Next payment: Rp {amount}, due {date}.",
-          "discount": "Discount −{amount}"
+          "lateFee": "late fee {amount}",
+          "nextBill": "Next payment: {amount}, due {date}.",
+          "discount": "Discount −{amount}",
+          "feeWaivedDetail": "late fee {amount} ({days} days late) waived"
         },
         "renewal": {
           "promptTitle": "Would you like to renew your lease?",
@@ -2727,7 +2901,8 @@
           "requestedTitle": "Renewal request submitted",
           "requestedDescription": "We're reviewing your request to renew. You'll hear back before {deadline}.",
           "confirmedTitle": "Renewal confirmed",
-          "confirmedDescription": "Your renewal has been approved. A new lease will be prepared for you soon."
+          "confirmedDescription": "Your renewal has been approved. A new lease will be prepared for you soon.",
+          "requestedDescriptionLate": "We're reviewing your renewal request. The manager will contact you soon."
         },
         "residents": {
           "title": "Who lives here",
@@ -2877,6 +3052,37 @@
       "leases": "Leases",
       "renewals": "Renewals",
       "profile": "Profile"
+    },
+    "identity": {
+      "title": "ID card or passport",
+      "hint": "Everyone living in the room needs to upload a photo of their ID. Only the property manager can see it.",
+      "status": {
+        "missing": "Not uploaded",
+        "pending": "Waiting for check",
+        "checked": "Checked",
+        "rejected": "New photo needed"
+      },
+      "rejectedTitle": "The manager asked for a new photo:",
+      "types": {
+        "ktp": "KTP (ID card)",
+        "passport": "Passport"
+      },
+      "view": "Tap to view",
+      "whichType": "ID type",
+      "tipWhole": "The whole card or photo page is visible",
+      "tipClear": "Text is sharp, not blurry",
+      "tipGlare": "No glare from lights",
+      "uploading": "Uploading…",
+      "upload": "Photo of {type}",
+      "replace": "Replace {type} photo",
+      "replaceChecked": "Replace ID photo",
+      "privacy": "Take a photo with your camera or pick one from your gallery. Stored privately.",
+      "uploaded": "Photo sent. The manager will check it.",
+      "uploadFailed": "Upload failed. Please try again.",
+      "reminderTitle": "Upload your ID card or passport",
+      "reminderBody": "The manager needs an ID photo for everyone in the room. It takes a minute.",
+      "reminderRejectedTitle": "Your ID photo needs replacing",
+      "reminderRejectedBody": "The manager asked for a new photo. Tap to see why."
     }
   },
   "leads": {
@@ -2884,15 +3090,15 @@
     "namePlaceholder": "Full name",
     "phone": "WhatsApp number",
     "phonePlaceholder": "e.g. 0812 3456 7890",
-    "moreDetails": "Add details (optional)",
+    "moreDetails": "Add a question or details (optional)",
     "property": "Preferred residence",
     "anyProperty": "Any residence",
     "moveIn": "Preferred move-in date",
     "moveInPlaceholder": "Pick a date",
     "budget": "Monthly budget (Rp)",
     "budgetPlaceholder": "e.g. 2000000",
-    "message": "Message",
-    "messagePlaceholder": "Anything we should know?",
+    "message": "Your question",
+    "messagePlaceholder": "e.g. Which rooms are free next month? Is parking available?",
     "consent": "Sending opens WhatsApp with your message ready — nothing is sent until you press send there.",
     "privacy": "Privacy policy",
     "submit": {
@@ -2922,7 +3128,12 @@
       "title": "Ask us anything",
       "description": "Leave your number and we'll get back to you on WhatsApp."
     },
-    "orWhatsApp": "Prefer to chat right now?"
+    "orWhatsApp": "Prefer to chat right now?",
+    "perks": {
+      "free": "Free viewing",
+      "noCommitment": "No commitment",
+      "fastReply": "Personal reply on WhatsApp"
+    }
   },
   "location": {
     "eyebrow": "Location",
@@ -3034,7 +3245,10 @@
       "statPrice": "Monthly rent from",
       "statRooms": "Rooms available",
       "statTypes": "Room types",
-      "statHours": "Viewing hours, {days}"
+      "statHours": "Viewing hours, {days}",
+      "scroll": "Scroll to explore",
+      "slide": "Show photo {n}: {title}",
+      "searchLabel": "Search rooms"
     },
     "search": {
       "title": "Check room availability",
@@ -3125,8 +3339,7 @@
       "eyebrow": "Location",
       "titleLead": "Close to daily life,",
       "titleAccent": "easy to reach.",
-      "openMaps": "Open in Google Maps",
-      "schematic": "Illustrated neighbourhood — not to scale"
+      "openMaps": "Open in Google Maps"
     },
     "compare": {
       "eyebrow": "Compare",

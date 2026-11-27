@@ -15,6 +15,7 @@ import { useTenantLeases } from "@/features/tenant/hooks/use-tenant-queries";
 import { LeaseRenewalPrompt } from "@/features/tenant/leases/lease-renewal-prompt";
 import { getTenantRenewalView } from "@/features/tenant/lib/lease-renewal";
 import { tenantPaymentView } from "@/features/tenant/lib/payment-view";
+import { TenantIdentityReminder } from "@/features/tenant/profile/tenant-identity-section";
 import { Link } from "@/i18n/routing";
 import { getContactWhatsAppNumber } from "@/lib/contact";
 import { useKosts } from "@/lib/hooks/use-kost-data";
@@ -83,34 +84,37 @@ export function TenantHome() {
 
   if (!lease) {
     return (
-      <div
-        className={cn(
-          panel,
-          "flex flex-col items-center gap-3 px-6 py-16 text-center",
-        )}
-      >
-        <span className="flex size-16 items-center justify-center rounded-full bg-[#f3dedb] text-[#71130d]">
-          <Icon name="key" size={30} />
-        </span>
-        <h1 className="text-2xl font-medium tracking-tight">
-          {t("greeting", {
-            greeting: t(`greet.${isClient ? greetingKey() : "morning"}`),
-            name: firstName,
-          })}
-        </h1>
-        <p className="text-lg font-medium text-[#141414]">{t("noLease")}</p>
-        <p className="max-w-md text-[15px] text-[#6b6b6b]">
-          {t("noLeaseHint")}
-        </p>
-        <a
-          href={generateWhatsAppURL(getContactWhatsAppNumber())}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-2 inline-flex h-11 items-center gap-2 rounded-full bg-[#25D366] px-5 text-[15px] font-medium text-white"
+      <div className="space-y-4">
+        <TenantIdentityReminder />
+        <div
+          className={cn(
+            panel,
+            "flex flex-col items-center gap-3 px-6 py-16 text-center",
+          )}
         >
-          <Icon name="whatsapp" size={18} />
-          {t("contactManagement")}
-        </a>
+          <span className="flex size-16 items-center justify-center rounded-full bg-brand-soft text-brand">
+            <Icon name="key" size={30} />
+          </span>
+          <h1 className="text-2xl font-medium tracking-tight">
+            {t("greeting", {
+              greeting: t(`greet.${isClient ? greetingKey() : "morning"}`),
+              name: firstName,
+            })}
+          </h1>
+          <p className="text-lg font-medium text-fg">{t("noLease")}</p>
+          <p className="max-w-md text-[15px] text-fg-muted">
+            {t("noLeaseHint")}
+          </p>
+          <a
+            href={generateWhatsAppURL(getContactWhatsAppNumber())}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex h-11 items-center gap-2 rounded-md bg-[#25D366] px-5 text-[15px] font-medium text-white"
+          >
+            <Icon name="whatsapp" size={18} />
+            {t("contactManagement")}
+          </a>
+        </div>
       </div>
     );
   }
@@ -152,8 +156,9 @@ export function TenantHome() {
 
   return (
     <div className="space-y-4">
+      <TenantIdentityReminder />
       {/* Hero: where you live */}
-      <section className="relative overflow-hidden rounded-[1.75rem] bg-[#1c0b0a] text-white">
+      <section className="relative overflow-hidden rounded-lg bg-ink text-white">
         <Photo
           src={kost?.thumbnail}
           alt=""
@@ -186,7 +191,7 @@ export function TenantHome() {
           </div>
           <div className="flex flex-wrap gap-2">
             {lease.unit?.unitType?.name ? (
-              <span className="inline-flex h-10 items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-4 text-sm backdrop-blur-md">
+              <span className="inline-flex h-10 items-center gap-1.5 rounded-md border border-white/15 bg-white/10 px-4 text-sm backdrop-blur-md">
                 <Icon name="bed" size={16} />
                 {lease.unit.unitType.name}
               </span>
@@ -196,7 +201,7 @@ export function TenantHome() {
                 href={mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-10 items-center gap-1.5 rounded-full bg-white px-4 text-sm font-medium text-[#71130d] hover:bg-[#f3dedb]"
+                className="inline-flex h-10 items-center gap-1.5 rounded-md bg-white px-4 text-sm font-medium text-brand hover:bg-brand-soft"
               >
                 <Icon name="directions" size={16} />
                 {t("directions")}
@@ -218,15 +223,13 @@ export function TenantHome() {
             <LeaseStatusBadge status={status} />
           </div>
           {status === "paid" ? (
-            <div className="flex items-center gap-4 rounded-2xl bg-[#eef8ec] p-4">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#dff3d6] text-[#2f6d22]">
+            <div className="flex items-center gap-4 rounded-2xl bg-success-soft p-4">
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-success-soft text-success">
                 <Icon name="verified" size={26} />
               </span>
               <div>
-                <p className="text-lg font-medium text-[#1f5a2a]">
-                  {t("paid")}
-                </p>
-                <p className="text-sm text-[#3d3a36]">
+                <p className="text-lg font-medium text-success">{t("paid")}</p>
+                <p className="text-sm text-fg-2">
                   {payment.next
                     ? t("nextBill", {
                         amount: rupiah(payment.next.amount),
@@ -239,7 +242,7 @@ export function TenantHome() {
           ) : (
             <>
               <div>
-                <p className="text-sm text-[#6b6b6b]">
+                <p className="text-sm text-fg-muted">
                   {status === "waiting_for_review"
                     ? t("reviewLabel")
                     : t("dueLabel")}
@@ -249,27 +252,31 @@ export function TenantHome() {
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2 text-sm">
                   {payment.dueDate ? (
-                    <span className="rounded-full bg-[#f6f0ef] px-3 py-1 text-[#3d3a36]">
+                    <span className="rounded-full bg-subtle px-3 py-1 text-fg-2">
                       {t("dueBy", {
                         date: formatDate(payment.dueDate, locale),
                       })}
                     </span>
                   ) : null}
                   {late > 0 ? (
-                    <span className="rounded-full bg-[#fde2df] px-3 py-1 font-medium text-[#a1271b]">
+                    <span className="rounded-md bg-brand-soft px-3 py-1 font-medium text-danger">
                       {t("lateBy", { count: late })}
                     </span>
                   ) : null}
                   {lateFee > 0 ? (
-                    <span className="rounded-full bg-[#fde2df] px-3 py-1 text-[#a1271b]">
+                    <span className="rounded-full bg-brand-soft px-3 py-1 text-danger">
                       {t("lateFee", { amount: rupiah(lateFee) })}
                     </span>
                   ) : null}
                 </div>
               </div>
               {status === "waiting_for_review" ? (
-                <p className="flex items-center gap-2 rounded-2xl bg-[#f9e3c8]/60 p-4 text-[15px] text-[#8a5a2b]">
-                  <Icon name="hourglass_top" size={20} />
+                <p className="flex items-center gap-2 rounded-lg border border-brand-line bg-brand-tint p-4 text-[15px] text-fg-2">
+                  <Icon
+                    name="hourglass_top"
+                    size={20}
+                    className="shrink-0 text-brand"
+                  />
                   {t("reviewHint")}
                 </p>
               ) : (
@@ -277,7 +284,7 @@ export function TenantHome() {
                   href={proofUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 text-[15px] font-medium text-white transition-opacity hover:opacity-90"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#25D366] px-5 text-[15px] font-medium text-white transition-opacity hover:opacity-90"
                 >
                   <Icon name="whatsapp" size={20} />
                   {t("sendProof")}
@@ -285,9 +292,9 @@ export function TenantHome() {
               )}
             </>
           )}
-          <p className="mt-auto text-sm text-[#6b6b6b]">
+          <p className="mt-auto text-sm text-fg-muted">
             {t("monthlyRent")}:{" "}
-            <span className="font-medium text-[#141414]">
+            <span className="font-medium text-fg">
               {rupiah(lease.unitPricing?.price ?? lease.amountDue ?? 0)}
             </span>
           </p>
@@ -299,14 +306,14 @@ export function TenantHome() {
             {t("leaseTime")}
           </h2>
           <div className="flex items-end gap-3">
-            <p className="text-[clamp(2.4rem,4vw,3.2rem)] font-medium leading-none tracking-[-0.04em] tabular-nums text-[#71130d]">
+            <p className="text-[clamp(2.4rem,4vw,3.2rem)] font-medium leading-none tracking-[-0.04em] tabular-nums text-brand">
               {startsIn !== null
                 ? startsIn
                 : left !== null
                   ? Math.max(0, left)
                   : "—"}
             </p>
-            <p className="pb-1 text-[15px] text-[#3d3a36]">
+            <p className="pb-1 text-[15px] text-fg-2">
               {startsIn !== null
                 ? t("daysUntilStart")
                 : left !== null && left < 0
@@ -317,14 +324,14 @@ export function TenantHome() {
           {end ? (
             <TermProgress start={lease.startDate} end={end} className="h-2" />
           ) : null}
-          <div className="flex justify-between text-sm text-[#6b6b6b]">
+          <div className="flex justify-between text-sm text-fg-muted">
             <span>{formatDate(lease.startDate, locale)}</span>
             <span>{end ? formatDate(end, locale) : "—"}</span>
           </div>
           <div className="mt-auto grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
             <Link
               href={`/tenant/leases/${lease.id}`}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#71130d] px-4 text-[15px] font-medium text-white hover:bg-[#8a1a12]"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-brand px-4 text-[15px] font-medium text-white hover:bg-brand-hover"
             >
               <Icon name="description" size={18} />
               {t("viewLease")}
@@ -333,7 +340,7 @@ export function TenantHome() {
               href={helloUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#ece4e2] bg-white px-4 text-[15px] font-medium text-[#141414] hover:border-[#e8bfb9] hover:text-[#71130d]"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-line bg-white px-4 text-[15px] font-medium text-fg hover:border-brand-line hover:text-brand"
             >
               <Icon name="chat" size={18} />
               {t("contactManagement")}
@@ -357,13 +364,13 @@ export function TenantHome() {
             href={href}
             className={cn(
               panel,
-              "group flex items-center gap-3 p-4 transition-shadow hover:shadow-[0_14px_30px_-18px_rgb(28_11_10/0.35)]",
+              "group flex items-center gap-3 p-4 transition-colors",
             )}
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f6f0ef] text-[#71130d] transition-colors group-hover:bg-[#71130d] group-hover:text-white">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-subtle text-brand transition-colors group-hover:bg-brand group-hover:text-white">
               <Icon name={icon} size={20} />
             </span>
-            <span className="text-[15px] font-medium text-[#141414]">
+            <span className="text-[15px] font-medium text-fg">
               {t(`quick.${key}`)}
             </span>
           </Link>
@@ -376,35 +383,35 @@ export function TenantHome() {
           <h2 className="mb-4 text-lg font-medium tracking-tight">
             {t("history")}
           </h2>
-          <ol className="relative space-y-3 before:absolute before:bottom-3 before:left-[0.6rem] before:top-3 before:w-px before:bg-[#ece4e2]">
+          <ol className="relative space-y-3 before:absolute before:bottom-3 before:left-[0.6rem] before:top-3 before:w-px before:bg-line">
             {history.map(({ lease: l, phase }) => (
               <li key={l.id} className="relative flex items-start gap-4 pl-8">
                 <span
                   className={cn(
                     "absolute left-0 top-1.5 size-5 rounded-full border-4 border-white",
                     phase === "current"
-                      ? "bg-[#71130d]"
+                      ? "bg-brand"
                       : phase === "upcoming"
-                        ? "bg-[#e8bfb9]"
-                        : "bg-[#d6ccc9]",
+                        ? "bg-brand-line"
+                        : "bg-line-strong",
                   )}
                 />
                 <Link
                   href={`/tenant/leases/${l.id}`}
-                  className="flex flex-1 flex-wrap items-center justify-between gap-2 rounded-2xl bg-[#faf7f6] px-4 py-3 hover:bg-[#f6f0ef]"
+                  className="flex flex-1 flex-wrap items-center justify-between gap-2 rounded-2xl bg-subtle px-4 py-3 hover:bg-hover"
                 >
                   <span>
                     <span className="block text-[15px] font-medium">
                       {l.unit?.name ?? "—"} ·{" "}
                       {(l.property ?? l.unit?.property)?.name ?? ""}
                     </span>
-                    <span className="block text-sm text-[#6b6b6b]">
+                    <span className="block text-sm text-fg-muted">
                       {formatDate(l.startDate, locale)} →{" "}
                       {l.endDate ? formatDate(l.endDate, locale) : "—"}
                     </span>
                   </span>
                   <span className="flex items-center gap-2">
-                    <span className="rounded-full bg-white px-2.5 py-0.5 text-xs text-[#3d3a36]">
+                    <span className="rounded-full bg-white px-2.5 py-0.5 text-xs text-fg-2">
                       {t(`phase.${phase}`)}
                     </span>
                     <LeaseStatusBadge status={l.status} />

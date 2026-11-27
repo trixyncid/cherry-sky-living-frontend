@@ -143,7 +143,7 @@ export function AdminProfileView() {
         <p className="text-sm text-fg-muted">{t("loading")}</p>
       ) : profile ? (
         <div className="space-y-6">
-          <section className="glass-panel rounded-[1.75rem] p-6">
+          <section className="glass-panel rounded-lg p-6">
             <div className="mb-6 flex items-center gap-5">
               <ProfileAvatarPlaceholder
                 className="size-20 ring-4 ring-line"
@@ -208,7 +208,9 @@ export function AdminProfileView() {
                     )}
                   />
                   <p className="mt-1 text-xs text-fg-muted">
-                    {tp("emailReadOnly")}
+                    {profile.role === "superadmin"
+                      ? tp("emailReadOnlyOwner")
+                      : tp("emailReadOnly")}
                   </p>
                 </AdminField>
               </div>
@@ -225,7 +227,7 @@ export function AdminProfileView() {
             </form>
           </section>
 
-          <section className="glass-panel rounded-[1.75rem] p-6">
+          <section className="glass-panel rounded-lg p-6">
             <h3 className="mb-1 text-sm font-semibold text-fg">
               {tp("passwordSection")}
             </h3>

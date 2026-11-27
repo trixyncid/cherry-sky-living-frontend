@@ -1,5 +1,5 @@
 /**
- * Pill CTA with a round arrow badge — the site's primary button shape.
+ * Primary button: a slightly rounded rectangle with an inline ↗.
  * Renders an i18n Link (internal href), an <a> (external / tel / wa.me),
  * or a <button>.
  */
@@ -14,47 +14,32 @@ import { cn } from "@/lib/utils";
 
 type Tone = "dark" | "light" | "outline";
 
-const TONES: Record<Tone, { pill: string; badge: string }> = {
-  dark: {
-    pill: "bg-brand text-white hover:bg-brand-hover",
-    badge: "bg-white text-brand",
-  },
-  light: {
-    pill: "bg-white text-fg hover:bg-brand-tint",
-    badge: "bg-brand text-white",
-  },
-  outline: {
-    pill: "border border-line-strong bg-transparent text-fg hover:border-brand",
-    badge: "bg-brand text-white",
-  },
+/** Slightly rounded rectangles with an inline ↗ (see btn-* in globals.css). */
+const TONES: Record<Tone, string> = {
+  dark: "btn-solid",
+  light: "btn-outline-light",
+  outline: "btn-outline",
 };
 
 interface BaseProps {
   children: ReactNode;
   tone?: Tone;
   icon?: string;
-  /** Leading icon inside the pill (e.g. WhatsApp). */
+  /** Leading icon inside the button (e.g. WhatsApp). */
   leading?: ReactNode;
   className?: string;
 }
 
 const pillClass = (tone: Tone, className?: string) =>
-  cn(
-    "group inline-flex h-12 items-center gap-3 rounded-full pl-5 pr-1.5 text-[15px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
-    TONES[tone].pill,
-    className,
-  );
+  cn("btn group", TONES[tone], className);
 
-function Badge({ tone, icon }: { tone: Tone; icon: string }) {
+function Badge({ icon }: { tone: Tone; icon: string }) {
   return (
-    <span
-      className={cn(
-        "flex size-9 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:-rotate-45 motion-reduce:transition-none",
-        TONES[tone].badge,
-      )}
-    >
-      <Icon name={icon} size={18} />
-    </span>
+    <Icon
+      name={icon === "arrow_forward" ? "north_east" : icon}
+      size={17}
+      className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none"
+    />
   );
 }
 
@@ -79,7 +64,7 @@ export function ArrowPill(props: LinkPillProps | AnchorPillProps) {
   const content = (
     <>
       {leading}
-      <span className="flex-1 text-center">{children}</span>
+      <span>{children}</span>
       <Badge tone={tone} icon={icon} />
     </>
   );
@@ -123,13 +108,13 @@ export const ArrowPillButton = forwardRef<
       className={pillClass(tone, className)}
     >
       {leading}
-      <span className="flex-1 text-center">{children}</span>
+      <span>{children}</span>
       <Badge tone={tone} icon={icon} />
     </button>
   );
 });
 
-/** "• Label" eyebrow used above every section. */
+/** "—— LABEL" ruled uppercase eyebrow used above sections. */
 export function Eyebrow({
   children,
   tone = "light",
@@ -142,12 +127,18 @@ export function Eyebrow({
   return (
     <p
       className={cn(
-        "inline-flex items-center gap-2 text-sm font-semibold",
-        tone === "dark" ? "text-white" : "text-fg",
+        "eyebrow inline-flex items-center gap-4",
+        tone === "dark" ? "text-white/75" : "text-fg-muted",
         className,
       )}
     >
-      <span aria-hidden className="size-1.5 rounded-full bg-brand" />
+      <span
+        aria-hidden
+        className={cn(
+          "h-px w-10",
+          tone === "dark" ? "bg-white/50" : "bg-fg/30",
+        )}
+      />
       {children}
     </p>
   );

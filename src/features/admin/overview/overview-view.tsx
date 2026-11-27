@@ -6,7 +6,7 @@ import { Icon } from "@/components/shared/Icon";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
 import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { PropertyFilter } from "@/features/admin/components/property-filter";
-import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
+import { LeaseStandingBadge } from "@/features/admin/components/status-badge";
 import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { useAdminPropertyFilter } from "@/features/admin/hooks/use-admin-property-filter";
 import {
@@ -23,23 +23,19 @@ import type {
   LeaseStatus,
 } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
-import { getDurationLabel } from "@/lib/utils/kost-display";
 import {
   CashflowChart,
   CollectionBars,
   card,
   KpiCard,
-  OccupancyGauge,
   Segmented,
   Thumb,
 } from "./dashboard-widgets";
 import { useIsClient } from "./use-is-client";
 
 const LEASE_COLUMNS = [
-  "colLease",
   "colUnit",
   "colTenant",
-  "colTerm",
   "colAmount",
   "colStart",
   "colStatus",
@@ -71,7 +67,6 @@ export function OverviewView() {
   const td = useTranslations("admin.pages.overview.dash");
   const tb = useTranslations("admin.pages.leases.billing");
   const tc = useTranslations("admin.crud");
-  const tRoot = useTranslations();
   const locale = useLocale();
   const { user } = useAdminShell();
   const isClient = useIsClient();
@@ -79,7 +74,6 @@ export function OverviewView() {
   const { propertyId: propertyFilter, setPropertyId: setPropertyFilter } =
     useAdminPropertyFilter();
   const [series, setSeries] = useState<"income" | "expense">("income");
-  const [gaugeFor, setGaugeFor] = useState("all");
   const [queueTab, setQueueTab] = useState<QueueTab>("all");
   const [statusTab, setStatusTab] = useState<StatusTab>("all");
 
@@ -112,20 +106,6 @@ export function OverviewView() {
       ? (portfolio.occupiedUnits / portfolio.totalUnits) * 100
       : 0;
 
-  const gaugeOptions = [
-    { id: "all", label: td("allResidences") },
-    ...kosts
-      .filter((k) => k.totalRooms > 0)
-      .map((k) => ({ id: k.id, label: k.name })),
-  ];
-  const gaugeKost = kosts.find((k) => k.id === gaugeFor);
-  const gaugePct =
-    gaugeKost && gaugeKost.totalRooms > 0
-      ? ((gaugeKost.totalRooms - gaugeKost.availableRooms) /
-          gaugeKost.totalRooms) *
-        100
-      : occupiedPct;
-
   const queue = useMemo(() => {
     const q = data?.queues;
     if (!q)
@@ -143,14 +123,16 @@ export function OverviewView() {
       ...q.expiringSoon.map((lease) => ({ kind: "expiring" as const, lease })),
     ];
   }, [data?.queues]);
+  const inTab = (tab: QueueTab, kind: QueueKind) =>
+    tab === "all"
+      ? true
+      : tab === "payments"
+        ? kind === "review" || kind === "unpaidOverdue"
+        : kind === "renewal" || kind === "expiring";
+  const queueCount = (tab: QueueTab) =>
+    queue.filter(({ kind }) => inTab(tab, kind)).length;
   const visibleQueue = queue
-    .filter(({ kind }) =>
-      queueTab === "all"
-        ? true
-        : queueTab === "payments"
-          ? kind === "review" || kind === "unpaidOverdue"
-          : kind === "renewal" || kind === "expiring",
-    )
+    .filter(({ kind }) => inTab(queueTab, kind))
     .slice(0, 4);
 
   const leases = [...(leasesQuery.data ?? [])]
@@ -178,10 +160,13 @@ export function OverviewView() {
       );
     if (kind === "unpaidOverdue")
       return bill + td("daysLate", { days: lease.daysLate ?? 0 });
-    if (kind === "renewal" && lease.leaseRenewal?.confirmationDeadline)
-      return td("deadline", {
-        date: formatDate(lease.leaseRenewal.confirmationDeadline, locale),
-      });
+    if (kind === "renewal" && lease.leaseRenewal?.confirmationDeadline) {
+      const deadline = lease.leaseRenewal.confirmationDeadline;
+      const date = formatDate(deadline, locale);
+      // A passed deadline must not read like a future one.
+      const passed = new Date(deadline).getTime() < Date.now();
+      return passed ? td("deadlinePassed", { date }) : td("deadline", { date });
+    }
     return td("endsOn", { date: formatDate(lease.endDate, locale) });
   };
 
@@ -273,7 +258,7 @@ export function OverviewView() {
             />
           </div>
 
-          <div className="order-4 grid gap-4 lg:grid-cols-2 xl:order-none">
+          <div className="order-4 grid gap-4 xl:order-none">
             <section className={cn(card, "flex flex-col gap-5")}>
               <div className="flex items-start justify-between gap-3">
                 <h2 className="text-lg font-semibold tracking-tight text-fg">
@@ -303,38 +288,6 @@ export function OverviewView() {
                 monthLabel={monthLabel}
                 formatValue={formatIdrCompact}
               />
-            </section>
-
-            <section className={cn(card, "flex flex-col gap-5")}>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <h2 className="text-lg font-semibold tracking-tight text-fg">
-                  {td("occupancyTarget")}
-                </h2>
-                {gaugeOptions.length > 2 ? (
-                  <Segmented
-                    label={td("occupancyTarget")}
-                    value={gaugeFor}
-                    options={gaugeOptions}
-                    onChange={setGaugeFor}
-                  />
-                ) : null}
-              </div>
-              <div className="flex gap-5 text-sm text-fg-2">
-                <span className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full bg-brand" />
-                  {td("occupied")}
-                </span>
-                <span className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full bg-hover ring-1 ring-line" />
-                  {td("vacant")}
-                </span>
-              </div>
-              <div className="flex flex-1 items-end rounded-xl bg-subtle px-4 pt-6 pb-4">
-                <OccupancyGauge
-                  percent={loading ? 0 : gaugePct}
-                  caption={td("occupiedLabel")}
-                />
-              </div>
             </section>
           </div>
 
@@ -393,7 +346,7 @@ export function OverviewView() {
                         <span className="text-[15px] font-medium tabular-nums text-fg">
                           {formatIdrCompact(lease.amountDue)}
                         </span>
-                        <LeaseStatusBadge status={lease.status} />
+                        <LeaseStandingBadge lease={lease} />
                       </span>
                     </Link>
                   </li>
@@ -401,7 +354,7 @@ export function OverviewView() {
               )}
             </ul>
             <div className="hidden overflow-x-auto rounded-xl border border-line md:block">
-              <table className="w-full min-w-[48rem] text-left">
+              <table className="w-full min-w-[36rem] text-left">
                 <thead className="bg-subtle text-xs font-medium uppercase tracking-wide text-fg-muted">
                   <tr>
                     {LEASE_COLUMNS.map((k) => (
@@ -436,9 +389,6 @@ export function OverviewView() {
                         key={lease.id}
                         className="border-t border-line text-sm text-fg transition-colors hover:bg-subtle"
                       >
-                        <td className="px-4 py-3 font-mono text-sm text-fg-muted">
-                          #{lease.id.slice(-6).toUpperCase()}
-                        </td>
                         <td className="px-4 py-3">
                           <Link
                             href={buildViewLeaseHref(lease.id)}
@@ -466,22 +416,14 @@ export function OverviewView() {
                             contactSummary(lease.user) ||
                             "—"}
                         </td>
-                        <td className="px-4 py-3 text-fg-2">
-                          {lease.unitPricing?.durationDays
-                            ? getDurationLabel(
-                                lease.unitPricing.durationDays,
-                                tRoot,
-                              )
-                            : "—"}
-                        </td>
-                        <td className="px-4 py-3 tabular-nums">
+                        <td className="whitespace-nowrap px-4 py-3 tabular-nums">
                           {formatIdrCompact(lease.amountDue)}
                         </td>
                         <td className="px-4 py-3 text-fg-2">
                           {formatDate(lease.startDate, locale)}
                         </td>
                         <td className="px-4 py-3">
-                          <LeaseStatusBadge status={lease.status} />
+                          <LeaseStandingBadge lease={lease} />
                         </td>
                       </tr>
                     ))
@@ -494,63 +436,50 @@ export function OverviewView() {
 
         {/* ——— Right column ——— */}
         <div className="contents xl:flex xl:min-w-0 xl:flex-col xl:gap-4">
-          <section className="relative order-3 overflow-hidden rounded-2xl bg-ink p-5 text-white shadow-[0_20px_40px_-24px_rgb(11_11_13/0.6)] sm:p-6 xl:order-none">
-            <span
-              className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-brand/35 blur-3xl"
-              aria-hidden
-            />
-            <div className="relative flex items-center justify-between gap-3">
-              <h2 className="relative text-lg font-semibold tracking-tight">
-                {td("cashflow")}
-              </h2>
-              <Segmented
-                tone="dark"
-                label={td("cashflow")}
-                value={series}
-                onChange={setSeries}
-                options={[
-                  { id: "income", label: td("income") },
-                  { id: "expense", label: td("expenses") },
-                ]}
-              />
-            </div>
-            <div className="relative mt-5 rounded-xl border border-white/10 bg-white/[0.03] p-3">
-              {months.length > 0 ? (
-                <CashflowChart
-                  months={months}
-                  series={series}
-                  monthLabel={monthLabel}
-                  formatValue={formatIdrCompact}
-                  latestLabel={td("latest")}
-                />
-              ) : (
-                <p className="p-6 text-sm text-white/70">
-                  {t("charts.cashFlow.empty")}
-                </p>
-              )}
-            </div>
-          </section>
-
           <section
             className={cn(
               card,
               "order-2 flex flex-1 flex-col gap-4 xl:order-none",
             )}
           >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold tracking-tight text-fg">
-                {td("attention")}
-              </h2>
-              <Segmented
-                label={td("attention")}
-                value={queueTab}
-                onChange={setQueueTab}
-                options={[
-                  { id: "all", label: td("tabAll") },
-                  { id: "payments", label: td("tabPayments") },
-                  { id: "renewals", label: td("tabRenewals") },
-                ]}
-              />
+            <h2 className="text-lg font-semibold tracking-tight text-fg">
+              {td("attention")}
+            </h2>
+            {/* Equal-width tabs that wrap instead of scrolling sideways in the narrow column. */}
+            <div
+              role="tablist"
+              aria-label={td("attention")}
+              className="grid grid-cols-3 gap-1 rounded-lg bg-hover p-1"
+            >
+              {(
+                [
+                  ["all", td("tabAll")],
+                  ["payments", td("tabPayments")],
+                  ["renewals", td("tabRenewals")],
+                ] as const
+              ).map(([id, label]) => {
+                const active = queueTab === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setQueueTab(id)}
+                    className={cn(
+                      "flex min-w-0 flex-col items-center gap-0.5 rounded-md px-1.5 py-2 text-center text-[13px] leading-tight transition-colors",
+                      active
+                        ? "bg-panel font-medium text-fg shadow-[0_1px_2px_rgb(22_16_38/0.12)]"
+                        : "text-fg-2 hover:text-fg",
+                    )}
+                  >
+                    <span className="text-base font-semibold tabular-nums">
+                      {loading ? "–" : queueCount(id)}
+                    </span>
+                    <span className="break-words">{label}</span>
+                  </button>
+                );
+              })}
             </div>
             {loading ? (
               <p className="py-6 text-sm text-fg-muted">{t("loading")}</p>
@@ -586,7 +515,7 @@ export function OverviewView() {
                         </p>
                         <span
                           className={cn(
-                            "mt-1.5 inline-block rounded-md border px-2 py-0.5 text-[11px] font-semibold",
+                            "mt-1.5 inline-block rounded-md border px-2 py-0.5 text-xs font-semibold",
                             kind === "unpaidOverdue"
                               ? "border-danger-soft bg-danger-soft text-danger"
                               : "border-brand-line bg-brand-tint text-brand",
@@ -609,11 +538,43 @@ export function OverviewView() {
             )}
             <Link
               href="/admin/leases"
-              className="mt-auto inline-flex h-10 items-center justify-center gap-2 rounded-full border border-line-strong bg-panel px-5 text-sm font-medium text-fg transition-colors hover:border-fg hover:bg-hover"
+              className="mt-auto inline-flex h-10 items-center justify-center gap-2 rounded-md border border-line-strong bg-panel px-5 text-sm font-medium text-fg transition-colors hover:border-fg hover:bg-hover"
             >
               {td("viewAllLeases")}
               <Icon name="north_east" size={16} />
             </Link>
+          </section>
+          <section className="relative order-3 overflow-hidden rounded-lg bg-ink p-5 text-white sm:p-6 xl:order-none">
+            <div className="relative flex items-center justify-between gap-3">
+              <h2 className="relative text-lg font-semibold tracking-tight">
+                {td("cashflow")}
+              </h2>
+              <Segmented
+                tone="dark"
+                label={td("cashflow")}
+                value={series}
+                onChange={setSeries}
+                options={[
+                  { id: "income", label: td("income") },
+                  { id: "expense", label: td("expenses") },
+                ]}
+              />
+            </div>
+            <div className="relative mt-5 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+              {months.length > 0 ? (
+                <CashflowChart
+                  months={months}
+                  series={series}
+                  monthLabel={monthLabel}
+                  formatValue={formatIdrCompact}
+                  latestLabel={td("latest")}
+                />
+              ) : (
+                <p className="p-6 text-sm text-white/70">
+                  {t("charts.cashFlow.empty")}
+                </p>
+              )}
+            </div>
           </section>
         </div>
       </div>

@@ -31,12 +31,12 @@ export function UnitRowActions({
   const lease = unit.activeLease ?? null;
 
   const actionClass = cn(
-    "inline-flex size-8 items-center justify-center rounded-lg text-fg-2 transition-colors disabled:opacity-50",
+    "inline-flex size-10 items-center justify-center rounded-lg text-fg-2 transition-colors disabled:opacity-50",
     disabled && "pointer-events-none opacity-50",
   );
 
   return (
-    <div className="flex justify-end gap-1 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:focus-within:opacity-100">
+    <div className="flex justify-end gap-1">
       {lease ? (
         <Link
           href={buildViewLeaseHref(lease.id)}

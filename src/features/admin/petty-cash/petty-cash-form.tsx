@@ -253,8 +253,12 @@ export function PettyCashForm({ id }: { id?: string }) {
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
           <AdminFormError message={formError} />
           {locked ? (
-            <p className="flex items-start gap-2 rounded-xl border border-warning/25 bg-warning-soft px-4 py-3 text-sm text-warning">
-              <Icon name="lock" size={18} className="mt-px shrink-0" />
+            <p className="flex items-start gap-2 rounded-lg border border-brand-line bg-brand-tint px-4 py-3 text-sm text-fg-2">
+              <Icon
+                name="lock"
+                size={18}
+                className="mt-px shrink-0 text-brand"
+              />
               {locked}
             </p>
           ) : null}
@@ -427,7 +431,7 @@ export function PettyCashForm({ id }: { id?: string }) {
           ) : null}
         </form>
 
-        <aside className="space-y-4 lg:sticky lg:top-4">
+        <aside className="space-y-4 max-lg:order-first lg:sticky lg:top-4">
           <AdminFormSection
             icon="receipt_long"
             title={tf("receiptsTitle")}

@@ -95,5 +95,6 @@ export const tenantKeys = {
   },
   profile: {
     all: () => [...tenantKeys.all, "profile"] as const,
+    identity: () => [...tenantKeys.all, "profile", "identity"] as const,
   },
 } as const;

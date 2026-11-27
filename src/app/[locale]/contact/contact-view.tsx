@@ -73,49 +73,44 @@ export function ContactView() {
         description={t("hero.description")}
         photo="/assets/skykost.jpeg"
       />
-      <section className="w-full px-5 pt-12 sm:px-8 lg:pt-16">
+      <section className="w-full bg-canvas px-5 pt-24 sm:px-8 lg:px-12 lg:pt-32">
         <div className="mx-auto w-full max-w-[90rem]">
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
             {channels.map((c, i) => {
               const inner = (
                 <>
-                  <span
-                    className={cn(
-                      "flex size-11 items-center justify-center rounded-full",
-                      c.featured ? "bg-ink text-white" : "bg-canvas text-brand",
-                    )}
-                  >
-                    <Icon name={c.icon} size={22} />
-                  </span>
-                  <div>
-                    <p
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm tabular-nums text-fg-faint">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span
                       className={cn(
-                        "text-sm",
-                        c.featured ? "text-white/65" : "text-fg-muted",
+                        "flex size-10 items-center justify-center rounded-full border transition-colors",
+                        c.featured
+                          ? "border-brand bg-brand text-white"
+                          : "border-line-strong text-fg",
+                        c.href &&
+                          !c.featured &&
+                          "group-hover:border-fg group-hover:bg-fg group-hover:text-white",
                       )}
                     >
+                      <Icon name={c.icon} size={18} />
+                    </span>
+                  </div>
+                  <div>
+                    <p className="eyebrow text-[10px] text-fg-muted">
                       {c.title}
                     </p>
-                    <p className="mt-1 break-all text-xl font-medium tracking-tight">
+                    <p className="mt-2 break-all text-xl font-semibold tracking-[-0.03em] text-fg">
                       {c.value}
                     </p>
-                    <p
-                      className={cn(
-                        "mt-1 text-sm",
-                        c.featured ? "text-white/65" : "text-fg-muted",
-                      )}
-                    >
-                      {c.sub}
-                    </p>
+                    <p className="mt-1 text-sm text-fg-muted">{c.sub}</p>
                   </div>
                 </>
               );
               const box = cn(
-                "flex h-full min-h-[12rem] flex-col justify-between gap-6 rounded-[1.25rem] p-6 transition-colors",
-                c.featured
-                  ? "bg-brand text-white hover:bg-brand-hover"
-                  : "bg-white text-fg",
-                c.href && !c.featured && "hover:bg-subtle",
+                "group flex h-full flex-col justify-between gap-8 border-t pt-5",
+                c.featured ? "border-fg" : "border-line",
               );
               return (
                 <li key={c.key}>
@@ -126,7 +121,10 @@ export function ContactView() {
                         target={c.external ? "_blank" : undefined}
                         rel={c.external ? "noopener noreferrer" : undefined}
                         onClick={c.onClick}
-                        className={box}
+                        className={cn(
+                          box,
+                          "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand",
+                        )}
                       >
                         {inner}
                       </a>
@@ -141,18 +139,18 @@ export function ContactView() {
         </div>
       </section>
 
-      <section className="w-full px-5 py-16 sm:px-8 lg:py-20">
-        <div className="mx-auto grid w-full max-w-[90rem] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
-          <Reveal className="rounded-[1.25rem] bg-white p-6 sm:p-8 lg:self-start">
-            <h2 className="text-2xl font-medium tracking-tight text-fg">
+      <section className="w-full bg-canvas px-5 py-24 sm:px-8 lg:px-12 lg:py-32">
+        <div className="mx-auto grid w-full max-w-[90rem] gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
+          <Reveal className="rounded-lg border border-line bg-panel p-6 sm:p-8 lg:self-start lg:p-10">
+            <h2 className="text-[clamp(1.75rem,2.8vw,2.5rem)] font-semibold leading-[1.05] tracking-[-0.035em] text-fg">
               {t("page.formTitle")}
             </h2>
-            <p className="mt-2 text-base text-fg-muted">{t("page.formSub")}</p>
-            <LeadForm type="inquiry" kosts={kosts} className="relative mt-6" />
+            <p className="mt-3 text-base text-fg-muted">{t("page.formSub")}</p>
+            <LeadForm type="inquiry" kosts={kosts} className="relative mt-8" />
           </Reveal>
 
-          <div className="flex flex-col gap-4">
-            <h2 className="text-2xl font-medium tracking-tight text-fg">
+          <div className="flex flex-col gap-10">
+            <h2 className="text-[clamp(1.75rem,2.8vw,2.5rem)] font-semibold leading-[1.05] tracking-[-0.035em] text-fg">
               {t("page.visitTitle")}
             </h2>
             {isLoading
@@ -160,7 +158,7 @@ export function ContactView() {
                   <div
                     key={i}
                     aria-hidden
-                    className="h-72 animate-pulse rounded-[1.25rem] bg-white"
+                    className="h-72 animate-pulse rounded-lg bg-hover"
                   />
                 ))
               : (kosts ?? []).map((kost) => {
@@ -168,29 +166,29 @@ export function ContactView() {
                     .filter(Boolean)
                     .join(", ");
                   return (
-                    <Reveal
-                      key={kost.id}
-                      className="overflow-hidden rounded-[1.25rem] bg-white"
-                    >
+                    <Reveal key={kost.id}>
                       <PlaceMap
                         name={kost.name}
                         address={address}
-                        className="h-48 rounded-none"
+                        className="h-56 rounded-lg border border-line"
                       />
-                      <div className="flex flex-wrap items-center justify-between gap-3 p-5">
+                      <div className="flex flex-wrap items-end justify-between gap-4 pt-5">
                         <div>
-                          <p className="text-lg font-semibold tracking-tight text-fg">
+                          <p className="eyebrow text-[10px] text-fg-muted">
+                            {kost.location.city}
+                          </p>
+                          <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-fg">
                             {kost.name}
                           </p>
-                          <p className="text-base text-fg-2">{address}</p>
+                          <p className="mt-1 text-base text-fg-2">{address}</p>
                         </div>
                         <a
                           href={directionsUrl(kost.name, address)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex h-10 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-hover"
+                          className="btn btn-outline"
                         >
-                          <Icon name="near_me" size={16} />
+                          <Icon name="near_me" size={17} />
                           {t("map.directionsButton")}
                         </a>
                       </div>

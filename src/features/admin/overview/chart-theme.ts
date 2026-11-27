@@ -16,7 +16,7 @@ export const CHART_VACANT = "var(--chart-2)";
 export const CHART_AXIS = {
   stroke: "var(--adm-line-strong)",
   tick: { fill: "var(--adm-fg-muted)", fontSize: 11 },
-  grid: "rgb(11 11 13 / 0.06)",
+  grid: "rgb(22 16 38 / 0.06)",
 } as const;
 
 export function chartColorAt(index: number): string {

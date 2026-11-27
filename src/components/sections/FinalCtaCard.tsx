@@ -1,7 +1,7 @@
 /**
  * Final call to action (§5.13): two ways to convert, side by side.
- * Black panel — live availability, Book a viewing (saves a lead) and
- * WhatsApp. White panel — the short inquiry form inline, so visitors who
+ * Sits on the navy footer: live availability, Book a viewing (saves a lead)
+ * and WhatsApp; beside it the short inquiry form inline, so visitors who
  * prefer to be contacted can leave their number without opening a dialog.
  */
 
@@ -35,59 +35,68 @@ export function FinalCtaCard({
   );
 
   return (
-    <Reveal className="mx-auto grid w-full max-w-5xl overflow-hidden rounded-[2rem] shadow-[0_40px_80px_-40px_rgb(0_0_0/0.7)] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+    <Reveal className="grid gap-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16">
       {/* Act now */}
-      <div className="relative overflow-hidden bg-ink-2 px-7 py-9 text-white ring-1 ring-inset ring-white/10 sm:px-10 sm:py-11">
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -left-20 -top-24 size-72 rounded-full bg-brand/40 blur-[90px]"
-        />
-        <div className="relative">
-          <h2
-            id="cta-heading"
-            className="text-[clamp(1.75rem,2.6vw,2.35rem)] font-semibold leading-[1.08] tracking-[-0.03em]"
+      <div>
+        <p className="eyebrow flex items-center gap-3 text-white/75">
+          <span
+            aria-hidden
+            className={
+              availableRooms > 0
+                ? "size-2 rounded-full bg-success-bright"
+                : "h-px w-10 bg-white/50"
+            }
+          />
+          {t("eyebrow")}
+        </p>
+        <h2
+          id="cta-heading"
+          className="mt-6 max-w-2xl text-[clamp(2.1rem,4.4vw,3.75rem)] font-semibold leading-[1] tracking-[-0.04em]"
+        >
+          {isLoading ? (
+            <span className="inline-block h-[0.9em] w-3/4 animate-pulse rounded-md bg-white/15 align-middle" />
+          ) : (
+            <span className="block text-balance">
+              {t("liveTitle", { count: availableRooms })}
+            </span>
+          )}
+          <span className="block text-balance font-normal text-white/55">
+            {t("titleAccent")}
+          </span>
+        </h2>
+        <p className="mt-7 max-w-md text-base leading-relaxed text-white/75 md:text-[17px]">
+          {t("description")}
+        </p>
+        <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+          <SurveyScheduleDialog
+            triggerLabel={t("schedule")}
+            className="mt-0 h-12 justify-center rounded-md bg-white px-6 py-0 text-[15px] font-medium text-ink hover:bg-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+          />
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => track("click_whatsapp", { location: "final_cta" })}
+            className="btn btn-outline-light"
           >
-            {isLoading ? (
-              <span className="inline-block h-[0.9em] w-3/4 animate-pulse rounded-lg bg-white/15 align-middle" />
-            ) : (
-              t("liveTitle", { count: availableRooms })
-            )}
-            <span className="block text-brand-bright">{t("titleAccent")}</span>
-          </h2>
-          <p className="mt-4 max-w-md text-base leading-relaxed text-white/70">
-            {t("description")}
-          </p>
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <SurveyScheduleDialog
-              triggerLabel={t("schedule")}
-              className="mt-0 h-12 justify-center gap-2 rounded-full bg-brand px-6 text-[15px] hover:bg-brand-hover"
-            />
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => track("click_whatsapp", { location: "final_cta" })}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/20 px-6 text-[15px] font-medium text-white transition-colors hover:bg-white/10"
-            >
-              <Icon name="whatsapp" size={18} className="text-[#25d366]" />
-              {t("whatsapp")}
-            </a>
-          </div>
-          <p className="mt-6 flex items-center gap-2 text-sm text-white/55">
-            <Icon name="schedule" size={16} />
-            {t("hoursLabel")}: {localized(siteConfig.viewingHours.days, locale)}{" "}
-            {siteConfig.viewingHours.time}
-          </p>
+            <Icon name="whatsapp" size={18} />
+            {t("whatsapp")}
+          </a>
         </div>
+        <p className="mt-8 flex items-center gap-2 text-sm text-white/60">
+          <Icon name="schedule" size={16} />
+          {t("hoursLabel")}: {localized(siteConfig.viewingHours.days, locale)}{" "}
+          {siteConfig.viewingHours.time}
+        </p>
       </div>
 
       {/* Or be contacted */}
-      <div className="bg-white px-7 py-9 sm:px-10 sm:py-11">
-        <p className="text-lg font-semibold tracking-tight text-fg">
+      <div className="rounded-md border border-white/15 p-6 sm:p-8">
+        <p className="text-lg font-medium tracking-[-0.01em] text-white">
           {tLeads("title")}
         </p>
-        <p className="mt-1 text-sm text-fg-muted">{tLeads("description")}</p>
-        <LeadForm type="inquiry" kosts={kosts} className="mt-5" />
+        <p className="mt-1 text-sm text-white/60">{tLeads("description")}</p>
+        <LeadForm type="inquiry" tone="dark" kosts={kosts} className="mt-6" />
       </div>
     </Reveal>
   );

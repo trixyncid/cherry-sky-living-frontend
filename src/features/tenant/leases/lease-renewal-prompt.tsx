@@ -92,16 +92,21 @@ export function LeaseRenewalPrompt({
         icon="hourglass_top"
         tone="pending"
         title={t("requestedTitle")}
-        description={t("requestedDescription", {
-          deadline: formatDate(renewal.confirmationDeadline),
-        })}
+        description={
+          // Once the deadline passes, "you'll hear before <past date>" reads wrong.
+          new Date(renewal.confirmationDeadline).getTime() < Date.now()
+            ? t("requestedDescriptionLate")
+            : t("requestedDescription", {
+                deadline: formatDate(renewal.confirmationDeadline),
+              })
+        }
         action={
           !compact ? (
             <button
               type="button"
               disabled={pending}
               onClick={() => void handleCancelRequest()}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-xl glass-control px-4 py-2 text-sm font-semibold text-[#3d3a36] transition-colors hover:bg-white/80 disabled:opacity-50"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-md glass-control px-4 py-2 text-sm font-semibold text-fg-2 transition-colors hover:bg-white/80 disabled:opacity-50"
             >
               {pending ? t("submitting") : t("cancelRequest")}
             </button>
@@ -127,18 +132,18 @@ export function LeaseRenewalPrompt({
   return (
     <div
       className={cn(
-        "glass-panel rounded-[1.75rem] p-5 ring-1 ring-ferrugem/20",
+        "glass-panel rounded-lg p-5 ring-1 ring-brand/20",
         compact && "p-4",
         className,
       )}
     >
       <div className="flex gap-4">
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-ferrugem/12 text-ferrugem shadow-[inset_0_1px_0_rgb(255_255_255/0.55)]">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/12 text-brand">
           <Icon name="autorenew" size={24} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-[#141414]">{t("promptTitle")}</p>
-          <p className="mt-1 text-sm text-[#3d3a36]">
+          <p className="font-semibold text-fg">{t("promptTitle")}</p>
+          <p className="mt-1 text-sm text-fg-2">
             {t("promptDescription", {
               unit: lease.unit?.name ?? "—",
               endDate: lease.endDate ? formatDate(lease.endDate) : "—",
@@ -160,7 +165,7 @@ export function LeaseRenewalPrompt({
                 type="button"
                 disabled={pending}
                 onClick={() => void handleDismiss()}
-                className="glass-control inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-[#3d3a36] transition-colors hover:bg-white/80 disabled:opacity-50"
+                className="glass-control inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold text-fg-2 transition-colors hover:bg-white/80 disabled:opacity-50"
               >
                 {pending ? t("submitting") : t("noRenew")}
               </button>
@@ -169,7 +174,7 @@ export function LeaseRenewalPrompt({
           {compact && (
             <Link
               href="/tenant/lease-renewals"
-              className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-[#71130d] hover:underline"
+              className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline"
             >
               {t("respondNow")}
               <Icon name="arrow_forward" size={16} />
@@ -200,8 +205,8 @@ function RenewalBanner({
 }) {
   const toneStyles =
     tone === "pending"
-      ? "border-[#B06000]/20 bg-[#FEF7E0]/55 text-[#B06000]"
-      : "border-[#137333]/20 bg-[#E6F4EA]/55 text-[#137333]";
+      ? "border-brand-line bg-brand-tint text-brand"
+      : "border-success/20 bg-success-soft/55 text-success";
 
   return (
     <div
@@ -215,8 +220,8 @@ function RenewalBanner({
       <div className="flex gap-3">
         <Icon name={icon} size={compact ? 20 : 22} className="shrink-0" />
         <div>
-          <p className="text-sm font-semibold text-[#141414]">{title}</p>
-          <p className="mt-0.5 text-sm text-[#3d3a36]">{description}</p>
+          <p className="text-sm font-semibold text-fg">{title}</p>
+          <p className="mt-0.5 text-sm text-fg-2">{description}</p>
           {action}
         </div>
       </div>

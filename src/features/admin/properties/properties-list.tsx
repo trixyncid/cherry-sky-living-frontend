@@ -134,16 +134,16 @@ export function PropertiesList() {
       <AdminPageHeader
         title={tp("title")}
         description={tp("description")}
-        primaryAction={{ label: t("add"), href: `${BASE}/new`, icon: "add" }}
+        primaryAction={{
+          label: t("addProperty"),
+          href: `${BASE}/new`,
+          icon: "add",
+        }}
         className="mb-5"
       />
 
       {/* Portfolio band */}
-      <section className="relative mb-5 overflow-hidden rounded-[1.75rem] bg-ink p-5 text-white sm:p-6">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-brand/50 blur-3xl"
-        />
+      <section className="relative mb-5 overflow-hidden rounded-lg bg-ink p-5 text-white sm:p-6">
         <div className="relative grid grid-cols-2 gap-4 lg:grid-cols-[auto_1fr_1fr_1fr] lg:items-center lg:gap-8">
           <div className="col-span-2 flex items-center gap-4 lg:col-span-1">
             <OccupancyRing percent={occupancy} />
@@ -178,7 +178,7 @@ export function PropertiesList() {
         search={{
           value: search,
           onChange: setSearch,
-          placeholder: t("searchPlaceholder"),
+          placeholder: t("searchProperties"),
         }}
         resultCount={isLoading ? undefined : filtered.length}
       />
@@ -206,7 +206,7 @@ export function PropertiesList() {
           ))}
           <Link
             href={`${BASE}/new`}
-            className="group flex min-h-64 flex-col items-center justify-center gap-3 rounded-[1.75rem] border-2 border-dashed border-line p-8 text-center transition-colors hover:border-brand-line hover:bg-white/60"
+            className="group flex min-h-64 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-line p-8 text-center transition-colors hover:border-brand-line hover:bg-white/60"
           >
             <span className="flex size-14 items-center justify-center rounded-full bg-white text-brand shadow-sm transition-transform group-hover:scale-105">
               <Icon name="add_home" size={26} />
@@ -227,6 +227,15 @@ export function PropertiesList() {
         itemName={deleteDialog.item?.name ?? ""}
         onConfirm={confirmDelete}
         pending={pending}
+        requireTypedName
+        consequence={
+          deleteDialog.item
+            ? tp("deleteConsequence", {
+                units: stats.get(deleteDialog.item.id)?.total ?? 0,
+                types: stats.get(deleteDialog.item.id)?.typeCount ?? 0,
+              })
+            : undefined
+        }
       />
     </>
   );
@@ -267,7 +276,7 @@ function PropertyCard({
           fallbackLabel={ti("noPhoto")}
           className="aspect-[16/9] w-full transition-transform duration-700 group-hover:scale-[1.02]"
         />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(11_11_13/0.85),rgb(11_11_13/0.1)_55%,transparent)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(22_16_38/0.85),rgb(22_16_38/0.1)_55%,transparent)]" />
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
           {property.city ? (
             <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-fg">
@@ -352,14 +361,14 @@ function PropertyCard({
         <div className="mt-auto grid grid-cols-2 gap-2">
           <Link
             href={`/admin/units${scoped}`}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand px-4 text-[15px] font-medium text-white transition-colors hover:bg-brand-hover"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-brand px-4 text-[15px] font-medium text-white transition-colors hover:bg-brand-hover"
           >
             <Icon name={adminPageIcons.properties} size={18} />
             {ti("openBuilding")}
           </Link>
           <Link
             href={`/admin/unit-types${scoped}`}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-[15px] font-medium text-fg transition-colors hover:border-brand-line hover:text-brand"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-line bg-white px-4 text-[15px] font-medium text-fg transition-colors hover:border-brand-line hover:text-brand"
           >
             <Icon name={adminPageIcons.unitTypes} size={18} />
             {ti("roomTypes")}

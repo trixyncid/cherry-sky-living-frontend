@@ -85,7 +85,7 @@ export function LeaseRoommatesField({
         </div>
         <span
           className={cn(
-            "rounded-full px-2.5 py-1 text-[11px] font-semibold",
+            "rounded-full px-2.5 py-1 text-xs font-semibold",
             full ? "bg-brand-tint text-brand" : "bg-subtle text-fg-2",
           )}
         >

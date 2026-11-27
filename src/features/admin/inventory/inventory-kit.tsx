@@ -24,10 +24,10 @@ export type PropertyWithInventory = Property & {
   unitTypes?: UnitTypeWithInventory[];
 };
 
-export const panel = "rounded-[1.75rem] bg-white";
+export const panel = "rounded-lg bg-white";
 
 export function rupiah(amount: number): string {
-  return `Rp ${formatIdrCompact(amount)}`;
+  return formatIdrCompact(amount);
 }
 
 export function priceFor(

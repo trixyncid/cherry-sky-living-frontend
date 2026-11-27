@@ -252,9 +252,9 @@ export function Journey({
         ) : null}
 
         {/* Scrim: keeps captions readable over any frame. */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(11_11_13/0.88),rgb(11_11_13/0.35)_42%,transparent_70%)] lg:bg-[linear-gradient(75deg,rgb(11_11_13/0.82),rgb(11_11_13/0.3)_45%,transparent_70%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(22_16_38/0.88),rgb(22_16_38/0.35)_42%,transparent_70%)] lg:bg-[linear-gradient(75deg,rgb(22_16_38/0.82),rgb(22_16_38/0.3)_45%,transparent_70%)]" />
 
-        <div className="absolute inset-0 mx-auto flex w-full max-w-[90rem] items-end px-5 pb-20 sm:px-8 lg:items-center lg:pb-0">
+        <div className="absolute inset-0 mx-auto flex w-full max-w-[90rem] items-end px-5 pb-20 sm:px-8 lg:items-center lg:px-12 lg:pb-0">
           <div className="relative w-full max-w-xl">
             {overlays.map((o, i) => (
               <div
@@ -271,31 +271,33 @@ export function Journey({
               >
                 {o.kind === "gate" ? (
                   <>
-                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">
+                    <p className="eyebrow flex items-center gap-4 text-white/75">
+                      <span aria-hidden className="h-px w-10 bg-white/50" />
                       {pick(vm.content.area, locale)}
                     </p>
-                    <h2 className="mt-3 font-display text-[clamp(3rem,7vw,5.5rem)] leading-[0.95] tracking-[-0.02em]">
+                    <h2 className="mt-5 text-[clamp(3rem,7vw,5.5rem)] font-semibold leading-[0.95] tracking-[-0.045em]">
                       {vm.name}
                     </h2>
-                    <p className="mt-4 max-w-md text-lg text-white/85">
+                    <p className="mt-5 max-w-md text-lg leading-relaxed text-white/80">
                       {pick(vm.content.tagline, locale)}
                     </p>
-                    <p className="mt-6 inline-flex items-center gap-2 text-sm text-white/65">
+                    <p className="mt-8 inline-flex items-center gap-3 text-sm text-white/65">
                       <span className="story-scroll-cue" aria-hidden />
                       {t("scroll")}
                     </p>
                   </>
                 ) : o.kind === "room" ? (
-                  <div className="rounded-[1.5rem] border border-white/15 bg-ink/55 p-6 backdrop-blur-xl">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--lp-accent-soft)]">
+                  <div className="rounded-lg border border-white/15 bg-ink/75 p-6 backdrop-blur-xl sm:p-8">
+                    <p className="eyebrow flex items-center gap-4 text-white/75">
+                      <span aria-hidden className="h-px w-10 bg-white/50" />
                       {t("roomEyebrow")}
                     </p>
-                    <h3 className="mt-2 font-display text-4xl leading-none">
+                    <h3 className="mt-4 text-[clamp(2rem,3.4vw,2.75rem)] font-semibold leading-none tracking-[-0.035em]">
                       {room?.name ?? vm.name}
                     </h3>
-                    <p className="mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-white/85">
+                    <p className="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-white/15 pb-4 text-white/80">
                       {room && monthlyPrice(room) > 0 ? (
-                        <span className="text-2xl font-semibold tabular-nums">
+                        <span className="text-2xl font-medium tabular-nums text-white">
                           {formatCurrency(monthlyPrice(room))}
                           <span className="text-base font-normal text-white/60">
                             {t("perMonth")}
@@ -311,39 +313,43 @@ export function Journey({
                             <Icon
                               name="check"
                               size={16}
-                              className="text-[var(--lp-accent-soft)]"
+                              className="text-white/50"
                             />
                             {pick(f, locale)}
                           </li>
                         ))}
                       </ul>
                     ) : null}
-                    <div className="mt-5 flex flex-wrap gap-3">
+                    <div className="mt-6 flex flex-wrap gap-3">
                       <a
                         href={whatsappHref(waCtx, locale)}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => trackWhatsApp(waCtx)}
-                        className="inline-flex h-12 items-center gap-2 rounded-full bg-[#25d366] px-6 text-[15px] font-semibold text-ink hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        className="btn btn-light"
                       >
                         <Icon name="whatsapp" size={18} />
                         {t("askRoom")}
                       </a>
-                      <a
-                        href="#kamar"
-                        className="inline-flex h-12 items-center gap-2 rounded-full border border-white/25 px-6 text-[15px] font-semibold hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                      >
+                      <a href="#kamar" className="btn btn-outline-light">
                         {t("allRooms")}
-                        <Icon name="arrow_downward" size={18} />
+                        <Icon name="arrow_downward" size={17} />
                       </a>
                     </div>
                   </div>
                 ) : (
                   <>
-                    <h3 className="font-display text-[clamp(2.2rem,4.5vw,3.6rem)] leading-[1.02]">
+                    <p className="eyebrow flex items-center gap-4 text-white/75">
+                      <span className="tabular-nums text-white">
+                        {String(i).padStart(2, "0")}
+                      </span>
+                      <span aria-hidden className="h-px w-10 bg-white/50" />
+                      {vm.name}
+                    </p>
+                    <h3 className="mt-5 text-[clamp(2.2rem,4.5vw,3.6rem)] font-semibold leading-[1] tracking-[-0.04em]">
                       {pick(o.title, locale)}
                     </h3>
-                    <p className="mt-3 max-w-md text-lg text-white/85">
+                    <p className="mt-4 max-w-md text-lg leading-relaxed text-white/80">
                       {pick(o.body, locale)}
                     </p>
                   </>
@@ -354,8 +360,8 @@ export function Journey({
         </div>
 
         {/* Progress + skip: nobody is forced through the animation. */}
-        <div className="absolute inset-x-0 bottom-0 mx-auto flex w-full max-w-[90rem] items-center gap-4 px-5 pb-5 sm:px-8">
-          <div className="h-0.5 flex-1 overflow-hidden rounded bg-white/20">
+        <div className="absolute inset-x-0 bottom-0 mx-auto flex w-full max-w-[90rem] items-center gap-6 px-5 pb-6 sm:px-8 lg:px-12">
+          <div className="h-px flex-1 overflow-hidden bg-white/20">
             <div
               ref={bar}
               className="h-full origin-left bg-white"
@@ -364,7 +370,7 @@ export function Journey({
           </div>
           <a
             href="#kamar"
-            className="shrink-0 text-sm font-medium text-white/80 underline-offset-4 hover:text-white hover:underline"
+            className="eyebrow shrink-0 text-[10px] text-white/70 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
             {t("skip")}
           </a>

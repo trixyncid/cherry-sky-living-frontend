@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { WhatsAppInquiryDialog } from "@/components/kost/WhatsAppInquiryDialog";
 import { Icon } from "@/components/shared/Icon";
+import { DAILY_DURATION_DAYS } from "@/lib/billing";
 import type { RoomTypePricing } from "@/lib/types";
 import { formatCurrency, generateWhatsAppURL } from "@/lib/utils/format";
 import { getDurationLabel } from "@/lib/utils/kost-display";
@@ -130,6 +131,11 @@ export function RoomDetailSidebar({
                     {t("pricing.perMonth")}
                   </p>
                 ) : null}
+                {featuredPricing.durationDays === DAILY_DURATION_DAYS ? (
+                  <p className="relative mt-2 text-sm text-white/65">
+                    {t("pricing.minStayWeek")}
+                  </p>
+                ) : null}
               </motion.div>
 
               {secondaryPricings.length > 0 ? (
@@ -154,6 +160,11 @@ export function RoomDetailSidebar({
                         </span>
                         <span className="text-sm font-medium text-fg-2">
                           {getDurationLabel(pricing.durationDays, t)}
+                          {pricing.durationDays === DAILY_DURATION_DAYS ? (
+                            <span className="block text-xs font-normal text-fg-muted">
+                              {t("pricing.minStayWeek")}
+                            </span>
+                          ) : null}
                         </span>
                       </div>
                       <span className="text-base font-semibold tabular-nums text-fg">

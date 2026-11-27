@@ -58,81 +58,88 @@ function Card({
       onClick={onSelect}
       aria-pressed={selected}
       data-property={vm.key}
-      className={cn(
-        "lp-theme group relative flex min-h-[26rem] w-full flex-col justify-end overflow-hidden rounded-[2rem] text-left text-white ring-1 ring-white/10 transition-shadow focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--lp-accent-soft)] lg:min-h-[34rem]",
-        selected && "ring-2 ring-[var(--lp-accent-soft)]",
-      )}
+      className="lp-theme group flex w-full flex-col text-left text-white focus-visible:outline-none"
     >
-      <Image
-        src={vm.content.exteriorPhoto}
-        alt={t("photoAlt", { name: vm.name })}
-        fill
-        sizes="(min-width: 1024px) 50vw, 100vw"
-        className={cn("object-cover", !loop && "lp-kenburns")}
-        style={{
-          objectPosition: `${vm.content.exteriorFocal.x * 100}% ${vm.content.exteriorFocal.y * 100}%`,
-        }}
-      />
-      {loop ? (
-        <video
-          ref={video}
-          muted
-          playsInline
-          loop
-          preload="none"
-          aria-hidden
-          tabIndex={-1}
-          className="absolute inset-0 h-full w-full object-cover"
+      <span
+        className={cn(
+          "relative block aspect-[4/3] w-full overflow-hidden rounded-lg ring-1 transition sm:aspect-[16/10]",
+          selected
+            ? "ring-2 ring-white"
+            : "ring-white/10 group-focus-visible:ring-2 group-focus-visible:ring-white",
+        )}
+      >
+        <Image
+          src={vm.content.exteriorPhoto}
+          alt={t("photoAlt", { name: vm.name })}
+          fill
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          className={cn("object-cover", !loop && "lp-kenburns")}
+          style={{
+            objectPosition: `${vm.content.exteriorFocal.x * 100}% ${vm.content.exteriorFocal.y * 100}%`,
+          }}
         />
-      ) : null}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(11_11_13/0.92),rgb(11_11_13/0.35)_55%,transparent_80%)]" />
-
-      <div className="relative p-6 sm:p-8">
-        <p className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/75">
-          <span>{pick(vm.content.area, locale)}</span>
-          {vm.content.gender ? (
-            <span className="rounded-full border border-white/25 px-2.5 py-1 tracking-normal">
-              {t(`gender.${vm.content.gender}`)}
-            </span>
-          ) : null}
-        </p>
-        <h3 className="mt-3 font-display text-[clamp(2.6rem,4.6vw,4rem)] leading-none">
-          {vm.name}
-        </h3>
-        <p className="mt-3 max-w-sm text-white/85">
-          {pick(vm.content.tagline, locale)}
-        </p>
-        <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-3 text-sm">
-          <div>
-            <dt className="text-white/60">{t("price")}</dt>
-            <dd className="mt-0.5 text-lg font-semibold tabular-nums">
-              {min > 0
-                ? `${formatCurrency(min, { compact: true })}${max > min ? ` – ${formatCurrency(max, { compact: true })}` : ""}`
-                : t("ask")}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-white/60">{t("available")}</dt>
-            <dd className="mt-0.5 flex items-center gap-2 text-lg font-semibold tabular-nums">
-              <span
-                className={cn(
-                  "size-2 rounded-full",
-                  open > 0 ? "bg-success-bright" : "bg-warning",
-                )}
-              />
-              {k ? t("rooms", { count: open }) : "—"}
-            </dd>
-          </div>
-        </dl>
-        <span className="mt-6 inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-[15px] font-semibold text-ink transition-colors group-hover:bg-[var(--lp-accent-soft)]">
-          {t("cta", { name: vm.name })}
-          <Icon
-            name="arrow_forward"
-            size={18}
-            className="transition-transform group-hover:translate-x-0.5"
+        {loop ? (
+          <video
+            ref={video}
+            muted
+            playsInline
+            loop
+            preload="none"
+            aria-hidden
+            tabIndex={-1}
+            className="absolute inset-0 h-full w-full object-cover"
           />
+        ) : null}
+      </span>
+
+      <span className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <span className="block">
+          <span className="eyebrow flex flex-wrap items-center gap-3 text-[10px] text-white/60">
+            {pick(vm.content.area, locale)}
+            {vm.content.gender ? (
+              <>
+                <span aria-hidden className="h-px w-6 bg-white/40" />
+                {t(`gender.${vm.content.gender}`)}
+              </>
+            ) : null}
+          </span>
+          <h3 className="mt-3 text-[clamp(1.75rem,2.6vw,2.4rem)] font-semibold leading-none tracking-[-0.035em]">
+            {vm.name}
+          </h3>
+          <span className="mt-3 block max-w-sm text-[15px] leading-relaxed text-white/70">
+            {pick(vm.content.tagline, locale)}
+          </span>
         </span>
-      </div>
+        <span className="btn btn-outline-light shrink-0 self-start group-hover:bg-white group-hover:text-ink lg:self-auto">
+          {t("cta", { name: vm.name })}
+          <Icon name="north_east" size={17} />
+        </span>
+      </span>
+
+      <dl className="mt-6 grid w-full grid-cols-2 border-t border-white/15 pt-5 text-sm">
+        <div>
+          <dt className="eyebrow text-[10px] text-white/55">{t("price")}</dt>
+          <dd className="mt-1.5 text-lg font-medium tabular-nums">
+            {min > 0
+              ? `${formatCurrency(min, { compact: true })}${max > min ? ` – ${formatCurrency(max, { compact: true })}` : ""}`
+              : t("ask")}
+          </dd>
+        </div>
+        <div className="border-l border-white/15 pl-5">
+          <dt className="eyebrow text-[10px] text-white/55">
+            {t("available")}
+          </dt>
+          <dd className="mt-1.5 flex items-center gap-2 text-lg font-medium tabular-nums">
+            <span
+              className={cn(
+                "size-2 rounded-full",
+                open > 0 ? "bg-success-bright" : "bg-warning",
+              )}
+            />
+            {k ? t("rooms", { count: open }) : "—"}
+          </dd>
+        </div>
+      </dl>
     </button>
   );
 }
@@ -153,7 +160,7 @@ export function ChooseHome({
     <section
       id="pilih"
       aria-labelledby="pilih-heading"
-      className="scroll-mt-16 bg-ink px-5 pb-16 pt-10 text-white sm:px-8 lg:pb-24 lg:pt-14"
+      className="scroll-mt-16 bg-ink px-5 py-24 text-white sm:px-8 lg:px-12 lg:py-32"
     >
       <div className="mx-auto w-full max-w-[90rem]">
         <SectionHeading
@@ -165,7 +172,7 @@ export function ChooseHome({
           accent={t("titleAccent")}
           aside={t("aside")}
         />
-        <div className="mt-10 grid gap-5 lg:grid-cols-2">
+        <div className="mt-14 grid gap-x-8 gap-y-16 lg:grid-cols-2">
           {properties.map((vm) => (
             <Card
               key={vm.key}

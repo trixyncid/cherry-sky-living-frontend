@@ -1,5 +1,5 @@
 /**
- * How it works (§5.11) — black band with four numbered columns,
+ * How it works (§5.11) — navy band with four numbered columns,
  * ending in a survey CTA.
  */
 
@@ -28,9 +28,9 @@ export function HomeJourney() {
     <section
       id="how-it-works"
       aria-labelledby="journey-heading"
-      className="w-full bg-ink px-5 py-14 text-white sm:px-8 lg:py-16"
+      className="w-full bg-ink px-5 py-24 text-white sm:px-8 lg:px-12 lg:py-32"
     >
-      <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 lg:gap-12">
+      <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-14 lg:gap-20">
         <HomeSectionHeading
           id="journey-heading"
           tone="dark"
@@ -38,13 +38,13 @@ export function HomeJourney() {
           titleLead={t("titleLead")}
           titleAccent={t("titleAccent")}
           aside={
-            <p className="text-base leading-relaxed text-white/60">
+            <p className="text-base leading-relaxed text-white/65">
               {t("description")}
             </p>
           }
         />
 
-        <ol className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+        <ol className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step, index) => (
             <motion.li
               key={step.key}
@@ -58,16 +58,16 @@ export function HomeJourney() {
               }}
               className="flex flex-col"
             >
-              <span className="border-b border-white/20 pb-3 text-sm font-semibold tabular-nums">
+              <span className="border-t border-white/15 pt-5 text-sm tabular-nums text-white/45">
                 {String(index + 1).padStart(2, "0")}
               </span>
               <Icon
                 name={step.icon}
                 size={30}
-                className="mt-5 text-white [font-variation-settings:'wght'_200]"
+                className="mt-8 text-white/80 [font-variation-settings:'wght'_200]"
               />
               <p className="sr-only">{t("step", { n: index + 1 })}</p>
-              <h3 className="mt-5 text-lg font-semibold tracking-tight">
+              <h3 className="mt-6 text-xl font-semibold tracking-[-0.03em]">
                 {t(`${step.key}.title`)}
               </h3>
               <p className="mt-2 text-base leading-relaxed text-white/65">
@@ -77,12 +77,12 @@ export function HomeJourney() {
           ))}
         </ol>
 
-        <div className="flex flex-col items-center gap-3 text-center">
+        <div className="flex flex-col items-start gap-4 border-t border-white/15 pt-10 sm:flex-row sm:items-center sm:gap-8">
           <SurveyScheduleDialog
             triggerLabel={tCta("schedule")}
-            className="mt-0 h-12 rounded-full bg-white px-6 text-[15px] text-fg hover:bg-hover"
+            className="mt-0 h-12 gap-3 rounded-xl bg-white px-6 text-[15px] font-medium text-ink hover:bg-white/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           />
-          <p className="text-sm text-white/55">{t("hours")}</p>
+          <p className="eyebrow text-[10px] text-white/65">{t("hours")}</p>
         </div>
       </div>
     </section>

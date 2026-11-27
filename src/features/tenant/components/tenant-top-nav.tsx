@@ -31,7 +31,7 @@ function activeHref(pathname: string): string {
 }
 
 const pill =
-  "inline-flex h-10 shrink-0 items-center gap-2 rounded-full pl-3.5 pr-4 text-[15px] font-medium transition-colors";
+  "inline-flex h-10 shrink-0 items-center gap-2 rounded-lg pl-3 pr-3.5 text-sm font-medium transition-colors";
 
 /**
  * Tenant top bar — same language as the admin portal: brand, pill tabs,
@@ -70,9 +70,10 @@ export function TenantTopNav() {
         aria-current={active ? "page" : undefined}
         className={cn(
           pill,
+          // Same treatment as the admin sidebar items.
           active
-            ? "bg-[#71130d] text-white shadow-[0_12px_28px_-14px_rgb(113_19_13/0.75)]"
-            : "border border-[#ece4e2] bg-white text-[#3d3a36] hover:border-[#e8bfb9] hover:text-[#71130d]",
+            ? "bg-brand text-white"
+            : "text-white/65 hover:bg-white/[0.06] hover:text-white",
         )}
       >
         <Icon name={item.icon} size={18} />
@@ -82,20 +83,20 @@ export function TenantTopNav() {
   });
 
   return (
-    <header className="shrink-0 border-b border-[#ece4e2] bg-[#f7f3f2]/90 backdrop-blur-md">
+    <header className="shrink-0 border-b border-white/[0.07] bg-ink text-white">
       <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center gap-3 px-4 sm:px-6 lg:px-8">
         <Link
           href="/tenant"
           className="flex min-w-0 shrink-0 items-center gap-3"
         >
-          <span className="flex size-11 items-center justify-center rounded-full border border-[#ece4e2] bg-white">
-            <BrandMark tone="onLight" className="size-7" />
+          <span className="flex size-9 items-center justify-center rounded-lg bg-white">
+            <BrandMark tone="onLight" className="size-6" />
           </span>
           <span className="hidden min-w-0 sm:block">
-            <span className="block truncate text-lg font-medium tracking-tight text-[#141414]">
+            <span className="block truncate text-[15px] font-semibold tracking-tight">
               {tc("brand.name")}
             </span>
-            <span className="block text-xs text-[#6b6b6b]">
+            <span className="block text-xs font-medium uppercase tracking-[0.12em] text-brand-bright">
               {t("portalName")}
             </span>
           </span>
@@ -109,7 +110,7 @@ export function TenantTopNav() {
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          <LanguageSwitcher variant="navbar" isSolid />
+          <LanguageSwitcher variant="navbar" />
           <Popover open={accountOpen} onOpenChange={setAccountOpen}>
             <PopoverTrigger asChild>
               <button
@@ -118,15 +119,15 @@ export function TenantTopNav() {
                 className="flex items-center gap-2.5 rounded-full text-left transition-opacity hover:opacity-90"
               >
                 <ProfileAvatarPlaceholder
-                  className="size-10 rounded-full ring-2 ring-[#e8bfb9]"
+                  className="size-9 rounded-full ring-2 ring-white/15"
                   iconSize={20}
                   label={user.name}
                 />
                 <span className="hidden max-w-40 lg:block">
-                  <span className="block truncate text-[15px] font-medium text-[#141414]">
+                  <span className="block truncate text-sm font-medium">
                     {user.name}
                   </span>
-                  <span className="block text-xs text-[#6b6b6b]">
+                  <span className="block text-xs text-white/60">
                     {t("header.roleTenant")}
                   </span>
                 </span>
@@ -134,20 +135,20 @@ export function TenantTopNav() {
             </PopoverTrigger>
             <PopoverContent
               align="end"
-              className="w-64 rounded-2xl border border-[#ece4e2] bg-white p-2"
+              className="w-64 rounded-2xl border border-line bg-white p-2"
             >
               <div className="px-3 py-2">
-                <p className="truncate text-[15px] font-semibold text-[#141414]">
+                <p className="truncate text-[15px] font-semibold text-fg">
                   {user.name}
                 </p>
-                <p className="truncate text-sm text-[#6b6b6b]">
+                <p className="truncate text-sm text-fg-muted">
                   {contactSummary(user)}
                 </p>
               </div>
               <Link
                 href="/tenant/profile"
                 onClick={() => setAccountOpen(false)}
-                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] text-[#141414] hover:bg-[#f6f0ef]"
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] text-fg hover:bg-hover"
               >
                 <Icon name="person" size={18} />
                 {t("nav.profile")}
@@ -158,7 +159,7 @@ export function TenantTopNav() {
                   setAccountOpen(false);
                   setSignOutOpen(true);
                 }}
-                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] text-[#a1271b] hover:bg-[#fdecea]"
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] text-danger hover:bg-danger-soft"
               >
                 <Icon name="logout" size={18} />
                 {t("nav.signOut")}

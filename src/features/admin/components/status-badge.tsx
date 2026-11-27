@@ -178,3 +178,25 @@ export function LeaseBillingBadge({
     </span>
   );
 }
+
+/**
+ * A lease's payment standing: the live billing state when the API sent it,
+ * else the stored status (which only reflects the move-in bill).
+ */
+export function LeaseStandingBadge({
+  lease,
+}: {
+  lease: {
+    status: LeaseStatus;
+    billing?: { state: LeaseBillingState; overdueCount?: number } | null;
+  };
+}) {
+  return lease.billing ? (
+    <LeaseBillingBadge
+      state={lease.billing.state}
+      overdueCount={lease.billing.overdueCount}
+    />
+  ) : (
+    <LeaseStatusBadge status={lease.status} />
+  );
+}

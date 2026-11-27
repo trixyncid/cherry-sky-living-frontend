@@ -90,16 +90,6 @@ export function AdminTopNav() {
             </span>
           ) : (
             <>
-              {group && group.items.length > 1 && (
-                <>
-                  <span className="text-fg-muted">{t(group.labelKey)}</span>
-                  <Icon
-                    name="chevron_right"
-                    size={16}
-                    className="text-fg-faint"
-                  />
-                </>
-              )}
               {page && (
                 <span className="truncate font-medium text-fg">
                   {t(page.labelKey)}
@@ -114,7 +104,7 @@ export function AdminTopNav() {
             <PopoverTrigger asChild>
               <button
                 type="button"
-                className="admin-btn-primary mr-1 hidden h-10 items-center gap-1.5 rounded-full pl-3.5 pr-4 text-sm font-medium transition-colors lg:inline-flex"
+                className="admin-btn-primary mr-1 hidden h-10 items-center gap-1.5 rounded-md pl-3.5 pr-4 text-sm font-medium transition-colors lg:inline-flex"
               >
                 <Icon name="add" size={18} />
                 {tm("create")}
@@ -124,7 +114,7 @@ export function AdminTopNav() {
               align="end"
               className="glass-overlay w-64 rounded-xl p-1.5"
             >
-              <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-fg-muted">
+              <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-[0.12em] text-fg-muted">
                 {tm("createTitle")}
               </p>
               {adminCreateActions.map((a) => (

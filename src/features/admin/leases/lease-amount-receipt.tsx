@@ -41,7 +41,7 @@ type LineItem = {
 function MetaChip({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-line-strong/45 bg-panel px-3 py-2">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-fg-muted">
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-fg-muted">
         {label}
       </p>
       <p className="mt-0.5 text-sm font-semibold tabular-nums text-fg">
@@ -75,7 +75,7 @@ function ReceiptLine({
       <div className="min-w-0">
         <p className="font-semibold text-fg">{label}</p>
         <p className="mt-0.5 text-xs leading-relaxed text-fg-muted">{hint}</p>
-        <p className="mt-1.5 inline-flex max-w-full flex-wrap items-center gap-x-1 rounded-lg border border-line-strong/50 bg-panel px-2 py-1 font-mono text-[11px] tabular-nums text-fg-2">
+        <p className="mt-1.5 inline-flex max-w-full flex-wrap items-center gap-x-1 rounded-lg border border-line-strong/50 bg-panel px-2 py-1 font-mono text-xs tabular-nums text-fg-2">
           {equation}
         </p>
       </div>
@@ -167,28 +167,19 @@ export function LeaseAmountReceipt({
   return (
     <section
       className={cn(
-        "glass-panel relative overflow-hidden rounded-[1.75rem]",
+        "glass-panel relative overflow-hidden rounded-lg",
         className,
       )}
       aria-label={tp("amountPreview")}
     >
-      <div
-        className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-brand/12 blur-3xl"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -bottom-24 -left-10 size-48 rounded-full bg-brand-deep/10 blur-3xl"
-        aria-hidden
-      />
-
       <div className="relative border-b border-line-strong/45 px-5 py-4 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand shadow-[0_8px_20px_-8px_rgb(122_22_48/0.6)]">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand">
               <Icon name="receipt_long" size={20} className="text-white" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">
                 {tp("receiptBadge")}
               </p>
               <h3 className="mt-1 text-lg font-bold tracking-tight text-fg">
@@ -201,7 +192,7 @@ export function LeaseAmountReceipt({
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {headerAction}
-            <div className="rounded-full border border-line-strong/70 bg-panel px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-brand">
+            <div className="rounded-full border border-line-strong/70 bg-panel px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand">
               {tp("receiptDraft")}
             </div>
           </div>
@@ -209,7 +200,7 @@ export function LeaseAmountReceipt({
 
         <div className="mt-4 grid gap-3 rounded-xl border border-line-strong/40 bg-panel px-3.5 py-3 sm:grid-cols-2">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-fg-muted">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-fg-muted">
               {tp("periodStart")}
             </p>
             <p className="mt-0.5 text-sm font-semibold text-fg">
@@ -217,7 +208,7 @@ export function LeaseAmountReceipt({
             </p>
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-fg-muted">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-fg-muted">
               {tp("periodEnd")}
             </p>
             <p className="mt-0.5 text-sm font-semibold text-fg">
@@ -228,7 +219,7 @@ export function LeaseAmountReceipt({
       </div>
 
       <div className="relative border-b border-line-strong/40 px-5 py-4 sm:px-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-fg-muted">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-fg-muted">
           {tp("receiptRatesTitle")}
         </p>
         <dl className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
@@ -263,7 +254,7 @@ export function LeaseAmountReceipt({
       </div>
 
       <div className="relative px-5 py-2 sm:px-6">
-        <p className="pt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-fg-muted">
+        <p className="pt-3 text-xs font-semibold uppercase tracking-[0.14em] text-fg-muted">
           {tp("receiptBreakdownTitle")}
         </p>
         <div className="divide-y divide-dashed divide-line-strong/55">
@@ -280,10 +271,10 @@ export function LeaseAmountReceipt({
         </div>
       </div>
 
-      <div className="relative mx-5 mb-5 rounded-2xl border border-line-strong/50 bg-gradient-to-br from-panel via-subtle to-brand-tint px-4 py-4 sm:mx-6">
+      <div className="relative mx-5 mb-5 rounded-2xl border border-line-strong/50 bg-subtle px-4 py-4 sm:mx-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">
               {tp("amountDue")}
             </p>
             <p className="mt-1 text-2xl font-bold tracking-tight text-fg tabular-nums sm:text-3xl">

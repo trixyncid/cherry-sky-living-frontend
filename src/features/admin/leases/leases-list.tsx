@@ -15,8 +15,6 @@ import {
   LeaseStatusBadge,
 } from "@/features/admin/components/status-badge";
 import { adminPageIcons } from "@/features/admin/constants/nav-items";
-import { AdminDeleteDialog } from "@/features/admin/crud/admin-delete-dialog";
-import { useDeleteDialog } from "@/features/admin/crud/use-delete-dialog";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import { useAdminPropertyFilter } from "@/features/admin/hooks/use-admin-property-filter";
 import {
@@ -85,7 +83,7 @@ const COLUMNS: {
 /**
  * Board column from where the tenant stands on their payment schedule:
  * anything due / overdue / move-in not paid → Unpaid; a receipt to check →
- * Awaiting review; paid so far or in full → Paid.
+ * Awaiting review; nothing due yet or paid in full → On track ("Lancar").
  */
 function boardColumnFor(lease: Lease): LeaseStatus {
   const state = lease.billing?.state;
@@ -130,8 +128,6 @@ export function LeasesList() {
   } = useLeases({
     propertyId: propertyFilter || undefined,
   });
-  const mutations = useLeaseMutations();
-  const deleteDialog = useDeleteDialog<Lease>();
   const lookups = useAdminLookups();
 
   const filtered = useMemo(() => {
@@ -190,18 +186,6 @@ export function LeasesList() {
     };
   }, [columns, filtered]);
 
-  async function confirmDelete() {
-    if (!deleteDialog.item) return;
-    try {
-      await mutations.remove.mutateAsync(deleteDialog.item.id);
-      showApiSuccess(t("deleted"));
-      deleteDialog.close();
-    } catch (err) {
-      showApiError(err, t("deleteFailed"));
-    }
-  }
-
-  const deletePending = mutations.remove.isPending;
   const propertyToolbar = usePropertyToolbarFilter(
     propertyFilter,
     setPropertyFilter,
@@ -212,7 +196,11 @@ export function LeasesList() {
       <AdminPageHeader
         title={tp("title")}
         description={tp("description")}
-        primaryAction={{ label: t("add"), href: `${BASE}/new`, icon: "add" }}
+        primaryAction={{
+          label: t("addLease"),
+          href: `${BASE}/new`,
+          icon: "add",
+        }}
       />
 
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -246,7 +234,7 @@ export function LeasesList() {
         search={{
           value: search,
           onChange: setSearch,
-          placeholder: t("searchPlaceholder"),
+          placeholder: t("searchLeases"),
         }}
         filters={[
           propertyToolbar,
@@ -267,7 +255,7 @@ export function LeasesList() {
                 <option value="">{tt("all")}</option>
                 <option value="unpaid">{td("statusUnpaid")}</option>
                 <option value="waiting_for_review">{td("statusReview")}</option>
-                <option value="paid">{td("statusPaid")}</option>
+                <option value="paid">{to("colPaid")}</option>
               </AdminSelect>
             ),
           },
@@ -317,8 +305,6 @@ export function LeasesList() {
                 column={col}
                 leases={columns[col.status]}
                 hiddenOnMobile={mobileColumn !== col.status}
-                onDelete={(l) => deleteDialog.openDelete(l)}
-                deleteDisabled={deletePending}
               />
             ))}
           </div>
@@ -330,27 +316,10 @@ export function LeasesList() {
             ...columns.waiting_for_review,
             ...columns.paid,
           ].map((lease) => (
-            <ListRow
-              key={lease.id}
-              lease={lease}
-              onDelete={() => deleteDialog.openDelete(lease)}
-              deleteDisabled={deletePending}
-            />
+            <ListRow key={lease.id} lease={lease} />
           ))}
         </section>
       )}
-
-      <AdminDeleteDialog
-        open={deleteDialog.open}
-        onOpenChange={(open) => !open && deleteDialog.close()}
-        itemName={
-          deleteDialog.item
-            ? `${deleteDialog.item.unit?.name ?? ""} · ${resolveLeaseTenantLabel(deleteDialog.item)}`
-            : ""
-        }
-        onConfirm={confirmDelete}
-        pending={deletePending}
-      />
     </>
   );
 }
@@ -359,14 +328,10 @@ function BoardColumn({
   column,
   leases,
   hiddenOnMobile,
-  onDelete,
-  deleteDisabled,
 }: {
   column: (typeof COLUMNS)[number];
   leases: Lease[];
   hiddenOnMobile: boolean;
-  onDelete: (lease: Lease) => void;
-  deleteDisabled: boolean;
 }) {
   const to = useTranslations("admin.pages.operations");
   const [expanded, setExpanded] = useState(false);
@@ -375,7 +340,7 @@ function BoardColumn({
   return (
     <section
       className={cn(
-        "flex flex-col rounded-[1.75rem] bg-hover/70 p-2",
+        "flex flex-col rounded-lg bg-hover/70 p-2",
         hiddenOnMobile && "hidden lg:flex",
       )}
     >
@@ -394,14 +359,7 @@ function BoardColumn({
             {to("emptyColumn")}
           </li>
         ) : (
-          shown.map((lease) => (
-            <LeaseCard
-              key={lease.id}
-              lease={lease}
-              onDelete={() => onDelete(lease)}
-              deleteDisabled={deleteDisabled}
-            />
-          ))
+          shown.map((lease) => <LeaseCard key={lease.id} lease={lease} />)
         )}
       </ul>
       {leases.length > COLUMN_PREVIEW ? (
@@ -417,16 +375,7 @@ function BoardColumn({
   );
 }
 
-function LeaseCard({
-  lease,
-  onDelete,
-  deleteDisabled,
-}: {
-  lease: Lease;
-  onDelete: () => void;
-  deleteDisabled: boolean;
-}) {
-  const t = useTranslations("admin.crud");
+function LeaseCard({ lease }: { lease: Lease }) {
   const tp = useTranslations("admin.pages.leases");
   const to = useTranslations("admin.pages.operations");
   const locale = useLocale();
@@ -467,6 +416,11 @@ function LeaseCard({
     }
   }
 
+  const dueSoon =
+    !!bill &&
+    (late > 0 ||
+      new Date(bill.dueDate).getTime() - Date.now() <= 7 * 24 * 60 * 60 * 1000);
+
   return (
     <li className="group rounded-2xl bg-white p-3.5 shadow-[0_1px_0_rgb(0_0_0/0.03)]">
       <div className="flex items-start gap-3">
@@ -481,15 +435,13 @@ function LeaseCard({
             {resolveLeasePropertyName(lease, lookups)}
           </p>
         </div>
-        <p className="shrink-0 text-[15px] font-medium tabular-nums text-fg">
-          {rupiah(bill?.amount ?? lease.amountDue ?? 0)}
-        </p>
       </div>
 
       {bill ? (
         <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 text-xs text-fg-2">
           <span className="font-medium text-fg">
-            {tb("billLabel", { n: bill.sequence })}
+            {tb("billLabel", { n: bill.sequence })} ·{" "}
+            <span className="tabular-nums">{rupiah(bill.amount)}</span>
           </span>
           <span className="text-fg-muted">·</span>
           {tb("dueOn", { date: formatDate(bill.dueDate, locale) })}
@@ -525,10 +477,15 @@ function LeaseCard({
         ) : null}
         {bill?.lateFeeWaived ? (
           <span className="inline-flex items-center rounded-full bg-hover px-2.5 py-1 text-xs font-medium text-fg-2">
-            {tb("feeWaived")}
+            {bill.lateFeeWaivedAmount
+              ? tb("feeWaivedDetail", {
+                  amount: rupiah(bill.lateFeeWaivedAmount),
+                  days: bill.lateFeeWaivedDays ?? 0,
+                })
+              : tb("feeWaived")}
           </span>
         ) : null}
-        {bill ? (
+        {bill && (dueSoon || bill.proofAttachmentId) ? (
           <span
             className={cn(
               "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium",
@@ -543,11 +500,11 @@ function LeaseCard({
             />
             {bill.proofAttachmentId ? to("proofAttached") : to("noProof")}
           </span>
-        ) : end ? (
+        ) : !bill && end ? (
           <DueChip date={end} warnWithin={30} />
         ) : null}
-        {lease.leaseRenewal?.isRenewLease ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand">
+        {lease.leaseRenewal?.isRenewLease && !lease.leaseRenewal.isConfirmed ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-hover px-2.5 py-1 text-xs font-medium text-fg-2">
             <Icon name={adminPageIcons.leaseRenewals} size={14} />
             {to("renewalAsked")}
           </span>
@@ -560,15 +517,21 @@ function LeaseCard({
             type="button"
             disabled={busy}
             onClick={() => void run("confirm")}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-brand px-3.5 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-1.5 rounded-md bg-brand px-3.5 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-50"
           >
             <Icon name="check" size={16} />
             {tp("confirmPaid")}
           </button>
         ) : bill && !inReview ? (
           <Link
-            href={`${BASE}/${lease.id}/edit`}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-brand px-3.5 text-sm font-medium text-white hover:bg-brand-hover"
+            href={`${BASE}/${lease.id}/edit#pembayaran`}
+            className={cn(
+              "inline-flex h-9 items-center gap-1.5 rounded-md px-3.5 text-sm font-medium",
+              // Loud only when the bill is due within a week or late.
+              dueSoon
+                ? "bg-brand text-white hover:bg-brand-hover"
+                : "border border-line-strong text-fg-2 hover:bg-hover",
+            )}
           >
             <Icon name="payments" size={16} />
             {tb("recordPayment")}
@@ -579,7 +542,7 @@ function LeaseCard({
             type="button"
             disabled={busy}
             onClick={() => void run("reject")}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-danger-soft px-3 text-sm font-medium text-danger hover:bg-danger-soft disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-danger-soft px-3 text-sm font-medium text-danger hover:bg-danger-soft disabled:opacity-50"
           >
             <Icon name="close" size={16} />
             {to("reject")}
@@ -591,29 +554,13 @@ function LeaseCard({
             label={to("openLease")}
             href={`${BASE}/${lease.id}/edit`}
           />
-          <IconAction
-            icon="delete"
-            tone="danger"
-            label={t("deleteConfirm")}
-            onClick={onDelete}
-            disabled={deleteDisabled}
-          />
         </div>
       </div>
     </li>
   );
 }
 
-function ListRow({
-  lease,
-  onDelete,
-  deleteDisabled,
-}: {
-  lease: Lease;
-  onDelete: () => void;
-  deleteDisabled: boolean;
-}) {
-  const t = useTranslations("admin.crud");
+function ListRow({ lease }: { lease: Lease }) {
   const to = useTranslations("admin.pages.operations");
   const locale = useLocale();
   const lookups = useAdminLookups();
@@ -658,13 +605,6 @@ function ListRow({
           label={to("openLease")}
           href={`${BASE}/${lease.id}/edit`}
         />
-        <IconAction
-          icon="delete"
-          tone="danger"
-          label={t("deleteConfirm")}
-          onClick={onDelete}
-          disabled={deleteDisabled}
-        />
       </div>
     </div>
   );
@@ -687,7 +627,7 @@ function Kpi({
         className={cn(
           "flex size-10 shrink-0 items-center justify-center rounded-full",
           tone === "red" && "bg-danger-soft text-danger",
-          tone === "sand" && "bg-warning-soft text-warning",
+          tone === "sand" && "bg-brand-soft text-brand",
           tone === "neutral" && "bg-hover text-brand",
         )}
       >
@@ -712,7 +652,7 @@ function RoommatesChip({ lease }: { lease: Lease }) {
   return (
     <span
       title={tp("sharedWith", { names })}
-      className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-brand-tint px-1.5 py-0.5 text-[11px] font-semibold text-brand"
+      className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-brand-tint px-1.5 py-0.5 text-xs font-semibold text-brand"
     >
       <Icon name="group" size={12} />+{roommates.length}
       <span className="sr-only">{tp("sharedWith", { names })}</span>

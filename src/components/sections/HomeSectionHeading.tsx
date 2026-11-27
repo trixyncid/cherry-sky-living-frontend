@@ -1,6 +1,6 @@
 /**
- * Section heading: "• Eyebrow" in a narrow left column, a large statement
- * on the right (lead in ink, accent muted), optional aside underneath.
+ * Section heading: ruled uppercase eyebrow in a narrow left column, a
+ * stacked two-tone statement on the right, optional aside.
  */
 
 import type { ReactNode } from "react";
@@ -47,12 +47,17 @@ export function HomeSectionHeading({
         <Heading
           id={id}
           className={cn(
-            "max-w-3xl text-[clamp(1.65rem,2.4vw,2.2rem)] font-medium leading-[1.12] tracking-[-0.025em]",
+            "max-w-3xl text-[clamp(1.9rem,3.2vw,2.9rem)] font-semibold leading-[1.02] tracking-[-0.035em]",
             dark ? "text-white" : "text-fg",
           )}
         >
-          {titleLead}{" "}
-          <span className={dark ? "text-white/45" : "text-fg-muted"}>
+          <span className="block text-balance">{titleLead}</span>
+          <span
+            className={cn(
+              "block text-balance font-normal",
+              dark ? "text-white/55" : "text-fg/45",
+            )}
+          >
             {titleAccent}
           </span>
         </Heading>

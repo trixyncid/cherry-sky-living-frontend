@@ -12,7 +12,7 @@ import type { CSSProperties } from "react";
  * element found for chunk …globals…css"). Inline styles also still work if
  * the stylesheet is what failed to load. Colours mirror the --adm-* tokens.
  */
-const BRAND = "#7a1630";
+const BRAND = "#b3263e";
 const INK = "#0f0f11";
 const MUTED = "#66666e";
 const LINE = "#e6e6e9";

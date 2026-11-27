@@ -1,9 +1,13 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import { AdminDateRangePicker } from "@/features/admin/components/admin-field";
+import {
+  AdminDateRangePicker,
+  AdminSelect,
+} from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import {
   AdminToolbar,
@@ -29,12 +33,7 @@ import {
   showApiSuccess,
 } from "@/features/admin/lib/show-api-error";
 import type { AvailabilityRange } from "@/features/admin/units/components/units-availability-filter";
-import { UnitsBuildingView } from "@/features/admin/units/components/units-building-view";
 import { UnitsTableView } from "@/features/admin/units/components/units-table-view";
-import {
-  type UnitsViewMode,
-  UnitsViewToggle,
-} from "@/features/admin/units/components/units-view-toggle";
 import type { Unit } from "@/lib/types/admin";
 
 const BASE = "/admin/units";
@@ -49,7 +48,13 @@ export function UnitsList() {
   const { propertyId: propertyFilter, setPropertyId: setPropertyFilter } =
     useAdminPropertyFilter();
   const [search, setSearch] = useState("");
-  const [viewMode, setViewMode] = useState<UnitsViewMode>("map");
+  const searchParams = useSearchParams();
+  const [statusFilter, setStatusFilter] = useState<"" | "vacant" | "occupied">(
+    () => {
+      const s = searchParams.get("status");
+      return s === "vacant" || s === "occupied" ? s : "";
+    },
+  );
   const [draftStartDate, setDraftStartDate] = useState("");
   const [draftEndDate, setDraftEndDate] = useState("");
   const [activeRange, setActiveRange] = useState<AvailabilityRange | null>(
@@ -81,8 +86,15 @@ export function UnitsList() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return data;
-    return data.filter((unit) => {
+    const byStatus = statusFilter
+      ? data.filter((unit) =>
+          statusFilter === "vacant"
+            ? unit.status === "vacant"
+            : unit.status !== "vacant",
+        )
+      : data;
+    if (!q) return byStatus;
+    return byStatus.filter((unit) => {
       const tenant = resolveUnitTenantLabel(unit);
       return (
         unit.name.toLowerCase().includes(q) ||
@@ -91,7 +103,7 @@ export function UnitsList() {
         tenant.toLowerCase().includes(q)
       );
     });
-  }, [data, search, lookups]);
+  }, [data, search, lookups, statusFilter]);
 
   /** Applies as soon as both dates are picked — no separate "Search" step. */
   function handleRangeChange({ from, to }: { from: string; to: string }) {
@@ -129,15 +141,6 @@ export function UnitsList() {
     }
   }
 
-  const buildingUnits = allUnitsQuery.data ?? [];
-  const matchingIds = useMemo(
-    () =>
-      isAvailabilityMode || search.trim()
-        ? new Set(filtered.map((u) => u.id))
-        : null,
-    [isAvailabilityMode, search, filtered],
-  );
-
   const pending = mutations.remove.isPending;
   const tt = useTranslations("admin.toolbar");
   const propertyToolbar = usePropertyToolbarFilter(
@@ -152,7 +155,7 @@ export function UnitsList() {
         title={tp("title")}
         description={tp("description")}
         primaryAction={{
-          label: t("add"),
+          label: t("addUnit"),
           href: `${BASE}/new`,
           icon: "add",
         }}
@@ -162,10 +165,30 @@ export function UnitsList() {
         search={{
           value: search,
           onChange: setSearch,
-          placeholder: t("searchPlaceholder"),
+          placeholder: t("searchUnits"),
         }}
         filters={[
           propertyToolbar,
+          {
+            key: "status",
+            label: tp("statusFilter.label"),
+            active: Boolean(statusFilter),
+            chip: statusFilter ? tp(`statusFilter.${statusFilter}`) : undefined,
+            onClear: () => setStatusFilter(""),
+            control: (
+              <AdminSelect
+                aria-label={tp("statusFilter.label")}
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value as "" | "vacant" | "occupied")
+                }
+              >
+                <option value="">{tp("statusFilter.all")}</option>
+                <option value="vacant">{tp("statusFilter.vacant")}</option>
+                <option value="occupied">{tp("statusFilter.occupied")}</option>
+              </AdminSelect>
+            ),
+          },
           {
             key: "availability",
             label: tt("vacantBetween"),
@@ -185,7 +208,6 @@ export function UnitsList() {
             ),
           },
         ]}
-        trailing={<UnitsViewToggle value={viewMode} onChange={setViewMode} />}
         resultCount={isLoading || isFetching ? undefined : filtered.length}
       />
 
@@ -199,37 +221,15 @@ export function UnitsList() {
         </div>
       )}
 
-      {viewMode === "map" ? (
-        allUnitsQuery.isLoading || isLoading ? (
-          <p className="glass-panel rounded-2xl p-10 text-center text-sm text-fg-muted">
-            {t("loading")}
-          </p>
-        ) : buildingUnits.length === 0 ? (
-          <p className="glass-panel rounded-2xl border-dashed p-10 text-center text-sm text-fg-muted">
-            {emptyMessage}
-          </p>
-        ) : (
-          <UnitsBuildingView
-            units={buildingUnits}
-            matchingIds={matchingIds}
-            availabilityMode={isAvailabilityMode}
-            lookups={lookups}
-            onDelete={(unit) => deleteDialog.openDelete(unit)}
-            deleteDisabled={pending}
-            suggestedLeaseStartDate={activeRange?.startDate}
-          />
-        )
-      ) : (
-        <UnitsTableView
-          units={filtered}
-          lookups={lookups}
-          isLoading={isLoading}
-          onDelete={(unit) => deleteDialog.openDelete(unit)}
-          deleteDisabled={pending}
-          emptyMessage={emptyMessage}
-          suggestedLeaseStartDate={activeRange?.startDate}
-        />
-      )}
+      <UnitsTableView
+        units={filtered}
+        lookups={lookups}
+        isLoading={isLoading}
+        onDelete={(unit) => deleteDialog.openDelete(unit)}
+        deleteDisabled={pending}
+        emptyMessage={emptyMessage}
+        suggestedLeaseStartDate={activeRange?.startDate}
+      />
 
       <AdminDeleteDialog
         open={deleteDialog.open}

@@ -4,7 +4,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { AdminAlert } from "@/features/admin/components/admin-alert";
-import { AdminSelect } from "@/features/admin/components/admin-field";
 import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import {
   AdminToolbar,
@@ -79,6 +78,8 @@ const STAGES: { id: Stage; icon: string; labelKey: string; hintKey: string }[] =
  * doubles as the filter; below, requests line up by their confirmation
  * deadline, overdue first, with the next action on each.
  */
+const PAGE = 20;
+
 export function LeaseRenewalsList() {
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.leaseRenewals");
@@ -95,7 +96,6 @@ export function LeaseRenewalsList() {
     propertyId: propertyFilter || undefined,
   });
   const lookups = useAdminLookups();
-  const tt = useTranslations("admin.toolbar");
   const propertyToolbar = usePropertyToolbarFilter(
     propertyFilter,
     setPropertyFilter,
@@ -158,30 +158,37 @@ export function LeaseRenewalsList() {
       .filter((g) => g.rows.length > 0);
   }, [requests, stage, search, lookups]);
 
+  // Render in batches so 170+ cards don't load as one endless scroll.
+  const [limit, setLimit] = useState(PAGE);
+  const totalRows = groups.reduce((n, g) => n + g.rows.length, 0);
+  const visibleGroups = useMemo(() => {
+    let left = limit;
+    return groups
+      .map((g) => {
+        const rows = g.rows.slice(0, Math.max(0, left));
+        left -= rows.length;
+        return { ...g, rows };
+      })
+      .filter((g) => g.rows.length > 0);
+  }, [groups, limit]);
+
   return (
     <>
       <AdminPageHeader title={tp("title")} description={tp("description")} />
 
       {/* Pipeline stepper (also the filter) */}
       <section className={cn(panel, "mb-5 p-3 sm:p-4")}>
-        <div className="flex items-stretch gap-2 overflow-x-auto pb-1">
-          <div className="flex min-w-[9.5rem] flex-col justify-center rounded-2xl bg-ink px-4 py-3 text-white">
-            <p className="flex items-center gap-2 text-sm text-white/70">
-              <Icon name={adminPageIcons.leaseRenewals} size={16} />
-              {tp("stats.requested")}
-            </p>
-            <p className="text-3xl font-medium tabular-nums">
-              {requests.length}
-            </p>
-            <p className="text-xs text-white/60">{tp("stats.requestedHint")}</p>
-          </div>
+        <div className="flex flex-col items-stretch gap-2 sm:flex-row">
           {STAGES.map((s, i) => {
             const active = stage === s.id;
             return (
               <Fragment key={s.id}>
                 <span
                   aria-hidden
-                  className="flex shrink-0 items-center text-fg-faint"
+                  className={cn(
+                    "hidden shrink-0 items-center text-fg-faint sm:flex",
+                    i === 0 && "sm:hidden",
+                  )}
                 >
                   <Icon name="chevron_right" size={22} />
                 </span>
@@ -190,9 +197,9 @@ export function LeaseRenewalsList() {
                   aria-pressed={active}
                   onClick={() => setStage(active ? "all" : s.id)}
                   className={cn(
-                    "flex min-w-[11rem] flex-1 flex-col items-start rounded-2xl px-4 py-3 text-left transition-colors",
+                    "flex flex-1 flex-col items-start rounded-lg px-4 py-3 text-left transition-colors sm:min-w-[11rem]",
                     active
-                      ? "bg-brand text-white shadow-[0_14px_30px_-16px_rgb(122_22_48/0.8)]"
+                      ? "bg-brand text-white"
                       : "bg-subtle text-fg hover:bg-hover",
                   )}
                 >
@@ -234,32 +241,9 @@ export function LeaseRenewalsList() {
         search={{
           value: search,
           onChange: setSearch,
-          placeholder: t("searchPlaceholder"),
+          placeholder: t("searchRenewals"),
         }}
-        filters={[
-          propertyToolbar,
-          {
-            key: "stage",
-            label: tt("status"),
-            active: stage !== "all",
-            chip: stage !== "all" ? tp(`status.${stage}`) : undefined,
-            onClear: () => setStage("all"),
-            width: "w-56",
-            control: (
-              <AdminSelect
-                value={stage}
-                onChange={(e) => setStage(e.target.value as StageFilter)}
-              >
-                <option value="all">{tp("filters.all")}</option>
-                {STAGES.map((st) => (
-                  <option key={st.id} value={st.id}>
-                    {tp(`status.${st.id}`)}
-                  </option>
-                ))}
-              </AdminSelect>
-            ),
-          },
-        ]}
+        filters={[propertyToolbar]}
         resultCount={
           isLoading ? undefined : groups.reduce((n, g) => n + g.rows.length, 0)
         }
@@ -277,7 +261,7 @@ export function LeaseRenewalsList() {
         <EmptyPanel icon={adminPageIcons.leaseRenewals} title={tp("empty")} />
       ) : (
         <div className="space-y-6">
-          {groups.map((g) => (
+          {visibleGroups.map((g) => (
             <section key={g.key}>
               <h3
                 className={cn(
@@ -307,6 +291,17 @@ export function LeaseRenewalsList() {
               </ol>
             </section>
           ))}
+          {totalRows > limit ? (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => setLimit((n) => n + PAGE)}
+                className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line bg-white px-5 text-sm font-medium text-fg hover:border-brand-line hover:text-brand"
+              >
+                {tp("showMore", { count: Math.min(PAGE, totalRows - limit) })}
+              </button>
+            </div>
+          ) : null}
         </div>
       )}
     </>
@@ -328,7 +323,7 @@ function RenewalItem({ lease }: { lease: Lease }) {
     <li className="relative flex gap-3 sm:gap-4">
       {/* Date marker on the rail */}
       <div className="relative z-10 flex h-fit w-[3.7rem] shrink-0 flex-col items-center rounded-2xl bg-white py-2 text-center sm:w-[4.7rem]">
-        <span className="text-[11px] uppercase tracking-wide text-fg-muted">
+        <span className="text-xs uppercase tracking-wide text-fg-muted">
           {d
             ? new Intl.DateTimeFormat(locale, { month: "short" }).format(d)
             : "—"}
@@ -336,7 +331,7 @@ function RenewalItem({ lease }: { lease: Lease }) {
         <span className="text-2xl font-medium leading-none tabular-nums text-fg">
           {d ? d.getDate() : "?"}
         </span>
-        <span className="mt-0.5 text-[10px] text-fg-muted">
+        <span className="mt-0.5 text-xs text-fg-muted">
           {to("deadlineShort")}
         </span>
       </div>
@@ -351,10 +346,12 @@ function RenewalItem({ lease }: { lease: Lease }) {
               {resolveLeasePropertyName(lease, lookups)}
             </p>
           </div>
-          <LeaseRenewalStatusBadge
-            status={status}
-            label={tp(`status.${status}`)}
-          />
+          <span className="basis-full pl-[3.25rem] sm:basis-auto sm:pl-0">
+            <LeaseRenewalStatusBadge
+              status={status}
+              label={tp(`status.${status}`)}
+            />
+          </span>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-sm text-fg-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-subtle px-2.5 py-1 text-xs">

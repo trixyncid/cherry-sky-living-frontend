@@ -54,21 +54,21 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         onClick={onNavigate}
         className="mb-6 flex items-center gap-3 rounded-2xl px-1.5 py-1 transition-opacity hover:opacity-90"
       >
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-ferrugem to-maroon-deep shadow-[0_8px_20px_rgb(90_36_48/0.32)] ring-1 ring-white/30">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-brand ring-1 ring-white/30">
           <Icon name="apartment" size={24} filled className="text-white" />
         </div>
         <div>
-          <p className="truncate text-base font-bold tracking-tight text-[#1a1c1a]">
+          <p className="truncate text-base font-bold tracking-tight text-fg">
             {tc("brand.name")}
           </p>
-          <p className="text-[11px] font-medium tracking-wide text-ferrugem">
+          <p className="text-xs font-medium tracking-wide text-brand">
             {t("portalName")}
           </p>
         </div>
       </Link>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto pr-1">
-        <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[#83746b]/80">
+        <p className="mb-2 px-3 text-xs font-bold uppercase tracking-[0.14em] text-fg-muted/80">
           {t("nav.group")}
         </p>
         <ul className="space-y-1">
@@ -82,8 +82,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   className={cn(
                     "group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition-all duration-200",
                     active
-                      ? "bg-gradient-to-r from-[#71130d]/95 to-ferrugem/90 text-white shadow-[0_8px_18px_rgb(90_36_48/0.26)] ring-1 ring-white/20"
-                      : "text-[#51443c] hover:bg-white/45 hover:text-[#1a1c1a]",
+                      ? "bg-brand text-white ring-1 ring-white/20"
+                      : "text-fg-2 hover:bg-white/45 hover:text-fg",
                   )}
                 >
                   <span
@@ -98,12 +98,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       name={item.icon}
                       size={18}
                       filled={active}
-                      className={active ? "text-white" : "text-ferrugem"}
+                      className={active ? "text-white" : "text-brand"}
                     />
                   </span>
                   <span className="truncate">{t(item.labelKey)}</span>
                   {active && (
-                    <span className="ml-auto size-1.5 shrink-0 rounded-full bg-ferrugem-soft shadow-[0_0_8px_rgb(240_212_200/0.9)]" />
+                    <span className="ml-auto size-1.5 shrink-0 rounded-full bg-brand-soft" />
                   )}
                 </Link>
               </li>
@@ -129,24 +129,24 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             label={user.name}
           />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-[#1a1c1a]">
+            <p className="truncate text-sm font-semibold text-fg">
               {user.name}
             </p>
-            <p className="truncate text-xs text-[#83746b]">
+            <p className="truncate text-xs text-fg-muted">
               {contactSummary(user)}
             </p>
           </div>
           <Icon
             name="chevron_right"
             size={20}
-            className="shrink-0 text-[#83746b]"
+            className="shrink-0 text-fg-muted"
           />
         </Link>
 
         <button
           type="button"
           onClick={() => setSignOutOpen(true)}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[#51443c] transition-colors hover:bg-[#ffdad6]/45 hover:text-[#ba1a1a]"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-fg-2 transition-colors hover:bg-danger-soft/45 hover:text-danger"
         >
           <Icon name="logout" size={20} />
           {t("nav.signOut")}
@@ -170,7 +170,7 @@ export function TenantSidebar() {
 
   return (
     <>
-      <aside className="glass-panel-strong fixed top-3 bottom-3 left-3 z-50 hidden w-[272px] flex-col rounded-[1.75rem] p-5 lg:flex">
+      <aside className="glass-panel-strong fixed top-3 bottom-3 left-3 z-50 hidden w-[272px] flex-col rounded-lg p-5 lg:flex">
         <SidebarContent />
       </aside>
 
@@ -178,7 +178,7 @@ export function TenantSidebar() {
         <button
           type="button"
           aria-label={tc("closeMenu")}
-          className="fixed inset-0 z-50 bg-[#1a1c1a]/35 backdrop-blur-md lg:hidden"
+          className="fixed inset-0 z-50 bg-fg/35 backdrop-blur-md lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}

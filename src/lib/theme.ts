@@ -1,14 +1,14 @@
 /**
- * Cherry Sky Living design tokens — black (structure), burgundy (intent),
+ * Cherry Sky Living design tokens — plum-navy (structure), cherry (intent),
  * white (surfaces). CSS source of truth: --adm-* tokens in app/globals.css.
  */
 
 export const colors = {
-  primary: "#7a1630",
-  primaryContainer: "#63112a",
+  primary: "#b3263e",
+  primaryContainer: "#962033",
   onPrimary: "#ffffff",
-  onPrimaryContainer: "#f6e7eb",
-  inversePrimary: "#e3899d",
+  onPrimaryContainer: "#fbe9ec",
+  inversePrimary: "#f6c9d0",
 
   secondary: "#5f5e5e",
   secondaryContainer: "#e2dfde",
@@ -19,17 +19,17 @@ export const colors = {
   onTertiaryContainer: "#dbe9ff",
 
   surface: "#ffffff",
-  surfaceContainer: "#f2f2f4",
-  surfaceContainerHighest: "#e6e6e9",
-  onSurface: "#0f0f11",
-  onSurfaceVariant: "#3a3a40",
-  inverseSurface: "#0b0b0d",
-  inverseOnSurface: "#f5f5f6",
-  outline: "#66666e",
-  outlineVariant: "#d4d4d9",
+  surfaceContainer: "#f1eff4",
+  surfaceContainerHighest: "#e7e4ec",
+  onSurface: "#1b1526",
+  onSurfaceVariant: "#463d52",
+  inverseSurface: "#161026",
+  inverseOnSurface: "#f4f1f6",
+  outline: "#6e657a",
+  outlineVariant: "#d6d1de",
 
   background: "#ffffff",
-  onBackground: "#0f0f11",
+  onBackground: "#1b1526",
   card: "#ffffff",
 
   error: "#b42318",
@@ -113,9 +113,9 @@ export const borderRadius = {
 } as const;
 
 export const shadows = {
-  card: "0 4px 20px rgb(11 11 13 / 5%)",
-  cardHover: "0 10px 30px rgb(11 11 13 / 10%)",
-  modal: "0 16px 48px rgb(11 11 13 / 14%)",
+  card: "0 4px 20px rgb(22 16 38 / 5%)",
+  cardHover: "0 10px 30px rgb(22 16 38 / 10%)",
+  modal: "0 16px 48px rgb(22 16 38 / 14%)",
 } as const;
 
 export const animation = {

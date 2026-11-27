@@ -13,7 +13,7 @@ export function TenantShell({ children, user }: TenantShellProps) {
   return (
     <SessionGuard portal="tenant">
       <TenantShellProvider user={user}>
-        <div className="tenant-atmosphere relative flex h-dvh flex-col overflow-hidden text-[#141414] antialiased">
+        <div className="tenant-atmosphere relative flex h-dvh flex-col overflow-clip text-fg antialiased">
           <TenantTopNav />
           <TenantMobileNav />
           <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain">

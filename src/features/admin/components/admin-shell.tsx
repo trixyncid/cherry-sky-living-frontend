@@ -14,7 +14,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
   return (
     <SessionGuard portal="admin">
       <AdminShellProvider user={user}>
-        <div className="admin-atmosphere relative flex h-dvh overflow-hidden text-fg antialiased">
+        <div className="admin-atmosphere relative flex h-dvh overflow-clip text-fg antialiased">
           {/* Desktop: black sidebar. Phones: bottom tab bar. */}
           <AdminSidebar />
           <AdminMobileNav />

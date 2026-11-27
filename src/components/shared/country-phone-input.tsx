@@ -106,8 +106,8 @@ export function CountryPhoneInput({
         "group flex w-full items-stretch overflow-hidden border bg-white transition-[border-color,box-shadow]",
         "focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10",
         lg
-          ? "h-[3.25rem] rounded-2xl border-line-strong shadow-[0_1px_2px_rgb(11_11_13/0.04)] hover:border-fg-faint"
-          : "glass-control h-11 rounded-xl",
+          ? "h-[3.25rem] rounded-lg border-line-strong shadow-[0_1px_2px_rgb(22_16_38/0.04)] hover:border-fg-faint"
+          : "glass-control h-11 rounded-md",
         disabled && "opacity-60",
       )}
     >

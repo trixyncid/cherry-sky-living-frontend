@@ -1,6 +1,6 @@
 /**
- * Custom dropdown for the landing page (replaces native <select>): a glass
- * trigger and a floating option list in the page's own style. Built on
+ * Custom dropdown for the landing page (replaces native <select>): a flat
+ * field cell and a floating option list in the page's own style. Built on
  * Radix Select, so it keeps full keyboard support (arrows, type-ahead,
  * Home/End, Esc), focus management and screen-reader semantics.
  */
@@ -9,6 +9,7 @@
 
 import { Select } from "radix-ui";
 import { Icon } from "@/components/shared/Icon";
+import { cn } from "@/lib/utils";
 
 export interface DropdownOption {
   value: string;
@@ -37,10 +38,10 @@ export function Dropdown({
 }) {
   const current = options.find((o) => o.value === value);
   return (
-    <div className={className}>
+    <div className={cn("bg-ink-2 px-4 pb-1.5 pt-3.5", className)}>
       <span
         id={`${id}-label`}
-        className="mb-1.5 block text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-white/65"
+        className="eyebrow block text-left text-[10px] text-white/55"
       >
         {label}
       </span>
@@ -51,7 +52,7 @@ export function Dropdown({
         <Select.Trigger
           id={id}
           aria-labelledby={`${id}-label ${id}`}
-          className="group flex h-12 w-full items-center justify-between gap-2 rounded-2xl border border-white/15 bg-white/10 px-3.5 text-left text-[15px] text-white transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white data-[state=open]:bg-white/20 lg:rounded-full lg:px-4"
+          className="group flex h-10 w-full items-center justify-between gap-2 rounded-md text-left text-[15px] font-medium text-white transition-colors hover:text-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
         >
           <span className="truncate">
             <Select.Value>{current?.label}</Select.Value>
@@ -71,14 +72,14 @@ export function Dropdown({
             align="start"
             // Lenis must not hijack wheel scrolling inside the list.
             data-lenis-prevent
-            className="z-[60] max-h-[min(20rem,var(--radix-select-content-available-height))] min-w-[max(12rem,var(--radix-select-trigger-width))] overflow-hidden rounded-2xl border border-white/15 bg-ink/90 p-1.5 text-white shadow-[0_24px_60px_-20px_rgb(0_0_0/0.8)] backdrop-blur-2xl data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
+            className="z-[60] max-h-[min(20rem,var(--radix-select-content-available-height))] min-w-[max(12rem,var(--radix-select-trigger-width))] overflow-hidden rounded-lg border border-white/15 bg-ink-2 p-1 text-white shadow-[0_24px_60px_-20px_rgb(22_16_38/0.8)] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
           >
             <Select.Viewport className="max-h-[inherit] overflow-y-auto">
               {options.map((option) => (
                 <Select.Item
                   key={option.value}
                   value={toRadix(option.value)}
-                  className="flex cursor-pointer select-none items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[15px] text-white/85 outline-none transition-colors data-[highlighted]:bg-white/12 data-[highlighted]:text-white data-[state=checked]:font-semibold data-[state=checked]:text-white"
+                  className="flex cursor-pointer select-none items-center justify-between gap-3 rounded-md px-3 py-2.5 text-[15px] text-white/80 outline-none transition-colors data-[highlighted]:bg-white/10 data-[highlighted]:text-white data-[state=checked]:font-semibold data-[state=checked]:text-white"
                 >
                   <Select.ItemText>{option.label}</Select.ItemText>
                   <Select.ItemIndicator>

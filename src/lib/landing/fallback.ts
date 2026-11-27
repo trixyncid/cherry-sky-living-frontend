@@ -8,6 +8,7 @@
  */
 
 import cherryManifest from "../../../public/media/cherry/manifest.json";
+import skyManifest from "../../../public/media/sky/manifest.json";
 import { mediaFromManifest, type VideoManifest } from "./media";
 import type { LandingContent } from "./schema";
 
@@ -108,14 +109,61 @@ export const FALLBACK_LANDING: LandingContent = {
       area: t("Medan", "Medan"),
       exteriorPhoto: "/assets/skykost.jpeg",
       exteriorFocal: { x: 0.5, y: 0.5 },
-      heroRoomFeatures: [],
-      // No clips yet: every slot falls back to the exterior photo.
-      media: { chapters: [], clips: {} },
-      overlays: [
-        { at: 0.1, kind: "gate", title: t("", ""), body: t("", "") },
-        { at: 0.9, kind: "room", title: t("", ""), body: t("", "") },
+      // PLACEHOLDER features, taken from what the room video shows.
+      heroRoomFeatures: [
+        t("Kamar terang ber-AC", "Bright, air-conditioned room"),
+        t("Kasur dan lemari pakaian", "Bed and wardrobe"),
+        t("Lantai keramik, mudah dirawat", "Tiled floor, easy to keep clean"),
       ],
-      facilities: [],
+      // Exterior → lounge → corridor → room, then the rooftop to close.
+      media: mediaFromManifest(skyManifest as VideoManifest, {
+        "journey-1-arrival": { x: 0.56, y: 0.5 },
+        "journey-2-lift": { x: 0.52, y: 0.5 },
+        "journey-3-room": { x: 0.56, y: 0.5 },
+        closing: { x: 0.45, y: 0.5 },
+      }),
+      overlays: [
+        { at: 0.05, kind: "gate", title: t("", ""), body: t("", "") },
+        {
+          at: 0.29,
+          kind: "lobby",
+          title: t("Ruang santai bersama", "A shared lounge"),
+          body: t(
+            "Meja kayu dan taman hijau untuk bersantai atau bekerja.",
+            "Wooden tables and greenery to relax or work.",
+          ),
+        },
+        {
+          at: 0.66,
+          kind: "corridor",
+          title: t("Lorong terang dan bersih", "Bright, clean corridors"),
+          body: t(
+            "Setiap kamar punya pintu dan kunci sendiri.",
+            "Every room has its own door and lock.",
+          ),
+        },
+        { at: 0.95, kind: "room", title: t("", ""), body: t("", "") },
+      ],
+      // PLACEHOLDER captions; photos are added in the admin.
+      facilities: [
+        {
+          key: "lounge",
+          icon: "weekend",
+          alt: t("Ruang santai", "Lounge"),
+          caption: t("Ruang santai di lantai dasar", "Ground-floor lounge"),
+          detail: t("", ""),
+        },
+        {
+          key: "rooftop",
+          icon: "deck",
+          alt: t("Rooftop", "Rooftop"),
+          caption: t(
+            "Rooftop dengan pemandangan kota",
+            "Rooftop with a city view",
+          ),
+          detail: t("", ""),
+        },
+      ],
       rules: [],
     },
   ],

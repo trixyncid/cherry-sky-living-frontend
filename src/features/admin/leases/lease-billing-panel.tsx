@@ -37,9 +37,9 @@ import type { Lease, LeaseBillingCycle, LeaseInvoice } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
 
 const secondaryBtn =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-full border border-line-strong bg-panel px-4 text-sm font-medium text-fg transition-colors hover:border-fg hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-50";
+  "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-line-strong bg-panel px-4 text-sm font-medium text-fg transition-colors hover:border-fg hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-50";
 const primaryBtn =
-  "admin-btn-primary inline-flex h-10 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-colors disabled:opacity-50";
+  "admin-btn-primary inline-flex h-10 items-center justify-center gap-2 rounded-md px-5 text-sm font-medium transition-colors disabled:opacity-50";
 const menuItem =
   "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-fg transition-colors hover:bg-hover focus-visible:bg-hover focus-visible:outline-none";
 
@@ -225,25 +225,22 @@ export function LeaseBillingPanel({ lease }: { lease: Lease }) {
         ) : null}
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <fieldset className="inline-flex rounded-full border border-line bg-hover p-1">
-            <legend className="sr-only">{t("cycleLabel")}</legend>
-            {(["monthly", "upfront"] as const).map((option) => (
-              <button
-                key={option}
-                type="button"
-                aria-pressed={cycle === option}
-                onClick={() => option !== cycle && setSwitchTo(option)}
-                className={cn(
-                  "h-8 rounded-full px-4 text-sm transition-colors",
-                  cycle === option
-                    ? "bg-panel font-medium text-fg shadow-[0_1px_3px_rgb(11_11_13/0.18)]"
-                    : "text-fg-2 hover:text-fg",
-                )}
-              >
-                {option === "monthly" ? t("cycleMonthly") : t("cycleUpfront")}
-              </button>
-            ))}
-          </fieldset>
+          {/* Plain text + link: a toggle here looked like a view switch but rebuilds every unpaid bill. */}
+          <p className="text-sm text-fg-2">
+            {t("cycleCurrent", {
+              cycle:
+                cycle === "monthly" ? t("cycleMonthly") : t("cycleUpfront"),
+            })}{" "}
+            <button
+              type="button"
+              onClick={() =>
+                setSwitchTo(cycle === "monthly" ? "upfront" : "monthly")
+              }
+              className="font-medium text-brand underline-offset-4 hover:underline"
+            >
+              {t("cycleChange")}
+            </button>
+          </p>
           {dueOpen.length > 0 ? (
             <button
               type="button"
@@ -335,7 +332,12 @@ export function LeaseBillingPanel({ lease }: { lease: Lease }) {
                       ) : null}
                       {inv.lateFeeWaived ? (
                         <span className="rounded-full bg-hover px-2 py-0.5 text-fg-2">
-                          {t("feeWaived")}
+                          {inv.lateFeeWaivedAmount
+                            ? t("feeWaivedDetail", {
+                                amount: formatIdr(inv.lateFeeWaivedAmount),
+                                days: inv.lateFeeWaivedDays ?? 0,
+                              })
+                            : t("feeWaived")}
                         </span>
                       ) : inv.lateFeeAmount > 0 ? (
                         <span className="font-medium text-danger">
@@ -427,7 +429,7 @@ export function LeaseBillingPanel({ lease }: { lease: Lease }) {
         )}
 
         {selected.size > 0 ? (
-          <div className="sticky bottom-24 z-10 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-ink px-4 py-3 text-white shadow-[0_16px_32px_-16px_rgb(11_11_13/0.6)] lg:bottom-4">
+          <div className="sticky bottom-24 z-10 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-ink px-4 py-3 text-white shadow-[0_16px_32px_-16px_rgb(22_16_38/0.6)] lg:bottom-4">
             <p className="text-sm">
               <span className="font-semibold tabular-nums">
                 {formatIdr(selectedTotal)}
@@ -443,7 +445,7 @@ export function LeaseBillingPanel({ lease }: { lease: Lease }) {
             <button
               type="button"
               onClick={() => setPayOpen(true)}
-              className="inline-flex h-10 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-ink transition-colors hover:bg-brand-soft"
+              className="inline-flex h-10 items-center gap-2 rounded-md bg-white px-5 text-sm font-semibold text-ink transition-colors hover:bg-brand-soft"
             >
               <Icon name="payments" size={18} />
               {t("recordPaymentFor", { count: selected.size })}

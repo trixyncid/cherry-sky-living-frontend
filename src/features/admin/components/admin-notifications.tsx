@@ -69,7 +69,7 @@ export function AdminNotifications({ className }: { className?: string }) {
         >
           <Icon name="notifications" size={20} filled={total > 0} />
           {total > 0 ? (
-            <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[11px] font-semibold leading-none text-white tabular-nums ring-2 ring-panel">
+            <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-xs font-semibold leading-none text-white tabular-nums ring-2 ring-panel">
               {total > 99 ? "99+" : total}
             </span>
           ) : null}
@@ -105,7 +105,7 @@ export function AdminNotifications({ className }: { className?: string }) {
               return (
                 <section key={group.key} className="px-2 py-1.5">
                   <div className="flex items-center justify-between px-2 pb-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-muted">
+                    <p className="text-xs font-semibold uppercase tracking-[0.08em] text-fg-muted">
                       {t(`groups.${group.key}`)}{" "}
                       <span className="tabular-nums">({items.length})</span>
                     </p>

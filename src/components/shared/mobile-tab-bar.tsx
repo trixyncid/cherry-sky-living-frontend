@@ -34,7 +34,7 @@ export function MobileTabBar({
       aria-label={label}
       className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden"
     >
-      <ul className="pointer-events-auto mx-auto flex max-w-md items-center justify-between gap-1 rounded-[1.75rem] border border-line bg-white/95 p-1.5 shadow-[0_18px_40px_-16px_rgb(11_11_13/0.35)] backdrop-blur-md">
+      <ul className="pointer-events-auto mx-auto flex max-w-md items-center justify-between gap-1 rounded-[1.75rem] border border-line bg-white/95 p-1.5 shadow-[0_18px_40px_-16px_rgb(22_16_38/0.35)] backdrop-blur-md">
         {tabs.map((tab) => {
           const content = tab.primary ? (
             <span className="flex size-12 items-center justify-center rounded-full bg-brand text-white shadow-[0_10px_22px_-8px_rgb(122_22_48/0.8)] transition-transform active:scale-95">
@@ -55,7 +55,7 @@ export function MobileTabBar({
               </span>
               {tab.badge && tab.badge > 0 ? (
                 <span className="absolute right-[18%] top-1 flex min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold leading-4 text-white ring-2 ring-white">
-                  {tab.badge > 9 ? "9+" : tab.badge}
+                  {tab.badge > 99 ? "99+" : tab.badge}
                 </span>
               ) : null}
             </span>

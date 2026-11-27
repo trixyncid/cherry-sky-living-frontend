@@ -3,6 +3,15 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Icon } from "@/components/shared/Icon";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   type LeaseRenewalStatus,
   LeaseRenewalStatusBadge,
@@ -51,6 +60,7 @@ export function AdminLeaseRenewalActions({
   const tp = useTranslations("admin.pages.leaseRenewals");
   const mutations = useLeaseMutations();
   const [confirming, setConfirming] = useState(false);
+  const [askOpen, setAskOpen] = useState(false);
   const renewal = lease.leaseRenewal;
 
   if (!renewal) return null;
@@ -69,6 +79,7 @@ export function AdminLeaseRenewalActions({
         isConfirmed: true,
       });
       showApiSuccess(tp("confirmed"));
+      setAskOpen(false);
     } catch (err) {
       showApiError(err, tp("confirmFailed"));
     } finally {
@@ -122,17 +133,52 @@ export function AdminLeaseRenewalActions({
           <button
             type="button"
             disabled={confirming || mutations.confirmRenewal.isPending}
-            onClick={() => void handleConfirm()}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            onClick={() => setAskOpen(true)}
+            className="inline-flex h-9 items-center gap-1.5 rounded-md bg-brand px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <Icon name="check" size={16} />
             {confirming ? tp("confirming") : tp("confirm")}
           </button>
         )}
+        {canConfirm && (
+          <Dialog
+            open={askOpen}
+            onOpenChange={(next) => !confirming && setAskOpen(next)}
+          >
+            <DialogContent showCloseButton={!confirming}>
+              <DialogHeader>
+                <DialogTitle>{tp("confirmDialog.title")}</DialogTitle>
+                <DialogDescription>
+                  {tp("confirmDialog.description", {
+                    name: lease.user?.name ?? "—",
+                    unit: lease.unit?.name ?? "—",
+                  })}
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={confirming}
+                  onClick={() => setAskOpen(false)}
+                >
+                  {tp("confirmDialog.cancel")}
+                </Button>
+                <Button
+                  type="button"
+                  disabled={confirming}
+                  onClick={() => void handleConfirm()}
+                >
+                  {confirming ? tp("confirming") : tp("confirmDialog.confirm")}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
         {canCreateLease && (
           <Link
             href={buildRenewalLeaseHref(lease)}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-brand-line bg-white px-4 text-sm font-medium text-brand transition-colors hover:bg-hover"
+            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-brand-line bg-white px-4 text-sm font-medium text-brand transition-colors hover:bg-hover"
           >
             <Icon name="post_add" size={16} />
             {tp("createRenewalLease")}

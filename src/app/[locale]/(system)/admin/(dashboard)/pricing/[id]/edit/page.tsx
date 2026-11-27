@@ -1,10 +1,11 @@
-import { PricingForm } from "@/features/admin/pricing/pricing-form";
+import { redirect } from "@/i18n/routing";
 
+/** Prices now live on each room type's form. */
 export default async function EditPricingPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string }>;
 }) {
-  const { id } = await params;
-  return <PricingForm id={id} />;
+  const { locale } = await params;
+  redirect({ href: "/admin/unit-types", locale });
 }

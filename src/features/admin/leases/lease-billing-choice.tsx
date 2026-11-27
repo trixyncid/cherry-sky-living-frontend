@@ -211,7 +211,7 @@ export function LeaseBillingChoice({
       ) : null}
 
       <div className="rounded-xl border border-line bg-subtle">
-        <p className="border-b border-line px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-fg-muted">
+        <p className="border-b border-line px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-fg-muted">
           {t("previewTitle")}
         </p>
         {preview && preview.length > 0 ? (

@@ -67,10 +67,10 @@ export function HomeFloatingCta({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={t("chatLabel")}
-          className="group fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 inline-flex h-12 items-center gap-0 overflow-hidden rounded-full bg-ink px-3.5 text-white shadow-[0_16px_40px_-12px_rgb(37_211_102/0.6)] transition-[gap,padding] duration-300 hover:gap-2 hover:pr-6 md:bottom-6 md:right-6 md:h-14 md:px-4"
+          className="group fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 inline-flex h-12 items-center gap-0 overflow-hidden rounded-md border border-white/15 bg-ink px-3.5 text-white shadow-[0_18px_40px_-16px_rgb(22_16_38/0.6)] transition-[gap,padding,background-color] duration-300 hover:gap-2.5 hover:bg-brand hover:pr-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 md:bottom-6 md:right-6 md:h-13 md:px-4"
         >
           <Icon name="whatsapp" size={24} />
-          <span className="max-w-0 whitespace-nowrap text-sm font-semibold opacity-0 transition-all duration-300 group-hover:max-w-48 group-hover:opacity-100">
+          <span className="max-w-0 whitespace-nowrap text-sm font-medium opacity-0 transition-all duration-300 group-hover:max-w-48 group-hover:opacity-100">
             {t("chatLabel")}
           </span>
         </motion.a>

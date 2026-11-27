@@ -15,7 +15,6 @@ import {
   PUBLIC_NAV_LINKS,
   type PublicNavLink,
 } from "@/components/layout/nav-links";
-import { ArrowPill } from "@/components/shared/ArrowPill";
 import { BrandMark } from "@/components/shared/BrandMark";
 import { Icon } from "@/components/shared/Icon";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
@@ -61,14 +60,18 @@ function NavbarLink({ link, label, isActive, isSolid }: NavbarLinkProps) {
       href={link.href}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "rounded-full px-3 py-1.5 text-[15px] font-medium transition-colors duration-200 xl:px-3.5",
-        isActive
-          ? isSolid
-            ? "bg-brand text-white"
-            : "bg-white text-ink"
-          : isSolid
-            ? "text-fg hover:text-brand"
-            : "text-subtle/80 hover:text-white",
+        // Plain text links; the active page gets a short underline.
+        "relative px-3 py-2 text-[15px] font-medium transition-colors duration-200 after:absolute after:inset-x-3 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 xl:px-4",
+        isActive && "after:scale-x-100",
+        isSolid
+          ? cn(
+              "after:bg-brand",
+              isActive ? "text-fg" : "text-fg-muted hover:text-fg",
+            )
+          : cn(
+              "after:bg-white",
+              isActive ? "text-white" : "text-white/75 hover:text-white",
+            ),
       )}
     >
       {label}
@@ -90,7 +93,10 @@ export function Navbar({ onMenuClick }: NavbarProps) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   const alwaysDark = ALWAYS_DARK_PATHS.has(current);
-  const isSolid = !alwaysDark && (!DARK_HERO_PATHS.has(current) || scrolled);
+  // Property pages (/kosts/<id>) open on a photo header; room pages don't.
+  const darkHero =
+    DARK_HERO_PATHS.has(current) || /^\/kosts\/[^/]+$/.test(current);
+  const isSolid = !alwaysDark && (!darkHero || scrolled);
 
   const isLinkActive = (link: PublicNavLink) =>
     current === link.href ||
@@ -107,11 +113,16 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           ? "border-b border-line bg-canvas/90 backdrop-blur-md"
           : alwaysDark && scrolled
             ? "border-b border-white/10 bg-ink/40 backdrop-blur-md"
-            : "border-b border-white/10 bg-transparent",
+            : "border-b border-transparent bg-transparent",
       )}
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-3">
+      <div className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-12">
+        <div
+          className={cn(
+            "flex items-center justify-between gap-3 transition-[height] duration-300",
+            isSolid ? "h-16" : "h-20",
+          )}
+        >
           <Link
             href="/"
             className="flex min-w-0 shrink-0 items-center"
@@ -127,15 +138,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             />
           </Link>
 
-          {/* Links in a floating glass pill. */}
-          <div
-            className={cn(
-              "hidden items-center rounded-full border p-1 transition-colors duration-300 lg:flex",
-              isSolid
-                ? "border-line bg-white/80"
-                : "border-white/15 bg-white/[0.08] backdrop-blur-md",
-            )}
-          >
+          <div className="hidden items-center lg:flex">
             {PUBLIC_NAV_LINKS.map((link) => (
               <NavbarLink
                 key={link.key}
@@ -164,13 +167,22 @@ export function Navbar({ onMenuClick }: NavbarProps) {
               <Icon name="person" size={18} />
             </Link>
 
-            <ArrowPill
+            <Link
               href={CHECK_AVAILABILITY_HREF}
-              tone={isSolid ? "dark" : "light"}
-              className="hidden h-11 text-sm sm:inline-flex"
+              className={cn(
+                "group hidden h-11 items-center gap-2.5 rounded-xl border px-5 text-sm font-medium transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 sm:inline-flex",
+                isSolid
+                  ? "border-fg/80 text-fg hover:bg-fg hover:text-white focus-visible:ring-brand"
+                  : "border-white/70 text-white hover:bg-white hover:text-ink focus-visible:ring-white",
+              )}
             >
               {t("nav.checkAvailability")}
-            </ArrowPill>
+              <Icon
+                name="north_east"
+                size={16}
+                className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transition-none"
+              />
+            </Link>
 
             <button
               type="button"

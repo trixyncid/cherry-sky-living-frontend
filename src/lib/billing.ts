@@ -28,6 +28,25 @@ export function inclusiveMonthCount(startDate: Date, endDate: Date): number {
   );
 }
 
+/**
+ * Last night of a stay of `months` full months from `startDate`:
+ * 27 Nov + 1 → 26 Dec, 1 Nov + 1 → 30 Nov. When the start day does not exist
+ * in the target month (31 Jan + 1), the stay ends on that month's last day.
+ */
+export function fullMonthsEndDate(startDate: Date, months: number): Date {
+  const target = new Date(
+    startDate.getFullYear(),
+    startDate.getMonth() + months,
+    1,
+  );
+  if (startDate.getDate() > daysInMonth(target)) return endOfMonth(target);
+  return new Date(
+    target.getFullYear(),
+    target.getMonth(),
+    startDate.getDate() - 1,
+  );
+}
+
 export type LeaseAmountBreakdown = {
   amountDue: number;
   /** Partial days at the start of the lease (mid-month move-in). */

@@ -67,7 +67,8 @@ export function PickerSurface({
         align="start"
         collisionPadding={12}
         className={cn(
-          "w-auto overflow-hidden rounded-[1.25rem] border border-line bg-white p-0 shadow-[0_24px_60px_-24px_rgb(11_11_13/0.35)]",
+          // Never taller than the space left on screen; scroll inside if needed.
+          "max-h-[var(--radix-popover-content-available-height)] w-auto overflow-y-auto overscroll-contain rounded-[1.25rem] border border-line bg-white p-0 shadow-[0_24px_60px_-24px_rgb(22_16_38/0.35)]",
           popoverClassName,
         )}
       >

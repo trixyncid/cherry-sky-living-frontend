@@ -2,7 +2,9 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { Icon } from "@/components/shared/Icon";
 import { PhoneNumbersField } from "@/components/shared/phone-numbers-field";
+import { AccountCreatedDialog } from "@/features/admin/components/account-created-dialog";
 import {
   AdminField,
   AdminPasswordInput,
@@ -17,6 +19,7 @@ import {
 import { PersonPreview } from "@/features/admin/components/form-previews";
 import { useTenantUserMutations } from "@/features/admin/hooks/use-admin-queries";
 import { getErrorMessage } from "@/features/admin/lib/errors";
+import { generateReadablePassword } from "@/features/admin/lib/password";
 import {
   showApiError,
   showApiSuccess,
@@ -34,6 +37,12 @@ import {
 const BASE = "/admin/users";
 
 export function TenantUserForm() {
+  const [created, setCreated] = useState<{
+    id: string;
+    name: string;
+    login: string;
+    password: string;
+  } | null>(null);
   const t = useTranslations("admin.crud");
   const tp = useTranslations("admin.pages.users");
   const router = useRouter();
@@ -76,8 +85,12 @@ export function TenantUserForm() {
         ...phoneList.data,
       });
       showApiSuccess(t("created"));
-      router.push(`${BASE}/${created.id}`);
-      router.refresh();
+      setCreated({
+        id: created.id,
+        name: parsed.data.name,
+        login: selectedLoginPhone(phones) ?? "",
+        password: parsed.data.password,
+      });
     } catch (err) {
       const taken = takenPhoneFromError(err);
       const msg = taken
@@ -118,7 +131,12 @@ export function TenantUserForm() {
           hint={tp("identityHint")}
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label={t("name")} htmlFor="tenant-name" required>
+            <AdminField
+              label={t("name")}
+              htmlFor="tenant-name"
+              required
+              className="sm:col-span-2"
+            >
               <input
                 id="tenant-name"
                 required
@@ -130,7 +148,18 @@ export function TenantUserForm() {
                 }
               />
             </AdminField>
-            <AdminField label={tp("emailOptional")} htmlFor="tenant-email">
+            <div className="sm:col-span-2">
+              <PhoneNumbersField
+                audience="admin"
+                value={phones}
+                onChange={setPhones}
+              />
+            </div>
+            <AdminField
+              label={tp("emailOptional")}
+              htmlFor="tenant-email"
+              className="sm:col-span-2"
+            >
               <input
                 id="tenant-email"
                 type="email"
@@ -145,13 +174,6 @@ export function TenantUserForm() {
                 {tp("emailOptionalHint")}
               </p>
             </AdminField>
-            <div className="sm:col-span-2">
-              <PhoneNumbersField
-                audience="admin"
-                value={phones}
-                onChange={setPhones}
-              />
-            </div>
           </div>
         </AdminFormSection>
 
@@ -169,6 +191,16 @@ export function TenantUserForm() {
               showLabel={tp("showPassword")}
               hideLabel={tp("hidePassword")}
             />
+            <button
+              type="button"
+              onClick={() =>
+                setForm((f) => ({ ...f, password: generateReadablePassword() }))
+              }
+              className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-brand underline-offset-4 hover:underline"
+            >
+              <Icon name="auto_awesome" size={16} />
+              {tp("generatePassword")}
+            </button>
           </AdminField>
         </AdminFormSection>
 
@@ -180,6 +212,18 @@ export function TenantUserForm() {
           pendingLabel={t("saving")}
         />
       </form>
+      <AccountCreatedDialog
+        open={created !== null}
+        name={created?.name ?? ""}
+        login={created?.login ?? ""}
+        password={created?.password ?? ""}
+        whatsappPhone={created?.login || undefined}
+        onDone={() => {
+          if (!created) return;
+          router.push(`${BASE}/${created.id}`);
+          router.refresh();
+        }}
+      />
     </AdminDetailPage>
   );
 }

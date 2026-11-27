@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { applyLeaseDiscount, previewInvoiceSchedule } from "./billing";
+import {
+  applyLeaseDiscount,
+  fullMonthsEndDate,
+  previewInvoiceSchedule,
+} from "./billing";
 
 const d = (y: number, m: number, day: number) => new Date(y, m - 1, day);
 const key = (x: Date) =>
@@ -106,5 +110,23 @@ describe("applyLeaseDiscount (preview mirror)", () => {
     });
     expect(rows.map((r) => r.amount)).toEqual([0, 1_000_000, 1_500_000]);
     expect(rows.map((r) => r.discount)).toEqual([1_500_000, 500_000, 0]);
+  });
+});
+
+describe("fullMonthsEndDate", () => {
+  const ymd = (d: Date) =>
+    `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  test("ends the night before the same day N months later", () => {
+    expect(ymd(fullMonthsEndDate(new Date(2026, 10, 27), 1))).toBe(
+      "2026-12-26",
+    );
+    expect(ymd(fullMonthsEndDate(new Date(2026, 10, 27), 3))).toBe("2027-2-26");
+    expect(ymd(fullMonthsEndDate(new Date(2026, 10, 1), 1))).toBe("2026-11-30");
+    expect(ymd(fullMonthsEndDate(new Date(2026, 11, 1), 12))).toBe(
+      "2027-11-30",
+    );
+  });
+  test("clamps when the start day is missing in the target month", () => {
+    expect(ymd(fullMonthsEndDate(new Date(2027, 0, 31), 1))).toBe("2027-2-28");
   });
 });

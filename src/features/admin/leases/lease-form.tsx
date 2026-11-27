@@ -18,6 +18,7 @@ import {
 } from "@/features/admin/components/admin-form-layout";
 import { AdminImageGallery } from "@/features/admin/components/admin-image-gallery";
 import { adminPageIcons } from "@/features/admin/constants/nav-items";
+import { AdminDangerZone } from "@/features/admin/crud/admin-danger-zone";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import {
   useLease,
@@ -81,9 +82,8 @@ import {
   computeLeaseAmount,
   DAILY_DURATION_DAYS,
   daysInMonth,
-  endOfMonth,
   type FirstPeriodMode,
-  inclusiveMonthCount,
+  fullMonthsEndDate,
   MONTHLY_DURATION_DAYS,
   previewInvoiceSchedule,
   toMonthEndInputValue,
@@ -134,17 +134,14 @@ function applyLeaseDateRange(
   if (!from) {
     return { ...prev, startDate: "", endDate: "" };
   }
-  const endDate = to ? toMonthEndInputValue(to) : "";
-  return { ...prev, startDate: from, endDate };
+  return { ...prev, startDate: from, endDate: to };
 }
 
-/** End date = last day of the calendar month that completes `months` inclusive months from start. */
+/** End date for the "N bulan" buttons: N full months from the move-in day. */
 function endDateForMonthPreset(startDate: string, months: number): string {
   const start = parseDateOnly(startDate);
   if (!start || months < 1) return "";
-  return toDateOnlyString(
-    endOfMonth(new Date(start.getFullYear(), start.getMonth() + months - 1, 1)),
-  );
+  return toDateOnlyString(fullMonthsEndDate(start, months));
 }
 
 export function LeaseForm({ id }: { id?: string }) {
@@ -473,6 +470,15 @@ export function LeaseForm({ id }: { id?: string }) {
     }
   }, [lease, isEdit, renewalPrefill, unitPrefill]);
 
+  // The bill due day comes from the property (copied onto the lease when it
+  // was created); 5 only when neither is known yet.
+  const previewDueDay =
+    lease?.paymentDueDay ??
+    (selectedUnit
+      ? lookups.propertyById.get(selectedUnit.propertyId)?.paymentDueDay
+      : undefined) ??
+    5;
+
   const roomCapacity = unitCapacity(isEdit ? lease?.unit : selectedUnit);
   const savedRoommates: RoommateEntry[] = (lease?.occupants ?? []).map((o) => ({
     id: o.userId,
@@ -741,25 +747,28 @@ export function LeaseForm({ id }: { id?: string }) {
                     />
                   </AdminField>
                 </div>
-                <AdminField label={trm("title")}>
-                  <LeaseRoommatesField
-                    primaryUserId={form.userId}
-                    roommates={form.occupants}
-                    capacity={roomCapacity}
-                    onAdd={(tenant) =>
-                      setForm((f) => ({
-                        ...f,
-                        occupants: [...f.occupants, tenant],
-                      }))
-                    }
-                    onRemove={(userId) =>
-                      setForm((f) => ({
-                        ...f,
-                        occupants: f.occupants.filter((o) => o.id !== userId),
-                      }))
-                    }
-                  />
-                </AdminField>
+                {/* Roommates only make sense once the main tenant is chosen. */}
+                {form.userId ? (
+                  <AdminField label={`${trm("title")} (${t("optional")})`}>
+                    <LeaseRoommatesField
+                      primaryUserId={form.userId}
+                      roommates={form.occupants}
+                      capacity={roomCapacity}
+                      onAdd={(tenant) =>
+                        setForm((f) => ({
+                          ...f,
+                          occupants: [...f.occupants, tenant],
+                        }))
+                      }
+                      onRemove={(userId) =>
+                        setForm((f) => ({
+                          ...f,
+                          occupants: f.occupants.filter((o) => o.id !== userId),
+                        }))
+                      }
+                    />
+                  </AdminField>
+                ) : null}
               </AdminFormSection>
             )}
             <AdminFormSection
@@ -794,6 +803,32 @@ export function LeaseForm({ id }: { id?: string }) {
                         setForm((f) => applyLeaseDateRange(f, from, to))
                       }
                     />
+                    {isEdit && lease?.status === "paid" ? (
+                      <p className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-line bg-subtle px-3.5 py-2.5 text-sm text-fg-2">
+                        <Icon
+                          name={form.allowPaidOverride ? "lock_open" : "lock"}
+                          size={16}
+                          className="shrink-0"
+                        />
+                        <span className="min-w-0 flex-1">
+                          {form.allowPaidOverride
+                            ? tp("paidUnlocked")
+                            : tp("paidLocked")}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setForm((f) => ({
+                              ...f,
+                              allowPaidOverride: !f.allowPaidOverride,
+                            }))
+                          }
+                          className="font-medium text-brand underline-offset-4 hover:underline"
+                        >
+                          {form.allowPaidOverride ? tp("relock") : tp("unlock")}
+                        </button>
+                      </p>
+                    ) : null}
 
                     {!isEdit ||
                     !(lease?.status === "paid" && !form.allowPaidOverride) ? (
@@ -802,12 +837,10 @@ export function LeaseForm({ id }: { id?: string }) {
                           {tp("durationPresets")}
                         </span>
                         {DURATION_PRESETS.map((months) => {
-                          const start = parseDateOnly(form.startDate);
-                          const end = parseDateOnly(form.endDate);
                           const active =
-                            !!start &&
-                            !!end &&
-                            inclusiveMonthCount(start, end) === months;
+                            !!form.startDate &&
+                            form.endDate ===
+                              endDateForMonthPreset(form.startDate, months);
                           return (
                             <button
                               key={months}
@@ -873,7 +906,7 @@ export function LeaseForm({ id }: { id?: string }) {
                               className={cn(
                                 "relative flex cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3.5 transition-all",
                                 selected
-                                  ? "border-brand/45 bg-gradient-to-br from-panel to-subtle shadow-[0_8px_20px_-16px_rgba(11,11,13,0.35)]"
+                                  ? "border-brand/45 bg-panel shadow-[0_8px_20px_-16px_rgba(11,11,13,0.35)]"
                                   : "border-line bg-white hover:border-line-strong hover:bg-subtle",
                                 pricingLocked &&
                                   "cursor-not-allowed opacity-60",
@@ -961,12 +994,7 @@ export function LeaseForm({ id }: { id?: string }) {
                     endDate={form.endDate}
                     monthlyPrice={selectedPricing?.price}
                     dailyRate={dailyPricing?.price ?? null}
-                    paymentDueDay={
-                      (selectedUnit &&
-                        lookups.propertyById.get(selectedUnit.propertyId)
-                          ?.paymentDueDay) ||
-                      5
-                    }
+                    paymentDueDay={previewDueDay}
                   />
                 )}
                 {amountPreview && "error" in amountPreview ? (
@@ -988,14 +1016,6 @@ export function LeaseForm({ id }: { id?: string }) {
                         : lease?.unit
                           ? resolveLeasePropertyName(lease, lookups)
                           : null
-                    }
-                    headerAction={
-                      isEdit && lease ? (
-                        <LeaseInvoiceDownloadButton
-                          lease={lease}
-                          variant="secondary"
-                        />
-                      ) : null
                     }
                   />
                 ) : null}
@@ -1057,10 +1077,10 @@ export function LeaseForm({ id }: { id?: string }) {
                   </AdminField>
                 )}
                 {isEdit && lease && (
-                  <div className="rounded-xl border border-line-strong/55 bg-gradient-to-br from-panel via-subtle to-brand-tint p-4">
+                  <div className="rounded-xl border border-line-strong/55 bg-subtle p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex min-w-0 items-start gap-3">
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand text-white shadow-[0_8px_20px_-8px_rgb(122_22_48/0.6)]">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
                           <Icon name="picture_as_pdf" size={20} />
                         </div>
                         <div className="min-w-0">
@@ -1076,22 +1096,6 @@ export function LeaseForm({ id }: { id?: string }) {
                     </div>
                   </div>
                 )}
-                {isEdit && lease?.status === "paid" && (
-                  <label className="flex items-start gap-2 text-sm text-fg-2">
-                    <input
-                      type="checkbox"
-                      className="mt-1"
-                      checked={form.allowPaidOverride}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          allowPaidOverride: e.target.checked,
-                        }))
-                      }
-                    />
-                    <span>{tp("allowPaidOverride")}</span>
-                  </label>
-                )}
                 {isEdit && lease?.leaseRenewal && (
                   <AdminLeaseRenewalActions lease={lease} />
                 )}
@@ -1106,14 +1110,34 @@ export function LeaseForm({ id }: { id?: string }) {
               pendingLabel={t("saving")}
             />
           </form>
-          {isEdit && lease ? <LeaseBillingPanel lease={lease} /> : null}
+          {isEdit && lease ? (
+            // "Catat pembayaran" on the lease cards jumps here.
+            <div id="pembayaran" className="scroll-mt-24">
+              <LeaseBillingPanel lease={lease} />
+            </div>
+          ) : null}
+          {isEdit && lease ? (
+            <div className="mt-6">
+              <AdminDangerZone
+                itemName={`${lease.user?.name ?? "—"} · ${lease.unit?.name ?? "—"}`}
+                hint={tp("deleteHint")}
+                pending={mutations.remove.isPending}
+                onDelete={async () => {
+                  try {
+                    await mutations.remove.mutateAsync(lease.id);
+                    showApiSuccess(t("deleted"));
+                    router.replace(BASE);
+                  } catch (err) {
+                    showApiError(err, t("deleteFailed"));
+                  }
+                }}
+              />
+            </div>
+          ) : null}
         </div>
 
         <aside
-          className={cn(
-            "space-y-4 lg:sticky lg:top-4",
-            isEdit && "max-lg:order-first",
-          )}
+          className={cn("space-y-4 lg:sticky lg:top-4", "max-lg:order-first")}
         >
           <AdminFormSection
             icon="attach_file"
@@ -1121,7 +1145,7 @@ export function LeaseForm({ id }: { id?: string }) {
             hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
             headerExtra={
               isEdit && attachments.length > 0 ? (
-                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-fg-2">
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold text-fg-2">
                   {ta("photoCount", { count: attachments.length })}
                 </span>
               ) : null

@@ -29,9 +29,9 @@ export function ChartTooltip({
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-xl border border-white/50 bg-white/95 px-3 py-2.5 shadow-[0_12px_40px_rgb(11_11_13/0.12)] backdrop-blur-md">
+    <div className="rounded-xl border border-white/50 bg-white/95 px-3 py-2.5 shadow-[0_12px_40px_rgb(22_16_38/0.12)] backdrop-blur-md">
       {label != null && label !== "" && (
-        <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-fg-muted">
+        <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-fg-muted">
           {labelFormatter ? labelFormatter(label) : label}
         </p>
       )}

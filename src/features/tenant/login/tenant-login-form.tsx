@@ -69,6 +69,13 @@ export function TenantLoginForm() {
     }
   }, [sessionFromUrl, t]);
 
+  // Also shown inline: the toast disappears before a slow reader sees it.
+  const [errorKey, setErrorKey] = useState<LoginErrorKey | null>(null);
+  const fail = (key: LoginErrorKey) => {
+    setErrorKey(key);
+    showLoginError(t, key);
+  };
+
   const form = useForm({
     defaultValues: {
       method: "phone",
@@ -77,9 +84,10 @@ export function TenantLoginForm() {
       password: "",
     } as TenantLoginValues,
     onSubmit: async ({ value }) => {
+      setErrorKey(null);
       const resolved = resolveTenantLogin(value);
       if (!resolved) {
-        showLoginError(t, "invalid");
+        fail("invalid");
         return;
       }
 
@@ -95,7 +103,7 @@ export function TenantLoginForm() {
             });
 
       if (result.error) {
-        showLoginError(t, loginErrorKeyFromAuthError(result.error));
+        fail(loginErrorKeyFromAuthError(result.error));
         return;
       }
 
@@ -123,7 +131,7 @@ export function TenantLoginForm() {
 
       if (!access.ok || !role) {
         await signOutClient();
-        showLoginError(t, access.isStaff ? "forbidden" : "invalid");
+        fail(access.isStaff ? "forbidden" : "invalid");
         return;
       }
 
@@ -211,7 +219,6 @@ export function TenantLoginForm() {
               icon="lock"
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
-              placeholder="••••••••"
               required
               value={field.state.value}
               onBlur={field.handleBlur}
@@ -231,6 +238,17 @@ export function TenantLoginForm() {
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
             <div className="pt-2">
+              {errorKey ? (
+                <p
+                  role="alert"
+                  className="rounded-lg border border-danger/20 bg-danger-soft px-4 py-3 text-sm text-danger"
+                >
+                  <span className="font-semibold">
+                    {t(`errors.${errorKey}.title`)}.
+                  </span>{" "}
+                  {t(`errors.${errorKey}.description`)}
+                </p>
+              ) : null}
               <LoginSubmit
                 pending={!!isSubmitting}
                 disabled={!canSubmit}
@@ -275,7 +293,7 @@ function MethodSwitch({
               "flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl text-sm font-medium transition-colors",
               "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand/30",
               selected
-                ? "bg-white text-fg shadow-[0_1px_3px_rgb(11_11_13/0.08)]"
+                ? "bg-white text-fg shadow-[0_1px_3px_rgb(22_16_38/0.08)]"
                 : "text-fg-muted hover:text-fg",
             )}
           >

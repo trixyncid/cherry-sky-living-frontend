@@ -1,5 +1,11 @@
-import { PricingList } from "@/features/admin/pricing/pricing-list";
+import { redirect } from "@/i18n/routing";
 
-export default function AdminPricingPage() {
-  return <PricingList />;
+/** Prices now live on each room type's form. */
+export default async function AdminPricingPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  redirect({ href: "/admin/unit-types", locale });
 }

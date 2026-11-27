@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import {
   Sheet,
@@ -58,25 +58,6 @@ export function AdminToolbar({
   const active = filters.filter((f) => f.active);
   const searching = Boolean(search?.value.trim());
 
-  // "/" focuses search (desktop keyboard users), like most dashboards.
-  useEffect(() => {
-    if (!search) return;
-    const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const typing =
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable);
-      if (e.key === "/" && !typing && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        inputRef.current?.focus();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [search]);
-
   const clearAll = () => {
     for (const f of active) f.onClear?.();
     search?.onChange("");
@@ -84,8 +65,8 @@ export function AdminToolbar({
 
   return (
     <div className={cn("mb-5 space-y-3", className)}>
-      <div className="flex flex-col gap-2.5 rounded-[1.5rem] border border-line bg-white p-2.5 sm:p-3 lg:flex-row lg:items-center">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
+      <div className="flex flex-col gap-2.5 rounded-lg border border-line bg-white p-2.5 sm:p-3 lg:flex-row lg:flex-wrap lg:items-end">
+        <div className="flex min-w-0 flex-1 items-center gap-2 lg:min-w-[20rem]">
           {search ? (
             <div className="relative min-w-0 flex-1">
               <Icon
@@ -100,7 +81,7 @@ export function AdminToolbar({
                 onChange={(e) => search.onChange(e.target.value)}
                 placeholder={search.placeholder}
                 aria-label={search.placeholder}
-                className="h-11 w-full rounded-xl border border-transparent bg-hover pl-11 pr-20 text-base text-fg outline-none transition-[border-color,background-color,box-shadow] placeholder:text-fg-muted hover:bg-hover focus:border-brand focus:bg-white focus:ring-[3px] focus:ring-brand/14 sm:text-[15px] [&::-webkit-search-cancel-button]:hidden"
+                className="h-11 w-full rounded-xl border border-transparent bg-hover pl-11 pr-12 text-base text-fg outline-none transition-[border-color,background-color,box-shadow] placeholder:text-fg-muted hover:bg-hover focus:border-brand focus:bg-white focus:ring-[3px] focus:ring-brand/14 sm:text-[15px] [&::-webkit-search-cancel-button]:hidden"
               />
               {searching ? (
                 <button
@@ -114,11 +95,7 @@ export function AdminToolbar({
                 >
                   <Icon name="close" size={18} />
                 </button>
-              ) : (
-                <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-line bg-white px-1.5 py-0.5 text-[11px] font-medium text-fg-muted lg:block">
-                  /
-                </kbd>
-              )}
+              ) : null}
             </div>
           ) : null}
 
@@ -151,9 +128,12 @@ export function AdminToolbar({
 
         {/* Desktop: filters inline */}
         {filters.length > 0 ? (
-          <div className="hidden items-center gap-2 lg:flex">
+          <div className="hidden flex-wrap items-end gap-2 lg:flex">
             {filters.map((f) => (
-              <div key={f.key} className={cn("shrink-0", f.width ?? "w-48")}>
+              <div key={f.key} className={cn("shrink-0", f.width ?? "w-52")}>
+                <p className="mb-1 px-1 text-xs font-semibold uppercase tracking-[0.12em] text-fg-muted">
+                  {f.label}
+                </p>
                 {f.control}
               </div>
             ))}

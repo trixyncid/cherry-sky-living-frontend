@@ -31,17 +31,17 @@ export function TenantHeader() {
           <button
             type="button"
             onClick={toggleMobile}
-            className="glass-control flex size-10 shrink-0 items-center justify-center rounded-xl text-[#51443c] transition-colors hover:bg-white/80 lg:hidden"
+            className="glass-control flex size-10 shrink-0 items-center justify-center rounded-md text-fg-2 transition-colors hover:bg-white/80 lg:hidden"
             aria-label={th("openMenu")}
           >
             <Icon name="menu" size={22} />
           </button>
 
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-medium tracking-wide text-[#83746b]">
+            <p className="text-xs font-medium tracking-wide text-fg-muted">
               {th("breadcrumb")}
             </p>
-            <h1 className="truncate text-lg font-semibold tracking-tight text-[#1a1c1a]">
+            <h1 className="truncate text-lg font-semibold tracking-tight text-fg">
               {pageTitle}
             </h1>
           </div>
@@ -63,10 +63,10 @@ export function TenantHeader() {
                 label={user.name}
               />
               <span className="hidden text-left md:block">
-                <span className="block max-w-[120px] truncate text-sm font-semibold text-[#1a1c1a]">
+                <span className="block max-w-[120px] truncate text-sm font-semibold text-fg">
                   {user.name}
                 </span>
-                <span className="block text-xs text-[#83746b]">
+                <span className="block text-xs text-fg-muted">
                   {th("roleTenant")}
                 </span>
               </span>

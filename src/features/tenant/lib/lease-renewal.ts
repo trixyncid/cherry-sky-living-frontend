@@ -1,4 +1,4 @@
-import type { Lease, LeaseRenewal } from "@/lib/types/admin";
+import type { Lease } from "@/lib/types/admin";
 
 const DISMISS_PREFIX = "tenant-renewal-dismissed:";
 
@@ -38,6 +38,8 @@ export function clearRenewalDismissal(renewalId: string): void {
 
 export function getTenantRenewalView(lease: Lease): TenantRenewalView {
   const renewal = lease.leaseRenewal;
+  // Roommates can't act on renewals (the server refuses), so show them nothing.
+  if (isRoommateView(lease)) return "none";
   if (!renewal || renewal.markAsCompleted) return "none";
   if (renewal.isConfirmed && !renewal.isRenewLease) return "none";
   if (renewal.isConfirmed) return "confirmed";

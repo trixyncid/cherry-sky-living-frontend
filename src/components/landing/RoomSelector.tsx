@@ -38,7 +38,7 @@ function Badge({ room }: { room: RoomType }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold",
+        "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium",
         open > 0
           ? "bg-success-soft text-success"
           : "bg-warning-soft text-warning",
@@ -78,7 +78,7 @@ export function RoomSelector({ vm }: { vm: PropertyVM }) {
     <section
       id="kamar"
       aria-labelledby="kamar-heading"
-      className="relative z-10 -mt-10 scroll-mt-16 rounded-t-[2.5rem] bg-canvas px-5 py-16 sm:px-8 lg:py-24"
+      className="relative z-10 scroll-mt-16 bg-canvas px-5 py-24 sm:px-8 lg:px-12 lg:py-32"
     >
       <div className="mx-auto w-full max-w-[90rem]">
         <SectionHeading
@@ -91,20 +91,20 @@ export function RoomSelector({ vm }: { vm: PropertyVM }) {
         />
 
         {!vm.kost ? (
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-14 grid gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="h-[28rem] animate-pulse rounded-[1.5rem] bg-white"
+                className="h-[28rem] animate-pulse rounded-lg bg-white"
               />
             ))}
           </div>
         ) : rooms.length === 0 ? (
-          <p className="mt-8 rounded-[1.5rem] bg-white p-6 text-fg-2">
+          <p className="mt-14 border-y border-line py-8 text-fg-2">
             {t("none")}
           </p>
         ) : (
-          <ul className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="mt-14 grid gap-x-6 gap-y-14 sm:grid-cols-2 xl:grid-cols-3">
             {rooms.map((room) => {
               const ctx = {
                 property: vm,
@@ -113,10 +113,7 @@ export function RoomSelector({ vm }: { vm: PropertyVM }) {
               };
               const price = monthlyPrice(room);
               return (
-                <li
-                  key={room.id}
-                  className="flex flex-col rounded-[2rem] bg-white p-2 shadow-[0_30px_60px_-45px_rgb(11_11_13/0.45)] transition-shadow duration-300 hover:shadow-[0_36px_70px_-40px_rgb(11_11_13/0.55)]"
-                >
+                <li key={room.id} className="flex flex-col">
                   <button
                     type="button"
                     onClick={() => {
@@ -127,7 +124,7 @@ export function RoomSelector({ vm }: { vm: PropertyVM }) {
                       });
                     }}
                     aria-label={t("openGallery", { name: room.name })}
-                    className="group relative aspect-[4/3] overflow-hidden rounded-[1.5rem] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--lp-accent)]"
+                    className="group relative aspect-[4/3] overflow-hidden rounded-lg bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                   >
                     <Image
                       src={
@@ -138,26 +135,26 @@ export function RoomSelector({ vm }: { vm: PropertyVM }) {
                       alt={t("photoAlt", { room: room.name, name: vm.name })}
                       fill
                       sizes="(min-width: 1280px) 30vw, (min-width: 640px) 50vw, 100vw"
-                      className="object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-110 group-focus-visible:scale-110"
+                      className="object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105 group-focus-visible:scale-105 motion-reduce:transition-none"
                     />
-                    <span className="absolute left-4 top-4">
+                    <span className="absolute left-3 top-3">
                       <Badge room={room} />
                     </span>
                     {room.images.length > 1 ? (
-                      <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-ink/70 px-2.5 py-1 text-xs font-medium text-white">
+                      <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-md bg-ink/75 px-2.5 py-1 text-xs font-medium tabular-nums text-white">
                         <Icon name="photo_library" size={14} />
                         {room.images.length}
                       </span>
                     ) : null}
                   </button>
-                  <div className="flex flex-1 flex-col px-4 pb-3 pt-5">
-                    <h3 className="text-xl font-semibold tracking-tight text-fg">
+                  <div className="flex flex-1 flex-col pt-5">
+                    <h3 className="text-xl font-semibold tracking-[-0.02em] text-fg">
                       {room.name}
                     </h3>
-                    <p className="mt-1 text-fg">
+                    <p className="mt-1.5 text-fg">
                       {price > 0 ? (
                         <>
-                          <span className="text-2xl font-semibold tabular-nums">
+                          <span className="text-lg font-medium tabular-nums">
                             {formatCurrency(price)}
                           </span>
                           <span className="text-fg-muted">{t("perMonth")}</span>
@@ -166,14 +163,14 @@ export function RoomSelector({ vm }: { vm: PropertyVM }) {
                         t("ask")
                       )}
                     </p>
-                    <ul className="mt-3 flex flex-wrap gap-1.5 text-sm text-fg-2">
+                    <ul className="mt-4 flex flex-wrap gap-1.5 border-t border-line pt-4 text-[13px] text-fg-2">
                       {room.size ? (
-                        <li className="rounded-full bg-canvas px-3 py-1">
+                        <li className="rounded-md border border-line px-2.5 py-1">
                           {room.size} m²
                         </li>
                       ) : null}
                       {room.capacity && room.capacity !== "—" ? (
-                        <li className="rounded-full bg-canvas px-3 py-1">
+                        <li className="rounded-md border border-line px-2.5 py-1">
                           {formatCapacity(
                             room.capacity,
                             locale === "en" ? "en" : "id",
@@ -181,26 +178,26 @@ export function RoomSelector({ vm }: { vm: PropertyVM }) {
                         </li>
                       ) : null}
                       {vm.content.gender ? (
-                        <li className="rounded-full bg-canvas px-3 py-1">
+                        <li className="rounded-md border border-line px-2.5 py-1">
                           {t(`gender.${vm.content.gender}`)}
                         </li>
                       ) : null}
                       {included.map((f) => (
                         <li
                           key={f.id}
-                          className="rounded-full bg-canvas px-3 py-1"
+                          className="rounded-md border border-line px-2.5 py-1"
                         >
                           {locale === "en" ? (f.nameEn ?? f.name) : f.name}
                         </li>
                       ))}
                     </ul>
-                    <div className="mt-auto grid grid-cols-2 gap-2 pt-6">
+                    <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
                       <a
                         href={whatsappHref(ctx, locale)}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => trackWhatsApp(ctx)}
-                        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#25d366] px-3 text-sm font-semibold text-ink hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
+                        className="btn btn-outline px-3 text-sm"
                       >
                         <Icon name="whatsapp" size={18} />
                         {t("whatsapp")}
@@ -208,7 +205,7 @@ export function RoomSelector({ vm }: { vm: PropertyVM }) {
                       {room.availableCount > 0 ? (
                         <SurveyScheduleDialog
                           triggerLabel={t("survey")}
-                          className="mt-0 h-12 w-full justify-center rounded-full bg-canvas px-3 text-sm font-semibold text-fg hover:bg-hover"
+                          className="mt-0 h-12 w-full justify-center rounded-xl bg-ink px-3 py-0 text-sm font-medium text-white hover:bg-brand"
                         />
                       ) : (
                         <LeadDialog
@@ -220,7 +217,7 @@ export function RoomSelector({ vm }: { vm: PropertyVM }) {
                           trigger={
                             <button
                               type="button"
-                              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-canvas px-3 text-sm font-semibold text-fg hover:bg-hover"
+                              className="btn btn-solid w-full px-3 text-sm"
                             >
                               <Icon name="notifications" size={18} />
                               {t("waitlist")}
@@ -263,7 +260,7 @@ export function RoomSelector({ vm }: { vm: PropertyVM }) {
                 ).map((src, i) => (
                   <div
                     key={src}
-                    className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-canvas"
+                    className="relative aspect-[4/3] overflow-hidden rounded-lg bg-canvas"
                   >
                     <Image
                       src={src}
@@ -280,10 +277,10 @@ export function RoomSelector({ vm }: { vm: PropertyVM }) {
                 {vm.kost ? (
                   <Link
                     href={`/kosts/${vm.kost.id}/${detail.id}`}
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-brand px-6 text-[15px] font-semibold text-white hover:bg-brand-hover"
+                    className="btn btn-brand"
                   >
                     {t("fullDetail")}
-                    <Icon name="arrow_forward" size={18} />
+                    <Icon name="north_east" size={17} />
                   </Link>
                 ) : null}
               </div>

@@ -47,7 +47,7 @@ export function AdminFormPage({
     >
       <form onSubmit={onSubmit} className="space-y-6">
         {error ? <AdminAlert message={error} /> : null}
-        <div className="glass-panel space-y-5 rounded-[1.75rem] p-5 sm:p-6">
+        <div className="glass-panel space-y-5 rounded-lg p-5 sm:p-6">
           {children}
         </div>
         <AdminFormActions

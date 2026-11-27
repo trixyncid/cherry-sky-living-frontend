@@ -82,7 +82,9 @@ export function PhoneNumbersField({
       <ul className="space-y-2.5">
         {rows.map((row, index) => {
           const isLogin = row.key === loginKey;
-          const inputId = `${groupName}-${row.key}`;
+          // Position, not row.key: keys come from a module counter that differs
+          // between server and browser, which broke hydration.
+          const inputId = `${groupName}-phone-${index + 1}`;
           return (
             <li
               key={row.key}
@@ -180,8 +182,8 @@ export function PhoneNumbersField({
       </div>
 
       {loginChanged ? (
-        <output className="flex items-start gap-1.5 rounded-xl bg-warning-soft px-3 py-2 text-xs leading-relaxed text-warning">
-          <Icon name="info" size={14} className="mt-0.5 shrink-0" />
+        <output className="flex items-start gap-1.5 rounded-lg border border-brand-line bg-brand-tint px-3 py-2 text-xs leading-relaxed text-fg-2">
+          <Icon name="info" size={14} className="mt-0.5 shrink-0 text-brand" />
           {audience === "admin"
             ? t("loginChangedAdmin", {
                 phone: formatPhoneDisplay(loginRow?.phoneNumber),

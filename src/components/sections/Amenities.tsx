@@ -13,7 +13,6 @@ import { ArrowPill } from "@/components/shared/ArrowPill";
 import { Icon } from "@/components/shared/Icon";
 import { Reveal } from "@/components/shared/Reveal";
 import type { Kost } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
 const FALLBACK_PHOTOS = ["/assets/cherry-kost.jpeg", "/assets/skykost.jpeg"];
 
@@ -56,9 +55,9 @@ export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
     <section
       id="amenities"
       aria-labelledby="amenities-heading"
-      className={cn("w-full pt-14 lg:pt-20", asPage && "pt-12 lg:pt-16")}
+      className="w-full bg-canvas pt-24 lg:pt-32"
     >
-      <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-5 sm:px-8 lg:gap-12">
+      <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-14 px-5 sm:px-8 lg:gap-20 lg:px-12">
         {asPage ? null : (
           <HomeSectionHeading
             id="amenities-heading"
@@ -73,46 +72,49 @@ export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
           />
         )}
 
-        <div className="grid gap-3 lg:grid-cols-[1.9fr_1fr]">
+        <div className="grid gap-x-6 gap-y-10 lg:grid-cols-[1.9fr_1fr]">
           {EXTRAS.map((extra, index) => (
-            <Reveal
-              key={extra.id}
-              delay={index * 0.08}
-              className="relative min-h-[18rem] overflow-hidden rounded-[1.25rem] bg-ink lg:min-h-[22rem]"
-            >
-              <Image
-                src={photos[index] ?? FALLBACK_PHOTOS[index]}
-                alt={t(`extra.${extra.id}.title`)}
-                fill
-                sizes="(max-width: 1024px) 100vw, 60vw"
-                className="object-cover"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-              <div className="absolute inset-x-6 bottom-6 max-w-sm text-white">
-                <h3 className="text-2xl font-medium tracking-tight">
-                  {t(`extra.${extra.id}.title`)}
-                </h3>
-                <p className="mt-1.5 text-base text-white/80">
-                  {t(`extra.${extra.id}.description`)}
-                </p>
+            <Reveal key={extra.id} delay={index * 0.08}>
+              <div className="relative h-[18rem] overflow-hidden rounded-lg bg-ink lg:h-[26rem]">
+                <Image
+                  src={photos[index] ?? FALLBACK_PHOTOS[index]}
+                  alt={t(`extra.${extra.id}.title`)}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  className="object-cover"
+                />
               </div>
+              <p className="eyebrow mt-5 text-[10px] tabular-nums text-fg-faint">
+                {String(index + 1).padStart(2, "0")}
+              </p>
+              <h3 className="mt-2 text-xl font-medium tracking-tight text-fg">
+                {t(`extra.${extra.id}.title`)}
+              </h3>
+              <p className="mt-1.5 max-w-md text-base leading-relaxed text-fg-muted">
+                {t(`extra.${extra.id}.description`)}
+              </p>
             </Reveal>
           ))}
         </div>
 
-        <div className="-mt-5 grid gap-3 sm:grid-cols-2 lg:-mt-9 lg:grid-cols-4">
+        <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
           {AMENITIES.map((item, index) => (
             <Reveal
               key={item.id}
               delay={0.05 * index}
-              className="flex flex-col rounded-[1.25rem] bg-white p-6"
+              className="flex flex-col border-t border-line pt-5"
             >
-              <Icon
-                name={item.icon}
-                size={44}
-                className="text-fg [font-variation-settings:'wght'_200]"
-              />
-              <h3 className="mt-6 text-xl font-medium tracking-tight text-fg">
+              <div className="flex items-center justify-between">
+                <span className="text-sm tabular-nums text-fg-faint">
+                  {String(EXTRAS.length + index + 1).padStart(2, "0")}
+                </span>
+                <Icon
+                  name={item.icon}
+                  size={32}
+                  className="text-fg [font-variation-settings:'wght'_200]"
+                />
+              </div>
+              <h3 className="mt-8 text-lg font-medium tracking-tight text-fg">
                 {t(`items.${item.id}.title`)}
               </h3>
               <p className="mt-1.5 text-base leading-relaxed text-fg-muted">
@@ -123,11 +125,10 @@ export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
         </div>
       </div>
 
-      {/* Full-bleed photo with the transparency panel (§5.8, §7.4) */}
-      {/* Ends on the footer's deep wine so the photo flows into it with no
-          light strip, whatever the floating card's height. */}
-      <div className="relative mt-14 bg-ink pb-14 lg:mt-20 lg:pb-20">
-        <div className="relative h-[26rem] w-full overflow-hidden lg:h-[34rem]">
+      {/* Full-bleed photo with the transparency panel (§5.8, §7.4); ends on
+          ink so the photo flows into the footer with no light strip. */}
+      <div className="relative mt-24 bg-ink pb-24 lg:mt-32 lg:pb-32">
+        <div className="relative h-[26rem] w-full overflow-hidden lg:h-[36rem]">
           <Image
             src={photos[2] ?? FALLBACK_PHOTOS[1]}
             alt={t("photoCaption")}
@@ -135,12 +136,13 @@ export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
             sizes="100vw"
             className="object-cover"
           />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,transparent_55%,rgb(22_16_38/0.9)_100%)]" />
         </div>
-        <div className="mx-auto w-full max-w-[90rem] px-5 sm:px-8">
-          <Reveal className="relative -mt-24 ml-auto w-full max-w-md overflow-hidden rounded-[1.25rem] bg-white shadow-[0_30px_60px_-30px_rgb(0_0_0/0.4)] lg:-mt-72">
-            <div className="p-6">
-              <p className="mb-4 flex items-center gap-2 text-sm font-semibold text-success">
-                <Icon name="check_circle" size={18} />
+        <div className="mx-auto w-full max-w-[90rem] px-5 sm:px-8 lg:px-12">
+          <Reveal className="relative -mt-24 ml-auto w-full max-w-md overflow-hidden rounded-lg bg-panel lg:-mt-72">
+            <div className="p-6 lg:p-8">
+              <p className="eyebrow mb-5 flex items-center gap-3 text-fg-muted">
+                <span aria-hidden className="size-2 rounded-full bg-success" />
                 {t("included")}
               </p>
               <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5">
@@ -154,24 +156,24 @@ export function Amenities({ kosts = [], asPage = false }: AmenitiesProps) {
                   </li>
                 ))}
               </ul>
-              <p className="mb-3 mt-6 flex items-center gap-2 text-sm font-semibold text-brand">
-                <Icon name="receipt_long" size={18} />
+              <p className="eyebrow mb-4 mt-8 flex items-center gap-3 text-fg-muted">
+                <span aria-hidden className="h-px w-6 bg-brand" />
                 {t("paidSeparately")}
               </p>
               <ul className="flex flex-col gap-2 text-[15px] leading-relaxed text-fg-2">
                 <li>{t("electricity")}</li>
                 <li>{t("deposit")}</li>
               </ul>
-              <p className="mt-4 border-t border-hover pt-4 text-[15px] font-semibold text-fg">
+              <p className="mt-6 border-t border-line pt-5 text-[15px] font-medium text-fg">
                 {t("noAgent")}
               </p>
+              <ArrowPill
+                href={CHECK_AVAILABILITY_HREF}
+                className="mt-6 w-full justify-between"
+              >
+                {t("seeRooms")}
+              </ArrowPill>
             </div>
-            <ArrowPill
-              href={CHECK_AVAILABILITY_HREF}
-              className="h-14 w-full rounded-none pl-6"
-            >
-              {t("seeRooms")}
-            </ArrowPill>
           </Reveal>
         </div>
       </div>

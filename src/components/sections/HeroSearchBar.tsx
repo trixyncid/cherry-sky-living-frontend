@@ -175,7 +175,7 @@ export function HeroSearchBar({
     >
       <form
         onSubmit={handleSubmit}
-        className="mx-auto w-full rounded-[1.25rem] bg-white p-3 shadow-[0_24px_60px_-34px_rgb(11_11_13/0.35)] sm:p-4"
+        className="mx-auto w-full rounded-lg border border-line bg-white p-3 sm:p-4"
       >
         <div className="flex flex-col gap-3 md:flex-row md:items-end">
           <div className="grid min-w-0 flex-1 grid-cols-2 gap-3">
@@ -217,7 +217,7 @@ export function HeroSearchBar({
           <Button
             type="submit"
             size="lg"
-            className="h-12 w-full shrink-0 rounded-full bg-brand px-6 text-[15px] font-semibold text-white hover:bg-brand-hover md:w-auto"
+            className="h-12 w-full shrink-0 rounded-xl bg-brand px-6 text-[15px] font-medium text-white hover:bg-brand-hover md:w-auto"
           >
             <Icon name="search" size={18} className="mr-2" />
             {t("findProperties")}
@@ -232,7 +232,7 @@ export function HeroSearchBar({
                 type="button"
                 onClick={pill.onClick}
                 className={cn(
-                  "rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors",
+                  "rounded-md px-3.5 py-1.5 text-xs font-medium transition-colors",
                   pill.active
                     ? "bg-brand text-white"
                     : "border border-white/20 bg-white/10 text-white/80 hover:bg-white/15",

@@ -65,15 +65,23 @@ export function AdminLoginForm() {
     }
   }, [sessionFromUrl, t]);
 
+  // Also shown inline: the toast disappears before a slow reader sees it.
+  const [errorKey, setErrorKey] = useState<LoginErrorKey | null>(null);
+  const fail = (key: LoginErrorKey) => {
+    setErrorKey(key);
+    showLoginError(t, key);
+  };
+
   const form = useForm({
     defaultValues: {
       email: "",
       password: "",
     } satisfies AdminLoginValues,
     onSubmit: async ({ value }) => {
+      setErrorKey(null);
       const parsed = adminLoginSchema.safeParse(value);
       if (!parsed.success) {
-        showLoginError(t, "invalid");
+        fail("invalid");
         return;
       }
 
@@ -83,7 +91,7 @@ export function AdminLoginForm() {
       });
 
       if (result.error) {
-        showLoginError(t, loginErrorKeyFromAuthError(result.error));
+        fail(loginErrorKeyFromAuthError(result.error));
         return;
       }
 
@@ -106,7 +114,7 @@ export function AdminLoginForm() {
 
       if (!access.ok || !role) {
         await signOutClient();
-        showLoginError(t, access.isTenant ? "forbidden" : "invalid");
+        fail(access.isTenant ? "forbidden" : "invalid");
         return;
       }
 
@@ -151,7 +159,6 @@ export function AdminLoginForm() {
               icon="lock"
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
-              placeholder="••••••••"
               required
               value={field.state.value}
               onBlur={field.handleBlur}
@@ -171,6 +178,17 @@ export function AdminLoginForm() {
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
             <div className="pt-2">
+              {errorKey ? (
+                <p
+                  role="alert"
+                  className="rounded-lg border border-danger/20 bg-danger-soft px-4 py-3 text-sm text-danger"
+                >
+                  <span className="font-semibold">
+                    {t(`errors.${errorKey}.title`)}.
+                  </span>{" "}
+                  {t(`errors.${errorKey}.description`)}
+                </p>
+              ) : null}
               <LoginSubmit
                 pending={!!isSubmitting}
                 disabled={!canSubmit}

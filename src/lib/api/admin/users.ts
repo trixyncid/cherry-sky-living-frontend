@@ -3,6 +3,7 @@ import type { PhoneListPayload } from "@/lib/phone-list";
 import type {
   ApiDataResponse,
   ApiListResponse,
+  IdentityDocument,
   ResetTenantPasswordResult,
   TenantUser,
   TenantUserDetail,
@@ -76,6 +77,17 @@ export async function resetTenantPassword(
   const res = await apiFetch<ApiDataResponse<ResetTenantPasswordResult>>(
     `/admin/users/${id}/reset-password`,
     { method: "POST" },
+  );
+  return res.data;
+}
+
+export async function reviewTenantIdentity(
+  id: string,
+  input: { status: "checked" | "rejected"; reason?: string },
+): Promise<IdentityDocument> {
+  const res = await apiFetch<ApiDataResponse<IdentityDocument>>(
+    `/admin/users/${id}/identity`,
+    { method: "PATCH", body: input },
   );
   return res.data;
 }

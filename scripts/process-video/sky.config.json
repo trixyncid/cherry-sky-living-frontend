@@ -1,0 +1,23 @@
+{
+  "property": "sky",
+  "outDir": "public/media/sky",
+  "targets": { "desktopJourneyMB": 15, "mobileJourneyMB": 8 },
+  "clips": {
+    "journey-1-arrival": {
+      "file": "/Users/winstencoellins/Downloads/Camera_moves_from_exterior_lounge_e0e61159_1080p.mp4",
+      "focal": { "x": 0.56, "y": 0.5 }
+    },
+    "journey-2-lift": {
+      "file": "/Users/winstencoellins/Downloads/Camera_moving_from_lounge_to_ce35f812_1080p.mp4",
+      "focal": { "x": 0.52, "y": 0.5 }
+    },
+    "journey-3-room": {
+      "file": "/Users/winstencoellins/Downloads/Camera_moving_through_real_estate_6427166f_1080p.mp4",
+      "focal": { "x": 0.56, "y": 0.5 }
+    },
+    "closing": {
+      "file": "/Users/winstencoellins/Downloads/Rooftop_terrace_overlooking_city…_354ecff9_1080p.mp4",
+      "focal": { "x": 0.45, "y": 0.5 }
+    }
+  }
+}

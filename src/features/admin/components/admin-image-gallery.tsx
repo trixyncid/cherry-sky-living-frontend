@@ -380,7 +380,7 @@ function AddTile({
         className={cn(
           "mt-0.5 text-fg-muted",
           compact
-            ? "text-[11px] leading-tight"
+            ? "text-xs leading-tight"
             : "mt-1 max-w-[16rem] text-xs leading-relaxed",
         )}
       >
@@ -422,7 +422,7 @@ function QueuedPhoto({
       {item.isPdf ? (
         <div className="flex size-full flex-col items-center justify-center gap-1 bg-brand-soft/60 text-brand">
           <Icon name="description" size={28} />
-          <span className="max-w-[90%] truncate px-2 text-[11px] font-medium">
+          <span className="max-w-[90%] truncate px-2 text-xs font-medium">
             {item.file.name}
           </span>
         </div>
@@ -438,7 +438,7 @@ function QueuedPhoto({
       {!uploading ? (
         <span
           className={cn(
-            "absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white",
+            "absolute left-2 top-2 rounded-full px-2 py-0.5 text-xs font-semibold text-white",
             failed ? "bg-danger" : needsKind ? "bg-ink" : "bg-brand",
           )}
         >
@@ -453,7 +453,7 @@ function QueuedPhoto({
       {uploading ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-ink/45 text-white">
           <span className="size-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-          <span className="text-[11px] font-semibold">{t("uploading")}</span>
+          <span className="text-xs font-semibold">{t("uploading")}</span>
         </div>
       ) : (
         <button
@@ -473,7 +473,7 @@ function QueuedPhoto({
             type="button"
             onClick={onRetry}
             title={item.error || t("failedBadge")}
-            className="inline-flex h-7 items-center gap-1 rounded-full bg-white px-2.5 text-[11px] font-semibold text-danger shadow-sm hover:bg-danger-soft"
+            className="inline-flex h-7 items-center gap-1 rounded-full bg-white px-2.5 text-xs font-semibold text-danger shadow-sm hover:bg-danger-soft"
           >
             <Icon name="refresh" size={14} />
             {t("retry")}
@@ -519,7 +519,7 @@ function PhotoTile({
         {pdf ? (
           <div className="flex size-full flex-col items-center justify-center gap-1 bg-brand-soft/50 text-brand transition-transform duration-300 group-hover:scale-[1.04]">
             <Icon name="description" size={28} />
-            <span className="max-w-[90%] truncate px-2 text-[11px] font-medium">
+            <span className="max-w-[90%] truncate px-2 text-xs font-medium">
               {name}
             </span>
           </div>
@@ -553,16 +553,16 @@ function PhotoTile({
           onChange={onKindChange}
         />
       ) : item.kindLabel ? (
-        <span className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-ink/70 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">
+        <span className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-ink/70 px-2 py-0.5 text-xs font-semibold text-white backdrop-blur-sm">
           {item.kindLabel}
         </span>
       ) : null}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/55 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100" />
-      <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+      <div className="absolute right-2 top-2 flex gap-1.5">
         <button
           type="button"
           onClick={onPreview}
-          className="pointer-events-auto flex size-8 items-center justify-center rounded-full bg-white/92 text-fg-2 shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
+          className="pointer-events-auto flex size-9 items-center justify-center rounded-full bg-white/92 text-fg-2 shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
           aria-label={t("view")}
         >
           <Icon name="zoom_in" size={16} />
@@ -570,7 +570,7 @@ function PhotoTile({
         <button
           type="button"
           onClick={onDelete}
-          className="pointer-events-auto flex size-8 items-center justify-center rounded-full bg-white/92 text-danger shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
+          className="pointer-events-auto flex size-9 items-center justify-center rounded-full bg-white/92 text-danger shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
           aria-label={t("remove")}
         >
           <Icon name="delete" size={16} />
@@ -604,7 +604,7 @@ function KindPicker({
         type="button"
         title={t("changeKind")}
         onClick={() => setEditing(true)}
-        className="absolute bottom-2 left-2 inline-flex max-w-[calc(100%-1rem)] items-center gap-0.5 rounded-full bg-white/95 py-1 pl-2.5 pr-1.5 text-[11px] font-semibold text-brand shadow-sm backdrop-blur-sm hover:bg-white"
+        className="absolute bottom-2 left-2 inline-flex max-w-[calc(100%-1rem)] items-center gap-0.5 rounded-full bg-white/95 py-1 pl-2.5 pr-1.5 text-xs font-semibold text-brand shadow-sm backdrop-blur-sm hover:bg-white"
       >
         <span className="truncate">{chosen.label}</span>
         <Icon name="expand_more" size={14} />
@@ -682,7 +682,7 @@ function KindMenu({
           type="button"
           disabled={saving}
           title={t("changeKind")}
-          className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-0.5 rounded-full bg-ink/75 py-0.5 pl-2 pr-1 text-[10px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-ink disabled:opacity-60"
+          className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-0.5 rounded-full bg-ink/75 py-0.5 pl-2 pr-1 text-xs font-semibold text-white backdrop-blur-sm transition-colors hover:bg-ink disabled:opacity-60"
         >
           {saving ? t("saving") : label}
           <Icon name="expand_more" size={14} />
@@ -694,7 +694,7 @@ function KindMenu({
         sideOffset={6}
         className="w-auto min-w-40 rounded-xl border-line p-1"
       >
-        <p className="px-2.5 pb-1 pt-1.5 text-[11px] font-semibold text-fg-muted">
+        <p className="px-2.5 pb-1 pt-1.5 text-xs font-semibold text-fg-muted">
           {t("changeKind")}
         </p>
         {options.map((option) => (

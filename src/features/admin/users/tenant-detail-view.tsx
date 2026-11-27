@@ -23,7 +23,7 @@ import {
   AdminFormActions,
   AdminFormSection,
 } from "@/features/admin/components/admin-form-layout";
-import { LeaseStatusBadge } from "@/features/admin/components/status-badge";
+import { LeaseStandingBadge } from "@/features/admin/components/status-badge";
 import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import { useAdminLookups } from "@/features/admin/hooks/use-admin-lookups";
 import {
@@ -32,7 +32,7 @@ import {
 } from "@/features/admin/hooks/use-admin-queries";
 import { resolveLeasePropertyName } from "@/features/admin/lib/entity-display";
 import { getErrorMessage } from "@/features/admin/lib/errors";
-import { formatDate } from "@/features/admin/lib/format";
+import { formatDate, formatIdrCompact } from "@/features/admin/lib/format";
 import {
   showApiError,
   showApiSuccess,
@@ -42,7 +42,9 @@ import {
   StatusDot,
   WhatsAppButton,
 } from "@/features/admin/operations/ops-kit";
+import { paymentRecord } from "@/features/admin/users/payment-record";
 import { updateTenantUserSchema } from "@/features/admin/users/schemas";
+import { TenantIdentityCard } from "@/features/admin/users/tenant-identity-card";
 import { TenantResetPasswordDialog } from "@/features/admin/users/tenant-reset-password-dialog";
 import { Link } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
@@ -59,6 +61,7 @@ import {
   takenPhoneFromError,
   validatePhoneList,
 } from "@/lib/phone-list";
+import type { Lease } from "@/lib/types/admin";
 import { cn } from "@/lib/utils";
 
 const BASE = "/admin/users";
@@ -201,118 +204,125 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
         title={form.name || tenant.name}
         description={tp("detailDescription")}
         aside={
-          <section className="overflow-hidden rounded-[1.75rem] border border-line bg-white">
-            <div className="flex flex-col items-center gap-3 bg-subtle px-5 py-6 text-center">
-              <div className="relative">
-                <Avatar
-                  name={tenant.name}
-                  seed={tenant.id}
-                  muted={!tenant.isActive}
-                  className="size-20 text-2xl"
-                />
-                <span className="absolute bottom-1 right-1">
-                  <StatusDot active={tenant.isActive} />
+          <>
+            <section className="overflow-hidden rounded-lg border border-line bg-white">
+              <div className="flex flex-col items-center gap-3 bg-subtle px-5 py-6 text-center">
+                <div className="relative">
+                  <Avatar
+                    name={tenant.name}
+                    seed={tenant.id}
+                    muted={!tenant.isActive}
+                    className="size-20 text-2xl"
+                  />
+                  <span className="absolute bottom-1 right-1">
+                    <StatusDot active={tenant.isActive} />
+                  </span>
+                </div>
+                <div>
+                  <p className="text-xl font-medium tracking-tight">
+                    {tenant.name}
+                  </p>
+                  <p className="text-sm text-fg-muted">
+                    {contactSummary(tenant) || "—"}
+                  </p>
+                </div>
+                <span
+                  className={cn(
+                    "rounded-full px-3 py-1 text-xs font-medium",
+                    tenant.isActive
+                      ? "bg-success-soft text-success"
+                      : "bg-hover text-fg-muted",
+                  )}
+                >
+                  {tenant.isActive ? tp("statusActive") : tp("statusInactive")}
                 </span>
               </div>
-              <div>
-                <p className="text-xl font-medium tracking-tight">
-                  {tenant.name}
-                </p>
-                <p className="text-sm text-fg-muted">
-                  {contactSummary(tenant) || "—"}
-                </p>
-              </div>
-              <span
-                className={cn(
-                  "rounded-full px-3 py-1 text-xs font-medium",
-                  tenant.isActive
-                    ? "bg-success-soft text-success"
-                    : "bg-hover text-fg-muted",
-                )}
-              >
-                {tenant.isActive ? tp("statusActive") : tp("statusInactive")}
-              </span>
-            </div>
-            <dl className="grid grid-cols-2 gap-2 p-4 text-sm">
-              <div className="rounded-2xl bg-subtle p-3">
-                <dt className="text-xs text-fg-muted">{tp("joined")}</dt>
-                <dd className="font-medium">
-                  {formatDate(tenant.createdAt, locale)}
-                </dd>
-              </div>
-              <div className="rounded-2xl bg-subtle p-3">
-                <dt className="text-xs text-fg-muted">{tp("leaseCount")}</dt>
-                <dd className="font-medium">{leases.length}</dd>
-              </div>
-            </dl>
-            {savedPhones.length > 0 ? (
-              <div className="px-4 pb-4">
-                <p className="mb-1.5 text-xs text-fg-muted">{tph("title")}</p>
-                <ul className="space-y-1.5">
-                  {savedPhones.map((p) => {
-                    const isLogin = p.phoneNumber === tenant.phoneNumber;
-                    return (
-                      <li
-                        key={p.phoneNumber}
-                        className="flex items-center gap-2 rounded-xl bg-subtle px-3 py-2 text-sm"
-                      >
-                        <Icon
-                          name={isLogin ? "key" : "call"}
-                          size={16}
-                          className={isLogin ? "text-brand" : "text-fg-muted"}
-                        />
-                        <span className="min-w-0 flex-1 truncate font-medium tabular-nums">
-                          {formatPhoneDisplay(p.phoneNumber)}
-                        </span>
-                        {isLogin ? (
-                          <span className="shrink-0 rounded-full bg-brand-tint px-2 py-0.5 text-[11px] font-semibold text-brand">
-                            {tph("loginBadge")}
+              <dl className="grid grid-cols-2 gap-2 p-4 text-sm">
+                <div className="rounded-2xl bg-subtle p-3">
+                  <dt className="text-xs text-fg-muted">{tp("joined")}</dt>
+                  <dd className="font-medium">
+                    {formatDate(tenant.createdAt, locale)}
+                  </dd>
+                </div>
+                <div className="rounded-2xl bg-subtle p-3">
+                  <dt className="text-xs text-fg-muted">{tp("leaseCount")}</dt>
+                  <dd className="font-medium">{leases.length}</dd>
+                </div>
+              </dl>
+              {savedPhones.length > 0 ? (
+                <div className="px-4 pb-4">
+                  <p className="mb-1.5 text-xs text-fg-muted">{tph("title")}</p>
+                  <ul className="space-y-1.5">
+                    {savedPhones.map((p) => {
+                      const isLogin = p.phoneNumber === tenant.phoneNumber;
+                      return (
+                        <li
+                          key={p.phoneNumber}
+                          className="flex items-center gap-2 rounded-xl bg-subtle px-3 py-2 text-sm"
+                        >
+                          <Icon
+                            name={isLogin ? "key" : "call"}
+                            size={16}
+                            className={isLogin ? "text-brand" : "text-fg-muted"}
+                          />
+                          <span className="min-w-0 flex-1 truncate font-medium tabular-nums">
+                            {formatPhoneDisplay(p.phoneNumber)}
                           </span>
-                        ) : p.label ? (
-                          <span className="shrink-0 truncate text-xs text-fg-muted">
-                            {p.label}
-                          </span>
-                        ) : null}
-                      </li>
-                    );
+                          {isLogin ? (
+                            <span className="shrink-0 rounded-full bg-brand-tint px-2 py-0.5 text-xs font-semibold text-brand">
+                              {tph("loginBadge")}
+                            </span>
+                          ) : p.label ? (
+                            <span className="shrink-0 truncate text-xs text-fg-muted">
+                              {p.label}
+                            </span>
+                          ) : null}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ) : null}
+              <div className="flex flex-col gap-2 px-4 pb-4">
+                <WhatsAppButton
+                  phone={phone}
+                  label={to("whatsapp")}
+                  message={to("waGreeting", {
+                    name: tenant.name.split(" ")[0] ?? tenant.name,
                   })}
-                </ul>
-              </div>
-            ) : null}
-            <div className="flex flex-col gap-2 px-4 pb-4">
-              <WhatsAppButton
-                phone={phone}
-                label={to("whatsapp")}
-                message={to("waGreeting", {
-                  name: tenant.name.split(" ")[0] ?? tenant.name,
-                })}
-              />
-              <button
-                type="button"
-                onClick={() => setResetOpen(true)}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-sm font-medium text-fg hover:border-brand-line hover:text-brand"
-              >
-                <Icon name="lock_reset" size={18} />
-                {tp("resetPassword")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setToggleOpen(true)}
-                className={cn(
-                  "inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium",
-                  tenant.isActive
-                    ? "text-danger hover:bg-danger-soft"
-                    : "bg-brand text-white hover:bg-brand-hover",
-                )}
-              >
-                <Icon
-                  name={tenant.isActive ? "person_off" : "person_check"}
-                  size={18}
                 />
-                {tenant.isActive ? tp("deactivate") : tp("activate")}
-              </button>
-            </div>
-          </section>
+                <button
+                  type="button"
+                  onClick={() => setResetOpen(true)}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-line bg-white px-4 text-sm font-medium text-fg hover:border-brand-line hover:text-brand"
+                >
+                  <Icon name="lock_reset" size={18} />
+                  {tp("resetPassword")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setToggleOpen(true)}
+                  className={cn(
+                    "inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium",
+                    tenant.isActive
+                      ? "text-danger hover:bg-danger-soft"
+                      : "bg-brand text-white hover:bg-brand-hover",
+                  )}
+                >
+                  <Icon
+                    name={tenant.isActive ? "person_off" : "person_check"}
+                    size={18}
+                  />
+                  {tenant.isActive ? tp("deactivate") : tp("activate")}
+                </button>
+              </div>
+            </section>
+            <TenantIdentityCard
+              tenantId={tenant.id}
+              doc={tenant.identityDocument}
+            />
+            <PaymentRecordCard leases={tenant.leases ?? []} />
+          </>
         }
       >
         <div className="space-y-6">
@@ -410,14 +420,14 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                             {formatDate(lease.endDate, locale)}
                           </span>
                           {roommate ? (
-                            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-tint px-2 py-0.5 text-[11px] font-semibold text-brand">
+                            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-tint px-2 py-0.5 text-xs font-semibold text-brand">
                               <Icon name="group" size={12} />
                               {trm("roommateOf", {
                                 name: lease.user?.name ?? "—",
                               })}
                             </span>
                           ) : lease.occupants?.length ? (
-                            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-subtle px-2 py-0.5 text-[11px] font-semibold text-fg-2">
+                            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-subtle px-2 py-0.5 text-xs font-semibold text-fg-2">
                               <Icon name="group" size={12} />
                               {trm("sharedWith", {
                                 names: lease.occupants
@@ -427,7 +437,7 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
                             </span>
                           ) : null}
                         </span>
-                        <LeaseStatusBadge status={lease.status} />
+                        <LeaseStandingBadge lease={lease} />
                         <Icon
                           name="chevron_right"
                           size={20}
@@ -485,5 +495,64 @@ export function TenantDetailView({ id }: TenantDetailViewProps) {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+/** Track record: how often this tenant paid late; waived fees still count. */
+function PaymentRecordCard({ leases }: { leases: Lease[] }) {
+  const t = useTranslations("admin.pages.users.paymentRecord");
+  const r = paymentRecord(leases);
+  const good = r.bills > 0 && r.late === 0;
+  return (
+    <section className="rounded-lg border border-line bg-white p-5">
+      <h2 className="text-base font-semibold text-fg">{t("title")}</h2>
+      {r.bills === 0 ? (
+        <p className="mt-2 text-sm text-fg-muted">{t("none")}</p>
+      ) : (
+        <>
+          <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-md bg-subtle px-2 py-3">
+              <dt className="text-xs text-fg-muted">{t("bills")}</dt>
+              <dd className="text-lg font-semibold tabular-nums text-fg">
+                {r.bills}
+              </dd>
+            </div>
+            <div
+              className={cn(
+                "rounded-md px-2 py-3",
+                r.late > 0 ? "bg-danger-soft" : "bg-subtle",
+              )}
+            >
+              <dt className="text-xs text-fg-muted">{t("late")}</dt>
+              <dd
+                className={cn(
+                  "text-lg font-semibold tabular-nums",
+                  r.late > 0 ? "text-danger" : "text-fg",
+                )}
+              >
+                {r.late}
+              </dd>
+            </div>
+            <div className="rounded-md bg-subtle px-2 py-3">
+              <dt className="text-xs text-fg-muted">{t("waived")}</dt>
+              <dd className="text-lg font-semibold tabular-nums text-fg">
+                {r.waived}
+              </dd>
+            </div>
+          </dl>
+          <p className="mt-3 text-sm text-fg-2">
+            {good
+              ? t("summaryGood")
+              : r.waived > 0
+                ? t("summaryWaived", {
+                    late: r.late,
+                    bills: r.bills,
+                    amount: formatIdrCompact(r.waivedTotal),
+                  })
+                : t("summaryLate", { late: r.late, bills: r.bills })}
+          </p>
+        </>
+      )}
+    </section>
   );
 }

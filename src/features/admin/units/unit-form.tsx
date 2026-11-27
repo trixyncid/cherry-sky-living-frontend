@@ -232,16 +232,20 @@ export function UnitForm({ id }: { id?: string }) {
               </AdminSelect>
             </AdminField>
 
-            <AdminField label={t("name")} htmlFor="unit-name" required>
+            <AdminField label={tp("roomNumber")} htmlFor="unit-name" required>
               <input
                 id="unit-name"
                 required
+                placeholder={tp("roomNumberPlaceholder")}
                 className={adminInputClassName}
                 value={form.name}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, name: e.target.value }))
                 }
               />
+              <p className="mt-1 text-xs text-fg-muted">
+                {tp("roomNumberHint")}
+              </p>
             </AdminField>
 
             <AdminField label={t("maxOccupancy")} htmlFor="unit-max-occupancy">
@@ -261,16 +265,13 @@ export function UnitForm({ id }: { id?: string }) {
             </AdminField>
 
             {isEdit ? (
-              <AdminField label={t("status")} htmlFor="unit-status">
-                <AdminSelect
-                  id="unit-status"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as UnitStatus)}
-                >
-                  <option value="vacant">{tp("status.vacant")}</option>
-                  <option value="occupied">{tp("status.occupied")}</option>
-                </AdminSelect>
-                <p className="mt-1 text-xs text-fg-muted">{tp("statusHint")}</p>
+              // Status follows the leases; a hand-set "Kosong" would make an
+              // occupied room look bookable.
+              <AdminField label={t("status")}>
+                <p className="flex h-11 items-center text-[15px] font-medium text-fg">
+                  {tp(`status.${status}`)}
+                </p>
+                <p className="mt-1 text-xs text-fg-muted">{tp("statusAuto")}</p>
               </AdminField>
             ) : null}
           </div>

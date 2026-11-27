@@ -72,13 +72,13 @@ export function ImageGallery({
         {isMosaic ? (
           <div
             id="photos"
-            className="grid h-[min(20rem,64vw)] grid-cols-4 grid-rows-2 gap-2 md:h-[min(30rem,36vw)]"
+            className="grid h-[min(20rem,64vw)] grid-cols-4 grid-rows-2 gap-2 md:h-[min(32rem,38vw)]"
           >
             <button
               type="button"
               onClick={openGallery}
               className={cn(
-                "relative overflow-hidden rounded-[1.25rem] bg-line",
+                "group relative overflow-hidden rounded-md bg-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
                 mosaicSideImages.length > 0
                   ? "col-span-4 md:col-span-2 md:row-span-2"
                   : "col-span-4 row-span-2",
@@ -87,7 +87,7 @@ export function ImageGallery({
               <img
                 src={images[0] || "/placeholder-room.jpg"}
                 alt={alt}
-                className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none"
               />
             </button>
             {mosaicSideImages.map((image, index) => {
@@ -98,17 +98,17 @@ export function ImageGallery({
                   type="button"
                   onClick={openGallery}
                   className={cn(
-                    "relative col-span-2 overflow-hidden rounded-[1.25rem] bg-line md:col-span-1",
+                    "group relative col-span-2 overflow-hidden rounded-md bg-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand md:col-span-1",
                     mosaicSideImages.length === 1 && "md:row-span-2",
                   )}
                 >
                   <img
                     src={image}
                     alt={`${alt} ${index + 2}`}
-                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none"
                   />
                   {isLast && mosaicRemaining > 0 ? (
-                    <span className="absolute inset-0 flex items-center justify-center bg-black/45 text-[15px] font-semibold text-white">
+                    <span className="eyebrow absolute inset-0 flex items-center justify-center bg-[rgb(22_16_38/0.55)] px-3 text-center text-white">
                       {t("roomDetail.viewAllPhotos", {
                         count: images.length,
                       })}
@@ -139,7 +139,7 @@ export function ImageGallery({
                 alt={`${alt} ${selectedIndex + 1}`}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
-              <div className="glass-chip absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/20">
+              <div className="glass-chip absolute bottom-4 right-4 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/20">
                 <Icon name="photo_library" size={14} />
                 <span>
                   {t("roomDetail.viewAllPhotos", { count: images.length })}
@@ -218,13 +218,14 @@ export function ImageGallery({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm"
+            className="fixed inset-0 z-50 overflow-y-auto bg-ink/95 backdrop-blur-sm"
             onClick={() => setShowAllPhotos(false)}
           >
-            <div className="relative h-full w-full flex items-center justify-center p-4">
+            <div className="relative flex min-h-full w-full items-center justify-center p-4 py-20">
               <button
                 type="button"
-                className="absolute top-4 right-4 p-2 text-white hover:bg-white/10 rounded-full transition-colors z-10"
+                aria-label={t("common.close")}
+                className="fixed top-4 right-4 z-10 inline-flex size-11 items-center justify-center rounded-full border border-white/60 text-white transition-colors hover:bg-white hover:text-ink"
                 onClick={() => setShowAllPhotos(false)}
               >
                 <Icon name="close" size={24} />
@@ -236,7 +237,7 @@ export function ImageGallery({
                       key={index}
                       src={image}
                       alt={`${alt} ${index + 1}`}
-                      className="w-full aspect-video object-cover rounded-lg"
+                      className="w-full aspect-video object-cover rounded-md"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}

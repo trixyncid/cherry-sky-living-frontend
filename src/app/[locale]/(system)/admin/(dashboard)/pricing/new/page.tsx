@@ -1,5 +1,19 @@
-import { PricingForm } from "@/features/admin/pricing/pricing-form";
+import { redirect } from "@/i18n/routing";
 
-export default function NewPricingPage() {
-  return <PricingForm />;
+/** Prices now live on each room type's form; old links land there. */
+export default async function NewPricingPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ unitTypeId?: string }>;
+}) {
+  const { locale } = await params;
+  const { unitTypeId } = await searchParams;
+  redirect({
+    href: unitTypeId
+      ? `/admin/unit-types/${encodeURIComponent(unitTypeId)}/edit`
+      : "/admin/unit-types",
+    locale,
+  });
 }

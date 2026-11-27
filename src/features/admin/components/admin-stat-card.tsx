@@ -90,19 +90,10 @@ export function AdminStatCard({
   if (href) {
     return (
       <Link href={href} className={cardClass}>
-        <div className="absolute -right-8 -top-8 size-28 rounded-full bg-brand/10 blur-2xl transition-transform duration-500 group-hover:scale-125" />
         {content}
       </Link>
     );
   }
 
-  return (
-    <article className={cardClass}>
-      <div
-        className="absolute -right-8 -top-8 size-28 rounded-full bg-brand-deep/8 blur-2xl"
-        aria-hidden
-      />
-      {content}
-    </article>
-  );
+  return <article className={cardClass}>{content}</article>;
 }

@@ -69,7 +69,7 @@ export function LanguageSwitcher({
 
   return (
     <div ref={dropdownRef} className="relative">
-      {/* Trigger — flag only */}
+      {/* Trigger — flag plus code, so it reads as a language switch */}
       <motion.button
         type="button"
         whileHover={{ scale: 1.08 }}
@@ -80,11 +80,17 @@ export function LanguageSwitcher({
         className={cn(
           "flex items-center justify-center rounded-xl transition-all duration-300",
           variant === "navbar"
-            ? cn("h-9 w-9", isSolid ? "hover:bg-white/70" : "hover:bg-white/15")
-            : "h-10 w-10 hover:bg-subtle",
+            ? cn(
+                "h-9 gap-1.5 px-2",
+                isSolid ? "hover:bg-white/70" : "hover:bg-white/15",
+              )
+            : "h-10 gap-1.5 px-2.5 hover:bg-subtle",
         )}
       >
         <span className={`fi fi-${currentLanguage.countryCode} text-xl`} />
+        <span className="text-xs font-semibold tracking-wide">
+          {currentLanguage.code.toUpperCase()}
+        </span>
       </motion.button>
 
       {/* Dropdown */}

@@ -27,6 +27,7 @@ import {
   type TenantPasswordValues,
   type TenantProfileValues,
 } from "@/features/tenant/profile/schemas";
+import { TenantIdentitySection } from "@/features/tenant/profile/tenant-identity-section";
 import { useRouter } from "@/i18n/routing";
 import { ApiError } from "@/lib/api/errors";
 import { displayEmailOrEmpty } from "@/lib/phone";
@@ -178,10 +179,11 @@ export function TenantProfileView() {
       )}
 
       {isLoading ? (
-        <p className="text-sm text-[#6b6b6b]">{t("loading")}</p>
+        <p className="text-sm text-fg-muted">{t("loading")}</p>
       ) : profile ? (
         <div className="space-y-6">
-          <section className="glass-panel rounded-[1.75rem] p-6">
+          <TenantIdentitySection />
+          <section className="glass-panel rounded-lg p-6">
             <div className="mb-6 flex items-center gap-5">
               <ProfileAvatarPlaceholder
                 className="size-20 ring-4 ring-white/70"
@@ -189,16 +191,16 @@ export function TenantProfileView() {
                 label={profile.name}
               />
               <div>
-                <span className="inline-flex rounded-full bg-ferrugem-soft/80 px-2.5 py-1 text-xs font-semibold text-ferrugem ring-1 ring-white/60 backdrop-blur-sm">
+                <span className="inline-flex rounded-full bg-brand-soft/80 px-2.5 py-1 text-xs font-semibold text-brand ring-1 ring-white/60 backdrop-blur-sm">
                   {th("roleTenant")}
                 </span>
-                <p className="mt-2 text-xs text-[#6b6b6b]">
+                <p className="mt-2 text-xs text-fg-muted">
                   {tp("memberSince")}: {formatDate(profile.createdAt, locale)}
                 </p>
               </div>
             </div>
 
-            <h3 className="mb-4 text-sm font-semibold text-[#141414]">
+            <h3 className="mb-4 text-sm font-semibold text-fg">
               {tp("accountSection")}
             </h3>
 
@@ -231,10 +233,10 @@ export function TenantProfileView() {
                     disabled
                     className={cn(
                       adminInputClassName,
-                      "cursor-not-allowed bg-[#efeeeb] text-[#3d3a36]",
+                      "cursor-not-allowed bg-hover text-fg-2",
                     )}
                   />
-                  <p className="mt-1 text-xs text-[#6b6b6b]">
+                  <p className="mt-1 text-xs text-fg-muted">
                     {tp("emailReadOnly")}
                   </p>
                 </AdminField>
@@ -264,7 +266,7 @@ export function TenantProfileView() {
                       hideLabel={tp("hidePassword")}
                       autoComplete="current-password"
                     />
-                    <p className="mt-1 text-xs text-[#6b6b6b]">
+                    <p className="mt-1 text-xs text-fg-muted">
                       {tp("loginPasswordHint")}
                     </p>
                   </AdminField>
@@ -275,7 +277,7 @@ export function TenantProfileView() {
                 <button
                   type="submit"
                   disabled={profilePending}
-                  className="admin-btn-primary rounded-xl px-5 py-2.5 text-sm font-semibold disabled:opacity-50"
+                  className="admin-btn-primary rounded-md px-5 py-2.5 text-sm font-semibold disabled:opacity-50"
                 >
                   {profilePending ? t("saving") : t("save")}
                 </button>
@@ -283,11 +285,11 @@ export function TenantProfileView() {
             </form>
           </section>
 
-          <section className="glass-panel rounded-[1.75rem] p-6">
-            <h3 className="mb-1 text-sm font-semibold text-[#141414]">
+          <section className="glass-panel rounded-lg p-6">
+            <h3 className="mb-1 text-sm font-semibold text-fg">
               {tp("passwordSection")}
             </h3>
-            <p className="mb-4 text-sm text-[#3d3a36]">
+            <p className="mb-4 text-sm text-fg-2">
               {tp("passwordDescription")}
             </p>
 
@@ -359,7 +361,7 @@ export function TenantProfileView() {
                 <button
                   type="submit"
                   disabled={passwordPending}
-                  className="glass-control rounded-xl px-5 py-2.5 text-sm font-semibold text-[#71130d] transition-colors hover:bg-white/80 disabled:opacity-50"
+                  className="glass-control rounded-md px-5 py-2.5 text-sm font-semibold text-brand transition-colors hover:bg-white/80 disabled:opacity-50"
                 >
                   {passwordPending
                     ? tp("updatingPassword")
@@ -407,7 +409,7 @@ function PasswordInput({
       <button
         type="button"
         onClick={onToggle}
-        className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5f5e5e] transition-colors hover:text-[#71130d]"
+        className="absolute inset-y-0 right-0 flex items-center pr-3 text-fg-muted transition-colors hover:text-brand"
         aria-label={show ? hideLabel : showLabel}
       >
         <Icon name={show ? "visibility_off" : "visibility"} size={20} />

@@ -103,7 +103,7 @@ export function AdminSidebar() {
               <span className="block truncate text-[15px] font-semibold tracking-tight">
                 {t("brand.name")}
               </span>
-              <span className="block text-[11px] font-medium uppercase tracking-[0.12em] text-brand-bright">
+              <span className="block text-xs font-medium uppercase tracking-[0.12em] text-brand-bright">
                 {t("brand.suite")}
               </span>
             </span>
@@ -122,7 +122,7 @@ export function AdminSidebar() {
                 />
               )
             ) : (
-              <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-white/60">
                 {t(group.labelKey)}
               </p>
             )}
@@ -148,7 +148,7 @@ export function AdminSidebar() {
                         "group relative flex h-10 items-center gap-3 rounded-lg text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-bright",
                         collapsed ? "justify-center" : "px-3",
                         active
-                          ? "bg-brand text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.1),0_6px_16px_-6px_rgb(122_22_48/0.7)]"
+                          ? "bg-brand text-white"
                           : "text-white/65 hover:bg-white/[0.06] hover:text-white",
                       )}
                     >
@@ -172,7 +172,7 @@ export function AdminSidebar() {
                         ) : (
                           <span
                             className={cn(
-                              "inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-semibold leading-5 tabular-nums",
+                              "inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold leading-5 tabular-nums",
                               active
                                 ? "bg-white/20 text-white"
                                 : "bg-brand text-white",
@@ -210,7 +210,7 @@ export function AdminSidebar() {
               <span className="block truncate text-sm font-medium">
                 {user.name}
               </span>
-              <span className="block truncate text-xs text-white/45">
+              <span className="block truncate text-xs text-white/60">
                 {user.email}
               </span>
             </span>

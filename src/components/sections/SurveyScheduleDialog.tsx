@@ -289,7 +289,7 @@ export function SurveyScheduleDialog({
         <button
           type="button"
           className={cn(
-            "mt-4 inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-ink-2",
+            "mt-4 inline-flex items-center gap-2 rounded-xl bg-ink px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-ink-2",
             className,
           )}
         >

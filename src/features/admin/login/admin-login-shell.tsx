@@ -62,7 +62,6 @@ export function AdminLoginShell({ children, portal }: AdminLoginShellProps) {
           className="object-cover opacity-80"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/10" />
-        <div className="absolute -right-16 -top-20 size-64 rounded-full bg-brand/40 blur-3xl" />
         <div className="absolute inset-x-5 top-4 flex items-center justify-between">
           <BackLink label={t("backToWebsite")} onDark />
         </div>
@@ -146,7 +145,7 @@ export function AdminLoginShell({ children, portal }: AdminLoginShellProps) {
 
       {/* Desktop visual panel */}
       <aside className="relative hidden p-3 lg:block">
-        <div className="relative h-full overflow-hidden rounded-[2rem] bg-ink">
+        <div className="relative h-full overflow-hidden rounded-lg bg-ink">
           <Image
             src={LOGIN_BACKGROUND_IMAGE}
             alt=""
@@ -156,8 +155,6 @@ export function AdminLoginShell({ children, portal }: AdminLoginShellProps) {
             className="object-cover opacity-70"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-ink/25" />
-          <div className="absolute -right-32 -top-32 size-[26rem] rounded-full bg-brand/35 blur-3xl" />
-          <div className="absolute -bottom-40 -left-24 size-80 rounded-full bg-brand/25 blur-3xl" />
 
           <div className="absolute inset-x-10 bottom-10 max-w-xl text-white xl:inset-x-14 xl:bottom-14">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-3.5 py-1.5 text-[13px] font-medium ring-1 ring-white/15 backdrop-blur-md">
@@ -192,7 +189,7 @@ function BackLink({ label, onDark }: { label: string; onDark?: boolean }) {
     <Link
       href="/"
       className={cn(
-        "inline-flex h-10 items-center gap-1.5 rounded-full px-3.5 text-sm font-medium transition-colors",
+        "inline-flex h-10 items-center gap-1.5 rounded-md px-3.5 text-sm font-medium transition-colors",
         onDark
           ? "bg-white/15 text-white ring-1 ring-white/20 backdrop-blur-md hover:bg-white/25"
           : "text-fg-2 hover:bg-hover hover:text-fg",
@@ -229,7 +226,7 @@ export const LoginField = forwardRef<HTMLInputElement, LoginFieldProps>(
             ref={ref}
             id={id}
             className={cn(
-              "block h-[3.25rem] w-full rounded-2xl border border-line-strong bg-white pl-12 text-[15px] text-fg shadow-[0_1px_2px_rgb(11_11_13/0.04)] transition-[border-color,box-shadow] placeholder:text-fg-faint",
+              "block h-[3.25rem] w-full rounded-2xl border border-line-strong bg-white pl-12 text-[15px] text-fg shadow-[0_1px_2px_rgb(22_16_38/0.04)] transition-[border-color,box-shadow] placeholder:text-fg-faint",
               "hover:border-fg-faint focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10",
               trailing ? "pr-12" : "pr-4",
               className,
@@ -287,7 +284,7 @@ export function LoginSubmit({
     <button
       type="submit"
       disabled={disabled || pending}
-      className="group flex h-[3.25rem] w-full items-center justify-center gap-2 rounded-2xl bg-ink text-[15px] font-semibold text-white shadow-[0_10px_24px_-12px_rgb(11_11_13/0.6)] transition-[background-color,transform] hover:bg-brand active:scale-[0.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-60"
+      className="group flex h-[3.25rem] w-full items-center justify-center gap-2 rounded-2xl bg-ink text-[15px] font-semibold text-white shadow-[0_10px_24px_-12px_rgb(22_16_38/0.6)] transition-[background-color,transform] hover:bg-brand active:scale-[0.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {pending ? (
         <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />

@@ -24,7 +24,6 @@ import { ClosingBridge } from "./ClosingBridge";
 import { Journey } from "./Journey";
 import { LandingHero } from "./LandingHero";
 import { RoomSelector } from "./RoomSelector";
-import { SectionDock } from "./SectionDock";
 import {
   Comparison,
   Facilities,
@@ -172,11 +171,7 @@ export function LandingView({ content }: { content: LandingContent }) {
         </div>
       ) : null}
 
-      <Location
-        properties={properties}
-        landmarks={content.landmarks}
-        tier={tier}
-      />
+      <Location properties={properties} landmarks={content.landmarks} />
       <div className="lp-theme" data-property={selected ?? "cherry"}>
         <Comparison properties={properties} landmarks={content.landmarks} />
         <Testimonials content={content} properties={properties} />
@@ -184,7 +179,6 @@ export function LandingView({ content }: { content: LandingContent }) {
       <HomeFaq />
       <FinalCta properties={properties} selected={vm} />
       <StickyBar selected={vm} />
-      <SectionDock selected={vm} />
     </PublicPageShell>
   );
 }

@@ -294,14 +294,14 @@ export function BookkeepingList() {
       <div className="mb-5 flex flex-wrap gap-2">
         <Link
           href={`${BASE}/new?type=income`}
-          className="inline-flex h-11 items-center gap-2 rounded-full bg-success px-5 text-[15px] font-medium text-white hover:bg-success"
+          className="inline-flex h-11 items-center gap-2 rounded-md bg-success px-5 text-[15px] font-medium text-white hover:bg-success"
         >
           <Icon name="add" size={18} />
           {tb("addIncome")}
         </Link>
         <Link
           href={`${BASE}/new?type=expense`}
-          className="inline-flex h-11 items-center gap-2 rounded-full bg-brand px-5 text-[15px] font-medium text-white hover:bg-brand-hover"
+          className="inline-flex h-11 items-center gap-2 rounded-md bg-brand px-5 text-[15px] font-medium text-white hover:bg-brand-hover"
         >
           <Icon name="remove" size={18} />
           {tb("addExpense")}
@@ -312,7 +312,7 @@ export function BookkeepingList() {
         search={{
           value: search,
           onChange: setSearch,
-          placeholder: t("searchPlaceholder"),
+          placeholder: t("searchBookkeeping"),
         }}
         filters={[
           {
@@ -379,7 +379,7 @@ export function BookkeepingList() {
                   setPage(1);
                 }}
               >
-                <option value="">{tt("all")}</option>
+                <option value="">{tp("allCategories")}</option>
                 {[
                   ...(typeFilter !== "expense" ? LEDGER_INCOME_CATEGORIES : []),
                   ...(typeFilter !== "income" ? LEDGER_EXPENSE_CATEGORIES : []),
@@ -396,7 +396,7 @@ export function BookkeepingList() {
       />
 
       {/* Statement */}
-      <section className="mb-4 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+      <section className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] [&>*]:min-w-0">
         <div className={cn(panel, "flex flex-col gap-5 p-5 sm:p-6")}>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -412,20 +412,26 @@ export function BookkeepingList() {
               </p>
             </div>
             <div className="flex flex-col items-end gap-1.5">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium",
-                  summary.net >= 0
-                    ? "bg-success-soft text-success"
-                    : "bg-danger-soft text-danger",
-                )}
-              >
-                <Icon
-                  name={summary.net >= 0 ? "trending_up" : "trending_down"}
-                  size={16}
-                />
-                {summary.net >= 0 ? tp("stats.profit") : tp("stats.loss")}
-              </span>
+              {summary.expense === 0 ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-hover px-3 py-1 text-sm font-medium text-fg-2">
+                  {tp("stats.noExpenseYet")}
+                </span>
+              ) : (
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium",
+                    summary.net >= 0
+                      ? "bg-success-soft text-success"
+                      : "bg-danger-soft text-danger",
+                  )}
+                >
+                  <Icon
+                    name={summary.net >= 0 ? "trending_up" : "trending_down"}
+                    size={16}
+                  />
+                  {summary.net >= 0 ? tp("stats.profit") : tp("stats.loss")}
+                </span>
+              )}
               <span className="rounded-full bg-hover px-3 py-1 text-xs text-fg-muted">
                 {periodLabel}
               </span>
@@ -473,7 +479,7 @@ export function BookkeepingList() {
         </div>
 
         {/* Monthly cash flow: income above the line, expenses below */}
-        <div className="flex flex-col rounded-[1.75rem] bg-ink p-5 text-white sm:p-6">
+        <div className="flex flex-col rounded-lg bg-ink p-5 text-white sm:p-6">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-medium tracking-tight">
               {tb("byMonth")}
@@ -620,7 +626,9 @@ export function BookkeepingList() {
               </div>
               <ul className="divide-y divide-line">
                 {g.entries.map((entry) => {
-                  const fromLease = isLeaseIncomeEntry(entry.id);
+                  // Rent rows (computed, or posted from a paid bill) are changed on the lease.
+                  const fromLease =
+                    isLeaseIncomeEntry(entry.id) || Boolean(entry.invoiceId);
                   const receipts = entry.attachments?.length ?? 0;
                   return (
                     <li
@@ -637,7 +645,7 @@ export function BookkeepingList() {
                         </p>
                         <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-fg-muted">
                           <span>
-                            {entry.property?.name ?? tp("noProperty")}
+                            {entry.property?.name ?? tp("generalShort")}
                           </span>
                           <span aria-hidden>·</span>
                           <span>{categoryLabel(categoryOf(entry))}</span>
@@ -649,7 +657,7 @@ export function BookkeepingList() {
                             </span>
                           ) : null}
                           {fromLease ? (
-                            <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-medium text-brand">
+                            <span className="rounded-full bg-brand-soft px-2 py-0.5 text-xs font-medium text-brand">
                               {tp("fromLease")}
                             </span>
                           ) : null}
@@ -827,7 +835,7 @@ function MonthChart({
             </div>
             <span
               className={cn(
-                "mt-2 text-[11px]",
+                "mt-2 text-xs",
                 last ? "font-semibold text-white" : "text-white/60",
               )}
             >
@@ -835,7 +843,8 @@ function MonthChart({
             </span>
             <span
               className={cn(
-                "truncate text-[11px] tabular-nums",
+                // Too tight on phones; the bar heights carry the story there.
+                "hidden w-full truncate text-center text-xs tabular-nums sm:block",
                 net >= 0 ? "text-success" : "text-brand-bright",
               )}
             >

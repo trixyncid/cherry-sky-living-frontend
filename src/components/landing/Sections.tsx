@@ -1,16 +1,14 @@
 /**
- * Landing sections that are plain content: facilities, location (3D map),
+ * Landing sections that are plain content: facilities, location (Google Maps),
  * comparison table, testimonials, final CTA and the sticky mobile bar.
- * Everything renders as real HTML first; the map canvas is an enhancement.
  */
 
 "use client";
 
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { directionsUrl } from "@/components/kost/PlaceMap";
+import { useEffect, useState } from "react";
+import { directionsUrl, PlaceMap } from "@/components/kost/PlaceMap";
 import { LeadForm } from "@/components/leads/LeadForm";
 import { SurveyScheduleDialog } from "@/components/sections/SurveyScheduleDialog";
 import { Icon } from "@/components/shared/Icon";
@@ -18,16 +16,8 @@ import { localized, siteConfig } from "@/config/site";
 import { type LandingContent, pick } from "@/lib/landing/schema";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/utils/format";
-import type { MapProperty } from "./MapCanvas";
 import { SectionHeading } from "./SectionHeading";
-import {
-  type DeviceTier,
-  type PropertyVM,
-  trackWhatsApp,
-  whatsappHref,
-} from "./shared";
-
-const MapCanvas = dynamic(() => import("./MapCanvas"), { ssr: false });
+import { type PropertyVM, trackWhatsApp, whatsappHref } from "./shared";
 
 const PIN = { cherry: "#d2415f", sky: "#4aa3d8" } as const;
 
@@ -44,9 +34,9 @@ export function Facilities({ vm }: { vm: PropertyVM }) {
     <section
       id="fasilitas"
       aria-labelledby="fasilitas-heading"
-      className="scroll-mt-16 bg-canvas px-5 pb-16 sm:px-8 lg:pb-24"
+      className="scroll-mt-16 bg-canvas py-24 lg:py-32"
     >
-      <div className="mx-auto w-full max-w-[90rem] rounded-[2.5rem] bg-white p-6 sm:p-10 lg:p-14">
+      <div className="mx-auto w-full max-w-[90rem] px-5 sm:px-8 lg:px-12">
         <SectionHeading
           id="fasilitas-heading"
           index={3}
@@ -56,93 +46,60 @@ export function Facilities({ vm }: { vm: PropertyVM }) {
           aside={t("aside")}
         />
         {items.length > 0 ? (
-          <ul className="mt-10 grid gap-4 md:grid-cols-3 md:grid-rows-2">
+          <ul className="mt-14 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((f, i) => (
-              <li
-                key={f.key}
-                className={cn(
-                  "group relative flex min-h-[15rem] flex-col justify-end overflow-hidden rounded-[1.75rem] p-6",
-                  i === 0 ? "md:col-span-2 md:row-span-2 md:min-h-[32rem]" : "",
-                  f.photo ? "text-white" : "bg-[var(--lp-tint)] text-fg",
-                )}
-              >
-                {f.photo ? (
-                  <>
+              <li key={f.key} className={cn(i === 0 && "sm:col-span-2")}>
+                <div className="group relative h-64 overflow-hidden rounded-md bg-panel lg:h-80">
+                  {f.photo ? (
                     <Image
                       src={f.photo}
                       alt={pick(f.alt, locale)}
                       fill
                       sizes={
                         i === 0
-                          ? "(min-width: 768px) 66vw, 100vw"
-                          : "(min-width: 768px) 33vw, 100vw"
+                          ? "(min-width: 640px) 66vw, 100vw"
+                          : "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                       }
-                      className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-110"
+                      className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-105 motion-reduce:transition-none"
                     />
-                    <div className="absolute inset-0 bg-[linear-gradient(to_top,rgb(11_11_13/0.85),transparent_60%)]" />
-                  </>
-                ) : (
-                  <>
-                    {/* No photo yet: a soft tinted tile with an oversized icon. */}
-                    <div
-                      aria-hidden
-                      className="absolute inset-0 bg-[radial-gradient(90%_70%_at_85%_10%,var(--lp-accent-soft),transparent_65%)] opacity-60"
-                    />
-                    <Icon
-                      name={f.icon}
-                      size={i === 0 ? 220 : 120}
-                      className="absolute -right-4 -top-2 text-[var(--lp-accent)] opacity-15 [font-variation-settings:'wght'_200] transition-transform duration-700 group-hover:-rotate-6 group-hover:scale-105"
-                    />
-                  </>
-                )}
-                <div className="relative">
-                  <span
-                    className={cn(
-                      "flex size-11 items-center justify-center rounded-full",
-                      f.photo
-                        ? "bg-white/15 backdrop-blur-md"
-                        : "bg-white text-[var(--lp-accent)] shadow-sm",
-                    )}
-                  >
-                    <Icon name={f.icon} size={22} />
+                  ) : (
+                    // No photo yet: a quiet hairline tile with the icon.
+                    <div className="flex h-full items-center justify-center rounded-md border border-line">
+                      <Icon
+                        name={f.icon}
+                        size={72}
+                        className="text-fg-faint [font-variation-settings:'wght'_200]"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="mt-4 flex gap-4">
+                  <span className="pt-0.5 text-sm tabular-nums text-fg-faint">
+                    {String(i + 1).padStart(2, "0")}
                   </span>
-                  <h3
-                    className={cn(
-                      "mt-4 font-semibold tracking-tight",
-                      i === 0
-                        ? "text-[clamp(1.5rem,2.4vw,2.2rem)] leading-tight"
-                        : "text-xl",
-                    )}
-                  >
-                    {pick(f.caption, locale)}
-                  </h3>
-                  {pick(f.detail, locale) ? (
-                    <p
-                      className={cn(
-                        "mt-2",
-                        f.photo ? "text-white/80" : "text-fg-2",
-                      )}
-                    >
-                      {pick(f.detail, locale)}
-                    </p>
-                  ) : null}
+                  <div>
+                    <h3 className="text-base font-medium text-fg">
+                      {pick(f.caption, locale)}
+                    </h3>
+                    {pick(f.detail, locale) ? (
+                      <p className="mt-1 max-w-md text-sm leading-relaxed text-fg-muted">
+                        {pick(f.detail, locale)}
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
               </li>
             ))}
           </ul>
         ) : null}
         {live.length > 0 ? (
-          <ul className="mt-6 flex flex-wrap gap-2">
+          <ul className="mt-12 flex flex-wrap gap-2 border-t border-line pt-8">
             {live.map((f) => (
               <li
                 key={f.id}
-                className="inline-flex items-center gap-2 rounded-full bg-canvas px-4 py-2.5 text-sm font-medium text-fg-2"
+                className="inline-flex items-center gap-2 rounded-[0.5rem] border border-line bg-panel px-3 py-2 text-sm text-fg-2"
               >
-                <Icon
-                  name={f.icon}
-                  size={16}
-                  className="text-[var(--lp-accent)]"
-                />
+                <Icon name={f.icon} size={16} className="text-fg-muted" />
                 {locale === "en" ? (f.nameEn ?? f.name) : f.name}
               </li>
             ))}
@@ -155,62 +112,22 @@ export function Facilities({ vm }: { vm: PropertyVM }) {
 
 // ——— Location ———
 
-function geoOf(vm: PropertyVM) {
-  return (
-    vm.content.geo ??
-    (vm.kost?.location.coordinates
-      ? {
-          lat: vm.kost.location.coordinates.lat,
-          lng: vm.kost.location.coordinates.lng,
-        }
-      : undefined)
-  );
-}
-
 export function Location({
   properties,
   landmarks,
-  tier,
 }: {
   properties: PropertyVM[];
   landmarks: LandingContent["landmarks"];
-  tier: DeviceTier | null;
 }) {
   const t = useTranslations("landing.location");
   const locale = useLocale();
-  const wrap = useRef<HTMLDivElement>(null);
-  const [near, setNear] = useState(false);
-  useEffect(() => {
-    const el = wrap.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([e]) => e?.isIntersecting && setNear(true),
-      { rootMargin: "60% 0px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  const mapProperties = useMemo<MapProperty[]>(
-    () =>
-      properties.map((vm) => ({
-        key: vm.key,
-        name: vm.name,
-        color: PIN[vm.key],
-        geo: geoOf(vm),
-      })),
-    [properties],
-  );
-  const [mapReady, setMapReady] = useState(false);
-  const onMapReady = useCallback(() => setMapReady(true), []);
-
   return (
     <section
       id="lokasi"
       aria-labelledby="lokasi-heading"
-      className="scroll-mt-16 bg-ink px-5 py-14 text-white sm:px-8 lg:py-20"
+      className="scroll-mt-16 bg-ink py-24 text-white lg:py-32"
     >
-      <div className="mx-auto grid w-full max-w-[90rem] gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
+      <div className="mx-auto grid w-full max-w-[90rem] gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-16 lg:px-12">
         <div>
           <SectionHeading
             id="lokasi-heading"
@@ -220,7 +137,7 @@ export function Location({
             lead={t("titleLead")}
             accent={t("titleAccent")}
           />
-          <ul className="mt-7 grid gap-3">
+          <ul className="mt-12 divide-y divide-white/15 border-y border-white/15">
             {properties.map((vm) => {
               const address = [
                 vm.kost?.location.address,
@@ -231,15 +148,15 @@ export function Location({
               return (
                 <li
                   key={vm.key}
-                  className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-white/12 bg-white/[0.06] p-4"
+                  className="flex items-center justify-between gap-4 py-5"
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     <span
-                      className="size-3 shrink-0 rounded-full"
+                      className="size-2.5 shrink-0 rounded-full"
                       style={{ background: PIN[vm.key] }}
                     />
                     <div className="min-w-0">
-                      <p className="font-semibold">{vm.name}</p>
+                      <p className="text-base font-medium">{vm.name}</p>
                       <p className="truncate text-sm text-white/60">
                         {address || pick(vm.content.area, locale)}
                       </p>
@@ -252,21 +169,21 @@ export function Location({
                     }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/20 px-3.5 py-2 text-sm font-semibold hover:bg-white hover:text-ink"
+                    className="group inline-flex h-10 shrink-0 items-center gap-2 rounded-[0.5rem] border border-white/50 px-4 text-sm font-medium transition-colors hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                   >
-                    <Icon name="map" size={16} />
                     {t("openMaps")}
+                    <Icon name="north_east" size={16} />
                   </a>
                 </li>
               );
             })}
           </ul>
           {landmarks.length > 0 ? (
-            <ul className="mt-5 grid gap-2 sm:grid-cols-2">
+            <ul className="mt-8 grid gap-x-6 gap-y-3 sm:grid-cols-2">
               {landmarks.map((lm) => (
                 <li
                   key={lm.name}
-                  className="flex items-center gap-2.5 text-[15px] text-white/85"
+                  className="flex items-center gap-2.5 text-[15px] text-white/80"
                 >
                   <Icon
                     name="near_me"
@@ -287,33 +204,28 @@ export function Location({
             </ul>
           ) : null}
         </div>
-        <div
-          ref={wrap}
-          className="relative aspect-[4/3] overflow-hidden rounded-[2rem] bg-[#0b0c12]"
-          aria-hidden
-        >
-          {/* Still render of the same scene: shown while the model loads, and
-              instead of it on devices that skip 3D. */}
-          <Image
-            src="/media/map/poster.webp"
-            alt=""
-            fill
-            sizes="(min-width: 1024px) 55vw, 100vw"
-            className={cn(
-              "object-cover transition-opacity duration-700",
-              mapReady ? "opacity-0" : "opacity-100",
-            )}
-          />
-          {near && tier !== "static" ? (
-            <MapCanvas
-              properties={mapProperties}
-              landmarks={landmarks}
-              onReady={onMapReady}
-            />
-          ) : null}
-          <p className="absolute bottom-3 left-4 rounded-full bg-black/35 px-2.5 py-1 text-xs text-white/60 backdrop-blur-sm">
-            {t("schematic")}
-          </p>
+        <div className="grid gap-4">
+          {properties.map((vm) => (
+            <figure key={vm.key} className="flex flex-col gap-2.5">
+              {/* Above the map: Google's own place card covers the top-left. */}
+              <figcaption className="eyebrow flex items-center gap-2 text-[11px] text-white/75">
+                <span
+                  className="size-2 rounded-full"
+                  style={{ background: PIN[vm.key] }}
+                />
+                {vm.name}
+              </figcaption>
+              <PlaceMap
+                name={vm.name}
+                address={
+                  [vm.kost?.location.address, vm.kost?.location.city]
+                    .filter(Boolean)
+                    .join(", ") || "Medan"
+                }
+                className="aspect-[16/9] rounded-md border-white/15"
+              />
+            </figure>
+          ))}
         </div>
       </div>
     </section>
@@ -399,9 +311,9 @@ export function Comparison({
   return (
     <section
       aria-labelledby="banding-heading"
-      className="relative z-10 -mt-10 rounded-t-[2.5rem] bg-canvas px-5 py-16 sm:px-8 lg:py-24"
+      className="bg-canvas py-24 lg:py-32"
     >
-      <div className="mx-auto w-full max-w-[90rem]">
+      <div className="mx-auto w-full max-w-[90rem] px-5 sm:px-8 lg:px-12">
         <SectionHeading
           id="banding-heading"
           index={5}
@@ -410,16 +322,20 @@ export function Comparison({
           accent={t("titleAccent")}
           aside={t("aside")}
         />
-        <div className="mt-10 overflow-x-auto rounded-[2rem] bg-white p-2 shadow-[0_30px_60px_-45px_rgb(11_11_13/0.4)]">
-          <table className="w-full min-w-[34rem] table-fixed border-separate border-spacing-0 text-left text-[15px]">
+        <div className="mt-14 overflow-x-auto">
+          <table className="w-full min-w-[34rem] table-fixed border-collapse text-left text-[15px]">
             <thead>
               <tr>
-                <th scope="col" className="w-[22%] p-4">
+                <th scope="col" className="w-[22%] pb-6">
                   <span className="sr-only">{t("eyebrow")}</span>
                 </th>
                 {properties.map((vm) => (
-                  <th key={vm.key} scope="col" className="p-2 align-bottom">
-                    <div className="relative h-36 overflow-hidden rounded-[1.5rem]">
+                  <th
+                    key={vm.key}
+                    scope="col"
+                    className="px-3 pb-6 align-bottom font-normal"
+                  >
+                    <div className="relative h-36 overflow-hidden rounded-md lg:h-44">
                       <Image
                         src={vm.content.exteriorPhoto}
                         alt=""
@@ -430,38 +346,25 @@ export function Comparison({
                           objectPosition: `${vm.content.exteriorFocal.x * 100}% ${vm.content.exteriorFocal.y * 100}%`,
                         }}
                       />
-                      <div className="absolute inset-0 bg-[linear-gradient(to_top,rgb(11_11_13/0.8),transparent_70%)]" />
-                      <span className="absolute bottom-3 left-4 font-display text-3xl font-normal text-white">
-                        {vm.name}
-                      </span>
                     </div>
+                    <span className="mt-3 block text-base font-medium text-fg">
+                      {vm.name}
+                    </span>
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, i) => (
-                <tr key={row.label}>
+              {rows.map((row) => (
+                <tr key={row.label} className="border-t border-line">
                   <th
                     scope="row"
-                    className={cn(
-                      "p-4 align-top text-sm font-medium text-fg-muted",
-                      i % 2 === 0 && "rounded-l-2xl bg-canvas/70",
-                    )}
+                    className="eyebrow py-5 pr-4 align-top text-[10px] text-fg-muted"
                   >
                     {row.label}
                   </th>
-                  {properties.map((vm, col) => (
-                    <td
-                      key={vm.key}
-                      className={cn(
-                        "p-4 align-top font-medium text-fg",
-                        i % 2 === 0 && "bg-canvas/70",
-                        i % 2 === 0 &&
-                          col === properties.length - 1 &&
-                          "rounded-r-2xl",
-                      )}
-                    >
+                  {properties.map((vm) => (
+                    <td key={vm.key} className="px-3 py-5 align-top text-fg">
                       {row.cell(vm)}
                     </td>
                   ))}
@@ -490,10 +393,10 @@ export function Testimonials({
   return (
     <section
       aria-labelledby="testi-heading"
-      className="bg-white px-5 py-14 sm:px-8 lg:py-20"
+      className="bg-panel py-24 lg:py-32"
     >
-      <div className="mx-auto w-full max-w-[90rem]">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="mx-auto w-full max-w-[90rem] px-5 sm:px-8 lg:px-12">
+        <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <SectionHeading
               id="testi-heading"
@@ -508,7 +411,7 @@ export function Testimonials({
               href={content.googleRating.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm font-semibold text-fg hover:bg-hover"
+              className="inline-flex h-10 items-center gap-2 rounded-[0.5rem] border border-line-strong px-4 text-sm font-medium text-fg transition-colors hover:bg-hover"
             >
               <Icon name="star" size={16} className="text-warning" />
               {t("google", {
@@ -518,17 +421,17 @@ export function Testimonials({
             </a>
           ) : null}
         </div>
-        <ul className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <ul className="mt-14 grid gap-x-8 gap-y-12 md:grid-cols-2 xl:grid-cols-3">
           {content.testimonials.map((item) => (
             <li
               key={`${item.name}-${item.quote.id.slice(0, 24)}`}
-              className="flex flex-col justify-between rounded-[1.5rem] bg-canvas p-6"
+              className="flex flex-col justify-between border-t border-line pt-6"
             >
-              <blockquote className="text-lg leading-relaxed text-fg">
+              <blockquote className="text-lg leading-relaxed tracking-[-0.01em] text-fg">
                 “{pick(item.quote, locale)}”
               </blockquote>
-              <p className="mt-5 text-sm text-fg-muted">
-                <span className="font-semibold text-fg">{item.name}</span>
+              <p className="mt-6 text-sm text-fg-muted">
+                <span className="font-medium text-fg">{item.name}</span>
                 {item.role ? ` · ${item.role}` : ""}
                 {item.property
                   ? ` · ${properties.find((p) => p.key === item.property)?.name ?? ""}`
@@ -558,9 +461,9 @@ export function FinalCta({
     <section
       id="tanya"
       aria-labelledby="tanya-heading"
-      className="relative z-10 -mt-10 scroll-mt-16 rounded-t-[2.5rem] bg-ink px-5 py-16 text-white sm:px-8 lg:py-24"
+      className="scroll-mt-16 bg-ink py-24 text-white lg:py-32"
     >
-      <div className="mx-auto grid w-full max-w-[90rem] gap-10 lg:grid-cols-2 lg:items-start">
+      <div className="mx-auto grid w-full max-w-[90rem] gap-14 px-5 sm:px-8 lg:grid-cols-2 lg:items-start lg:gap-16 lg:px-12">
         <div>
           <SectionHeading
             id="tanya-heading"
@@ -569,30 +472,30 @@ export function FinalCta({
             lead={t("titleLead")}
             accent={t("titleAccent")}
           />
-          <p className="mt-5 max-w-md text-lg text-white/75">
+          <p className="mt-7 max-w-md text-base leading-relaxed text-white/75 md:text-[17px]">
             {t("body", {
               days: localized(siteConfig.viewingHours.days, locale),
               time: siteConfig.viewingHours.time,
             })}
           </p>
-          <div className="mt-7 flex flex-wrap gap-3">
+          <div className="mt-9 flex flex-wrap gap-3">
+            <SurveyScheduleDialog
+              triggerLabel={t("survey")}
+              className="mt-0 h-12 rounded-md bg-white px-6 py-0 text-[15px] font-medium text-ink hover:bg-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+            />
             <a
               href={whatsappHref(ctx, locale)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackWhatsApp(ctx)}
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-[#25d366] px-6 text-[15px] font-semibold text-ink hover:brightness-95"
+              className="btn btn-outline-light"
             >
               <Icon name="whatsapp" size={18} />
               {t("whatsapp")}
             </a>
-            <SurveyScheduleDialog
-              triggerLabel={t("survey")}
-              className="mt-0 h-12 rounded-full border border-white/25 bg-transparent px-6 text-[15px] font-semibold text-white hover:bg-white hover:text-ink"
-            />
           </div>
         </div>
-        <div className="rounded-[1.75rem] border border-white/12 bg-white/[0.06] p-6">
+        <div className="rounded-md border border-white/15 p-6 sm:p-8">
           <LeadForm
             type="inquiry"
             tone="dark"
@@ -632,7 +535,7 @@ export function StickyBar({ selected }: { selected?: PropertyVM }) {
           rel="noopener noreferrer"
           onClick={() => trackWhatsApp(ctx)}
           tabIndex={show ? 0 : -1}
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#25d366] text-[15px] font-semibold text-ink"
+          className="btn btn-outline-light px-3 text-sm"
         >
           <Icon name="whatsapp" size={18} />
           WhatsApp
@@ -640,7 +543,7 @@ export function StickyBar({ selected }: { selected?: PropertyVM }) {
         <a
           href="#cari"
           tabIndex={show ? 0 : -1}
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white text-[15px] font-semibold text-ink"
+          className="btn btn-light px-3 text-sm"
         >
           <Icon name="search" size={18} />
           {t("check")}

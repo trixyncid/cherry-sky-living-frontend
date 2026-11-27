@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import {
+  AdminCurrencyInput,
   AdminField,
   AdminSelect,
   AdminTextarea,
@@ -21,12 +22,14 @@ import { useAdminShell } from "@/features/admin/components/admin-shell-context";
 import { UnitTypePreview } from "@/features/admin/components/form-previews";
 import { adminPageIcons } from "@/features/admin/constants/nav-items";
 import {
+  useUnitPricingMutations,
   useUnitType,
   useUnitTypeMutations,
 } from "@/features/admin/hooks/use-admin-queries";
 import { useAttachmentQueue } from "@/features/admin/hooks/use-attachment-queue";
 import { useLeaveGuard } from "@/features/admin/hooks/use-leave-guard";
 import {
+  dailyOf,
   firstPhoto,
   monthlyOf,
   type UnitTypeWithInventory,
@@ -36,6 +39,7 @@ import {
   writeStoredPropertyId,
 } from "@/features/admin/lib/admin-property-scope";
 import { getErrorMessage } from "@/features/admin/lib/errors";
+import { formatIdrInput, parseIdrInput } from "@/features/admin/lib/format";
 import { stashPendingUploads } from "@/features/admin/lib/pending-uploads";
 import {
   showApiError,
@@ -57,6 +61,8 @@ type FormState = {
   description: string;
   propertyId: string;
   size: string;
+  monthlyPrice: string;
+  dailyPrice: string;
 };
 
 const emptyForm: FormState = {
@@ -64,7 +70,19 @@ const emptyForm: FormState = {
   description: "",
   propertyId: "",
   size: "",
+  monthlyPrice: "",
+  dailyPrice: "",
 };
+
+/** Saved prices as form text ("" when the type has none yet). */
+function savedPrices(unitType: UnitTypeWithInventory | undefined) {
+  const monthly = monthlyOf(unitType?.pricings);
+  const daily = dailyOf(unitType?.pricings);
+  return {
+    monthlyPrice: monthly != null ? formatIdrInput(monthly) : "",
+    dailyPrice: daily != null ? formatIdrInput(daily) : "",
+  };
+}
 
 function resolveCreatePropertyId(
   properties: { id: string }[],
@@ -84,6 +102,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
   const t = useTranslations("admin.crud");
   const tq = useTranslations("admin.mobile.actions");
   const tp = useTranslations("admin.pages.unitTypes");
+  const tpr = useTranslations("admin.pages.pricing");
   const ta = useTranslations("admin.attachments");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -92,6 +111,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
   const { properties } = useAdminShell();
   const { data: unitType, isLoading } = useUnitType(id ?? "", isEdit);
   const mutations = useUnitTypeMutations();
+  const priceMutations = useUnitPricingMutations();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
   const createPrefillDone = useRef(false);
@@ -127,6 +147,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
         description: unitType.description ?? "",
         propertyId: unitType.propertyId,
         size: unitType.size != null ? String(unitType.size) : "",
+        ...savedPrices(unitType as UnitTypeWithInventory),
       });
       writeStoredPropertyId(unitType.propertyId);
     }
@@ -144,11 +165,17 @@ export function UnitTypeForm({ id }: { id?: string }) {
     writeStoredPropertyId(propertyId);
   }, [isEdit, properties, searchParams]);
 
+  const saved = savedPrices(unitType as UnitTypeWithInventory | undefined);
+  const pricesChanged =
+    form.monthlyPrice !== saved.monthlyPrice ||
+    form.dailyPrice !== saved.dailyPrice;
+
   const isDirty =
     !unitType ||
     form.name !== unitType.name ||
     form.description !== (unitType.description ?? "") ||
-    form.size !== (unitType.size != null ? String(unitType.size) : "");
+    form.size !== (unitType.size != null ? String(unitType.size) : "") ||
+    pricesChanged;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -161,6 +188,17 @@ export function UnitTypeForm({ id }: { id?: string }) {
       return;
     }
     const size = sizeParsed.data;
+    const monthlyPrice = parseIdrInput(form.monthlyPrice);
+    const dailyPrice = parseIdrInput(form.dailyPrice);
+    // A type without both prices can't be booked, so they're required here.
+    if (!Number.isFinite(monthlyPrice) || monthlyPrice <= 0) {
+      setFormError(tpr("monthlyPriceRequired"));
+      return;
+    }
+    if (!Number.isFinite(dailyPrice) || dailyPrice <= 0) {
+      setFormError(tpr("dailyPriceRequired"));
+      return;
+    }
 
     try {
       if (isEdit && id) {
@@ -170,6 +208,13 @@ export function UnitTypeForm({ id }: { id?: string }) {
           description: form.description,
           size,
         });
+        if (pricesChanged) {
+          await priceMutations.upsertPackages.mutateAsync({
+            unitTypeId: id,
+            monthlyPrice,
+            dailyPrice,
+          });
+        }
         invalidateUnitType();
         showApiSuccess(t("updated"));
       } else {
@@ -186,6 +231,11 @@ export function UnitTypeForm({ id }: { id?: string }) {
           propertyId: form.propertyId,
           description: form.description.trim(),
           size,
+        });
+        await priceMutations.upsertPackages.mutateAsync({
+          unitTypeId: created.id,
+          monthlyPrice,
+          dailyPrice,
         });
         writeStoredPropertyId(form.propertyId);
         // Files picked before saving upload on the edit page.
@@ -220,6 +270,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
   const pending =
     mutations.create.isPending ||
     mutations.update.isPending ||
+    priceMutations.upsertPackages.isPending ||
     (isEdit && isLoading);
 
   if (isEdit && isLoading && !unitType) {
@@ -312,6 +363,45 @@ export function UnitTypeForm({ id }: { id?: string }) {
             </div>
           </AdminFormSection>
 
+          <AdminFormSection
+            icon="payments"
+            title={tpr("pricesTitle")}
+            hint={tpr("pricesHint")}
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <AdminField
+                label={tpr("monthlyPrice")}
+                htmlFor="ut-monthly"
+                required
+              >
+                <AdminCurrencyInput
+                  id="ut-monthly"
+                  required
+                  value={form.monthlyPrice}
+                  onValueChange={(monthlyPrice) =>
+                    setForm((f) => ({ ...f, monthlyPrice }))
+                  }
+                />
+                <p className="mt-1 text-xs text-fg-muted">
+                  {tpr("monthlyPriceHint")}
+                </p>
+              </AdminField>
+              <AdminField label={tpr("dailyPrice")} htmlFor="ut-daily" required>
+                <AdminCurrencyInput
+                  id="ut-daily"
+                  required
+                  value={form.dailyPrice}
+                  onValueChange={(dailyPrice) =>
+                    setForm((f) => ({ ...f, dailyPrice }))
+                  }
+                />
+                <p className="mt-1 text-xs text-fg-muted">
+                  {tpr("dailyPriceHint")}
+                </p>
+              </AdminField>
+            </div>
+          </AdminFormSection>
+
           <AdminFormActions
             cancelHref={BASE}
             cancelLabel={t("cancel")}
@@ -324,10 +414,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
         </form>
 
         <aside
-          className={cn(
-            "space-y-4 lg:sticky lg:top-4",
-            isEdit && "max-lg:order-first",
-          )}
+          className={cn("space-y-4 lg:sticky lg:top-4", "max-lg:order-first")}
         >
           <UnitTypePreview
             name={form.name}
@@ -337,9 +424,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
               properties.find((p) => p.id === form.propertyId)?.name
             }
             photo={firstPhoto(attachments)}
-            monthly={monthlyOf(
-              (unitType as UnitTypeWithInventory | undefined)?.pricings,
-            )}
+            monthly={parseIdrInput(form.monthlyPrice) || null}
           />
           <AdminFormSection
             icon="photo_library"
@@ -347,7 +432,7 @@ export function UnitTypeForm({ id }: { id?: string }) {
             hint={isEdit ? tp("photosHint") : tp("photosHintCreate")}
             headerExtra={
               isEdit && photoCount > 0 ? (
-                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-fg-2">
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold text-fg-2">
                   {ta("photoCount", { count: photoCount })}
                 </span>
               ) : null

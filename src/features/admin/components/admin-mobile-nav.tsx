@@ -218,8 +218,8 @@ export function AdminMobileNav() {
                         />
                         {t(item.labelKey)}
                         {badge > 0 ? (
-                          <span className="absolute right-2 top-2 flex min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[11px] font-semibold leading-5 text-white ring-2 ring-white">
-                            {badge > 9 ? "9+" : badge}
+                          <span className="absolute right-2 top-2 flex min-w-5 items-center justify-center rounded-full bg-brand px-1 text-xs font-semibold leading-5 text-white ring-2 ring-white">
+                            {badge > 99 ? "99+" : badge}
                           </span>
                         ) : null}
                       </Link>
@@ -238,7 +238,7 @@ export function AdminMobileNav() {
                 setSheet(null);
                 setSignOutOpen(true);
               }}
-              className="inline-flex h-11 items-center gap-2 rounded-full px-4 text-[15px] font-medium text-danger active:bg-danger-soft"
+              className="inline-flex h-11 items-center gap-2 rounded-md px-4 text-[15px] font-medium text-danger active:bg-danger-soft"
             >
               <Icon name="logout" size={18} />
               {t("nav.signOut")}

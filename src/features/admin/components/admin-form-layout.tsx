@@ -103,7 +103,9 @@ export function AdminDetailPage({
       {twoCol ? (
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="min-w-0">{children}</div>
-          <aside className="space-y-4 lg:sticky lg:top-4">{aside}</aside>
+          <aside className="space-y-4 max-lg:order-first lg:sticky lg:top-4">
+            {aside}
+          </aside>
         </div>
       ) : (
         children
@@ -135,7 +137,7 @@ export function AdminFormSection({
     <section
       data-form-section
       className={cn(
-        "rounded-[1.75rem] border border-line bg-white p-5 sm:p-6",
+        "rounded-lg border border-line bg-white p-5 sm:p-6",
         className,
       )}
     >
@@ -194,7 +196,7 @@ export function AdminFormActions({
     // phones for the tab bar, pb-12 on desktop) — subtract it so the bar
     // lands just above the tab bar / near the bottom edge.
     <div className="sticky bottom-[calc(max(0.75rem,env(safe-area-inset-bottom))+5.25rem-8rem)] z-20 lg:bottom-[-2rem]">
-      <div className="flex flex-col gap-2 rounded-[1.5rem] border border-line bg-white/95 p-2.5 sm:gap-3 sm:p-3 shadow-[0_18px_40px_-20px_rgb(11_11_13/0.35)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:pl-5">
+      <div className="flex flex-col gap-2 rounded-lg border border-line bg-white/95 p-2.5 sm:gap-3 sm:p-3 shadow-[0_18px_40px_-20px_rgb(22_16_38/0.35)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:pl-5">
         <p
           className={cn(
             "items-center gap-2 text-sm text-fg-muted",
@@ -224,7 +226,7 @@ export function AdminFormActions({
           <Link
             href={cancelHref}
             className={cn(
-              "inline-flex h-11 flex-1 items-center justify-center whitespace-nowrap rounded-full border border-line bg-white px-4 text-sm font-medium sm:px-5 sm:text-[15px] text-fg-2 transition-colors hover:border-brand-line hover:text-brand sm:flex-none",
+              "inline-flex h-11 flex-1 items-center justify-center whitespace-nowrap rounded-md border border-line bg-white px-4 text-sm font-medium sm:px-5 sm:text-[15px] text-fg-2 transition-colors hover:border-brand-line hover:text-brand sm:flex-none",
               pending && "pointer-events-none opacity-50",
             )}
           >
@@ -233,7 +235,7 @@ export function AdminFormActions({
           <button
             type="submit"
             disabled={pending || submitDisabled}
-            className="inline-flex h-11 min-w-0 flex-[2] items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand px-4 text-sm font-medium sm:px-6 sm:text-[15px] text-white shadow-[0_10px_24px_-12px_rgb(122_22_48/0.8)] transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-line-strong disabled:shadow-none sm:flex-none"
+            className="inline-flex h-11 min-w-0 flex-[2] items-center justify-center gap-2 whitespace-nowrap rounded-md bg-brand px-4 text-sm font-medium sm:px-6 sm:text-[15px] text-white transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-line-strong disabled:shadow-none sm:flex-none"
           >
             {pending ? (
               <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />

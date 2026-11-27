@@ -18,7 +18,8 @@ import { cn } from "@/lib/utils";
 export function PreviewShell({ children }: { children: ReactNode }) {
   const t = useTranslations("admin.form");
   return (
-    <section className="overflow-hidden rounded-[1.75rem] border border-line bg-white">
+    // Desktop side card only: on phones it pushed the upload box below "Save".
+    <section className="overflow-hidden rounded-lg border border-line bg-white max-lg:hidden">
       <p className="flex items-center justify-between gap-2 border-b border-line px-5 py-3 text-sm">
         <span className="flex items-center gap-2 font-medium text-fg">
           <span className="relative flex size-2">
@@ -62,7 +63,7 @@ export function PropertyPreview({
           fallbackLabel={t("photoLater")}
           className="aspect-[16/10] w-full"
         />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(11_11_13/0.85),transparent_60%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgb(22_16_38/0.85),transparent_60%)]" />
         {city.trim() ? (
           <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium">
             {city}
@@ -187,7 +188,7 @@ export function UnitPreview({
                   className={cn(
                     "h-4 w-5 rounded-[3px]",
                     i === floor && c === 1
-                      ? "bg-brand shadow-[0_0_8px_rgb(122_22_48/0.5)]"
+                      ? "bg-brand"
                       : i === floor
                         ? "bg-brand-soft"
                         : "bg-hover",

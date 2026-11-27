@@ -107,11 +107,11 @@ export function SearchKostsView({
       <section
         ref={resultsRef}
         aria-labelledby="results-heading"
-        className="w-full scroll-mt-16 px-5 pb-16 pt-6 sm:px-8"
+        className="w-full scroll-mt-16 bg-canvas px-5 pb-24 pt-8 sm:px-8 lg:px-12 lg:pb-32"
       >
         <div className="mx-auto w-full max-w-[90rem]">
           {/* Sticky toolbar: filters, count and view stay reachable */}
-          <div className="sticky top-16 z-30 -mx-5 bg-canvas/95 px-5 pb-3 pt-3 backdrop-blur-md sm:-mx-8 sm:px-8">
+          <div className="sticky top-16 z-30 -mx-5 border-b border-line bg-canvas/95 px-5 pb-4 pt-3 backdrop-blur-md sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12">
             <SearchResultsToolbar
               filters={filters}
               onFiltersChange={commitFilters}
@@ -121,7 +121,7 @@ export function SearchKostsView({
               <h2
                 id="results-heading"
                 aria-live="polite"
-                className="text-[15px] text-fg-2"
+                className="text-sm text-fg-2"
               >
                 {t("unitTypeResultsCount", {
                   count: resultCount,
@@ -136,7 +136,7 @@ export function SearchKostsView({
               </h2>
               <fieldset
                 aria-label={t("viewLabel")}
-                className="inline-flex rounded-full bg-white p-1"
+                className="inline-flex rounded-lg border border-line bg-panel p-1"
               >
                 {(["grid", "table"] as const).map((option) => (
                   <button
@@ -145,9 +145,9 @@ export function SearchKostsView({
                     aria-pressed={view === option}
                     onClick={() => changeView(option)}
                     className={cn(
-                      "inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-sm font-semibold transition-colors",
+                      "inline-flex h-8 items-center gap-1.5 rounded-md px-3.5 text-sm font-medium transition-colors",
                       view === option
-                        ? "bg-brand text-white"
+                        ? "bg-ink text-white"
                         : "text-fg-2 hover:text-fg",
                     )}
                   >
@@ -163,12 +163,12 @@ export function SearchKostsView({
           </div>
 
           {error ? (
-            <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-base text-red-800">
+            <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-base text-red-800">
               {t("loadError")}
             </p>
           ) : null}
 
-          <div className="mt-5">
+          <div className="mt-8">
             <UnitTypeSearchGrid
               unitTypes={unitTypes ?? []}
               isLoading={isLoading}
@@ -182,7 +182,9 @@ export function SearchKostsView({
               onPageChange={handlePageChange}
             />
           ) : null}
-          <p className="mt-6 text-sm text-fg-muted">{t("resultsHint")}</p>
+          <p className="mt-10 border-t border-line pt-5 text-sm text-fg-muted">
+            {t("resultsHint")}
+          </p>
         </div>
       </section>
     </PublicPageShell>

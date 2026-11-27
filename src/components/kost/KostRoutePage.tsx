@@ -30,7 +30,7 @@ export function KostRoutePage({ kostId, roomTypeId }: KostRoutePageProps) {
       <AppLayout>
         <div className="flex min-h-screen items-center justify-center pt-16">
           <div className="text-center">
-            <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-fg border-t-transparent" />
+            <div className="mx-auto mb-4 size-10 animate-spin rounded-full border-2 border-fg/20 border-t-fg motion-reduce:animate-none" />
             <p className="text-fg-muted">{t("common.loading")}</p>
           </div>
         </div>
@@ -48,7 +48,7 @@ export function KostRoutePage({ kostId, roomTypeId }: KostRoutePageProps) {
               size={64}
               className="mx-auto mb-4 text-fg-muted"
             />
-            <h2 className="mb-2 text-2xl font-medium tracking-tight text-fg">
+            <h2 className="mb-2 text-2xl font-semibold tracking-[-0.035em] text-fg">
               {t("propertyDetail.loadError")}
             </h2>
             <p className="mb-6 text-fg-muted">
@@ -59,15 +59,12 @@ export function KostRoutePage({ kostId, roomTypeId }: KostRoutePageProps) {
                 type="button"
                 disabled={isFetching}
                 onClick={() => void refetch()}
-                className="inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-hover disabled:opacity-60"
+                className="btn btn-solid disabled:opacity-60"
               >
                 <Icon name="refresh" size={20} />
                 {t("common.tryAgain")}
               </button>
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 rounded-full border border-line-strong px-6 py-3 font-semibold text-fg transition-colors hover:bg-white"
-              >
+              <Link href="/" className="btn btn-outline">
                 <Icon name="home" size={20} />
                 {t("roomDetail.backToHome")}
               </Link>
@@ -88,16 +85,13 @@ export function KostRoutePage({ kostId, roomTypeId }: KostRoutePageProps) {
               size={64}
               className="mx-auto mb-4 text-fg-muted"
             />
-            <h2 className="mb-2 text-2xl font-medium tracking-tight text-fg">
+            <h2 className="mb-2 text-2xl font-semibold tracking-[-0.035em] text-fg">
               {t("propertyDetail.notFound")}
             </h2>
             <p className="mb-6 text-fg-muted">
               {t("propertyDetail.notFoundDescription")}
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-hover"
-            >
+            <Link href="/" className="btn btn-solid">
               <Icon name="home" size={20} />
               {t("roomDetail.backToHome")}
             </Link>

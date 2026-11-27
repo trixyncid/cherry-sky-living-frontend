@@ -87,7 +87,7 @@ export function SearchBar({
         track("search_submit", { ...filters });
         onSubmit();
       }}
-      className="grid grid-cols-2 gap-3 rounded-[1.75rem] border border-white/20 bg-white/[0.1] p-4 shadow-[0_30px_80px_-30px_rgb(0_0_0/0.7)] backdrop-blur-2xl lg:grid-cols-[1fr_1fr_1fr_1fr_1fr_auto] lg:items-end lg:rounded-full lg:p-3 lg:pl-6"
+      className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-white/15 bg-white/15 lg:grid-cols-[1fr_1fr_1fr_1fr_1fr_auto]"
     >
       <Dropdown
         id="lp-property"
@@ -160,13 +160,12 @@ export function SearchBar({
           ]}
         />
       ) : null}
-      <button
-        type="submit"
-        className="col-span-2 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-7 text-[15px] font-semibold text-ink transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink lg:col-span-1"
-      >
-        <Icon name="search" size={18} />
-        {t("submit")}
-      </button>
+      <div className="col-span-2 flex bg-ink-2 p-3 lg:col-span-1">
+        <button type="submit" className="btn btn-light w-full">
+          <Icon name="search" size={18} />
+          {t("submit")}
+        </button>
+      </div>
     </form>
   );
 }
@@ -193,25 +192,29 @@ export function SearchResults({
     <section
       id="hasil"
       aria-labelledby="hasil-heading"
-      className="scroll-mt-20 bg-canvas px-5 py-12 sm:px-8 lg:py-16"
+      className="scroll-mt-20 bg-canvas px-5 py-16 sm:px-8 lg:px-12 lg:py-24"
     >
       <div className="mx-auto w-full max-w-[90rem]">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
+            <p className="eyebrow flex items-center gap-4 text-fg-muted">
+              <span aria-hidden className="h-px w-10 bg-fg/30" />
+              {t("title")}
+            </p>
             <h2
               id="hasil-heading"
-              className="text-[clamp(1.6rem,2.4vw,2.2rem)] font-semibold tracking-tight text-fg"
+              className="mt-4 text-[clamp(1.75rem,2.8vw,2.6rem)] font-semibold leading-none tracking-[-0.035em] text-fg"
               aria-live="polite"
             >
               {loading ? t("loading") : t("results", { count: open.length })}
             </h2>
-            {summary ? <p className="mt-1 text-fg-muted">{summary}</p> : null}
+            {summary ? <p className="mt-3 text-fg-muted">{summary}</p> : null}
           </div>
           {isFiltered(filters) ? (
             <button
               type="button"
               onClick={() => update(EMPTY_FILTERS)}
-              className="text-sm font-semibold text-brand underline-offset-4 hover:underline"
+              className="btn btn-outline h-10 px-4 text-sm"
             >
               {t("reset")}
             </button>
@@ -219,7 +222,7 @@ export function SearchResults({
         </div>
 
         {!loading && matches.length > 0 ? (
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {matches.map(({ vm, room }) =>
               vm.kost ? (
                 <RoomTile
@@ -245,7 +248,7 @@ export function SearchResults({
         ) : null}
 
         {!loading && open.length === 0 ? (
-          <div className="mt-6 flex flex-col items-start gap-4 rounded-[1.5rem] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-10 flex flex-col items-start gap-6 border-y border-line py-8 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-lg font-semibold text-fg">{t("emptyTitle")}</p>
               <p className="mt-1 text-fg-muted">{t("emptyBody")}</p>
@@ -263,7 +266,7 @@ export function SearchResults({
                 <button
                   type="button"
                   onClick={() => track("waitlist_join", { ...filters })}
-                  className="inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-brand px-6 text-[15px] font-semibold text-white hover:bg-brand-hover"
+                  className="btn btn-brand shrink-0"
                 >
                   <Icon name="notifications" size={18} />
                   {t("waitlistCta")}
