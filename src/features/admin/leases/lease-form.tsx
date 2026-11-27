@@ -1146,7 +1146,7 @@ export function LeaseForm({ id }: { id?: string }) {
             headerExtra={
               isEdit && attachments.length > 0 ? (
                 <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold text-fg-2">
-                  {ta("photoCount", { count: attachments.length })}
+                  {ta("fileCount", { count: attachments.length })}
                 </span>
               ) : null
             }

@@ -396,7 +396,7 @@ export function LedgerEntryForm({ id }: { id?: string }) {
             headerExtra={
               isEdit && photoCount > 0 ? (
                 <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold text-fg-2">
-                  {ta("photoCount", { count: photoCount })}
+                  {ta("fileCount", { count: photoCount })}
                 </span>
               ) : null
             }

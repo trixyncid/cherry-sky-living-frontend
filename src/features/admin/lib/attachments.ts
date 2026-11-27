@@ -38,11 +38,21 @@ export function countUnitTypeAttachments(unitType: UnitType): number {
   return unitType.unitTypeAttachments?.length ?? 0;
 }
 
+/**
+ * The original file name from a storage URL. Keys look like
+ * `<timestamp>-<uuid>-<name>`; the prefix keeps keys unique but means
+ * nothing to people, so it's dropped.
+ */
 export function attachmentDisplayName(url: string): string {
   try {
     const path = new URL(url).pathname;
-    const name = path.split("/").filter(Boolean).pop();
-    return name ?? url;
+    const last = path.split("/").filter(Boolean).pop();
+    if (!last) return url;
+    const name = decodeURIComponent(last).replace(
+      /^\d{10,}-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-/i,
+      "",
+    );
+    return name || last;
   } catch {
     return url;
   }

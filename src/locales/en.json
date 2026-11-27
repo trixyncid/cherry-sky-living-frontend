@@ -1357,7 +1357,7 @@
       "title": "Uploaded images",
       "subtitle": "Images stored for this record. Open to preview or remove ones you no longer need.",
       "empty": "No images uploaded yet.",
-      "view": "View full size",
+      "view": "View",
       "remove": "Remove",
       "deleted": "Image removed.",
       "deleteFailed": "Failed to remove image.",
@@ -1383,13 +1383,20 @@
       "savedUploading": "Saved. Uploading {count, plural, one {# file} other {# files}}…",
       "uploadedCount": "{count, plural, one {File uploaded.} other {# files uploaded.}}",
       "uploadFailedCount": "{count, plural, one {A file couldn't be uploaded. Use Retry on it.} other {# files couldn't be uploaded. Use Retry on them.}}",
-      "chooseKindBadge": "Choose type",
-      "whatIsThis": "What is this file?",
+      "chooseKindBadge": "Choose the document type below",
+      "whatIsThis": "What is this document?",
       "changeKind": "Change type",
       "saving": "Saving…",
       "kindRequired": "Choose a type for each file before saving.",
       "kindUpdated": "Document type updated.",
-      "kindUpdateFailed": "Couldn't change the document type."
+      "kindUpdateFailed": "Couldn't change the document type.",
+      "addDocument": "Add document",
+      "dropTitleDocument": "Choose a document",
+      "openNewTab": "Open in new tab",
+      "viewNamed": "View {name}",
+      "removeNamed": "Remove {name}",
+      "pdfNoInline": "This browser can’t show the PDF here.",
+      "fileCount": "{count} files"
     },
     "pages": {
       "overview": {
@@ -2803,7 +2810,7 @@
     },
     "attachments": {
       "empty": "No documents attached yet.",
-      "view": "View full size"
+      "view": "Open"
     },
     "common": {
       "loading": "Loading…",

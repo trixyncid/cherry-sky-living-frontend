@@ -1357,7 +1357,7 @@
       "title": "Gambar terunggah",
       "subtitle": "Gambar tersimpan untuk data ini. Buka untuk pratinjau atau hapus yang tidak diperlukan.",
       "empty": "Belum ada gambar terunggah.",
-      "view": "Lihat ukuran penuh",
+      "view": "Lihat",
       "remove": "Hapus",
       "deleted": "Gambar dihapus.",
       "deleteFailed": "Gagal menghapus gambar.",
@@ -1383,13 +1383,20 @@
       "savedUploading": "Tersimpan. Mengunggah {count} file…",
       "uploadedCount": "{count} file berhasil diunggah.",
       "uploadFailedCount": "{count} file gagal diunggah. Tekan Coba lagi pada file tersebut.",
-      "chooseKindBadge": "Pilih jenis",
-      "whatIsThis": "File apa ini?",
+      "chooseKindBadge": "Pilih jenis dokumen di bawah",
+      "whatIsThis": "Dokumen apa ini?",
       "changeKind": "Ubah jenis",
       "saving": "Menyimpan…",
       "kindRequired": "Pilih jenis untuk setiap file sebelum menyimpan.",
       "kindUpdated": "Jenis dokumen diperbarui.",
-      "kindUpdateFailed": "Gagal mengubah jenis dokumen."
+      "kindUpdateFailed": "Gagal mengubah jenis dokumen.",
+      "addDocument": "Tambah dokumen",
+      "dropTitleDocument": "Pilih dokumen",
+      "openNewTab": "Buka di tab baru",
+      "viewNamed": "Lihat {name}",
+      "removeNamed": "Hapus {name}",
+      "pdfNoInline": "Browser ini tidak bisa menampilkan PDF di sini.",
+      "fileCount": "{count} file"
     },
     "pages": {
       "overview": {
@@ -2803,7 +2810,7 @@
     },
     "attachments": {
       "empty": "Belum ada dokumen terlampir.",
-      "view": "Lihat ukuran penuh"
+      "view": "Buka"
     },
     "common": {
       "loading": "Memuat…",

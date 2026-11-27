@@ -78,6 +78,9 @@ export function AdminImageGallery({
   const [deletePending, setDeletePending] = useState(false);
 
   const accept = allowPdf ? DOCUMENT_ACCEPT : IMAGE_ACCEPT;
+  // Documents and receipts read better as a list with names and types;
+  // photo galleries (buildings, room types) keep the tile grid.
+  const documentMode = allowPdf || !!kindOptions;
   const displayError = localError ?? error;
   const queued = queue.items;
   const hasPhotos = attachments.length > 0 || queued.length > 0;
@@ -191,7 +194,40 @@ export function AdminImageGallery({
         />
       ) : null}
 
-      {hasPhotos ? (
+      {hasPhotos && documentMode ? (
+        <div className="space-y-2">
+          {queued.map((item) => (
+            <QueuedDocumentRow
+              key={item.id}
+              item={item}
+              kindOptions={kindOptions}
+              onKindChange={(kind) => queue.setKind(item.id, kind)}
+              onRemove={() => queue.remove(item.id)}
+              onRetry={() => queue.retry(item.id)}
+            />
+          ))}
+          {attachments.map((item) => (
+            <DocumentRow
+              key={item.id}
+              item={item}
+              kindOptions={onKindChange ? kindOptions : undefined}
+              onKindChange={
+                onKindChange ? (kind) => onKindChange(item.id, kind) : undefined
+              }
+              onPreview={() => setPreview(item)}
+              onDelete={() => setDeleteTarget(item)}
+            />
+          ))}
+          <button
+            type="button"
+            onClick={openPicker}
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-dashed border-line-strong text-sm font-medium text-brand transition-colors hover:border-brand hover:bg-brand-tint"
+          >
+            <Icon name="add" size={18} />
+            {t("addDocument")}
+          </button>
+        </div>
+      ) : hasPhotos ? (
         <div className="grid grid-cols-2 gap-2.5">
           <AddTile onClick={openPicker} compact allowPdf={allowPdf} />
           {queued.map((item) => (
@@ -218,7 +254,11 @@ export function AdminImageGallery({
           ))}
         </div>
       ) : (
-        <AddTile onClick={openPicker} allowPdf={allowPdf} />
+        <AddTile
+          onClick={openPicker}
+          allowPdf={allowPdf}
+          documentMode={documentMode}
+        />
       )}
 
       {camera ? (
@@ -259,14 +299,40 @@ export function AdminImageGallery({
         <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-2xl [&>button]:bg-white/90 [&>button]:text-fg-2 [&>button]:hover:bg-white">
           {preview ? (
             <>
-              <div className="relative aspect-[4/3] bg-ink">
+              <div
+                className={cn(
+                  "relative bg-ink",
+                  isPdfAttachment(preview) ? "h-[70dvh]" : "aspect-[4/3]",
+                )}
+              >
                 {isPdfAttachment(preview) ? (
-                  <div className="flex size-full flex-col items-center justify-center gap-3 text-white">
-                    <Icon name="description" size={48} />
-                    <p className="max-w-sm truncate px-4 text-sm font-medium">
-                      {attachmentDisplayName(preview.url)}
-                    </p>
-                  </div>
+                  // The PDF itself, readable in place (signed, short-lived link).
+                  // Browsers that can't show PDFs inline (some Android phones)
+                  // render the fallback inside <object> instead.
+                  <object
+                    data={preview.url}
+                    type="application/pdf"
+                    aria-label={attachmentDisplayName(preview.url)}
+                    className="size-full bg-white"
+                  >
+                    <div className="flex size-full flex-col items-center justify-center gap-3 bg-subtle px-6 text-center">
+                      <Icon
+                        name="picture_as_pdf"
+                        size={44}
+                        className="text-brand"
+                      />
+                      <p className="text-sm text-fg-2">{t("pdfNoInline")}</p>
+                      <a
+                        href={preview.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="admin-btn-primary inline-flex h-10 items-center gap-1.5 rounded-md px-4 text-sm font-medium"
+                      >
+                        <Icon name="open_in_new" size={16} />
+                        {t("openNewTab")}
+                      </a>
+                    </div>
+                  </object>
                 ) : isVideoAttachment(preview) ? (
                   // biome-ignore lint/a11y/useMediaCaption: tenant-recorded room footage; no captions exist
                   <video
@@ -291,9 +357,12 @@ export function AdminImageGallery({
                     {attachmentDisplayName(preview.url)}
                   </DialogTitle>
                   <DialogDescription className="mt-0.5 text-xs text-fg-muted">
-                    {preview.createdAt
-                      ? formatDate(preview.createdAt)
-                      : t("view")}
+                    {[
+                      preview.kindLabel,
+                      preview.createdAt ? formatDate(preview.createdAt) : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ") || t("view")}
                   </DialogDescription>
                 </div>
                 <div className="flex shrink-0 gap-2">
@@ -304,7 +373,7 @@ export function AdminImageGallery({
                     className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-line bg-white px-3 text-xs font-semibold text-fg-2 transition-colors hover:bg-hover"
                   >
                     <Icon name="open_in_new" size={16} />
-                    {t("view")}
+                    {t("openNewTab")}
                   </a>
                   <button
                     type="button"
@@ -347,11 +416,13 @@ function AddTile({
   compact = false,
   disabled = false,
   allowPdf = false,
+  documentMode = false,
 }: {
   onClick: () => void;
   compact?: boolean;
   disabled?: boolean;
   allowPdf?: boolean;
+  documentMode?: boolean;
 }) {
   const t = useTranslations("admin.attachments");
 
@@ -371,10 +442,17 @@ function AddTile({
           compact ? "size-10" : "mb-3 size-12",
         )}
       >
-        <Icon name="add_photo_alternate" size={compact ? 20 : 24} />
+        <Icon
+          name={documentMode ? "upload_file" : "add_photo_alternate"}
+          size={compact ? 20 : 24}
+        />
       </span>
       <span className={cn("font-semibold", compact ? "text-xs" : "text-sm")}>
-        {compact ? t("addMore") : t("dropTitle")}
+        {compact
+          ? t("addMore")
+          : documentMode
+            ? t("dropTitleDocument")
+            : t("dropTitle")}
       </span>
       <span
         className={cn(
@@ -654,11 +732,14 @@ function KindMenu({
   value,
   options,
   onChange,
+  inline = false,
 }: {
   label: string;
   value?: string;
   options: AttachmentKindOption[];
   onChange: (kind: string) => Promise<void>;
+  /** In a row (document list) rather than over a photo tile. */
+  inline?: boolean;
 }) {
   const t = useTranslations("admin.attachments");
   const [open, setOpen] = useState(false);
@@ -682,7 +763,12 @@ function KindMenu({
           type="button"
           disabled={saving}
           title={t("changeKind")}
-          className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-0.5 rounded-full bg-ink/75 py-0.5 pl-2 pr-1 text-xs font-semibold text-white backdrop-blur-sm transition-colors hover:bg-ink disabled:opacity-60"
+          className={cn(
+            "inline-flex items-center gap-0.5 text-xs font-semibold transition-colors disabled:opacity-60",
+            inline
+              ? "rounded-md text-brand hover:underline"
+              : "absolute bottom-2 left-2 z-10 rounded-full bg-ink/75 py-0.5 pl-2 pr-1 text-white backdrop-blur-sm hover:bg-ink",
+          )}
         >
           {saving ? t("saving") : label}
           <Icon name="expand_more" size={14} />
@@ -712,5 +798,256 @@ function KindMenu({
         ))}
       </PopoverContent>
     </Popover>
+  );
+}
+
+/** Small square preview: the photo itself, or a PDF/video icon. */
+function DocumentThumb({
+  src,
+  pdf,
+  video,
+  alt,
+}: {
+  src?: string;
+  pdf: boolean;
+  video?: boolean;
+  alt: string;
+}) {
+  if (pdf) {
+    return (
+      <span className="flex size-14 shrink-0 flex-col items-center justify-center rounded-md bg-brand-soft text-brand">
+        <Icon name="picture_as_pdf" size={24} />
+      </span>
+    );
+  }
+  if (video) {
+    return (
+      <span className="flex size-14 shrink-0 items-center justify-center rounded-md bg-ink text-white">
+        <Icon name="play_circle" size={26} />
+      </span>
+    );
+  }
+  return (
+    // biome-ignore lint/performance/noImgElement: signed private file URL
+    <img
+      src={src}
+      alt={alt}
+      className="size-14 shrink-0 rounded-md bg-hover object-cover"
+    />
+  );
+}
+
+/** Type choice as a full-width row of buttons that wraps instead of clipping. */
+function KindChoice({
+  options,
+  value,
+  onChange,
+}: {
+  options: AttachmentKindOption[];
+  value?: string;
+  onChange: (kind: string) => void;
+}) {
+  const t = useTranslations("admin.attachments");
+  const name = useId();
+  return (
+    <fieldset className="mt-2.5 min-w-0">
+      <legend className="mb-1.5 text-xs font-medium text-fg-2">
+        {t("whatIsThis")}
+      </legend>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((option) => {
+          const checked = value === option.value;
+          return (
+            <label
+              key={option.value}
+              className={cn(
+                "inline-flex h-8 cursor-pointer items-center rounded-md border px-2.5 text-xs font-medium transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand/40",
+                checked
+                  ? "border-brand bg-brand text-white"
+                  : "border-line-strong bg-white text-fg-2 hover:border-brand hover:text-brand",
+              )}
+            >
+              <input
+                type="radio"
+                name={name}
+                className="sr-only"
+                checked={checked}
+                onChange={() => onChange(option.value)}
+              />
+              {option.label}
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
+/** A file picked but not uploaded yet: name, preview, type choice, status. */
+function QueuedDocumentRow({
+  item,
+  kindOptions,
+  onKindChange,
+  onRemove,
+  onRetry,
+}: {
+  item: QueuedFile;
+  kindOptions?: AttachmentKindOption[];
+  onKindChange: (kind: string) => void;
+  onRemove: () => void;
+  onRetry: () => void;
+}) {
+  const t = useTranslations("admin.attachments");
+  const uploading = item.status === "uploading";
+  const failed = item.status === "failed";
+  const needsKind = !!kindOptions && !item.kind;
+
+  return (
+    <div
+      className={cn(
+        "rounded-lg border p-3",
+        failed
+          ? "border-danger/40 bg-danger-soft"
+          : needsKind
+            ? "border-brand-line bg-brand-tint"
+            : "border-line bg-white",
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <DocumentThumb
+          src={item.previewUrl}
+          pdf={item.isPdf}
+          alt={item.file.name}
+        />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-fg">
+            {item.file.name}
+          </p>
+          <p
+            className={cn(
+              "text-xs",
+              failed
+                ? "text-danger"
+                : needsKind
+                  ? "text-brand"
+                  : "text-fg-muted",
+            )}
+          >
+            {uploading
+              ? t("uploading")
+              : failed
+                ? item.error || t("failedBadge")
+                : needsKind
+                  ? t("chooseKindBadge")
+                  : t("pendingBadge")}
+          </p>
+        </div>
+        {uploading ? (
+          <span className="size-5 shrink-0 animate-spin rounded-full border-2 border-brand/30 border-t-brand" />
+        ) : failed ? (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="inline-flex h-9 shrink-0 items-center gap-1 rounded-md border border-danger/40 bg-white px-3 text-xs font-medium text-danger hover:bg-danger-soft"
+          >
+            <Icon name="refresh" size={14} />
+            {t("retry")}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onRemove}
+            className="flex size-9 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-hover hover:text-danger"
+            aria-label={t("removeFromQueue")}
+            title={t("removeFromQueue")}
+          >
+            <Icon name="close" size={18} />
+          </button>
+        )}
+      </div>
+      {kindOptions && !uploading ? (
+        <KindChoice
+          options={kindOptions}
+          value={item.kind}
+          onChange={onKindChange}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+/** An uploaded document: open it, see its type and date, change type, remove. */
+function DocumentRow({
+  item,
+  onPreview,
+  onDelete,
+  kindOptions,
+  onKindChange,
+}: {
+  item: AdminAttachmentItem;
+  onPreview: () => void;
+  onDelete: () => void;
+  kindOptions?: AttachmentKindOption[];
+  onKindChange?: (kind: string) => Promise<void>;
+}) {
+  const t = useTranslations("admin.attachments");
+  const name = attachmentDisplayName(item.url);
+  const pdf = isPdfAttachment(item);
+  const video = !pdf && isVideoAttachment(item);
+
+  return (
+    <div className="flex gap-3 rounded-lg border border-line bg-white p-3">
+      <button
+        type="button"
+        onClick={onPreview}
+        className="shrink-0 self-start rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+        aria-label={t("viewNamed", { name })}
+      >
+        <DocumentThumb src={item.url} pdf={pdf} video={video} alt={name} />
+      </button>
+      {/* Text first, actions underneath: the column can be narrow. */}
+      <div className="min-w-0 flex-1">
+        <button
+          type="button"
+          onClick={onPreview}
+          className="line-clamp-2 break-all text-left text-sm font-medium text-fg hover:text-brand"
+        >
+          {name}
+        </button>
+        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-fg-muted">
+          {item.kindLabel && kindOptions && onKindChange ? (
+            <KindMenu
+              label={item.kindLabel}
+              value={item.kind}
+              options={kindOptions}
+              onChange={onKindChange}
+              inline
+            />
+          ) : item.kindLabel ? (
+            <span className="font-medium text-brand">{item.kindLabel}</span>
+          ) : null}
+          {item.createdAt ? <span>{formatDate(item.createdAt)}</span> : null}
+        </div>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          <button
+            type="button"
+            onClick={onPreview}
+            className="inline-flex h-8 items-center gap-1 rounded-md border border-line-strong px-2.5 text-xs font-medium text-fg hover:bg-hover"
+          >
+            <Icon name="visibility" size={15} />
+            {t("view")}
+          </button>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="inline-flex h-8 items-center gap-1 rounded-md px-2.5 text-xs font-medium text-fg-muted hover:bg-danger-soft hover:text-danger"
+            aria-label={t("removeNamed", { name })}
+          >
+            <Icon name="delete" size={15} />
+            {t("remove")}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
